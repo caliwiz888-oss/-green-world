@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - 'backend/**'
+      - 'index.html'
       - '.github/workflows/backend-tests.yml'
 
 jobs:
