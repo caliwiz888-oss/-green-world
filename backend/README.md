@@ -43,7 +43,7 @@ The health endpoint is `GET /health`.
 
 Create a Node web service from this repository. Set its root directory to `backend`, build command to `npm install`, and start command to `npm start`. Provision PostgreSQL and run `schema.sql` once against that database. Add all production environment variables in the hosting provider's secret settings; do not commit `.env` or paste the Telegram bot token into chats.
 
-Set `WEB_ORIGINS` to the exact public origin of the deployed Mini App (scheme and host, without a path). In the frontend, set `window.GREEN_WORLD_API_URL` to the API's HTTPS base URL before the module script runs (for example, add a small configuration script in `index.html` above the Telegram bridge and game module). Do not include a trailing path such as `/api`; the frontend appends API routes itself. When this URL is configured, game actions are locked until Telegram authentication succeeds, rather than silently falling back to local-only economy.
+Set `WEB_ORIGINS` to the exact public origin of the deployed Mini App (scheme and host, without a path). In `index.html`, replace the empty value in `window.GREEN_WORLD_API_URL = '';` (near the Telegram bridge script) with the API's HTTPS base URL. Do not include a trailing path such as `/api`; the frontend appends API routes itself. When this URL is configured, game actions are locked until Telegram authentication succeeds, rather than silently falling back to local-only economy.
 
 ## API routes
 
