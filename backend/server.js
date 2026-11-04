@@ -69,9 +69,24 @@ function auth(req,res,next) {
 }
 const state = p => ({
   coins:p.coins, apples:p.apples, seeds:p.seeds, orchardLevel:p.orchard_level,
+  experience:Number(p.experience)||0, playerLevel:Number(p.player_level)||1,
   hasWarehouse:p.has_warehouse, hasMarket:p.has_market, hasGreenhouse:p.has_greenhouse,
   plots:p.plots, appleCapacity:p.has_warehouse?100:20
 });
+function xpForLevel(level){
+  const thresholds=[0,100,250,450,700,1000];
+  if(level<thresholds.length) return thresholds[level];
+  const extra=level-5;
+  return 1000+extra*400+extra*(extra-1)*25;
+}
+async function awardExperience(c,playerId,player,amount){
+  const previousLevel=Number(player.player_level)||1;
+  const experience=(Number(player.experience)||0)+amount;
+  let level=previousLevel;
+  while(experience>=xpForLevel(level+1)) level++;
+  const bonus=(level-previousLevel)*25;
+  await c.query('UPDATE players SET experience=$2,player_level=$3,coins=coins+$4,updated_at=NOW() WHERE telegram_id=$1',[playerId,experience,level,bonus]);
+}
 async function mutate(req,res,fn) {
   const c=await db.connect();
   try {
@@ -179,6 +194,7 @@ app.post('/api/game/plant',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   if(plots.some(x=>x.index===i)) reject(409,'Plot occupied');
   if(p.seeds<1||p.coins<10) reject(409,'Not enough seeds or Green Coin');
   await c.query('UPDATE players SET coins=coins-10,seeds=seeds-1,plots=plots || $2::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify([{index:i,grown:false}])]);
+  await awardExperience(c,req.playerId,p,5);
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/water',auth,(req,res)=>mutate(req,res,async(c,p)=>{
@@ -186,6 +202,7 @@ app.post('/api/game/water',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const plot=plots.find(x=>x.index===i);if(!plot||plot.grown) reject(409,'Tree is not ready for watering');
   plot.grown=true;
   await c.query('UPDATE players SET plots=$2::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify(plots)]);
+  await awardExperience(c,req.playerId,p,2);
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/harvest',auth,(req,res)=>mutate(req,res,async(c,p)=>{
@@ -195,12 +212,14 @@ app.post('/api/game/harvest',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   if(p.apples+amount>cap) reject(409,'Warehouse is full');
   plot.grown=false;
   await c.query('UPDATE players SET apples=apples+$2,plots=$3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,amount,JSON.stringify(plots)]);
+  await awardExperience(c,req.playerId,p,10);
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/sell',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   if(p.apples<1) reject(409,'No apples to sell');
   const earned=p.apples*(1+p.orchard_level+(p.has_market?1:0));
   await c.query('UPDATE players SET coins=coins+$2,apples=0,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,earned]);
+  await awardExperience(c,req.playerId,p,5);
   return {player:await loadState(c,req.playerId),earned};
 }));
 app.post('/api/game/buy-seeds',auth,(req,res)=>mutate(req,res,async(c,p)=>{
@@ -217,7 +236,7 @@ app.post('/api/game/build',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/upgrade-orchard',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const cost=150;if(p.coins<cost) reject(409,'Not enough Green Coin');
+  const cost=150*p.orchard_level;if(p.coins<cost) reject(409,'Not enough Green Coin');
   await c.query('UPDATE players SET coins=coins-$2,orchard_level=orchard_level+1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,cost]);
   return {player:await loadState(c,req.playerId)};
 }));
