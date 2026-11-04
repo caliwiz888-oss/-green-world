@@ -1,0 +1,31 @@
+name: Backend tests
+
+on:
+  push:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-tests.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-tests.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        working-directory: backend
+        run: npm install
+      - name: Run backend tests
+        working-directory: backend
+        run: npm test
+      - name: Check server syntax
+        working-directory: backend
+        run: node --check server.js
