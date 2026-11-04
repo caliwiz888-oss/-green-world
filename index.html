@@ -404,7 +404,7 @@ function makeTree(x,z){
   tree.add(readyRing);
   tree.position.set(x,0,z);
   tree.userData.grown=false;
-  tree.userData.fruits=tree.children.filter(child=>child.geometry?.type==='SphereGeometry' && child.position.y>1.5);
+  tree.userData.fruits=tree.children.filter(child=>child.geometry?.type==='SphereGeometry' && Math.abs(child.position.y-2)>0.05);
   tree.userData.readyRing=readyRing;
   scene.add(tree);
   return tree;
