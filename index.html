@@ -43,7 +43,7 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
 <body>
 
 <div id="hud">
-  <div class="panel">🌳 GREEN WORLD<br><span>Твоя зелёная долина · Ур. <span id="hud-orchard-level">1</span></span></div>
+  <div class="panel">🌳 GREEN WORLD<br><span>Уровень игрока · Ур. <span id="hud-player-level">1</span></span></div>
   <div id="stats" class="panel">
     <div class="stat"><strong><span id="coins">100</span></strong><small>GREEN COIN</small></div>
     <div class="stat"><strong><span id="apples">0</span></strong><small>ЯБЛОКИ</small></div>
@@ -448,7 +448,7 @@ function update(){
   document.getElementById('market-status').textContent=hasMarket?'Построена · +1 GC за яблоко':'Не построена';
   document.getElementById('greenhouse-status').textContent=hasGreenhouse?'Построена · +3 яблока за сбор':'Не построена';
   document.getElementById('orchard-level').textContent=orchardLevel;
-  document.getElementById('hud-orchard-level').textContent=orchardLevel;
+  document.getElementById('hud-player-level').textContent=playerLevel;
   document.getElementById('player-level').textContent=playerLevel;
   const xpTarget=xpForLevel(playerLevel+1);
   const xpStart=xpForLevel(playerLevel);
