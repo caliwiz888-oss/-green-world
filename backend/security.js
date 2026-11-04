@@ -25,7 +25,7 @@ export function verifyTelegramInitData(raw, botToken, nowSeconds = Math.floor(Da
   const dataCheckString = [...params.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, value]) => key + '=' + value)
-    .join('\\n');
+    .join('\n');
   const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
   const expectedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
 
@@ -43,7 +43,7 @@ export function verifyTelegramInitData(raw, botToken, nowSeconds = Math.floor(Da
 
   let user;
   try { user = JSON.parse(users[0]); } catch { throw new Error('Invalid Telegram user'); }
-  if (!user || typeof user !== 'object' || Array.isArray(user) || !/^\\d{1,20}$/.test(String(user.id))) {
+  if (!user || typeof user !== 'object' || Array.isArray(user) || !/^\d{1,20}$/.test(String(user.id))) {
     throw new Error('Bad user id');
   }
 
