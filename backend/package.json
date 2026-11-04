@@ -4,10 +4,13 @@
   "private": true,
   "description": "Telegram-authenticated API and server-side economy for GREEN WORLD",
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "node --test"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",
@@ -19,4 +22,4 @@
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.1"
   }
-}
+}\n
