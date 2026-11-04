@@ -265,7 +265,7 @@ app.post('/api/game/buy-seeds',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/build',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const options={warehouse:['has_warehouse',80],market:['has_market',120],greenhouse:['has_greenhouse',180]};
+  const options={warehouse:['has_warehouse',100],market:['has_market',120],greenhouse:['has_greenhouse',180]};
   const option=options[req.body?.kind];if(!option) reject(400,'Unknown building');
   if(p[option[0]]) reject(409,'Building already exists');
   if(p.coins<option[1]) reject(409,'Not enough Green Coin');
@@ -276,7 +276,8 @@ app.post('/api/game/build',auth,(req,res)=>mutate(req,res,async(c,p)=>{
 app.post('/api/game/upgrade-warehouse',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   if(!p.has_warehouse) reject(409,'Build the warehouse first');
   const level=Number(p.warehouse_level)||1;
-  const cost=150*level;
+  const upgradeCosts=[0,300,700,1200,2000,3500,5500,8000,11000,15000];
+  const cost=upgradeCosts[level]??(15000+(level-9)*4000);
   if(p.coins<cost) reject(409,'Not enough Green Coin');
   await c.query('UPDATE players SET coins=coins-$2,warehouse_level=warehouse_level+1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,cost]);
   return {player:await loadState(c,req.playerId)};
