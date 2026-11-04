@@ -576,36 +576,75 @@ for(let i=0;i<11;i++){
 function makeTree(x,z,type='apple'){
   const fruitSpec=fruitCatalog[type]||fruitCatalog.apple;
   const tree=new THREE.Group();
-
+  const profiles={
+    apple:{height:1.6,crown:[1.05,1,1.02],fruitScale:[1,1,1]},
+    peach:{height:1.55,crown:[1.12,0.9,1.08],fruitScale:[1.12,0.88,1]},
+    cherry:{height:2.05,crown:[0.88,1.12,0.9],fruitScale:[0.78,0.82,0.78]},
+    pear:{height:1.7,crown:[0.92,1.12,0.94],fruitScale:[0.78,1.28,0.78]},
+    orange:{height:1.5,crown:[1.08,0.96,1.08],fruitScale:[1,1,1]},
+    mango:{height:1.85,crown:[0.88,1.18,0.92],fruitScale:[0.72,1.3,0.82]}
+  };
+  const profile=profiles[type]||profiles.apple;
   const trunk=new THREE.Mesh(
-    new THREE.CylinderGeometry(0.18,0.25,1.6,8),
+    new THREE.CylinderGeometry(0.18,0.25,profile.height,8),
     material(0x754323)
   );
-  trunk.position.y=0.8;
+  trunk.position.y=profile.height/2;
   trunk.castShadow=true;
   tree.add(trunk);
 
+  // Несколько перекрывающихся ярусов создают более естественный силуэт кроны.
   const crown=new THREE.Mesh(
-    new THREE.SphereGeometry(1.05,12,10),
+    new THREE.SphereGeometry(1,14,12),
     material(fruitSpec.leaf)
   );
-  crown.position.y=2;
+  crown.position.y=profile.height+0.38;
+  crown.scale.set(...profile.crown);
   crown.castShadow=true;
   tree.add(crown);
 
-  for(let i=0;i<5;i++){
-    const apple=new THREE.Mesh(
-      new THREE.SphereGeometry(0.13,8,8),
-      material(fruitSpec.color)
+  const crownOffsets=[
+    [-0.48,0.05,0.12],[0.42,0.02,0.18],
+    [-0.12,0.12,-0.48],[0.18,0.08,0.48],
+    [0.05,0.48,-0.08]
+  ];
+  crownOffsets.forEach((p,i)=>{
+    const puff=new THREE.Mesh(
+      new THREE.SphereGeometry(i===4?0.62:0.68,10,9),
+      material(fruitSpec.leaf)
     );
-    apple.position.set(
-      Math.cos(i*1.25)*0.75,
-      1.8+(i%2)*0.4,
-      Math.sin(i*1.25)*0.75
-    );
-    apple.visible=false;
-    tree.add(apple);
-  }
+    puff.position.set(p[0]*profile.crown[0],crown.position.y+p[1],p[2]*profile.crown[2]);
+    puff.scale.set(1,0.9,1);
+    puff.castShadow=true;
+    tree.add(puff);
+  });
+
+  const fruitPositions=type==='cherry'
+    ? [[-0.55,0.05,0.25],[-0.38,-0.12,0.32],[0.48,0.12,-0.18],[0.62,-0.04,-0.08],[-0.08,0.28,-0.58],[0.08,0.12,-0.68]]
+    : [[-0.62,0.02,0.18],[0.48,0.12,0.32],[-0.12,0.42,-0.58],[0.55,0.48,-0.38],[-0.38,0.55,-0.42]];
+  fruitPositions.forEach((p,i)=>{
+    const geometry=new THREE.SphereGeometry(type==='cherry'?0.105:0.13,10,9);
+    const fruit=new THREE.Mesh(geometry,material(fruitSpec.color));
+    fruit.position.set(p[0],crown.position.y+p[1],p[2]);
+    fruit.scale.set(...profile.fruitScale);
+    if(type==='peach') fruit.rotation.z=-0.12;
+    if(type==='mango') fruit.rotation.z=(i%2?0.22:-0.18);
+    fruit.userData.isFruit=true;
+    fruit.visible=false;
+    fruit.castShadow=true;
+    tree.add(fruit);
+
+    // У черешни плоды собраны попарно на коротких веточках.
+    if(type==='cherry' && i%2===0){
+      const stem=new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012,0.018,0.2,5),
+        material(0x477333)
+      );
+      stem.position.set(p[0],crown.position.y+p[1]+0.13,p[2]);
+      stem.rotation.z=-0.28;
+      tree.add(stem);
+    }
+  });
 
   const readyRing=new THREE.Mesh(
     new THREE.TorusGeometry(1.12,0.09,8,32),
@@ -618,8 +657,9 @@ function makeTree(x,z,type='apple'){
   tree.position.set(x,0,z);
   tree.userData.type=type;
   tree.userData.grown=false;
-  tree.userData.fruits=tree.children.filter(child=>child.geometry?.type==='SphereGeometry' && Math.abs(child.position.y-2)>0.05);
+  tree.userData.fruits=tree.children.filter(child=>child.userData?.isFruit);
   tree.userData.readyRing=readyRing;
+  tree.userData.crown=crown;
   scene.add(tree);
   return tree;
 }
