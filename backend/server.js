@@ -149,6 +149,30 @@ app.get('/api/me',auth,async(req,res)=>{
   res.json({player:state(q.rows[0])});
 });
 
+app.get('/api/game/daily-reward',auth,async(req,res)=>{
+  try {
+    const q=await db.query(`SELECT
+      (last_daily_claim = CURRENT_DATE) AS claimed_today,
+      CASE WHEN last_daily_claim = CURRENT_DATE - 1 THEN daily_streak + 1 ELSE 1 END AS next_streak
+      FROM players WHERE telegram_id=$1`,[req.playerId]);
+    if(!q.rowCount) return res.status(404).json({error:'Player not found'});
+    const rewards=[10,15,20,25,30,40,100];
+    const day=((Number(q.rows[0].next_streak)-1)%7)+1;
+    res.json({claimedToday:Boolean(q.rows[0].claimed_today),day,reward:rewards[day-1]});
+  } catch { res.status(500).json({error:'Could not load daily reward'}); }
+});
+app.post('/api/game/daily-reward/claim',auth,(req,res)=>mutate(req,res,async(c,p)=>{
+  const q=await c.query(`SELECT
+    (last_daily_claim = CURRENT_DATE) AS claimed_today,
+    CASE WHEN last_daily_claim = CURRENT_DATE - 1 THEN daily_streak + 1 ELSE 1 END AS next_streak
+    FROM players WHERE telegram_id=$1`,[req.playerId]);
+  if(q.rows[0].claimed_today) reject(409,'Daily reward already claimed today');
+  const rewards=[10,15,20,25,30,40,100];
+  const day=((Number(q.rows[0].next_streak)-1)%7)+1;
+  const reward=rewards[day-1];
+  await c.query('UPDATE players SET coins=coins+$2,last_daily_claim=CURRENT_DATE,daily_streak=$3,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,reward,day]);
+  return {player:await loadState(c,req.playerId),claimedToday:true,day,reward};
+}));
 app.post('/api/game/plant',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const i=Number(req.body?.plotIndex);const plots=Array.isArray(p.plots)?p.plots:[];
   if(!Number.isInteger(i)||i<0||i>=400) reject(400,'Invalid plot');
