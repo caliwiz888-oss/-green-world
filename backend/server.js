@@ -86,8 +86,10 @@ function publicPlots(rawPlots) {
 const state = p => ({
   coins:p.coins, apples:p.apples, seeds:p.seeds, orchardLevel:p.orchard_level,
   experience:Number(p.experience)||0, playerLevel:Number(p.player_level)||1,
-  hasWarehouse:p.has_warehouse, hasMarket:p.has_market, hasGreenhouse:p.has_greenhouse,
-  plots:publicPlots(p.plots), appleCapacity:null
+  hasWarehouse:p.has_warehouse, warehouseLevel:Number(p.warehouse_level)||0,
+  appleCapacity:p.has_warehouse?100*(Number(p.warehouse_level)||1):20,
+  hasMarket:p.has_market, hasGreenhouse:p.has_greenhouse,
+  plots:publicPlots(p.plots)
 });
 function xpForLevel(level){
   const thresholds=[0,0,100,250,450,700,1000];
@@ -239,7 +241,9 @@ app.post('/api/game/harvest',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const now=Date.now();
   const ready=(plot.grown&&!plot.readyAt)||(plot.readyAt&&new Date(plot.readyAt).getTime()<=now);
   if(!ready) reject(409,'Harvest is not ready yet');
-  const amount=p.has_greenhouse?8:5;
+  const capacity=p.has_warehouse?100*(Number(p.warehouse_level)||1):20;
+  const amount=Math.min(p.has_greenhouse?8:5,Math.max(0,capacity-Number(p.apples||0)));
+  if(amount<1) reject(409,'Warehouse is full. Sell apples or upgrade the warehouse.');
   plot.plantedAt=new Date(now).toISOString();
   plot.readyAt=new Date(now+GROWTH_MS).toISOString();
   plot.watered=false;
@@ -265,7 +269,16 @@ app.post('/api/game/build',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const option=options[req.body?.kind];if(!option) reject(400,'Unknown building');
   if(p[option[0]]) reject(409,'Building already exists');
   if(p.coins<option[1]) reject(409,'Not enough Green Coin');
-  await c.query(`UPDATE players SET coins=coins-$2,${option[0]}=TRUE,updated_at=NOW() WHERE telegram_id=$1`,[req.playerId,option[1]]);
+  if(req.body?.kind==='warehouse') await c.query('UPDATE players SET coins=coins-$2,has_warehouse=TRUE,warehouse_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
+  else await c.query(`UPDATE players SET coins=coins-$2,${option[0]}=TRUE,updated_at=NOW() WHERE telegram_id=$1`,[req.playerId,option[1]]);
+  return {player:await loadState(c,req.playerId)};
+}));
+app.post('/api/game/upgrade-warehouse',auth,(req,res)=>mutate(req,res,async(c,p)=>{
+  if(!p.has_warehouse) reject(409,'Build the warehouse first');
+  const level=Number(p.warehouse_level)||1;
+  const cost=150*level;
+  if(p.coins<cost) reject(409,'Not enough Green Coin');
+  await c.query('UPDATE players SET coins=coins-$2,warehouse_level=warehouse_level+1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,cost]);
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/upgrade-orchard',auth,(req,res)=>mutate(req,res,async(c,p)=>{
