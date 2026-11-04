@@ -73,8 +73,8 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
       <button id="build-warehouse">🏚️ Построить амбар · 80 GC</button>
       <button id="upgrade-warehouse">📦 Улучшить амбар · 300 GC</button>
       <button id="upgrade-orchard">🌳 Улучшить сад · 150 GC</button>
-      <button id="build-market">🏪 Торговая лавка · 120 GC</button>
-      <button id="build-greenhouse">🌿 Теплица · 180 GC</button>
+      <button id="build-market">🏪 Торговая лавка · 1 500 GC</button>
+      <button id="build-greenhouse">🌿 Теплица · 2 500 GC</button>
       <button id="sell-in-menu">🛒 Продать урожай</button>
     </div>
     <button id="menu-close">Закрыть</button>
@@ -932,15 +932,15 @@ document.getElementById('build-market').addEventListener('click',async()=>{
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   if(serverMode){await serverAction('/api/game/build',{kind:'market'},'Торговая лавка построена.');return;}
   if(hasMarket){hint('Торговая лавка уже построена: +1 Green Coin за яблоко.');return}
-  if(coins<120){hint('Для торговой лавки нужно 120 Green Coin.');return}
-  coins-=120;hasMarket=true;createMarket();update();hint('Торговая лавка построена! Продажа каждого яблока приносит на 1 Green Coin больше.');
+  if(coins<1500){hint('Для торговой лавки нужно 1 500 Green Coin.');return}
+  coins-=1500;hasMarket=true;createMarket();update();hint('Торговая лавка построена! Продажа каждого яблока приносит на 1 Green Coin больше.');
 });
 document.getElementById('build-greenhouse').addEventListener('click',async()=>{
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   if(serverMode){await serverAction('/api/game/build',{kind:'greenhouse'},'Теплица построена.');return;}
   if(hasGreenhouse){hint('Теплица уже построена: урожай увеличен до 8 яблок.');return}
-  if(coins<180){hint('Для теплицы нужно 180 Green Coin.');return}
-  coins-=180;hasGreenhouse=true;createGreenhouse();update();hint('Теплица построена! Теперь за сбор получаешь 8 яблок.');
+  if(coins<2500){hint('Для теплицы нужно 2 500 Green Coin.');return}
+  coins-=2500;hasGreenhouse=true;createGreenhouse();update();hint('Теплица построена! Теперь за сбор получаешь 8 яблок.');
 });
 </script>
 </body>
