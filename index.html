@@ -411,6 +411,7 @@ let selectedPlot=null;
 let apiBase=String(window.GREEN_WORLD_API_URL||'').replace(/\\/$/,'');
 let accessToken=null;
 let serverMode=false;
+let serverRequired=Boolean(apiBase);
 let apiBusy=false;
 const appleCapacity=()=>hasWarehouse?100:20;
 const applePrice=()=>1+orchardLevel+(hasMarket?1:0);
@@ -580,6 +581,7 @@ update();
 
 // ===== ПОСАДКА =====
 window.plant=async function(){
+  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   const plot=(selectedPlot && !selectedPlot.tree) ? selectedPlot : plots.find(p=>!p.tree);
 
   if(!plot){
@@ -606,6 +608,7 @@ window.plant=async function(){
 
 // ===== ПОЛИВ =====
 window.water=async function(){
+  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   const tree=(selectedPlot?.tree && !selectedPlot.tree.userData.grown)
     ? selectedPlot.tree : trees.find(t=>!t.userData.grown);
 
@@ -622,6 +625,7 @@ window.water=async function(){
 
 // ===== СБОР =====
 window.harvest=async function(){
+  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   const tree=(selectedPlot?.tree?.userData.grown)
     ? selectedPlot.tree : trees.find(t=>t.userData.grown);
 
@@ -644,6 +648,7 @@ window.harvest=async function(){
 
 // ===== ПРОДАЖА =====
 window.sell=async function(){
+  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   if(apples===0){
     hint('У тебя пока нет яблок!');
     return;
@@ -770,17 +775,20 @@ document.getElementById('menu-button').addEventListener('click',()=>{
 document.getElementById('menu-close').addEventListener('click',()=>gameMenu.classList.remove('open'));
 gameMenu.addEventListener('click',e=>{if(e.target===gameMenu)gameMenu.classList.remove('open')});
 document.getElementById('buy-seeds').addEventListener('click',async()=>{
+  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   if(serverMode){await serverAction('/api/game/buy-seeds',{},'Куплено 5 семян.');return;}
   if(coins<30){hint('Нужно 30 Green Coin для покупки семян.');return}
   coins-=30;seeds+=5;update();hint('Куплено 5 семян. Теперь семян: '+seeds);
 });
 document.getElementById('build-warehouse').addEventListener('click',async()=>{
+  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   if(serverMode){await serverAction('/api/game/build',{kind:'warehouse'},'Амбар построен.');return;}
   if(hasWarehouse){hint('Амбар уже построен. Вместимость склада — 100 яблок.');return}
   if(coins<80){hint('Для амбара нужно 80 Green Coin.');return}
   coins-=80;hasWarehouse=true;createWarehouse();update();hint('Амбар построен! Вместимость склада увеличена до 100 яблок.');
 });
 document.getElementById('upgrade-orchard').addEventListener('click',async()=>{
+  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   if(serverMode){await serverAction('/api/game/upgrade-orchard',{},'Сад улучшен.');return;}
   const cost=orchardLevel*150;
   if(coins<cost){hint('Для улучшения сада нужно '+cost+' Green Coin.');return}
@@ -788,12 +796,14 @@ document.getElementById('upgrade-orchard').addEventListener('click',async()=>{
 });
 document.getElementById('sell-in-menu').addEventListener('click',async()=>{await window.sell();update()});
 document.getElementById('build-market').addEventListener('click',async()=>{
+  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   if(serverMode){await serverAction('/api/game/build',{kind:'market'},'Торговая лавка построена.');return;}
   if(hasMarket){hint('Торговая лавка уже построена: +1 Green Coin за яблоко.');return}
   if(coins<120){hint('Для торговой лавки нужно 120 Green Coin.');return}
   coins-=120;hasMarket=true;createMarket();update();hint('Торговая лавка построена! Продажа каждого яблока приносит на 1 Green Coin больше.');
 });
 document.getElementById('build-greenhouse').addEventListener('click',async()=>{
+  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   if(serverMode){await serverAction('/api/game/build',{kind:'greenhouse'},'Теплица построена.');return;}
   if(hasGreenhouse){hint('Теплица уже построена: урожай увеличен до 8 яблок.');return}
   if(coins<180){hint('Для теплицы нужно 180 Green Coin.');return}
