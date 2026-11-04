@@ -8,87 +8,44 @@
 
 <style>
 *{box-sizing:border-box}
-body{
-  margin:0;
-  overflow:hidden;
-  font-family:Arial,sans-serif;
-  background:#9bd5ed;
-}
+:root{color-scheme:dark}
+body{margin:0;overflow:hidden;font-family:Arial,sans-serif;background:#9bd5ed;touch-action:none}
 canvas{display:block}
-#hud{
-  position:absolute;
-  top:12px;
-  left:10px;
-  right:10px;
-  display:flex;
-  justify-content:space-between;
-  gap:8px;
-  color:white;
-  z-index:2;
-  pointer-events:none;
-}
-.panel{
-  background:#245c38ed;
-  padding:11px 13px;
-  border-radius:14px;
-  font-weight:bold;
-  font-size:14px;
-  box-shadow:0 3px 10px #0004;
-}
-#hint{
-  position:absolute;
-  bottom:91px;
-  left:10px;
-  right:10px;
-  width:max-content;
-  max-width:calc(100% - 20px);
-  color:white;
-  background:#245c38e8;
-  padding:10px 13px;
-  border-radius:10px;
-  z-index:2;
-  font-size:13px;
-}
-#actions{
-  position:absolute;
-  bottom:15px;
-  left:7px;
-  right:7px;
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:7px;
-  z-index:3;
-}
-button{
-  border:0;
-  border-radius:12px;
-  padding:12px 13px;
-  background:#287b42;
-  color:white;
-  font-weight:bold;
-  font-size:13px;
-  box-shadow:0 3px 8px #0004;
-}
-button:active{transform:scale(.96)}
+#hud{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;color:#fff;z-index:2;pointer-events:none}
+.panel{background:linear-gradient(145deg,#174b35ed,#246b43e8);border:1px solid #ffffff30;padding:10px 13px;border-radius:15px;font-weight:700;font-size:13px;box-shadow:0 5px 18px #102b1b55;backdrop-filter:blur(8px);text-shadow:0 1px 2px #0005}
+.panel span{font-weight:600;color:#d7f5d9}
+#stats{display:flex;gap:7px;text-align:center}
+.stat{min-width:75px}
+.stat strong{display:block;font-size:17px;color:#fff}
+.stat small{font-size:10px;color:#c8e8d0;letter-spacing:.5px}
+#hint{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 24px);color:white;background:#174b35ed;border:1px solid #ffffff35;padding:10px 15px;border-radius:13px;z-index:2;font-size:12px;text-align:center;box-shadow:0 4px 15px #0003}
+#actions{position:absolute;bottom:12px;left:9px;right:9px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;z-index:3;padding:8px;background:#123c2bd9;border:1px solid #ffffff30;border-radius:18px;backdrop-filter:blur(10px)}
+button{min-width:0;border:1px solid #ffffff30;border-radius:12px;padding:12px 5px;background:linear-gradient(180deg,#39985a,#237342);color:white;font-weight:700;font-size:12px;box-shadow:0 3px 8px #0003;touch-action:manipulation}
+button:active{transform:scale(.96);filter:brightness(1.15)}
+#camera-tools{position:absolute;right:12px;top:88px;display:flex;flex-direction:column;gap:7px;z-index:3}
+#camera-tools button{width:42px;height:42px;padding:0;font-size:18px;background:#174b35e8}
+#selection{position:absolute;left:50%;top:76px;transform:translateX(-50%);z-index:2;color:#16472e;background:#f2fff0e8;padding:6px 11px;border-radius:20px;font-size:11px;font-weight:700;pointer-events:none}
+@media(min-width:700px){#actions{left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100% - 30px));bottom:18px}#hint{bottom:100px}.panel{font-size:14px}}
+@media(max-width:380px){.panel{padding:8px;font-size:11px}.stat{min-width:59px}#actions{gap:5px;padding:6px}button{font-size:11px;padding:11px 2px}}
 </style>
 </head>
 
 <body>
 
 <div id="hud">
-  <div class="panel">
-    🌳 GREEN WORLD<br>
-    <span>GREEN WORLD · Уровень 1</span>
-  </div>
-  <div class="panel">
-    🪙 <span id="coins">100</span> Green Coin<br>
-    🍎 <span id="apples">0</span>
+  <div class="panel">🌳 GREEN WORLD<br><span>Твоя зелёная долина · Ур. 1</span></div>
+  <div id="stats" class="panel">
+    <div class="stat"><strong><span id="coins">100</span></strong><small>GREEN COIN</small></div>
+    <div class="stat"><strong><span id="apples">0</span></strong><small>ЯБЛОКИ</small></div>
   </div>
 </div>
-
-<div id="hint">Добро пожаловать в GREEN WORLD!</div>
-
+<div id="selection">Участок не выбран · коснись земли</div>
+<div id="camera-tools">
+  <button id="zoom-in" aria-label="Приблизить">＋</button>
+  <button id="zoom-out" aria-label="Отдалить">－</button>
+  <button id="camera-reset" aria-label="Вернуть обзор">⌂</button>
+</div>
+<div id="hint">Выбери участок на поле, чтобы посадить яблоню</div>
 <div id="actions">
   <button onclick="plant()">🌱 Посадить</button>
   <button onclick="water()">💧 Полить</button>
@@ -176,7 +133,8 @@ for(let x=0;x<20;x++){
     plots.push({
       x:x-9.5,
       z:z-9.5,
-      tree:null
+      tree:null,
+      tile
     });
   }
 }
@@ -412,6 +370,7 @@ function makeTree(x,z){
 let coins=Number(localStorage.getItem('coins')??100);
 let apples=Number(localStorage.getItem('apples')??0);
 let trees=[];
+let selectedPlot=null;
 
 function update(){
   document.getElementById('coins').textContent=coins;
@@ -427,6 +386,7 @@ function hint(message){
 function addTree(plot){
   plot.tree=makeTree(plot.x,plot.z);
   trees.push(plot.tree);
+  if(plot.tile) plot.tile.material.emissive?.setHex(0x000000);
 }
 
 // Пять стартовых яблонь
@@ -438,7 +398,7 @@ update();
 
 // ===== ПОСАДКА =====
 window.plant=function(){
-  const plot=plots.find(p=>!p.tree);
+  const plot=(selectedPlot && !selectedPlot.tree) ? selectedPlot : plots.find(p=>!p.tree);
 
   if(!plot){
     hint('Свободной земли нет!');
@@ -458,7 +418,8 @@ window.plant=function(){
 
 // ===== ПОЛИВ =====
 window.water=function(){
-  const tree=trees.find(t=>!t.userData.grown);
+  const tree=(selectedPlot?.tree && !selectedPlot.tree.userData.grown)
+    ? selectedPlot.tree : trees.find(t=>!t.userData.grown);
 
   if(!tree){
     hint('Все яблони уже выросли!');
@@ -472,7 +433,8 @@ window.water=function(){
 
 // ===== СБОР =====
 window.harvest=function(){
-  const tree=trees.find(t=>t.userData.grown);
+  const tree=(selectedPlot?.tree?.userData.grown)
+    ? selectedPlot.tree : trees.find(t=>t.userData.grown);
 
   if(!tree){
     hint('Сначала полей яблоню!');
@@ -525,6 +487,84 @@ window.addEventListener('resize',()=>{
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth,innerHeight);
 });
+
+// ===== УПРАВЛЕНИЕ КАМЕРОЙ И ВЫБОР УЧАСТКА =====
+let cameraRadius=55;
+let cameraAngle=Math.PI/4;
+let cameraHeight=32;
+let pointerStart=null;
+let pointerMoved=false;
+const raycaster=new THREE.Raycaster();
+const pointer=new THREE.Vector2();
+
+function positionCamera(){
+  camera.position.set(
+    Math.sin(cameraAngle)*cameraRadius,
+    cameraHeight,
+    Math.cos(cameraAngle)*cameraRadius
+  );
+  camera.lookAt(0,0,0);
+}
+function setSelection(plot){
+  if(selectedPlot?.tile) selectedPlot.tile.material.emissive?.setHex(0x000000);
+  selectedPlot=plot;
+  if(plot?.tile) plot.tile.material.emissive?.setHex(0x315d12);
+  const label=document.getElementById('selection');
+  label.textContent=plot
+    ? (plot.tree ? 'Участок выбран · яблоня растёт здесь' : 'Участок выбран · свободная земля')
+    : 'Участок не выбран · коснись земли';
+}
+function zoom(factor){
+  cameraRadius=Math.max(24,Math.min(78,cameraRadius*factor));
+  cameraHeight=Math.max(15,Math.min(48,cameraHeight*factor));
+  positionCamera();
+}
+document.getElementById('zoom-in').addEventListener('click',()=>zoom(.88));
+document.getElementById('zoom-out').addEventListener('click',()=>zoom(1.14));
+document.getElementById('camera-reset').addEventListener('click',()=>{
+  cameraRadius=55;cameraHeight=32;cameraAngle=Math.PI/4;positionCamera();
+});
+renderer.domElement.addEventListener('pointerdown',e=>{
+  pointerStart={x:e.clientX,y:e.clientY,id:e.pointerId};
+  pointerMoved=false;
+  renderer.domElement.setPointerCapture(e.pointerId);
+});
+renderer.domElement.addEventListener('pointermove',e=>{
+  if(!pointerStart || pointerStart.id!==e.pointerId) return;
+  const dx=e.clientX-pointerStart.x;
+  const dy=e.clientY-pointerStart.y;
+  if(Math.abs(dx)+Math.abs(dy)>5) pointerMoved=true;
+  if(pointerMoved){
+    cameraAngle-=dx*.006;
+    cameraHeight=Math.max(15,Math.min(48,cameraHeight+dy*.08));
+    pointerStart.x=e.clientX;pointerStart.y=e.clientY;
+    positionCamera();
+  }
+});
+renderer.domElement.addEventListener('pointerup',e=>{
+  if(!pointerStart || pointerStart.id!==e.pointerId) return;
+  if(!pointerMoved){
+    const rect=renderer.domElement.getBoundingClientRect();
+    pointer.x=((e.clientX-rect.left)/rect.width)*2-1;
+    pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;
+    raycaster.setFromCamera(pointer,camera);
+    const hits=raycaster.intersectObjects(plots.map(p=>p.tile),false);
+    if(hits.length){
+      const tile=hits[0].object;
+      const plot=plots.find(p=>p.tile===tile);
+      if(plot){
+        setSelection(plot);
+        hint(plot.tree ? 'Участок с яблоней выбран. Можно полить или собрать урожай.' : 'Свободный участок выбран. Можно посадить яблоню.');
+      }
+    }
+  }
+  pointerStart=null;
+});
+renderer.domElement.addEventListener('pointercancel',()=>{pointerStart=null;});
+renderer.domElement.addEventListener('wheel',e=>{
+  e.preventDefault();zoom(e.deltaY>0?1.08:.92);
+},{passive:false});
+positionCamera();
 </script>
 </body>
 </html>
