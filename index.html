@@ -426,7 +426,9 @@ let seeds=Number(savedFarm?.seeds ?? 5);
 let hasWarehouse=Boolean(savedFarm?.hasWarehouse ?? false);
 let warehouseLevel=Boolean(savedFarm?.hasWarehouse)?Math.max(1,Number(savedFarm?.warehouseLevel ?? 1)):0;
 let hasMarket=Boolean(savedFarm?.hasMarket ?? false);
+let marketLevel=hasMarket?Math.max(1,Number(savedFarm?.marketLevel ?? 1)):0;
 let hasGreenhouse=Boolean(savedFarm?.hasGreenhouse ?? false);
+let greenhouseLevel=hasGreenhouse?Math.max(1,Number(savedFarm?.greenhouseLevel ?? 1)):0;
 let orchardLevel=Math.max(1,Number(savedFarm?.orchardLevel ?? 1));
 let experience=Math.max(0,Number(savedFarm?.experience ?? 0));
 let playerLevel=Math.max(1,Number(savedFarm?.playerLevel ?? 1));
@@ -440,7 +442,10 @@ let apiBusy=false;
 let dailyReward={claimedToday:false,day:1,reward:10};
 const appleCapacity=()=>hasWarehouse?100*Math.max(1,warehouseLevel):20;
 const applePrice=()=>1+orchardLevel+(hasMarket?1:0);
-const harvestAmount=()=>hasGreenhouse?8:5;
+const harvestAmount=()=>hasGreenhouse?5+greenhouseLevel*3:5;
+const marketBonus=()=>hasMarket?marketLevel:0;
+const marketUpgradeCost=level=>[0,2000,3500,5500,8000][level]??null;
+const greenhouseUpgradeCost=level=>[0,3000,5000,7500,11000][level]??null;
 
 function update(){
   document.getElementById('coins').textContent=coins;
@@ -450,8 +455,14 @@ function update(){
   document.getElementById('warehouse-status').textContent=hasWarehouse?'Построен · уровень '+warehouseLevel:'Не построен';
   document.getElementById('warehouse-capacity').textContent=apples+' / '+appleCapacity()+' яблок';
   document.getElementById('upgrade-warehouse').textContent='📦 Улучшить амбар · '+warehouseUpgradeCost(warehouseLevel)+' GC';
-  document.getElementById('market-status').textContent=hasMarket?'Построена · +1 GC за яблоко':'Не построена';
-  document.getElementById('greenhouse-status').textContent=hasGreenhouse?'Построена · +3 яблока за сбор':'Не построена';
+  document.getElementById('market-status').textContent=hasMarket?'Уровень '+marketLevel+' · +'+marketBonus()+' GC за яблоко':'Не построена';
+  document.getElementById('greenhouse-status').textContent=hasGreenhouse?'Уровень '+greenhouseLevel+' · '+harvestAmount()+' яблок за сбор':'Не построена';
+  const marketButton=document.getElementById('build-market');
+  marketButton.textContent=!hasMarket?'🏪 Построить лавку · 1 500 GC':marketLevel>=5?'🏪 Лавка · максимальный уровень': '⬆️ Улучшить лавку · '+marketUpgradeCost(marketLevel)+' GC';
+  marketButton.disabled=hasMarket&&marketLevel>=5;
+  const greenhouseButton=document.getElementById('build-greenhouse');
+  greenhouseButton.textContent=!hasGreenhouse?'🌿 Построить теплицу · 2 500 GC':greenhouseLevel>=5?'🌿 Теплица · максимальный уровень':'⬆️ Улучшить теплицу · '+greenhouseUpgradeCost(greenhouseLevel)+' GC';
+  greenhouseButton.disabled=hasGreenhouse&&greenhouseLevel>=5;
   document.getElementById('orchard-level').textContent=orchardLevel;
   document.getElementById('hud-player-level').textContent=playerLevel;
   document.getElementById('player-level').textContent=playerLevel;
@@ -464,7 +475,7 @@ function update(){
   localStorage.setItem('coins',coins);
   localStorage.setItem('apples',apples);
   localStorage.setItem('greenWorldFarm',JSON.stringify({
-    coins,apples,seeds,hasWarehouse,warehouseLevel,hasMarket,hasGreenhouse,orchardLevel,experience,playerLevel,
+    coins,apples,seeds,hasWarehouse,warehouseLevel,hasMarket,marketLevel,hasGreenhouse,greenhouseLevel,orchardLevel,experience,playerLevel,
     plots:plots.map((p,i)=>p.tree?{index:i,grown:Boolean(p.tree.userData.grown),plantedAt:p.tree.userData.plantedAt,readyAt:p.tree.userData.readyAt,watered:Boolean(p.tree.userData.watered)}:null).filter(Boolean)
   }));
 }
@@ -501,7 +512,9 @@ function applyServerPlayer(player){
   hasWarehouse=Boolean(player.hasWarehouse);
   warehouseLevel=Math.max(0,Number(player.warehouseLevel)||0);
   hasMarket=Boolean(player.hasMarket);
+  marketLevel=hasMarket?Math.max(1,Number(player.marketLevel)||1):0;
   hasGreenhouse=Boolean(player.hasGreenhouse);
+  greenhouseLevel=hasGreenhouse?Math.max(1,Number(player.greenhouseLevel)||1):0;
   for(const plot of plots){
     if(plot.tree){scene.remove(plot.tree);plot.tree=null;}
   }
@@ -519,8 +532,8 @@ function applyServerPlayer(player){
     }
   }
   if(hasWarehouse) createWarehouse();
-  if(hasMarket) createMarket();
-  if(hasGreenhouse) createGreenhouse();
+  if(hasMarket) createMarket(marketLevel);
+  if(hasGreenhouse) createGreenhouse(greenhouseLevel);
   update();
 }
 
@@ -649,29 +662,43 @@ if(Array.isArray(savedFarm?.plots)){
 
 // Амбар появляется в мире после покупки
 let warehouse=null;
-function createMarket(){
-  if(scene.getObjectByName('marketBuilding')) return;
+function createMarket(level=marketLevel){
+  const old=scene.getObjectByName('marketBuilding');if(old)scene.remove(old);
   const booth=new THREE.Group();booth.name='marketBuilding';
-  addBox(booth,4.2,2.2,2.8,0xd8b77b,0,1.1,0);
-  addBox(booth,4.5,0.25,3.1,0x70452b,0,2.25,0);
-  const awning=new THREE.Mesh(new THREE.ConeGeometry(2.9,1.35,4),material(0x3c8b4d));
+  const width=4.2+(level-1)*0.55;
+  addBox(booth,width,2.2,2.8,0xd8b77b,0,1.1,0);
+  addBox(booth,width+0.3,0.25,3.1,0x70452b,0,2.25,0);
+  const awning=new THREE.Mesh(new THREE.ConeGeometry(2.9+(level-1)*0.25,1.35,4),material(level>=4?0xc99a35:0x3c8b4d));
   awning.position.set(0,3,0);awning.rotation.y=Math.PI/4;booth.add(awning);
   addBox(booth,2.1,0.8,0.12,0xf0e2bd,0,1.35,1.48);
+  for(let i=0;i<level+1;i++){
+    const crate=new THREE.Mesh(new THREE.BoxGeometry(.55,.42,.5),material(i%2?0x9b6337:0xc58a43));
+    crate.position.set(-1.5+i*.55,.35,1.72);booth.add(crate);
+  }
+  if(level>=3){const sign=new THREE.Mesh(new THREE.BoxGeometry(1.2,.55,.12),material(0xf5d778));sign.position.set(0,3.55,1.45);booth.add(sign);}
   booth.position.set(8,0,-2);scene.add(booth);
 }
-function createGreenhouse(){
-  if(scene.getObjectByName('greenhouseBuilding')) return;
+function createGreenhouse(level=greenhouseLevel){
+  const old=scene.getObjectByName('greenhouseBuilding');if(old)scene.remove(old);
   const house=new THREE.Group();house.name='greenhouseBuilding';
-  const glass=new THREE.MeshStandardMaterial({color:0x9bd9d2,transparent:true,opacity:0.48,roughness:0.2});
-  const body=new THREE.Mesh(new THREE.BoxGeometry(5,2.7,4),glass);
-  body.position.y=1.45;house.add(body);
+  const width=5+(level-1)*0.8,depth=4+(level-1)*0.45,height=2.7+(level-1)*0.25;
+  const glass=new THREE.MeshStandardMaterial({color:level>=4?0xb5e6b7:0x9bd9d2,transparent:true,opacity:0.48,roughness:0.2});
+  const body=new THREE.Mesh(new THREE.BoxGeometry(width,height,depth),glass);
+  body.position.y=height/2+0.1;house.add(body);
   const frameMat=material(0xe5e2c9);
-  for(const x of [-2.5,2.5]){
-    const post=new THREE.Mesh(new THREE.BoxGeometry(0.12,3,0.12),frameMat);
-    post.position.set(x,1.5,0);house.add(post);
+  for(const x of [-width/2,width/2]){
+    const post=new THREE.Mesh(new THREE.BoxGeometry(0.12,height+0.3,0.12),frameMat);
+    post.position.set(x,(height+0.3)/2,0);house.add(post);
   }
-  const roof=new THREE.Mesh(new THREE.ConeGeometry(3.3,1.5,4),material(0x6c9d72));
-  roof.position.y=3.5;roof.rotation.y=Math.PI/4;house.add(roof);
+  for(const z of [-depth/2,depth/2]){
+    const beam=new THREE.Mesh(new THREE.BoxGeometry(width,.12,.12),frameMat);beam.position.set(0,height+0.15,z);house.add(beam);
+  }
+  const roof=new THREE.Mesh(new THREE.ConeGeometry(Math.max(width,depth)*0.62,1.5+(level-1)*.15,4),material(level>=4?0x477d4d:0x6c9d72));
+  roof.position.y=height+1;roof.rotation.y=Math.PI/4;house.add(roof);
+  for(let row=0;row<level;row++){
+    const bed=new THREE.Mesh(new THREE.BoxGeometry(.55,.25,depth*.62),material(0x795337));bed.position.set(-width*.32+row*(width*.64/Math.max(1,level-1)),.22,0);house.add(bed);
+    for(let j=0;j<3;j++){const plant=new THREE.Mesh(new THREE.SphereGeometry(.22,8,8),material(0x3d9c45));plant.position.set(bed.position.x,.55,-depth*.22+j*depth*.22);house.add(plant);}
+  }
   house.position.set(14,0,7);scene.add(house);
 }
 function createWarehouse(){
@@ -758,12 +785,12 @@ window.sell=async function(){
   }
 
   if(serverMode){await serverAction('/api/game/sell',{},'Урожай продан. Green Coin зачислены на серверный счёт.');return;}
-  coins+=apples*applePrice();
+  coins+=apples*(1+orchardLevel+marketBonus());
   const sold=apples;
   apples=0;
   addLocalExperience(5);
   update();
-  hint('Продано '+sold+' яблок! Получено '+sold*applePrice()+' Green Coin. +5 XP.');
+  hint('Продано '+sold+' яблок! Получено '+sold*(1+orchardLevel+marketBonus())+' Green Coin. +5 XP.');
 };
 
 // ===== АНИМАЦИЯ =====
@@ -930,17 +957,29 @@ document.getElementById('claim-daily-reward').addEventListener('click',async()=>
 document.getElementById('sell-in-menu').addEventListener('click',async()=>{await window.sell();update()});
 document.getElementById('build-market').addEventListener('click',async()=>{
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
-  if(serverMode){await serverAction('/api/game/build',{kind:'market'},'Торговая лавка построена.');return;}
-  if(hasMarket){hint('Торговая лавка уже построена: +1 Green Coin за яблоко.');return}
-  if(coins<1500){hint('Для торговой лавки нужно 1 500 Green Coin.');return}
-  coins-=1500;hasMarket=true;createMarket();update();hint('Торговая лавка построена! Продажа каждого яблока приносит на 1 Green Coin больше.');
+  if(!hasMarket){
+    if(serverMode){await serverAction('/api/game/build',{kind:'market'},'Торговая лавка построена · уровень 1. Бонус +1 GC за яблоко.');return;}
+    if(coins<1500){hint('Для торговой лавки нужно 1 500 Green Coin.');return;}
+    coins-=1500;hasMarket=true;marketLevel=1;createMarket(marketLevel);update();hint('Торговая лавка построена! Бонус +1 GC за яблоко.');return;
+  }
+  if(marketLevel>=5){hint('Торговая лавка уже достигла максимального 5-го уровня.');return;}
+  const cost=marketUpgradeCost(marketLevel);
+  if(serverMode){await serverAction('/api/game/upgrade-market',{},'Лавка улучшена до уровня '+(marketLevel+1)+'! Бонус теперь +'+(marketLevel+1)+' GC за яблоко.');return;}
+  if(coins<cost){hint('Для улучшения лавки нужно '+cost+' Green Coin.');return;}
+  coins-=cost;marketLevel++;createMarket(marketLevel);update();hint('Лавка улучшена до уровня '+marketLevel+'! Бонус +'+marketLevel+' GC за яблоко.');
 });
 document.getElementById('build-greenhouse').addEventListener('click',async()=>{
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
-  if(serverMode){await serverAction('/api/game/build',{kind:'greenhouse'},'Теплица построена.');return;}
-  if(hasGreenhouse){hint('Теплица уже построена: урожай увеличен до 8 яблок.');return}
-  if(coins<2500){hint('Для теплицы нужно 2 500 Green Coin.');return}
-  coins-=2500;hasGreenhouse=true;createGreenhouse();update();hint('Теплица построена! Теперь за сбор получаешь 8 яблок.');
+  if(!hasGreenhouse){
+    if(serverMode){await serverAction('/api/game/build',{kind:'greenhouse'},'Теплица построена · уровень 1. Урожай — 8 яблок.');return;}
+    if(coins<2500){hint('Для теплицы нужно 2 500 Green Coin.');return;}
+    coins-=2500;hasGreenhouse=true;greenhouseLevel=1;createGreenhouse(greenhouseLevel);update();hint('Теплица построена! Теперь за сбор получаешь 8 яблок.');return;
+  }
+  if(greenhouseLevel>=5){hint('Теплица уже достигла максимального 5-го уровня.');return;}
+  const cost=greenhouseUpgradeCost(greenhouseLevel);
+  if(serverMode){await serverAction('/api/game/upgrade-greenhouse',{},'Теплица улучшена до уровня '+(greenhouseLevel+1)+'! Урожай — '+(5+(greenhouseLevel+1)*3)+' яблок.');return;}
+  if(coins<cost){hint('Для улучшения теплицы нужно '+cost+' Green Coin.');return;}
+  coins-=cost;greenhouseLevel++;createGreenhouse(greenhouseLevel);update();hint('Теплица улучшена до уровня '+greenhouseLevel+'! Урожай — '+harvestAmount()+' яблок за сбор.');
 });
 </script>
 </body>
