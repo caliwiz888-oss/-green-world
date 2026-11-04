@@ -8,7 +8,7 @@ const now = 1_800_000_000;
 
 function makeInitData(fields, token = botToken) {
   const params = new URLSearchParams(fields);
-  const check = [...params.entries()].sort(([a], [b]) => a.localeCompare(b))
+  const check = [...params.entries()].sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)
     .map(([k, v]) => k + '=' + v).join('\n');
   const key = crypto.createHmac('sha256', 'WebAppData').update(token).digest();
   params.set('hash', crypto.createHmac('sha256', key).update(check).digest('hex'));
