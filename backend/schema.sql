@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS players (
   first_name TEXT NOT NULL DEFAULT '',
   coins INTEGER NOT NULL DEFAULT 100 CHECK (coins >= 0),
   apples BIGINT NOT NULL DEFAULT 0 CHECK (apples >= 0),
+  fruit_inventory JSONB NOT NULL DEFAULT '{}'::jsonb,
   seeds INTEGER NOT NULL DEFAULT 5 CHECK (seeds >= 0),
   orchard_level INTEGER NOT NULL DEFAULT 1 CHECK (orchard_level >= 1),
   experience INTEGER NOT NULL DEFAULT 0 CHECK (experience >= 0),
@@ -47,3 +48,5 @@ ALTER TABLE players ADD COLUMN IF NOT EXISTS market_level INTEGER NOT NULL DEFAU
 ALTER TABLE players ADD COLUMN IF NOT EXISTS greenhouse_level INTEGER NOT NULL DEFAULT 0;
 UPDATE players SET market_level=1 WHERE has_market=TRUE AND market_level=0;
 UPDATE players SET greenhouse_level=1 WHERE has_greenhouse=TRUE AND greenhouse_level=0;
+
+ALTER TABLE players ADD COLUMN IF NOT EXISTS fruit_inventory JSONB NOT NULL DEFAULT '{}'::jsonb;
