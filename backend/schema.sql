@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS players (
   has_warehouse BOOLEAN NOT NULL DEFAULT FALSE,
   has_market BOOLEAN NOT NULL DEFAULT FALSE,
   has_greenhouse BOOLEAN NOT NULL DEFAULT FALSE,
+  last_daily_claim DATE,
+  daily_streak INTEGER NOT NULL DEFAULT 0 CHECK (daily_streak >= 0),
   plots JSONB NOT NULL DEFAULT '[{"index":22,"grown":false},{"index":25,"grown":false},{"index":28,"grown":false},{"index":31,"grown":false},{"index":34,"grown":false}]'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -24,3 +26,6 @@ CREATE TABLE IF NOT EXISTS refresh_sessions (
 );
 CREATE INDEX IF NOT EXISTS refresh_sessions_player_idx ON refresh_sessions(telegram_id);
 CREATE INDEX IF NOT EXISTS refresh_sessions_family_idx ON refresh_sessions(family_id);
+
+ALTER TABLE players ADD COLUMN IF NOT EXISTS last_daily_claim DATE;
+ALTER TABLE players ADD COLUMN IF NOT EXISTS daily_streak INTEGER NOT NULL DEFAULT 0;
