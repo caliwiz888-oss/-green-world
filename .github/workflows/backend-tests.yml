@@ -29,3 +29,15 @@ jobs:
       - name: Check server syntax
         working-directory: backend
         run: node --check server.js
+      - name: Check frontend module syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('index.html').read_text()
+          match = re.search(r'<script type="module">(.*?)</script>', html, re.S)
+          if not match:
+              raise SystemExit('Frontend module script not found')
+          Path('/tmp/green-world-frontend.mjs').write_text(match.group(1))
+          PY
+          node --check /tmp/green-world-frontend.mjs
