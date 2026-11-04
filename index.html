@@ -57,11 +57,15 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
     <div class="menu-row"><span>🌰 Семена</span><strong id="seed-count">5</strong></div>
     <div class="menu-row"><span>🍎 Яблоки на складе</span><strong id="apple-count">0 / 20</strong></div>
     <div class="menu-row"><span>🏚️ Амбар</span><strong id="warehouse-status">Не построен</strong></div>
+    <div class="menu-row"><span>🏪 Торговая лавка</span><strong id="market-status">Не построена</strong></div>
+    <div class="menu-row"><span>🌿 Теплица</span><strong id="greenhouse-status">Не построена</strong></div>
     <div class="menu-row"><span>🌳 Уровень сада</span><strong id="orchard-level">1</strong></div>
     <div class="menu-actions">
       <button id="buy-seeds">🌰 Купить 5 семян · 30 GC</button>
       <button id="build-warehouse">🏚️ Построить амбар · 80 GC</button>
       <button id="upgrade-orchard">🌳 Улучшить сад · 150 GC</button>
+      <button id="build-market">🏪 Торговая лавка · 120 GC</button>
+      <button id="build-greenhouse">🌿 Теплица · 180 GC</button>
       <button id="sell-in-menu">🛒 Продать урожай</button>
     </div>
     <button id="menu-close">Закрыть</button>
@@ -397,11 +401,14 @@ let coins=Number(savedFarm?.coins ?? localStorage.getItem('coins') ?? 100);
 let apples=Number(savedFarm?.apples ?? localStorage.getItem('apples') ?? 0);
 let seeds=Number(savedFarm?.seeds ?? 5);
 let hasWarehouse=Boolean(savedFarm?.hasWarehouse ?? false);
+let hasMarket=Boolean(savedFarm?.hasMarket ?? false);
+let hasGreenhouse=Boolean(savedFarm?.hasGreenhouse ?? false);
 let orchardLevel=Math.max(1,Number(savedFarm?.orchardLevel ?? 1));
 let trees=[];
 let selectedPlot=null;
 const appleCapacity=()=>hasWarehouse?100:20;
-const applePrice=()=>1+orchardLevel;
+const applePrice=()=>1+orchardLevel+(hasMarket?1:0);
+const harvestAmount=()=>hasGreenhouse?8:5;
 
 function update(){
   document.getElementById('coins').textContent=coins;
@@ -409,11 +416,13 @@ function update(){
   document.getElementById('seed-count').textContent=seeds;
   document.getElementById('apple-count').textContent=apples+' / '+appleCapacity();
   document.getElementById('warehouse-status').textContent=hasWarehouse?'Построен · 100 мест':'Не построен · 20 мест';
+  document.getElementById('market-status').textContent=hasMarket?'Построена · +1 GC за яблоко':'Не построена';
+  document.getElementById('greenhouse-status').textContent=hasGreenhouse?'Построена · +3 яблока за сбор':'Не построена';
   document.getElementById('orchard-level').textContent=orchardLevel;
   localStorage.setItem('coins',coins);
   localStorage.setItem('apples',apples);
   localStorage.setItem('greenWorldFarm',JSON.stringify({
-    coins,apples,seeds,hasWarehouse,orchardLevel,
+    coins,apples,seeds,hasWarehouse,hasMarket,hasGreenhouse,orchardLevel,
     plots:plots.map((p,i)=>p.tree?{index:i,grown:Boolean(p.tree.userData.grown)}:null).filter(Boolean)
   }));
 }
@@ -440,6 +449,31 @@ if(Array.isArray(savedFarm?.plots)){
 
 // Амбар появляется в мире после покупки
 let warehouse=null;
+function createMarket(){
+  if(scene.getObjectByName('marketBuilding')) return;
+  const booth=new THREE.Group();booth.name='marketBuilding';
+  addBox(booth,4.2,2.2,2.8,0xd8b77b,0,1.1,0);
+  addBox(booth,4.5,0.25,3.1,0x70452b,0,2.25,0);
+  const awning=new THREE.Mesh(new THREE.ConeGeometry(2.9,1.35,4),material(0x3c8b4d));
+  awning.position.set(0,3,0);awning.rotation.y=Math.PI/4;booth.add(awning);
+  addBox(booth,2.1,0.8,0.12,0xf0e2bd,0,1.35,1.48);
+  booth.position.set(8,0,-2);scene.add(booth);
+}
+function createGreenhouse(){
+  if(scene.getObjectByName('greenhouseBuilding')) return;
+  const house=new THREE.Group();house.name='greenhouseBuilding';
+  const glass=new THREE.MeshStandardMaterial({color:0x9bd9d2,transparent:true,opacity:0.48,roughness:0.2});
+  const body=new THREE.Mesh(new THREE.BoxGeometry(5,2.7,4),glass);
+  body.position.y=1.45;house.add(body);
+  const frameMat=material(0xe5e2c9);
+  for(const x of [-2.5,2.5]){
+    const post=new THREE.Mesh(new THREE.BoxGeometry(0.12,3,0.12),frameMat);
+    post.position.set(x,1.5,0);house.add(post);
+  }
+  const roof=new THREE.Mesh(new THREE.ConeGeometry(3.3,1.5,4),material(0x6c9d72));
+  roof.position.y=3.5;roof.rotation.y=Math.PI/4;house.add(roof);
+  house.position.set(14,0,7);scene.add(house);
+}
 function createWarehouse(){
   if(warehouse) return;
   warehouse=new THREE.Group();
@@ -451,6 +485,8 @@ function createWarehouse(){
   scene.add(warehouse);
 }
 if(hasWarehouse) createWarehouse();
+if(hasMarket) createMarket();
+if(hasGreenhouse) createGreenhouse();
 update();
 
 // ===== ПОСАДКА =====
@@ -503,15 +539,15 @@ window.harvest=function(){
     return;
   }
 
-  if(apples+5>appleCapacity()){
+  if(apples+harvestAmount()>appleCapacity()){
     hint('Склад заполнен! Продай яблоки или построй амбар.');
     return;
   }
-  apples+=5;
+  apples+=harvestAmount();
   tree.userData.grown=false;
   tree.scale.setScalar(1);
   update();
-  hint('Собрано 5 яблок! На складе '+apples+'/'+appleCapacity()+'.');
+  hint('Собрано '+harvestAmount()+' яблок! На складе '+apples+'/'+appleCapacity()+'.');
 };
 
 // ===== ПРОДАЖА =====
@@ -654,6 +690,16 @@ document.getElementById('upgrade-orchard').addEventListener('click',()=>{
   coins-=cost;orchardLevel++;update();hint('Сад улучшен до уровня '+orchardLevel+'. Цена яблока теперь '+applePrice()+' Green Coin.');
 });
 document.getElementById('sell-in-menu').addEventListener('click',()=>{window.sell();update()});
+document.getElementById('build-market').addEventListener('click',()=>{
+  if(hasMarket){hint('Торговая лавка уже построена: +1 Green Coin за яблоко.');return}
+  if(coins<120){hint('Для торговой лавки нужно 120 Green Coin.');return}
+  coins-=120;hasMarket=true;createMarket();update();hint('Торговая лавка построена! Продажа каждого яблока приносит на 1 Green Coin больше.');
+});
+document.getElementById('build-greenhouse').addEventListener('click',()=>{
+  if(hasGreenhouse){hint('Теплица уже построена: урожай увеличен до 8 яблок.');return}
+  if(coins<180){hint('Для теплицы нужно 180 Green Coin.');return}
+  coins-=180;hasGreenhouse=true;createGreenhouse();update();hint('Теплица построена! Теперь за сбор получаешь 8 яблок.');
+});
 </script>
 </body>
 </html>
