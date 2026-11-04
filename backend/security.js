@@ -23,7 +23,7 @@ export function verifyTelegramInitData(raw, botToken, nowSeconds = Math.floor(Da
   const suppliedHash = hashValues[0];
   params.delete('hash');
   const dataCheckString = [...params.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
+    .sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)
     .map(([key, value]) => key + '=' + value)
     .join('\n');
   const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
