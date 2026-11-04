@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
 import pg from 'pg';
+import { verifyTelegramInitData } from './security.js';
 
 const app = express();
 const { Pool } = pg;
@@ -52,7 +53,6 @@ function originGuard(req, res, next) {
   if (!req.get('origin') || !ORIGINS.includes(req.get('origin'))) return res.status(403).json({ error: 'Origin not allowed' });
   next();
 }
-import { verifyTelegramInitData } from './security.js';
 function telegramUser(raw) {
   return verifyTelegramInitData(raw, BOT_TOKEN);
 }
