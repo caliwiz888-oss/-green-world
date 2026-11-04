@@ -25,6 +25,16 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
 #camera-tools{position:absolute;right:12px;top:88px;display:flex;flex-direction:column;gap:7px;z-index:3}
 #camera-tools button{width:42px;height:42px;padding:0;font-size:18px;background:#174b35e8}
 #selection{position:absolute;left:50%;top:76px;transform:translateX(-50%);z-index:2;color:#16472e;background:#f2fff0e8;padding:6px 11px;border-radius:20px;font-size:11px;font-weight:700;pointer-events:none}
+#menu-button{position:absolute;top:88px;left:12px;z-index:3;width:46px;height:42px;background:#174b35e8}
+#game-menu{display:none;position:absolute;inset:0;z-index:5;background:#071b12b8;align-items:center;justify-content:center;padding:18px}
+#game-menu.open{display:flex}
+#menu-card{width:min(420px,100%);max-height:85vh;overflow:auto;background:linear-gradient(145deg,#174b35,#245c3c);border:1px solid #ffffff40;border-radius:20px;padding:18px;color:white;box-shadow:0 15px 50px #0008}
+#menu-card h2{margin:0 0 14px;font-size:21px}
+.menu-row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #ffffff25;font-size:13px}
+.menu-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.menu-actions button{min-height:46px}
+#menu-close{width:100%;margin-top:12px;background:#315d48}
+#actions{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(min-width:700px){#actions{left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100% - 30px));bottom:18px}#hint{bottom:100px}.panel{font-size:14px}}
 @media(max-width:380px){.panel{padding:8px;font-size:11px}.stat{min-width:59px}#actions{gap:5px;padding:6px}button{font-size:11px;padding:11px 2px}}
 </style>
@@ -40,6 +50,23 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
   </div>
 </div>
 <div id="selection">Участок не выбран · коснись земли</div>
+<button id="menu-button" aria-label="Инвентарь и постройки">☰</button>
+<div id="game-menu">
+  <div id="menu-card">
+    <h2>🏡 Ферма GREEN WORLD</h2>
+    <div class="menu-row"><span>🌰 Семена</span><strong id="seed-count">5</strong></div>
+    <div class="menu-row"><span>🍎 Яблоки на складе</span><strong id="apple-count">0 / 20</strong></div>
+    <div class="menu-row"><span>🏚️ Амбар</span><strong id="warehouse-status">Не построен</strong></div>
+    <div class="menu-row"><span>🌳 Уровень сада</span><strong id="orchard-level">1</strong></div>
+    <div class="menu-actions">
+      <button id="buy-seeds">🌰 Купить 5 семян · 30 GC</button>
+      <button id="build-warehouse">🏚️ Построить амбар · 80 GC</button>
+      <button id="upgrade-orchard">🌳 Улучшить сад · 150 GC</button>
+      <button id="sell-in-menu">🛒 Продать урожай</button>
+    </div>
+    <button id="menu-close">Закрыть</button>
+  </div>
+</div>
 <div id="camera-tools">
   <button id="zoom-in" aria-label="Приблизить">＋</button>
   <button id="zoom-out" aria-label="Отдалить">－</button>
@@ -118,14 +145,12 @@ scene.add(ground);
 
 // ===== ПЛАНТАЦИЯ 20 × 20 =====
 const plots=[];
-const plotMaterial1=material(0x9a7547);
-const plotMaterial2=material(0xb58a53);
 
 for(let x=0;x<20;x++){
   for(let z=0;z<20;z++){
     const tile=new THREE.Mesh(
       new THREE.BoxGeometry(1.72,0.12,1.72),
-      (x+z)%2?plotMaterial1:plotMaterial2
+      material((x+z)%2?0x9a7547:0xb58a53)
     );
     tile.position.set(x-9.5,0,z-9.5);
     tile.receiveShadow=true;
@@ -367,33 +392,65 @@ function makeTree(x,z){
 }
 
 // ===== ЭКОНОМИКА =====
-let coins=Number(localStorage.getItem('coins')??100);
-let apples=Number(localStorage.getItem('apples')??0);
+const savedFarm=(()=>{try{return JSON.parse(localStorage.getItem('greenWorldFarm')||'null')}catch(e){return null}})();
+let coins=Number(savedFarm?.coins ?? localStorage.getItem('coins') ?? 100);
+let apples=Number(savedFarm?.apples ?? localStorage.getItem('apples') ?? 0);
+let seeds=Number(savedFarm?.seeds ?? 5);
+let hasWarehouse=Boolean(savedFarm?.hasWarehouse ?? false);
+let orchardLevel=Math.max(1,Number(savedFarm?.orchardLevel ?? 1));
 let trees=[];
 let selectedPlot=null;
+const appleCapacity=()=>hasWarehouse?100:20;
+const applePrice=()=>1+orchardLevel;
 
 function update(){
   document.getElementById('coins').textContent=coins;
   document.getElementById('apples').textContent=apples;
+  document.getElementById('seed-count').textContent=seeds;
+  document.getElementById('apple-count').textContent=apples+' / '+appleCapacity();
+  document.getElementById('warehouse-status').textContent=hasWarehouse?'Построен · 100 мест':'Не построен · 20 мест';
+  document.getElementById('orchard-level').textContent=orchardLevel;
   localStorage.setItem('coins',coins);
   localStorage.setItem('apples',apples);
+  localStorage.setItem('greenWorldFarm',JSON.stringify({
+    coins,apples,seeds,hasWarehouse,orchardLevel,
+    plots:plots.map((p,i)=>p.tree?{index:i,grown:Boolean(p.tree.userData.grown)}:null).filter(Boolean)
+  }));
 }
 
 function hint(message){
   document.getElementById('hint').textContent=message;
 }
 
-function addTree(plot){
+function addTree(plot,grown=false){
   plot.tree=makeTree(plot.x,plot.z);
+  plot.tree.userData.grown=grown;
+  if(grown) plot.tree.scale.setScalar(1.15);
   trees.push(plot.tree);
-  if(plot.tile) plot.tile.material.emissive?.setHex(0x000000);
 }
 
-// Пять стартовых яблонь
-[0,1,2,3,4].forEach(i=>{
-  addTree(plots[i*3+22]);
-});
+// Восстановление фермы после перезагрузки
+if(Array.isArray(savedFarm?.plots)){
+  savedFarm.plots.forEach(item=>{
+    if(Number.isInteger(item.index) && plots[item.index]) addTree(plots[item.index],Boolean(item.grown));
+  });
+}else{
+  [0,1,2,3,4].forEach(i=>addTree(plots[i*3+22]));
+}
 
+// Амбар появляется в мире после покупки
+let warehouse=null;
+function createWarehouse(){
+  if(warehouse) return;
+  warehouse=new THREE.Group();
+  addBox(warehouse,4,2.8,3.5,0xc99a5b,0,1.4,0);
+  const roof=new THREE.Mesh(new THREE.ConeGeometry(3.1,1.8,4),material(0x70412e));
+  roof.position.y=3.7;roof.rotation.y=Math.PI/4;warehouse.add(roof);
+  addBox(warehouse,1.1,1.8,0.12,0x70452b,0,0.9,1.82);
+  warehouse.position.set(12,0,4);
+  scene.add(warehouse);
+}
+if(hasWarehouse) createWarehouse();
 update();
 
 // ===== ПОСАДКА =====
@@ -404,6 +461,10 @@ window.plant=function(){
     hint('Свободной земли нет!');
     return;
   }
+  if(seeds<1){
+    hint('Нет семян. Открой меню фермы и купи семена.');
+    return;
+  }
 
   if(coins<10){
     hint('Недостаточно Green Coin!');
@@ -411,9 +472,10 @@ window.plant=function(){
   }
 
   coins-=10;
+  seeds--;
   addTree(plot);
   update();
-  hint('Посажена новая яблоня! -10 Green Coin');
+  hint('Посажена яблоня! -10 Green Coin · осталось семян: '+seeds);
 };
 
 // ===== ПОЛИВ =====
@@ -441,11 +503,15 @@ window.harvest=function(){
     return;
   }
 
+  if(apples+5>appleCapacity()){
+    hint('Склад заполнен! Продай яблоки или построй амбар.');
+    return;
+  }
   apples+=5;
   tree.userData.grown=false;
   tree.scale.setScalar(1);
   update();
-  hint('Собрано 5 яблок!');
+  hint('Собрано 5 яблок! На складе '+apples+'/'+appleCapacity()+'.');
 };
 
 // ===== ПРОДАЖА =====
@@ -455,11 +521,11 @@ window.sell=function(){
     return;
   }
 
-  coins+=apples*2;
+  coins+=apples*applePrice();
   const sold=apples;
   apples=0;
   update();
-  hint('Продано '+sold+' яблок! Получено '+sold*2+' Green Coin.');
+  hint('Продано '+sold+' яблок! Получено '+sold*applePrice()+' Green Coin.');
 };
 
 // ===== АНИМАЦИЯ =====
@@ -565,6 +631,29 @@ renderer.domElement.addEventListener('wheel',e=>{
   e.preventDefault();zoom(e.deltaY>0?1.08:.92);
 },{passive:false});
 positionCamera();
+
+// ===== МЕНЮ ИГРОВОЙ ЭКОНОМИКИ =====
+const gameMenu=document.getElementById('game-menu');
+document.getElementById('menu-button').addEventListener('click',()=>{
+  update();gameMenu.classList.add('open');
+});
+document.getElementById('menu-close').addEventListener('click',()=>gameMenu.classList.remove('open'));
+gameMenu.addEventListener('click',e=>{if(e.target===gameMenu)gameMenu.classList.remove('open')});
+document.getElementById('buy-seeds').addEventListener('click',()=>{
+  if(coins<30){hint('Нужно 30 Green Coin для покупки семян.');return}
+  coins-=30;seeds+=5;update();hint('Куплено 5 семян. Теперь семян: '+seeds);
+});
+document.getElementById('build-warehouse').addEventListener('click',()=>{
+  if(hasWarehouse){hint('Амбар уже построен. Вместимость склада — 100 яблок.');return}
+  if(coins<80){hint('Для амбара нужно 80 Green Coin.');return}
+  coins-=80;hasWarehouse=true;createWarehouse();update();hint('Амбар построен! Вместимость склада увеличена до 100 яблок.');
+});
+document.getElementById('upgrade-orchard').addEventListener('click',()=>{
+  const cost=orchardLevel*150;
+  if(coins<cost){hint('Для улучшения сада нужно '+cost+' Green Coin.');return}
+  coins-=cost;orchardLevel++;update();hint('Сад улучшен до уровня '+orchardLevel+'. Цена яблока теперь '+applePrice()+' Green Coin.');
+});
+document.getElementById('sell-in-menu').addEventListener('click',()=>{window.sell();update()});
 </script>
 </body>
 </html>
