@@ -49,6 +49,7 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
     <div class="stat"><strong><span id="apples">0</span></strong><small>ЯБЛОКИ</small></div>
   </div>
 </div>
+<div id="connection-status" style="position:absolute;top:66px;left:12px;z-index:2;color:#174b35;background:#f2fff0df;border-radius:12px;padding:5px 9px;font-size:9px;font-weight:800;letter-spacing:.4px">ПОДКЛЮЧЕНИЕ…</div>
 <div id="selection">Участок не выбран · коснись земли</div>
 <button id="menu-button" aria-label="Инвентарь и постройки">☰</button>
 <div id="game-menu">
@@ -84,6 +85,7 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
   <button onclick="sell()">🛒 Продать</button>
 </div>
 
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script type="module">
 import * as THREE from
 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
@@ -406,6 +408,10 @@ let hasGreenhouse=Boolean(savedFarm?.hasGreenhouse ?? false);
 let orchardLevel=Math.max(1,Number(savedFarm?.orchardLevel ?? 1));
 let trees=[];
 let selectedPlot=null;
+let apiBase=String(window.GREEN_WORLD_API_URL||'').replace(/\\/$/,'');
+let accessToken=null;
+let serverMode=false;
+let apiBusy=false;
 const appleCapacity=()=>hasWarehouse?100:20;
 const applePrice=()=>1+orchardLevel+(hasMarket?1:0);
 const harvestAmount=()=>hasGreenhouse?8:5;
@@ -419,6 +425,7 @@ function update(){
   document.getElementById('market-status').textContent=hasMarket?'Построена · +1 GC за яблоко':'Не построена';
   document.getElementById('greenhouse-status').textContent=hasGreenhouse?'Построена · +3 яблока за сбор':'Не построена';
   document.getElementById('orchard-level').textContent=orchardLevel;
+  if(serverMode) return;
   localStorage.setItem('coins',coins);
   localStorage.setItem('apples',apples);
   localStorage.setItem('greenWorldFarm',JSON.stringify({
@@ -429,6 +436,88 @@ function update(){
 
 function hint(message){
   document.getElementById('hint').textContent=message;
+}
+
+function applyServerPlayer(player){
+  if(!player || typeof player!=='object') throw new Error('Сервер вернул некорректное состояние фермы');
+  coins=Number(player.coins)||0;
+  apples=Number(player.apples)||0;
+  seeds=Number(player.seeds)||0;
+  orchardLevel=Math.max(1,Number(player.orchardLevel)||1);
+  hasWarehouse=Boolean(player.hasWarehouse);
+  hasMarket=Boolean(player.hasMarket);
+  hasGreenhouse=Boolean(player.hasGreenhouse);
+  for(const plot of plots){
+    if(plot.tree){scene.remove(plot.tree);plot.tree=null;}
+  }
+  trees=[];
+  if(Array.isArray(player.plots)){
+    for(const item of player.plots){
+      if(Number.isInteger(item.index)&&plots[item.index]) addTree(plots[item.index],Boolean(item.grown));
+    }
+  }
+  if(hasWarehouse) createWarehouse();
+  if(hasMarket) createMarket();
+  if(hasGreenhouse) createGreenhouse();
+  update();
+}
+
+async function apiRequest(path,body=null,retry=true){
+  if(!apiBase) throw new Error('Не указан адрес игрового сервера');
+  const options={method:body===null?'GET':'POST',credentials:'include',headers:{'Content-Type':'application/json'}};
+  if(accessToken) options.headers.Authorization='Bearer '+accessToken;
+  if(body!==null) options.body=JSON.stringify(body);
+  let response=await fetch(apiBase+path,options);
+  if(response.status===401 && retry && path!=='/api/auth/telegram' && path!=='/api/auth/refresh'){
+    const refreshed=await fetch(apiBase+'/api/auth/refresh',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'}});
+    if(refreshed.ok){
+      const data=await refreshed.json();accessToken=data.accessToken;
+      return apiRequest(path,body,false);
+    }
+  }
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(data.error||('Ошибка сервера: '+response.status));
+  return data;
+}
+
+async function serverAction(path,body,message){
+  if(apiBusy) return;
+  apiBusy=true;
+  try{
+    const data=await apiRequest(path,body);
+    if(data.player) applyServerPlayer(data.player);
+    hint(message||'Изменения сохранены на сервере.');
+    return true;
+  }catch(error){
+    hint(error.message||'Не удалось выполнить действие.');
+    return false;
+  }finally{apiBusy=false;}
+}
+
+async function connectGameServer(){
+  const status=document.getElementById('connection-status');
+  const tg=window.Telegram?.WebApp;
+  if(!apiBase){
+    status.textContent='ДЕМО · ЛОКАЛЬНОЕ СОХРАНЕНИЕ';
+    return;
+  }
+  if(!tg?.initData){
+    status.textContent='ОЖИДАЕТСЯ TELEGRAM';
+    hint('Открой GREEN WORLD через Telegram Mini App для входа в игровой аккаунт.');
+    return;
+  }
+  try{
+    tg.ready();tg.expand();
+    const data=await apiRequest('/api/auth/telegram',{initData:tg.initData},false);
+    accessToken=data.accessToken;
+    serverMode=true;
+    applyServerPlayer(data.player);
+    status.textContent='СЕРВЕР · ПРОГРЕСС СОХРАНЯЕТСЯ';
+    hint('Ты вошёл в GREEN WORLD. Прогресс хранится в игровом аккаунте.');
+  }catch(error){
+    status.textContent='СЕРВЕР НЕДОСТУПЕН';
+    hint('Не удалось подключиться к серверу. Проверь адрес API и настройки Telegram.');
+  }
 }
 
 function addTree(plot,grown=false){
@@ -490,7 +579,7 @@ if(hasGreenhouse) createGreenhouse();
 update();
 
 // ===== ПОСАДКА =====
-window.plant=function(){
+window.plant=async function(){
   const plot=(selectedPlot && !selectedPlot.tree) ? selectedPlot : plots.find(p=>!p.tree);
 
   if(!plot){
@@ -507,6 +596,7 @@ window.plant=function(){
     return;
   }
 
+  if(serverMode){await serverAction('/api/game/plant',{plotIndex:plots.indexOf(plot)},'Яблоня посажена. Прогресс сохранён на сервере.');return;}
   coins-=10;
   seeds--;
   addTree(plot);
@@ -515,7 +605,7 @@ window.plant=function(){
 };
 
 // ===== ПОЛИВ =====
-window.water=function(){
+window.water=async function(){
   const tree=(selectedPlot?.tree && !selectedPlot.tree.userData.grown)
     ? selectedPlot.tree : trees.find(t=>!t.userData.grown);
 
@@ -524,13 +614,14 @@ window.water=function(){
     return;
   }
 
+  if(serverMode){const plot=plots.find(p=>p.tree===tree);await serverAction('/api/game/water',{plotIndex:plots.indexOf(plot)},'Яблоня полита.');return;}
   tree.userData.grown=true;
   tree.scale.setScalar(1.15);
   hint('Яблоня полита! Можно собирать урожай.');
 };
 
 // ===== СБОР =====
-window.harvest=function(){
+window.harvest=async function(){
   const tree=(selectedPlot?.tree?.userData.grown)
     ? selectedPlot.tree : trees.find(t=>t.userData.grown);
 
@@ -543,6 +634,7 @@ window.harvest=function(){
     hint('Склад заполнен! Продай яблоки или построй амбар.');
     return;
   }
+  if(serverMode){const plot=plots.find(p=>p.tree===tree);await serverAction('/api/game/harvest',{plotIndex:plots.indexOf(plot)},'Урожай собран и сохранён на сервере.');return;}
   apples+=harvestAmount();
   tree.userData.grown=false;
   tree.scale.setScalar(1);
@@ -551,12 +643,13 @@ window.harvest=function(){
 };
 
 // ===== ПРОДАЖА =====
-window.sell=function(){
+window.sell=async function(){
   if(apples===0){
     hint('У тебя пока нет яблок!');
     return;
   }
 
+  if(serverMode){await serverAction('/api/game/sell',{},'Урожай продан. Green Coin зачислены на серверный счёт.');return;}
   coins+=apples*applePrice();
   const sold=apples;
   apples=0;
@@ -582,6 +675,7 @@ function animate(){
 }
 
 animate();
+connectGameServer();
 
 // ===== ИЗМЕНЕНИЕ РАЗМЕРА ЭКРАНА =====
 window.addEventListener('resize',()=>{
@@ -675,27 +769,32 @@ document.getElementById('menu-button').addEventListener('click',()=>{
 });
 document.getElementById('menu-close').addEventListener('click',()=>gameMenu.classList.remove('open'));
 gameMenu.addEventListener('click',e=>{if(e.target===gameMenu)gameMenu.classList.remove('open')});
-document.getElementById('buy-seeds').addEventListener('click',()=>{
+document.getElementById('buy-seeds').addEventListener('click',async()=>{
+  if(serverMode){await serverAction('/api/game/buy-seeds',{},'Куплено 5 семян.');return;}
   if(coins<30){hint('Нужно 30 Green Coin для покупки семян.');return}
   coins-=30;seeds+=5;update();hint('Куплено 5 семян. Теперь семян: '+seeds);
 });
-document.getElementById('build-warehouse').addEventListener('click',()=>{
+document.getElementById('build-warehouse').addEventListener('click',async()=>{
+  if(serverMode){await serverAction('/api/game/build',{kind:'warehouse'},'Амбар построен.');return;}
   if(hasWarehouse){hint('Амбар уже построен. Вместимость склада — 100 яблок.');return}
   if(coins<80){hint('Для амбара нужно 80 Green Coin.');return}
   coins-=80;hasWarehouse=true;createWarehouse();update();hint('Амбар построен! Вместимость склада увеличена до 100 яблок.');
 });
-document.getElementById('upgrade-orchard').addEventListener('click',()=>{
+document.getElementById('upgrade-orchard').addEventListener('click',async()=>{
+  if(serverMode){await serverAction('/api/game/upgrade-orchard',{},'Сад улучшен.');return;}
   const cost=orchardLevel*150;
   if(coins<cost){hint('Для улучшения сада нужно '+cost+' Green Coin.');return}
   coins-=cost;orchardLevel++;update();hint('Сад улучшен до уровня '+orchardLevel+'. Цена яблока теперь '+applePrice()+' Green Coin.');
 });
-document.getElementById('sell-in-menu').addEventListener('click',()=>{window.sell();update()});
-document.getElementById('build-market').addEventListener('click',()=>{
+document.getElementById('sell-in-menu').addEventListener('click',async()=>{await window.sell();update()});
+document.getElementById('build-market').addEventListener('click',async()=>{
+  if(serverMode){await serverAction('/api/game/build',{kind:'market'},'Торговая лавка построена.');return;}
   if(hasMarket){hint('Торговая лавка уже построена: +1 Green Coin за яблоко.');return}
   if(coins<120){hint('Для торговой лавки нужно 120 Green Coin.');return}
   coins-=120;hasMarket=true;createMarket();update();hint('Торговая лавка построена! Продажа каждого яблока приносит на 1 Green Coin больше.');
 });
-document.getElementById('build-greenhouse').addEventListener('click',()=>{
+document.getElementById('build-greenhouse').addEventListener('click',async()=>{
+  if(serverMode){await serverAction('/api/game/build',{kind:'greenhouse'},'Теплица построена.');return;}
   if(hasGreenhouse){hint('Теплица уже построена: урожай увеличен до 8 яблок.');return}
   if(coins<180){hint('Для теплицы нужно 180 Green Coin.');return}
   coins-=180;hasGreenhouse=true;createGreenhouse();update();hint('Теплица построена! Теперь за сбор получаешь 8 яблок.');
