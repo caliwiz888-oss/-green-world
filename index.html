@@ -838,7 +838,7 @@ document.getElementById('build-warehouse').addEventListener('click',async()=>{
 document.getElementById('upgrade-orchard').addEventListener('click',async()=>{
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   if(serverMode){await serverAction('/api/game/upgrade-orchard',{},'Сад улучшен.');return;}
-  const cost=orchardLevel*150;
+  const cost=150;
   if(coins<cost){hint('Для улучшения сада нужно '+cost+' Green Coin.');return}
   coins-=cost;orchardLevel++;update();hint('Сад улучшен до уровня '+orchardLevel+'. Цена яблока теперь '+applePrice()+' Green Coin.');
 });
