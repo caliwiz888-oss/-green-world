@@ -390,11 +390,22 @@ function makeTree(x,z){
       1.8+(i%2)*0.4,
       Math.sin(i*1.25)*0.75
     );
+    apple.visible=false;
     tree.add(apple);
   }
 
+  const readyRing=new THREE.Mesh(
+    new THREE.TorusGeometry(1.12,0.09,8,32),
+    new THREE.MeshStandardMaterial({color:0xffd84a,emissive:0x9a6b08,emissiveIntensity:0.8})
+  );
+  readyRing.rotation.x=Math.PI/2;
+  readyRing.position.y=0.12;
+  readyRing.visible=false;
+  tree.add(readyRing);
   tree.position.set(x,0,z);
   tree.userData.grown=false;
+  tree.userData.fruits=tree.children.filter(child=>child.geometry?.type==='SphereGeometry' && child.position.y>1.5);
+  tree.userData.readyRing=readyRing;
   scene.add(tree);
   return tree;
 }
@@ -530,10 +541,18 @@ async function connectGameServer(){
   }
 }
 
+function setTreeGrown(tree,grown){
+  if(!tree) return;
+  tree.userData.grown=grown;
+  tree.scale.setScalar(grown?1.22:1);
+  const crown=tree.children.find(child=>child.geometry?.type==='SphereGeometry' && child.position.y===2);
+  if(crown?.material) crown.material.color.setHex(grown?0x48ad43:0x258b39);
+  for(const fruit of tree.userData.fruits||[]) fruit.visible=grown;
+  if(tree.userData.readyRing) tree.userData.readyRing.visible=grown;
+}
 function addTree(plot,grown=false){
   plot.tree=makeTree(plot.x,plot.z);
-  plot.tree.userData.grown=grown;
-  if(grown) plot.tree.scale.setScalar(1.15);
+  setTreeGrown(plot.tree,grown);
   trees.push(plot.tree);
 }
 
@@ -627,9 +646,8 @@ window.water=async function(){
   }
 
   if(serverMode){const plot=plots.find(p=>p.tree===tree);await serverAction('/api/game/water',{plotIndex:plots.indexOf(plot)},'Яблоня полита.');return;}
-  tree.userData.grown=true;
-  tree.scale.setScalar(1.15);
-  hint('Яблоня полита! Можно собирать урожай.');
+  setTreeGrown(tree,true);
+  hint('🌟 Яблоня выросла! На ней появились яблоки. Можно собирать урожай.');
 };
 
 // ===== СБОР =====
@@ -649,8 +667,7 @@ window.harvest=async function(){
   }
   if(serverMode){const plot=plots.find(p=>p.tree===tree);await serverAction('/api/game/harvest',{plotIndex:plots.indexOf(plot)},'Урожай собран и сохранён на сервере.');return;}
   apples+=harvestAmount();
-  tree.userData.grown=false;
-  tree.scale.setScalar(1);
+  setTreeGrown(tree,false);
   update();
   hint('Собрано '+harvestAmount()+' яблок! На складе '+apples+'/'+appleCapacity()+'.');
 };
