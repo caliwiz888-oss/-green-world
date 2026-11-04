@@ -668,10 +668,10 @@ function update(){
   document.getElementById('fruit-inventory').textContent=fruitRows.length?fruitRows.join(' · '):'Других фруктов пока нет';
   document.getElementById('warehouse-capacity').textContent=totalStoredFruit()+' / '+appleCapacity()+' фруктов';
   document.getElementById('warehouse-status').textContent=hasWarehouse?'Построен · уровень '+warehouseLevel:'Не построен';
-  document.getElementById('warehouse-capacity').textContent=apples+' / '+appleCapacity()+' яблок';
+
   document.getElementById('upgrade-warehouse').textContent='📦 Улучшить амбар · '+warehouseUpgradeCost(warehouseLevel)+' GC';
   document.getElementById('market-status').textContent=hasMarket?'Уровень '+marketLevel+' · +'+marketBonus()+' GC за яблоко':'Не построена';
-  document.getElementById('greenhouse-status').textContent=hasGreenhouse?'Уровень '+greenhouseLevel+' · '+harvestAmount()+' яблок за сбор':'Не построена';
+  document.getElementById('greenhouse-status').textContent=hasGreenhouse?'Уровень '+greenhouseLevel+' · '+harvestAmount()+' фруктов за сбор':'Не построена';
   const marketButton=document.getElementById('build-market');
   marketButton.textContent=!hasMarket?'🏪 Построить лавку · 1 500 GC':marketLevel>=5?'🏪 Лавка · максимальный уровень': '⬆️ Улучшить лавку · '+marketUpgradeCost(marketLevel)+' GC';
   marketButton.disabled=hasMarket&&marketLevel>=5;
@@ -960,7 +960,7 @@ if(document.getElementById('tree-type')){
 window.water=async function(){
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   const tree=(selectedPlot?.tree&&!selectedPlot.tree.userData.grown&&!selectedPlot.tree.userData.watered)?selectedPlot.tree:trees.find(t=>!t.userData.grown&&!t.userData.watered);
-  if(!tree){hint('Нет яблонь, которые можно полить сейчас. Каждое дерево можно полить один раз за цикл.');return;}
+  if(!tree){hint('Нет деревьев, которые можно полить сейчас. Каждое дерево можно полить один раз за цикл.');return;}
   if(serverMode){const plot=plots.find(p=>p.tree===tree);await serverAction('/api/game/water',{plotIndex:plots.indexOf(plot)},'Полив ускорил созревание на 4 часа.');return;}
   tree.userData.readyAt=new Date(Math.max(Date.now(),new Date(tree.userData.readyAt).getTime()-WATER_REDUCTION_MS)).toISOString();
   tree.userData.watered=true;
@@ -977,7 +977,7 @@ window.harvest=async function(){
   if(!tree){const growing=selectedPlot?.tree||trees.find(t=>!t.userData.grown);hint(growing?.userData?.readyAt?'До сбора осталось '+formatDuration(remainingGrowthMs(growing))+'.':'Урожай ещё созревает.');return;}
   if(serverMode){const plot=plots.find(p=>p.tree===tree);await serverAction('/api/game/harvest',{plotIndex:plots.indexOf(plot)},'Урожай собран. Следующий цикл созревания — 8 часов.');return;}
   const collected=Math.min(harvestAmount(),Math.max(0,appleCapacity()-totalStoredFruit()));
-  if(collected<1){hint('Амбар заполнен! Продай яблоки или улучши амбар.');return;}
+  if(collected<1){hint('Амбар заполнен! Продай фрукты или улучши амбар.');return;}
   const fruitType=tree.userData.type||'apple';
   if(fruitType==='apple') apples+=collected;
   else fruitInventory[fruitType]=(Number(fruitInventory[fruitType])||0)+collected;
