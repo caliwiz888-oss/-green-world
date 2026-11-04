@@ -60,6 +60,9 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
     <div class="menu-row"><span>🏚️ Амбар</span><strong id="warehouse-status">Не построен</strong></div>
     <div class="menu-row"><span>🏪 Торговая лавка</span><strong id="market-status">Не построена</strong></div>
     <div class="menu-row"><span>🌿 Теплица</span><strong id="greenhouse-status">Не построена</strong></div>
+    <div class="menu-row"><span>⭐ Уровень игрока</span><strong id="player-level">1</strong></div>
+    <div class="menu-row"><span>✨ Опыт</span><strong id="player-xp">0 / 100 XP</strong></div>
+    <div style="height:8px;background:#ffffff25;border-radius:8px;overflow:hidden;margin:0 0 8px"><div id="xp-progress" style="height:100%;width:0%;background:#f5d45c;border-radius:8px"></div></div>
     <div class="menu-row"><span>🌳 Уровень сада</span><strong id="orchard-level">1</strong></div>
     <div class="menu-row"><span>🎁 Ежедневный подарок</span><strong id="daily-reward-status">Загрузка…</strong></div>
     <div style="font-size:12px;color:#d7f5d9;padding:8px 0" id="daily-reward-info">Заходи каждый день и получай Green Coin. Награда 7-го дня — 100 GC.</div>
@@ -422,6 +425,8 @@ let hasWarehouse=Boolean(savedFarm?.hasWarehouse ?? false);
 let hasMarket=Boolean(savedFarm?.hasMarket ?? false);
 let hasGreenhouse=Boolean(savedFarm?.hasGreenhouse ?? false);
 let orchardLevel=Math.max(1,Number(savedFarm?.orchardLevel ?? 1));
+let experience=Math.max(0,Number(savedFarm?.experience ?? 0));
+let playerLevel=Math.max(1,Number(savedFarm?.playerLevel ?? 1));
 let trees=[];
 let selectedPlot=null;
 let apiBase=String(window.GREEN_WORLD_API_URL||'').replace(/\/+$/,'');
@@ -444,15 +449,37 @@ function update(){
   document.getElementById('greenhouse-status').textContent=hasGreenhouse?'Построена · +3 яблока за сбор':'Не построена';
   document.getElementById('orchard-level').textContent=orchardLevel;
   document.getElementById('hud-orchard-level').textContent=orchardLevel;
+  document.getElementById('player-level').textContent=playerLevel;
+  const xpTarget=xpForLevel(playerLevel+1);
+  const xpStart=xpForLevel(playerLevel);
+  document.getElementById('player-xp').textContent=experience+' / '+xpTarget+' XP';
+  document.getElementById('xp-progress').style.width=Math.max(0,Math.min(100,(experience-xpStart)/(xpTarget-xpStart)*100))+'%';
+  document.getElementById('upgrade-orchard').textContent='🌳 Улучшить сад · '+orchardUpgradeCost()+' GC';
   if(serverMode) return;
   localStorage.setItem('coins',coins);
   localStorage.setItem('apples',apples);
   localStorage.setItem('greenWorldFarm',JSON.stringify({
-    coins,apples,seeds,hasWarehouse,hasMarket,hasGreenhouse,orchardLevel,
+    coins,apples,seeds,hasWarehouse,hasMarket,hasGreenhouse,orchardLevel,experience,playerLevel,
     plots:plots.map((p,i)=>p.tree?{index:i,grown:Boolean(p.tree.userData.grown)}:null).filter(Boolean)
   }));
 }
 
+function xpForLevel(level){
+  const thresholds=[0,100,250,450,700,1000];
+  if(level<thresholds.length) return thresholds[level];
+  const extra=level-5;
+  return 1000+extra*400+extra*(extra-1)*25;
+}
+function orchardUpgradeCost(){return 150*orchardLevel;}
+function addLocalExperience(amount){
+  experience+=amount;
+  while(experience>=xpForLevel(playerLevel+1)){
+    playerLevel++;
+    coins+=25;
+    hint('🎉 Новый уровень игрока: '+playerLevel+'! Получено 25 Green Coin.');
+  }
+  update();
+}
 function hint(message){
   document.getElementById('hint').textContent=message;
 }
@@ -463,6 +490,8 @@ function applyServerPlayer(player){
   apples=Number(player.apples)||0;
   seeds=Number(player.seeds)||0;
   orchardLevel=Math.max(1,Number(player.orchardLevel)||1);
+  experience=Math.max(0,Number(player.experience)||0);
+  playerLevel=Math.max(1,Number(player.playerLevel)||1);
   hasWarehouse=Boolean(player.hasWarehouse);
   hasMarket=Boolean(player.hasMarket);
   hasGreenhouse=Boolean(player.hasGreenhouse);
@@ -652,6 +681,7 @@ window.plant=async function(){
   coins-=10;
   seeds--;
   addTree(plot);
+  addLocalExperience(5);
   update();
   hint('Посажена яблоня! -10 Green Coin · осталось семян: '+seeds);
 };
@@ -669,7 +699,8 @@ window.water=async function(){
 
   if(serverMode){const plot=plots.find(p=>p.tree===tree);await serverAction('/api/game/water',{plotIndex:plots.indexOf(plot)},'Яблоня полита.');return;}
   setTreeGrown(tree,true);
-  hint('🌟 Яблоня выросла! На ней появились яблоки. Можно собирать урожай.');
+  addLocalExperience(2);
+  hint('🌟 Яблоня выросла! +2 XP. На ней появились яблоки. Можно собирать урожай.');
 };
 
 // ===== СБОР =====
@@ -690,6 +721,7 @@ window.harvest=async function(){
   if(serverMode){const plot=plots.find(p=>p.tree===tree);await serverAction('/api/game/harvest',{plotIndex:plots.indexOf(plot)},'Урожай собран и сохранён на сервере.');return;}
   apples+=harvestAmount();
   setTreeGrown(tree,false);
+  addLocalExperience(10);
   update();
   hint('Собрано '+harvestAmount()+' яблок! На складе '+apples+'/'+appleCapacity()+'.');
 };
@@ -706,8 +738,9 @@ window.sell=async function(){
   coins+=apples*applePrice();
   const sold=apples;
   apples=0;
+  addLocalExperience(5);
   update();
-  hint('Продано '+sold+' яблок! Получено '+sold*applePrice()+' Green Coin.');
+  hint('Продано '+sold+' яблок! Получено '+sold*applePrice()+' Green Coin. +5 XP.');
 };
 
 // ===== АНИМАЦИЯ =====
@@ -838,7 +871,7 @@ document.getElementById('build-warehouse').addEventListener('click',async()=>{
 document.getElementById('upgrade-orchard').addEventListener('click',async()=>{
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   if(serverMode){await serverAction('/api/game/upgrade-orchard',{},'Сад улучшен.');return;}
-  const cost=150;
+  const cost=orchardUpgradeCost();
   if(coins<cost){hint('Для улучшения сада нужно '+cost+' Green Coin.');return}
   coins-=cost;orchardLevel++;update();hint('Сад улучшен до уровня '+orchardLevel+'. Цена яблока теперь '+applePrice()+' Green Coin.');
 });
