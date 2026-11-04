@@ -84,7 +84,7 @@ function publicPlots(rawPlots) {
   });
 }
 const state = p => ({
-  coins:p.coins, apples:p.apples, seeds:p.seeds, orchardLevel:p.orchard_level,
+  coins:p.coins, apples:p.apples, fruitInventory:p.fruit_inventory||{}, seeds:p.seeds, orchardLevel:p.orchard_level,
   experience:Number(p.experience)||0, playerLevel:Number(p.player_level)||1,
   hasWarehouse:p.has_warehouse, warehouseLevel:Number(p.warehouse_level)||0,
   appleCapacity:p.has_warehouse?100*(Number(p.warehouse_level)||1):20,
@@ -220,11 +220,16 @@ app.post('/api/game/daily-reward/claim',auth,(req,res)=>mutate(req,res,async(c,p
 }));
 app.post('/api/game/plant',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const i=Number(req.body?.plotIndex);const plots=Array.isArray(p.plots)?p.plots:[];
+  const type=String(req.body?.treeType||'apple');
+  const costs={apple:100,peach:300,cherry:700,pear:1200,orange:2000,mango:3500};
   if(!Number.isInteger(i)||i<0||i>=400) reject(400,'Invalid plot');
   if(plots.some(x=>x.index===i)) reject(409,'Plot occupied');
-  if(p.seeds<1||p.coins<10) reject(409,'Not enough seeds or Green Coin');
+  if(!Object.prototype.hasOwnProperty.call(costs,type)) reject(400,'Unknown fruit tree');
+  if(p.coins<costs[type]) reject(409,'Not enough Green Coin');
+  if(type==='apple'&&p.seeds<1) reject(409,'Not enough apple seeds');
   const now=new Date();
-  await c.query('UPDATE players SET coins=coins-10,seeds=seeds-1,plots=plots || $2::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify([{index:i,grown:false,plantedAt:now.toISOString(),readyAt:new Date(now.getTime()+GROWTH_MS).toISOString(),watered:false}])]);
+  const newPlot={index:i,type,grown:false,plantedAt:now.toISOString(),readyAt:new Date(now.getTime()+GROWTH_MS).toISOString(),watered:false};
+  await c.query('UPDATE players SET coins=coins-$2,seeds=seeds-$3,plots=plots || $4::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,costs[type],type==='apple'?1:0,JSON.stringify([newPlot])]);
   await awardExperience(c,req.playerId,p,5);
   return {player:await loadState(c,req.playerId)};
 }));
@@ -250,22 +255,34 @@ app.post('/api/game/harvest',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const ready=(plot.grown&&!plot.readyAt)||(plot.readyAt&&new Date(plot.readyAt).getTime()<=now);
   if(!ready) reject(409,'Harvest is not ready yet');
   const capacity=p.has_warehouse?100*(Number(p.warehouse_level)||1):20;
+  const inventory=p.fruit_inventory&&typeof p.fruit_inventory==='object'?{...p.fruit_inventory}:{};
+  const stored=Number(p.apples||0)+Object.values(inventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
   const greenhouseLevel=p.has_greenhouse?(Number(p.greenhouse_level)||1):0;
-  const amount=Math.min(greenhouseLevel?5+greenhouseLevel*3:5,Math.max(0,capacity-Number(p.apples||0)));
-  if(amount<1) reject(409,'Warehouse is full. Sell apples or upgrade the warehouse.');
+  const amount=Math.min(greenhouseLevel?5+greenhouseLevel*3:5,Math.max(0,capacity-stored));
+  if(amount<1) reject(409,'Warehouse is full. Sell fruit or upgrade the warehouse.');
+  const type=({apple:'apple',peach:'peach',cherry:'cherry',pear:'pear',orange:'orange',mango:'mango'})[plot.type||'apple'];
   plot.plantedAt=new Date(now).toISOString();
   plot.readyAt=new Date(now+GROWTH_MS).toISOString();
   plot.watered=false;
   plot.grown=false;
-  await c.query('UPDATE players SET apples=apples+$2,plots=$3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,amount,JSON.stringify(plots)]);
+  if(type==='apple'){
+    await c.query('UPDATE players SET apples=apples+$2,plots=$3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,amount,JSON.stringify(plots)]);
+  }else{
+    inventory[type]=(Number(inventory[type])||0)+amount;
+    await c.query('UPDATE players SET fruit_inventory=$2::jsonb,plots=$3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify(inventory),JSON.stringify(plots)]);
+  }
   await awardExperience(c,req.playerId,p,10);
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/sell',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  if(p.apples<1) reject(409,'No apples to sell');
+  const inventory=p.fruit_inventory&&typeof p.fruit_inventory==='object'?p.fruit_inventory:{};
+  const salePrices={peach:7,cherry:12,pear:9,orange:15,mango:22};
   const marketBonus=p.has_market?(Number(p.market_level)||1):0;
-  const earned=p.apples*(1+p.orchard_level+marketBonus);
-  await c.query('UPDATE players SET coins=coins+$2,apples=0,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,earned]);
+  let earned=Number(p.apples||0)*(1+p.orchard_level+marketBonus);
+  for(const [type,price] of Object.entries(salePrices)) earned+=(Math.max(0,Number(inventory[type])||0))*(price+marketBonus);
+  const total=Number(p.apples||0)+Object.values(inventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
+  if(total<1) reject(409,'No fruit to sell');
+  await c.query("UPDATE players SET coins=coins+$2,apples=0,fruit_inventory='{}'::jsonb,updated_at=NOW() WHERE telegram_id=$1",[req.playerId,earned]);
   await awardExperience(c,req.playerId,p,5);
   return {player:await loadState(c,req.playerId),earned};
 }));
@@ -321,4 +338,4 @@ app.post('/api/game/upgrade-orchard',auth,(req,res)=>mutate(req,res,async(c,p)=>
 
 app.use((err,_req,res,_next)=>{console.error(err.message);res.status(500).json({error:'Internal server error'});});
 const port=Number(process.env.PORT||3000);
-app.listen(port,()=>console.log('GREEN WORLD API listening on '+port));
+db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS fruit_inventory JSONB NOT NULL DEFAULT '{}'::jsonb").then(()=>app.listen(port,()=>console.log('GREEN WORLD API listening on '+port))).catch(error=>{console.error('Database migration failed:',error);process.exit(1);});
