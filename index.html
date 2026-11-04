@@ -222,6 +222,86 @@ addBox(mansion,1.1,2,0.15,0x70452b,0,1,2.6);
 mansion.position.set(-13,0,-9);
 scene.add(mansion);
 
+// ===== ДЕТАЛИ УТВЕРЖДЁННОГО ГЛАВНОГО ДОМА =====
+// Сохраняем прежние габариты и положение дома, добавляя архитектурную глубину.
+const mansionDetails=new THREE.Group();
+const stoneMat=material(0xd8c7a8);
+const darkWood=material(0x68402b);
+const trimMat=material(0xf8e5c2);
+const glassMat=new THREE.MeshStandardMaterial({color:0x75c9e8,metalness:0.18,roughness:0.18,emissive:0x163747});
+for(const x of [-2,0,2]){
+  // Рамы и переплёты окон на фасаде
+  addBox(mansionDetails,1.02,1.32,0.16,trimMat,x,2.1,2.63);
+  addBox(mansionDetails,0.78,1.08,0.08,glassMat,x,2.1,2.72);
+  addBox(mansionDetails,0.09,1.12,0.1,trimMat,x,2.1,2.78);
+  addBox(mansionDetails,0.82,0.08,0.1,trimMat,x,2.1,2.78);
+  for(const side of [-1,1]){
+    addBox(mansionDetails,0.16,1.12,0.12,darkWood,x+side*0.58,2.1,2.68);
+  }
+  addBox(mansionDetails,1.12,0.12,0.22,stoneMat,x,1.42,2.67);
+}
+// Парадное крыльцо, ступени и колонны
+addBox(mansionDetails,2.25,0.28,1.45,stoneMat,0,0.18,3.15);
+addBox(mansionDetails,1.9,0.18,0.55,trimMat,0,0.42,3.72);
+for(const x of [-0.88,0.88]){
+  const pillar=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.17,2.15,12),trimMat);
+  pillar.position.set(x,1.48,3.55);pillar.castShadow=true;mansionDetails.add(pillar);
+  const cap=new THREE.Mesh(new THREE.CylinderGeometry(0.23,0.23,0.14,12),stoneMat);
+  cap.position.set(x,2.62,3.55);mansionDetails.add(cap);
+}
+addBox(mansionDetails,2.35,0.18,0.2,trimMat,0,2.72,3.55);
+// Декоративные пояса фасада и угловые каменные элементы
+addBox(mansionDetails,7.08,0.18,5.08,trimMat,0,3.48,0);
+for(const x of [-3.35,3.35]){
+  for(const z of [-2.35,2.35]){
+    addBox(mansionDetails,0.22,3.2,0.22,stoneMat,x,1.65,z);
+  }
+}
+// Фонари по обе стороны входа
+for(const x of [-1.65,1.65]){
+  const lamp=new THREE.Group();
+  addBox(lamp,0.16,0.55,0.16,darkWood,0,0,0);
+  const glow=new THREE.Mesh(new THREE.SphereGeometry(0.19,12,10),new THREE.MeshStandardMaterial({color:0xffdf91,emissive:0xffa52d,emissiveIntensity:0.8}));
+  glow.position.y=0.38;lamp.add(glow);lamp.position.set(x,2.0,2.9);mansionDetails.add(lamp);
+}
+mansion.add(mansionDetails);
+
+// ===== ЛАНДШАФТ ВОКРУГ ДОМА =====
+const gardenStone=material(0xc9bda5);
+const hedgeMat=material(0x286b38);
+const flowerColors=[0xe9a4b6,0xf3d36b,0xffffff,0xb9a0e8];
+// Невысокие живые изгороди обрамляют двор, не меняя планировку построек.
+for(const z of [-12.2,-5.4]){
+  for(let i=0;i<9;i++){
+    const bush=new THREE.Mesh(new THREE.SphereGeometry(0.48,10,8),hedgeMat);
+    bush.scale.set(1.15,0.78,0.9);
+    bush.position.set(-17.2+i*1.05,0.38,z);
+    bush.castShadow=true;scene.add(bush);
+  }
+}
+// Цветочные клумбы у парадного двора
+for(const [cx,cz] of [[-17,-5.0],[-9,-5.0],[-17,-12.5],[-9,-12.5]]){
+  const bed=new THREE.Mesh(new THREE.CylinderGeometry(1.0,1.05,0.18,20),gardenStone);
+  bed.position.set(cx,0.12,cz);bed.receiveShadow=true;scene.add(bed);
+  for(let i=0;i<9;i++){
+    const a=i*Math.PI*2/9;
+    const stem=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.035,0.34,6),material(0x347c3e));
+    stem.position.set(cx+Math.cos(a)*0.62,0.34,cz+Math.sin(a)*0.62);scene.add(stem);
+    const bloom=new THREE.Mesh(new THREE.SphereGeometry(0.16,10,8),material(flowerColors[(i+Math.round(cx))%flowerColors.length<0?0:(i+Math.round(cx))%flowerColors.length]));
+    bloom.position.set(cx+Math.cos(a)*0.62,0.55,cz+Math.sin(a)*0.62);bloom.castShadow=true;scene.add(bloom);
+  }
+}
+// Каменная дорожка из отдельных плит от дома к фонтану
+for(let i=0;i<13;i++){
+  const t=i/12;
+  const x=-11.9+(6.5*t);
+  const z=-5.1-1.8*t;
+  const slab=new THREE.Mesh(new THREE.BoxGeometry(0.95,0.12,0.72),gardenStone);
+  slab.position.set(x,0.015,z);
+  slab.rotation.y=-0.25;
+  slab.receiveShadow=true;scene.add(slab);
+}
+
 // ===== ФОНТАН =====
 const fountain=new THREE.Group();
 
