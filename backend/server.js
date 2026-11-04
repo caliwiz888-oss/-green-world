@@ -74,7 +74,7 @@ const state = p => ({
   plots:p.plots, appleCapacity:p.has_warehouse?100:20
 });
 function xpForLevel(level){
-  const thresholds=[0,100,250,450,700,1000];
+  const thresholds=[0,0,100,250,450,700,1000];
   if(level<thresholds.length) return thresholds[level];
   const extra=level-5;
   return 1000+extra*400+extra*(extra-1)*25;
