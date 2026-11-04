@@ -892,7 +892,7 @@ function setTreeGrown(tree,grown){
   if(!tree) return;
   tree.userData.grown=grown;
   tree.scale.setScalar(grown?1.22:1);
-  const crown=tree.children.find(child=>child.geometry?.type==='SphereGeometry' && child.position.y===2);
+  const crown=tree.userData.crown||tree.children.find(child=>child.geometry?.type==='SphereGeometry');
   if(crown?.material) crown.material.color.setHex(grown?0x48ad43:(fruitCatalog[tree.userData.type||'apple']?.leaf||0x258b39));
   for(const fruit of tree.userData.fruits||[]) fruit.visible=grown;
   if(tree.userData.readyRing) tree.userData.readyRing.visible=grown;
