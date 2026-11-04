@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'backend/**'
+      - 'index.html'
       - '.github/workflows/backend-tests.yml'
   pull_request:
     paths:
