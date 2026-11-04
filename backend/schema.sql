@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS players (
   experience INTEGER NOT NULL DEFAULT 0 CHECK (experience >= 0),
   player_level INTEGER NOT NULL DEFAULT 1 CHECK (player_level >= 1),
   has_warehouse BOOLEAN NOT NULL DEFAULT FALSE,
+  warehouse_level INTEGER NOT NULL DEFAULT 0 CHECK (warehouse_level >= 0),
   has_market BOOLEAN NOT NULL DEFAULT FALSE,
   has_greenhouse BOOLEAN NOT NULL DEFAULT FALSE,
   last_daily_claim DATE,
@@ -36,3 +37,6 @@ ALTER TABLE players ADD COLUMN IF NOT EXISTS experience INTEGER NOT NULL DEFAULT
 ALTER TABLE players ADD COLUMN IF NOT EXISTS player_level INTEGER NOT NULL DEFAULT 1;
 
 ALTER TABLE players ALTER COLUMN apples TYPE BIGINT;
+
+ALTER TABLE players ADD COLUMN IF NOT EXISTS warehouse_level INTEGER NOT NULL DEFAULT 0;
+UPDATE players SET warehouse_level=1 WHERE has_warehouse=TRUE AND warehouse_level=0;
