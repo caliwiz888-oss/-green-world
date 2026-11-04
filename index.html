@@ -435,7 +435,7 @@ let serverMode=false;
 let serverRequired=Boolean(apiBase);
 let apiBusy=false;
 let dailyReward={claimedToday:false,day:1,reward:10};
-const appleCapacity=()=>hasWarehouse?100:20;
+const appleCapacity=()=>Number.MAX_SAFE_INTEGER;
 const applePrice=()=>1+orchardLevel+(hasMarket?1:0);
 const harvestAmount=()=>hasGreenhouse?8:5;
 
@@ -443,8 +443,8 @@ function update(){
   document.getElementById('coins').textContent=coins;
   document.getElementById('apples').textContent=apples;
   document.getElementById('seed-count').textContent=seeds;
-  document.getElementById('apple-count').textContent=apples+' / '+appleCapacity();
-  document.getElementById('warehouse-status').textContent=hasWarehouse?'Построен · 100 мест':'Не построен · 20 мест';
+  document.getElementById('apple-count').textContent=apples+' / без лимита';
+  document.getElementById('warehouse-status').textContent=hasWarehouse?'Построен':'Не построен';
   document.getElementById('market-status').textContent=hasMarket?'Построена · +1 GC за яблоко':'Не построена';
   document.getElementById('greenhouse-status').textContent=hasGreenhouse?'Построена · +3 яблока за сбор':'Не построена';
   document.getElementById('orchard-level').textContent=orchardLevel;
@@ -558,11 +558,14 @@ async function refreshDailyReward(){
     const button=document.getElementById('claim-daily-reward');
     status.textContent=dailyReward.claimedToday?'Получено сегодня':'День '+dailyReward.day+' · '+dailyReward.reward+' GC';
     info.textContent=dailyReward.claimedToday?'Сегодняшняя награда уже получена. Возвращайся завтра!':'Твой подарок сегодня: '+dailyReward.reward+' Green Coin. На 7-й день — 100 GC.';
-    button.disabled=dailyReward.claimedToday;
+    button.disabled=Boolean(dailyReward.claimedToday);
     button.textContent=dailyReward.claimedToday?'✅ Награда получена':'🎁 Забрать '+dailyReward.reward+' Green Coin';
   }catch(error){
-    document.getElementById('daily-reward-status').textContent='Недоступно';
-    document.getElementById('daily-reward-info').textContent='Не удалось загрузить ежедневную награду.';
+    document.getElementById('daily-reward-status').textContent='Ошибка загрузки';
+    document.getElementById('daily-reward-info').textContent='Награда временно недоступна: '+(error.message||'ошибка сервера')+'. Обнови игру через минуту.';
+    const button=document.getElementById('claim-daily-reward');
+    button.disabled=false;
+    button.textContent='🔄 Проверить награду';
   }
 }
 async function connectGameServer(){
@@ -714,10 +717,6 @@ window.harvest=async function(){
     return;
   }
 
-  if(apples+harvestAmount()>appleCapacity()){
-    hint('Склад заполнен! Продай яблоки или построй амбар.');
-    return;
-  }
   if(serverMode){const plot=plots.find(p=>p.tree===tree);await serverAction('/api/game/harvest',{plotIndex:plots.indexOf(plot)},'Урожай собран и сохранён на сервере.');return;}
   apples+=harvestAmount();
   setTreeGrown(tree,false);
@@ -878,7 +877,10 @@ document.getElementById('upgrade-orchard').addEventListener('click',async()=>{
 document.getElementById('claim-daily-reward').addEventListener('click',async()=>{
   if(!serverMode){hint('Войди через Telegram, чтобы получить ежедневную награду.');return;}
   const button=document.getElementById('claim-daily-reward');
+  if(button.dataset.claiming==='1') return;
+  button.dataset.claiming='1';
   button.disabled=true;
+  button.textContent='⏳ Получаем награду…';
   try{
     const data=await apiRequest('/api/game/daily-reward/claim',{});
     if(data.player) applyServerPlayer(data.player);
@@ -888,6 +890,8 @@ document.getElementById('claim-daily-reward').addEventListener('click',async()=>
   }catch(error){
     hint(error.message||'Не удалось получить награду.');
     await refreshDailyReward();
+  }finally{
+    delete button.dataset.claiming;
   }
 });
 document.getElementById('sell-in-menu').addEventListener('click',async()=>{await window.sell();update()});
