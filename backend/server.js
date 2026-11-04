@@ -137,6 +137,9 @@ app.post('/api/auth/telegram',originGuard,async(req,res)=>{
         VALUES($1,$2,$3,$4,NOW()+INTERVAL '30 days')`,
         [crypto.randomUUID(),u.id,hash(raw),family]);
       const q=await c.query('SELECT * FROM players WHERE telegram_id=$1',[u.id]);
+      const migratedPlots=publicPlots(q.rows[0].plots);
+      await c.query('UPDATE players SET plots=$2::jsonb WHERE telegram_id=$1',[u.id,JSON.stringify(migratedPlots)]);
+      q.rows[0].plots=migratedPlots;
       await c.query('COMMIT');
       res.cookie(COOKIE,raw,refreshCookie);
       res.json({accessToken:issueAccess(u.id),player:state(q.rows[0])});
