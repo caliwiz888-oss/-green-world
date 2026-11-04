@@ -98,12 +98,19 @@ function xpForLevel(level){
   return 1000+extra*400+extra*(extra-1)*25;
 }
 async function awardExperience(c,playerId,player,amount){
-  const previousLevel=Number(player.player_level)||1;
-  const experience=(Number(player.experience)||0)+amount;
+  const current=await c.query(
+    'UPDATE players SET experience=experience+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING experience,player_level',
+    [playerId,amount]
+  );
+  if(!current.rowCount) reject(404,'Player not found');
+  const experience=Number(current.rows[0].experience)||0;
+  const previousLevel=Number(current.rows[0].player_level)||1;
   let level=previousLevel;
   while(experience>=xpForLevel(level+1)) level++;
   const bonus=(level-previousLevel)*25;
-  await c.query('UPDATE players SET experience=$2,player_level=$3,coins=coins+$4,updated_at=NOW() WHERE telegram_id=$1',[playerId,experience,level,bonus]);
+  if(level!==previousLevel || bonus>0){
+    await c.query('UPDATE players SET player_level=$2,coins=coins+$3,updated_at=NOW() WHERE telegram_id=$1',[playerId,level,bonus]);
+  }
 }
 async function mutate(req,res,fn) {
   const c=await db.connect();
