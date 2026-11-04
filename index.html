@@ -369,6 +369,78 @@ for(let x=-2.5;x<=2.5;x+=1){
 bridge.position.set(1,0,21);
 scene.add(bridge);
 
+// ===== БЕРЕГА РЕКИ И ДЕТАЛИ МОСТА =====
+const riverBankMat=material(0x789b54);
+const riverStoneMat=material(0xaaa99a);
+const reedMat=material(0x397d48);
+const riverEdge=new THREE.Group();
+for(const z of [18.55,23.45]){
+  const bank=new THREE.Mesh(new THREE.BoxGeometry(42,0.24,0.72),riverBankMat);
+  bank.position.set(0,0.02,z);bank.receiveShadow=true;riverEdge.add(bank);
+  // Каменная кромка вдоль воды
+  for(let x=-20.5;x<=20.5;x+=1.45){
+    const stone=new THREE.Mesh(new THREE.DodecahedronGeometry(0.34,0),riverStoneMat);
+    stone.scale.set(1.35,0.55,0.72);
+    stone.position.set(x,0.12,z+(z<21?0.24:-0.24));
+    stone.rotation.y=(x*0.37)%1;
+    stone.castShadow=true;riverEdge.add(stone);
+  }
+}
+scene.add(riverEdge);
+
+// Каменные перила и фонари на мосту
+for(const x of [-3.25,3.25]){
+  for(const z of [-1.35,1.35]){
+    const post=new THREE.Mesh(new THREE.BoxGeometry(0.22,0.72,0.22),material(0xd8cfbd));
+    post.position.set(x,1.82,z);post.castShadow=true;bridge.add(post);
+    const cap=new THREE.Mesh(new THREE.SphereGeometry(0.18,10,8),material(0xf0dfbd));
+    cap.position.set(x,2.25,z);bridge.add(cap);
+  }
+}
+for(const x of [-2.2,2.2]){
+  const lamp=new THREE.Group();
+  addBox(lamp,0.12,0.65,0.12,0x59402c,0,0.32,0);
+  const glow=new THREE.Mesh(new THREE.SphereGeometry(0.16,10,8),new THREE.MeshStandardMaterial({color:0xffdf9b,emissive:0xffa52c,emissiveIntensity:0.75}));
+  glow.position.y=0.72;lamp.add(glow);
+  lamp.position.set(x,1.05,0);bridge.add(lamp);
+}
+
+// Камыши и прибрежные растения — с обеих сторон реки
+const reeds=[];
+for(let i=0;i<42;i++){
+  const side=i%2===0?-1:1;
+  const x=-19+((i*17)%390)/10;
+  const z=21+side*(2.45+((i*7)%5)*0.18);
+  const plant=new THREE.Group();
+  for(let j=0;j<3;j++){
+    const stem=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.045,0.9+(j%2)*0.35,5),reedMat);
+    stem.position.set((j-1)*0.12,0.48,0);
+    stem.rotation.z=(j-1)*0.16;
+    plant.add(stem);
+    const tip=new THREE.Mesh(new THREE.ConeGeometry(0.065,0.32,6),material(0x80613b));
+    tip.position.set((j-1)*0.12,0.98+(j%2)*0.16,0);
+    plant.add(tip);
+  }
+  plant.position.set(x,0,z);plant.rotation.y=(i%7)*0.4;
+  scene.add(plant);reeds.push(plant);
+}
+// Небольшие светлые цветы на береговой траве
+for(let i=0;i<26;i++){
+  const x=-18+(i*13%360)/10;
+  const z= i%2===0?17.9:24.1;
+  const flower=new THREE.Mesh(new THREE.SphereGeometry(0.12,8,7),material(i%3===0?0xf3d77c:0xf5e9dc));
+  flower.position.set(x,0.22,z);flower.castShadow=true;scene.add(flower);
+}
+// Ненавязчивые блики на поверхности воды
+const waterGlints=new THREE.Group();
+for(let i=0;i<18;i++){
+  const glint=new THREE.Mesh(new THREE.PlaneGeometry(0.45+(i%3)*0.22,0.035),new THREE.MeshBasicMaterial({color:0xd8f8ff,transparent:true,opacity:0.38}));
+  glint.rotation.x=-Math.PI/2;
+  glint.position.set(-18+(i*19%360)/10,0.055,19.5+(i%6)*0.58);
+  waterGlints.add(glint);
+}
+scene.add(waterGlints);
+
 // ===== ДЕРЕВЬЯ =====
 function decorativeTree(x,z,size=1){
   const tree=new THREE.Group();
@@ -885,8 +957,10 @@ function animate(){
   // Вращение лопастей мельницы
   sails.rotation.z=time*0.8;
 
-  // Лёгкое движение воды
+  // Лёгкое движение воды и мерцание солнечных бликов
   pool.material.opacity=0.85+Math.sin(time*2)*0.1;
+  waterGlints.children.forEach((glint,i)=>{glint.material.opacity=0.18+((Math.sin(time*1.7+i*0.8)+1)*0.18);glint.position.x=-18+((i*19+time*1.8)%36);});
+  reeds.forEach((plant,i)=>{plant.rotation.z=Math.sin(time*1.25+i)*0.035;});
 
   renderer.render(scene,camera);
 }
