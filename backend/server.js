@@ -272,7 +272,7 @@ app.post('/api/game/buy-seeds',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/build',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const options={warehouse:['has_warehouse',100],market:['has_market',120],greenhouse:['has_greenhouse',180]};
+  const options={warehouse:['has_warehouse',100],market:['has_market',1500],greenhouse:['has_greenhouse',2500]};
   const option=options[req.body?.kind];if(!option) reject(400,'Unknown building');
   if(p[option[0]]) reject(409,'Building already exists');
   if(p.coins<option[1]) reject(409,'Not enough Green Coin');
