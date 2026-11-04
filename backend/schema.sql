@@ -11,7 +11,9 @@ CREATE TABLE IF NOT EXISTS players (
   has_warehouse BOOLEAN NOT NULL DEFAULT FALSE,
   warehouse_level INTEGER NOT NULL DEFAULT 0 CHECK (warehouse_level >= 0),
   has_market BOOLEAN NOT NULL DEFAULT FALSE,
+  market_level INTEGER NOT NULL DEFAULT 0 CHECK (market_level >= 0),
   has_greenhouse BOOLEAN NOT NULL DEFAULT FALSE,
+  greenhouse_level INTEGER NOT NULL DEFAULT 0 CHECK (greenhouse_level >= 0),
   last_daily_claim DATE,
   daily_streak INTEGER NOT NULL DEFAULT 0 CHECK (daily_streak >= 0),
   plots JSONB NOT NULL DEFAULT '[{"index":22,"grown":false},{"index":25,"grown":false},{"index":28,"grown":false},{"index":31,"grown":false},{"index":34,"grown":false}]'::jsonb,
@@ -40,3 +42,8 @@ ALTER TABLE players ALTER COLUMN apples TYPE BIGINT;
 
 ALTER TABLE players ADD COLUMN IF NOT EXISTS warehouse_level INTEGER NOT NULL DEFAULT 0;
 UPDATE players SET warehouse_level=1 WHERE has_warehouse=TRUE AND warehouse_level=0;
+
+ALTER TABLE players ADD COLUMN IF NOT EXISTS market_level INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE players ADD COLUMN IF NOT EXISTS greenhouse_level INTEGER NOT NULL DEFAULT 0;
+UPDATE players SET market_level=1 WHERE has_market=TRUE AND market_level=0;
+UPDATE players SET greenhouse_level=1 WHERE has_greenhouse=TRUE AND greenhouse_level=0;
