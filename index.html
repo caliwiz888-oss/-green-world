@@ -61,6 +61,9 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
     <div class="menu-row"><span>🏪 Торговая лавка</span><strong id="market-status">Не построена</strong></div>
     <div class="menu-row"><span>🌿 Теплица</span><strong id="greenhouse-status">Не построена</strong></div>
     <div class="menu-row"><span>🌳 Уровень сада</span><strong id="orchard-level">1</strong></div>
+    <div class="menu-row"><span>🎁 Ежедневный подарок</span><strong id="daily-reward-status">Загрузка…</strong></div>
+    <div style="font-size:12px;color:#d7f5d9;padding:8px 0" id="daily-reward-info">Заходи каждый день и получай Green Coin. Награда 7-го дня — 100 GC.</div>
+    <button id="claim-daily-reward" style="width:100%;margin:8px 0">🎁 Забрать ежедневную награду</button>
     <div class="menu-actions">
       <button id="buy-seeds">🌰 Купить 5 семян · 30 GC</button>
       <button id="build-warehouse">🏚️ Построить амбар · 80 GC</button>
@@ -426,6 +429,7 @@ let accessToken=null;
 let serverMode=false;
 let serverRequired=Boolean(apiBase);
 let apiBusy=false;
+let dailyReward={claimedToday:false,day:1,reward:10};
 const appleCapacity=()=>hasWarehouse?100:20;
 const applePrice=()=>1+orchardLevel+(hasMarket?1:0);
 const harvestAmount=()=>hasGreenhouse?8:5;
@@ -515,6 +519,22 @@ async function serverAction(path,body,message){
   }finally{apiBusy=false;}
 }
 
+async function refreshDailyReward(){
+  if(!serverMode) return;
+  try{
+    dailyReward=await apiRequest('/api/game/daily-reward');
+    const status=document.getElementById('daily-reward-status');
+    const info=document.getElementById('daily-reward-info');
+    const button=document.getElementById('claim-daily-reward');
+    status.textContent=dailyReward.claimedToday?'Получено сегодня':'День '+dailyReward.day+' · '+dailyReward.reward+' GC';
+    info.textContent=dailyReward.claimedToday?'Сегодняшняя награда уже получена. Возвращайся завтра!':'Твой подарок сегодня: '+dailyReward.reward+' Green Coin. На 7-й день — 100 GC.';
+    button.disabled=dailyReward.claimedToday;
+    button.textContent=dailyReward.claimedToday?'✅ Награда получена':'🎁 Забрать '+dailyReward.reward+' Green Coin';
+  }catch(error){
+    document.getElementById('daily-reward-status').textContent='Недоступно';
+    document.getElementById('daily-reward-info').textContent='Не удалось загрузить ежедневную награду.';
+  }
+}
 async function connectGameServer(){
   const status=document.getElementById('connection-status');
   const tg=window.Telegram?.WebApp;
@@ -534,6 +554,7 @@ async function connectGameServer(){
     serverMode=true;
     applyServerPlayer(data.player);
     status.textContent='СЕРВЕР · ПРОГРЕСС СОХРАНЯЕТСЯ';
+    await refreshDailyReward();
     hint('Ты вошёл в GREEN WORLD. Прогресс хранится в игровом аккаунте.');
   }catch(error){
     status.textContent='СЕРВЕР НЕДОСТУПЕН';
@@ -819,6 +840,21 @@ document.getElementById('upgrade-orchard').addEventListener('click',async()=>{
   const cost=orchardLevel*150;
   if(coins<cost){hint('Для улучшения сада нужно '+cost+' Green Coin.');return}
   coins-=cost;orchardLevel++;update();hint('Сад улучшен до уровня '+orchardLevel+'. Цена яблока теперь '+applePrice()+' Green Coin.');
+});
+document.getElementById('claim-daily-reward').addEventListener('click',async()=>{
+  if(!serverMode){hint('Войди через Telegram, чтобы получить ежедневную награду.');return;}
+  const button=document.getElementById('claim-daily-reward');
+  button.disabled=true;
+  try{
+    const data=await apiRequest('/api/game/daily-reward/claim',{});
+    if(data.player) applyServerPlayer(data.player);
+    dailyReward={claimedToday:true,day:data.day,reward:data.reward};
+    await refreshDailyReward();
+    hint('🎁 Получено '+data.reward+' Green Coin! День '+data.day+' из 7.');
+  }catch(error){
+    hint(error.message||'Не удалось получить награду.');
+    await refreshDailyReward();
+  }
 });
 document.getElementById('sell-in-menu').addEventListener('click',async()=>{await window.sell();update()});
 document.getElementById('build-market').addEventListener('click',async()=>{
