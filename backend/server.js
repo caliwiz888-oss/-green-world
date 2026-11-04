@@ -88,7 +88,8 @@ const state = p => ({
   experience:Number(p.experience)||0, playerLevel:Number(p.player_level)||1,
   hasWarehouse:p.has_warehouse, warehouseLevel:Number(p.warehouse_level)||0,
   appleCapacity:p.has_warehouse?100*(Number(p.warehouse_level)||1):20,
-  hasMarket:p.has_market, hasGreenhouse:p.has_greenhouse,
+  hasMarket:p.has_market, marketLevel:Number(p.market_level)||0,
+  hasGreenhouse:p.has_greenhouse, greenhouseLevel:Number(p.greenhouse_level)||0,
   plots:publicPlots(p.plots)
 });
 function xpForLevel(level){
@@ -249,7 +250,8 @@ app.post('/api/game/harvest',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const ready=(plot.grown&&!plot.readyAt)||(plot.readyAt&&new Date(plot.readyAt).getTime()<=now);
   if(!ready) reject(409,'Harvest is not ready yet');
   const capacity=p.has_warehouse?100*(Number(p.warehouse_level)||1):20;
-  const amount=Math.min(p.has_greenhouse?8:5,Math.max(0,capacity-Number(p.apples||0)));
+  const greenhouseLevel=p.has_greenhouse?(Number(p.greenhouse_level)||1):0;
+  const amount=Math.min(greenhouseLevel?5+greenhouseLevel*3:5,Math.max(0,capacity-Number(p.apples||0)));
   if(amount<1) reject(409,'Warehouse is full. Sell apples or upgrade the warehouse.');
   plot.plantedAt=new Date(now).toISOString();
   plot.readyAt=new Date(now+GROWTH_MS).toISOString();
@@ -261,7 +263,8 @@ app.post('/api/game/harvest',auth,(req,res)=>mutate(req,res,async(c,p)=>{
 }));
 app.post('/api/game/sell',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   if(p.apples<1) reject(409,'No apples to sell');
-  const earned=p.apples*(1+p.orchard_level+(p.has_market?1:0));
+  const marketBonus=p.has_market?(Number(p.market_level)||1):0;
+  const earned=p.apples*(1+p.orchard_level+marketBonus);
   await c.query('UPDATE players SET coins=coins+$2,apples=0,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,earned]);
   await awardExperience(c,req.playerId,p,5);
   return {player:await loadState(c,req.playerId),earned};
@@ -277,7 +280,8 @@ app.post('/api/game/build',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   if(p[option[0]]) reject(409,'Building already exists');
   if(p.coins<option[1]) reject(409,'Not enough Green Coin');
   if(req.body?.kind==='warehouse') await c.query('UPDATE players SET coins=coins-$2,has_warehouse=TRUE,warehouse_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
-  else await c.query(`UPDATE players SET coins=coins-$2,${option[0]}=TRUE,updated_at=NOW() WHERE telegram_id=$1`,[req.playerId,option[1]]);
+  else if(req.body?.kind==='market') await c.query('UPDATE players SET coins=coins-$2,has_market=TRUE,market_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
+  else await c.query('UPDATE players SET coins=coins-$2,has_greenhouse=TRUE,greenhouse_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/upgrade-warehouse',auth,(req,res)=>mutate(req,res,async(c,p)=>{
@@ -287,6 +291,26 @@ app.post('/api/game/upgrade-warehouse',auth,(req,res)=>mutate(req,res,async(c,p)
   const cost=upgradeCosts[level]??(15000+(level-9)*4000);
   if(p.coins<cost) reject(409,'Not enough Green Coin');
   await c.query('UPDATE players SET coins=coins-$2,warehouse_level=warehouse_level+1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,cost]);
+  return {player:await loadState(c,req.playerId)};
+}));
+app.post('/api/game/upgrade-market',auth,(req,res)=>mutate(req,res,async(c,p)=>{
+  if(!p.has_market) reject(409,'Build the market first');
+  const level=Number(p.market_level)||1;
+  if(level>=5) reject(409,'Market is already at maximum level');
+  const costs=[0,2000,3500,5500,8000];
+  const cost=costs[level];
+  if(p.coins<cost) reject(409,'Not enough Green Coin');
+  await c.query('UPDATE players SET coins=coins-$2,market_level=market_level+1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,cost]);
+  return {player:await loadState(c,req.playerId)};
+}));
+app.post('/api/game/upgrade-greenhouse',auth,(req,res)=>mutate(req,res,async(c,p)=>{
+  if(!p.has_greenhouse) reject(409,'Build the greenhouse first');
+  const level=Number(p.greenhouse_level)||1;
+  if(level>=5) reject(409,'Greenhouse is already at maximum level');
+  const costs=[0,3000,5000,7500,11000];
+  const cost=costs[level];
+  if(p.coins<cost) reject(409,'Not enough Green Coin');
+  await c.query('UPDATE players SET coins=coins-$2,greenhouse_level=greenhouse_level+1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,cost]);
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/upgrade-orchard',auth,(req,res)=>mutate(req,res,async(c,p)=>{
