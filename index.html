@@ -452,6 +452,13 @@ function applyServerPlayer(player){
     if(plot.tree){scene.remove(plot.tree);plot.tree=null;}
   }
   trees=[];
+  const oldWarehouse=scene.getObjectByName('warehouseBuilding');
+  if(oldWarehouse) scene.remove(oldWarehouse);
+  const oldMarket=scene.getObjectByName('marketBuilding');
+  if(oldMarket) scene.remove(oldMarket);
+  const oldGreenhouse=scene.getObjectByName('greenhouseBuilding');
+  if(oldGreenhouse) scene.remove(oldGreenhouse);
+  warehouse=null;
   if(Array.isArray(player.plots)){
     for(const item of player.plots){
       if(Number.isInteger(item.index)&&plots[item.index]) addTree(plots[item.index],Boolean(item.grown));
@@ -566,7 +573,7 @@ function createGreenhouse(){
 }
 function createWarehouse(){
   if(warehouse) return;
-  warehouse=new THREE.Group();
+  warehouse=new THREE.Group();warehouse.name='warehouseBuilding';
   addBox(warehouse,4,2.8,3.5,0xc99a5b,0,1.4,0);
   const roof=new THREE.Mesh(new THREE.ConeGeometry(3.1,1.8,4),material(0x70412e));
   roof.position.y=3.7;roof.rotation.y=Math.PI/4;warehouse.add(roof);
