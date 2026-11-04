@@ -10,12 +10,25 @@ import pg from 'pg';
 
 const app = express();
 const { Pool } = pg;
-const db = new Pool({ connectionString: process.env.DATABASE_URL });
+const pgSslMode = process.env.PGSSLMODE || (process.env.NODE_ENV === 'production' ? 'require' : 'disable');
+const db = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: pgSslMode === 'disable' ? false : {
+    rejectUnauthorized: process.env.PGSSL_REJECT_UNAUTHORIZED !== 'false'
+  }
+});
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const JWT_SECRET = process.env.JWT_ACCESS_SECRET;
 const ISSUER = process.env.JWT_ISSUER || 'green-world-api';
 const ORIGINS = (process.env.WEB_ORIGINS || '').split(',').map(x => x.trim()).filter(Boolean);
 const COOKIE = 'gw_refresh';
+const COOKIE_SECURE = process.env.COOKIE_SECURE
+  ? process.env.COOKIE_SECURE === 'true'
+  : process.env.NODE_ENV === 'production';
+const COOKIE_SAME_SITE = process.env.COOKIE_SAME_SITE || (COOKIE_SECURE ? 'none' : 'lax');
+if (!['lax', 'strict', 'none'].includes(COOKIE_SAME_SITE) || (COOKIE_SAME_SITE === 'none' && !COOKIE_SECURE)) {
+  throw new Error('COOKIE_SAME_SITE=none requires COOKIE_SECURE=true');
+}
 const DAY = 86400000;
 
 if (!BOT_TOKEN || !JWT_SECRET || JWT_SECRET.length < 32 || !process.env.DATABASE_URL) {
@@ -39,25 +52,12 @@ function originGuard(req, res, next) {
   if (!req.get('origin') || !ORIGINS.includes(req.get('origin'))) return res.status(403).json({ error: 'Origin not allowed' });
   next();
 }
+import { verifyTelegramInitData } from './security.js';
 function telegramUser(raw) {
-  if (typeof raw !== 'string' || raw.length > 8192) throw new Error('Invalid initData');
-  const p = new URLSearchParams(raw);
-  if (p.getAll('hash').length !== 1 || p.getAll('auth_date').length !== 1 || p.getAll('user').length !== 1) throw new Error('Invalid initData fields');
-  const hash = p.get('hash');
-  p.delete('hash');
-  const check = [...p.entries()].sort(([a],[b]) => a.localeCompare(b)).map(([k,v]) => k + '=' + v).join('\n');
-  const key = crypto.createHmac('sha256', 'WebAppData').update(BOT_TOKEN).digest();
-  const expected = crypto.createHmac('sha256', key).update(check).digest('hex');
-  if (!/^[a-f0-9]{64}$/i.test(hash) || !crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(expected, 'hex'))) throw new Error('Bad Telegram signature');
-  const authDate = Number(p.get('auth_date'));
-  const now = Math.floor(Date.now()/1000);
-  if (!Number.isInteger(authDate) || authDate > now + 30 || now - authDate > 300) throw new Error('Expired Telegram data');
-  const user = JSON.parse(p.get('user'));
-  if (!/^\d{1,20}$/.test(String(user.id))) throw new Error('Bad user id');
-  return { id: String(user.id), username: typeof user.username === 'string' ? user.username.slice(0,64) : null, firstName: typeof user.first_name === 'string' ? user.first_name.slice(0,128) : '' };
+  return verifyTelegramInitData(raw, BOT_TOKEN);
 }
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
-const refreshCookie = { httpOnly: true, secure: true, sameSite: 'none', path: '/api/auth', maxAge: 30*DAY };
+const refreshCookie = { httpOnly: true, secure: COOKIE_SECURE, sameSite: COOKIE_SAME_SITE, path: '/api/auth', maxAge: 30*DAY };
 const issueAccess = id => jwt.sign({}, JWT_SECRET, { algorithm: 'HS256', subject: String(id), issuer: ISSUER, expiresIn: '15m' });
 function auth(req,res,next) {
   try {
