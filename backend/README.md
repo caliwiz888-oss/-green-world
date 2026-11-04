@@ -41,7 +41,7 @@ The health endpoint is `GET /health`.
 
 ## Deploying the API
 
-Create a Node web service from this repository. Set its root directory to `backend`, build command to `npm install`, and start command to `npm start`. Provision PostgreSQL and run `schema.sql` once against that database. Add all production environment variables in the hosting provider's secret settings; do not commit `.env` or paste the Telegram bot token into chats.
+Use the root-level `render.yaml` Blueprint in this repository. It provisions the Node web service and PostgreSQL in Frankfurt, applies `schema.sql` through the pre-deploy migration command, and configures the required non-secret environment variables. During Blueprint creation, Render prompts for `TELEGRAM_BOT_TOKEN` and `WEB_ORIGINS`. Add all production environment variables in the hosting provider's secret settings; do not commit `.env` or paste the Telegram bot token into chats.
 
 Set `WEB_ORIGINS` to the exact public origin of the deployed Mini App (scheme and host, without a path). In `index.html`, replace the empty value in `window.GREEN_WORLD_API_URL = '';` (near the Telegram bridge script) with the API's HTTPS base URL. Do not include a trailing path such as `/api`; the frontend appends API routes itself. When this URL is configured, game actions are locked until Telegram authentication succeeds, rather than silently falling back to local-only economy.
 
