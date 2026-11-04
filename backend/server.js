@@ -67,11 +67,27 @@ function auth(req,res,next) {
     req.playerId = String(payload.sub); next();
   } catch { res.status(401).json({error:'Authentication required'}); }
 }
+const GROWTH_MS = 8 * 60 * 60 * 1000;
+const WATER_REDUCTION_MS = 4 * 60 * 60 * 1000;
+function publicPlots(rawPlots) {
+  const now=Date.now();
+  return (Array.isArray(rawPlots)?rawPlots:[]).map(item=>{
+    const plot={...item};
+    if(plot.grown&&!plot.readyAt) return plot;
+    if(!plot.readyAt) {
+      plot.plantedAt=plot.plantedAt||new Date(now).toISOString();
+      plot.readyAt=new Date(now+GROWTH_MS).toISOString();
+      plot.watered=Boolean(plot.watered);
+    }
+    plot.grown=new Date(plot.readyAt).getTime()<=now;
+    return plot;
+  });
+}
 const state = p => ({
   coins:p.coins, apples:p.apples, seeds:p.seeds, orchardLevel:p.orchard_level,
   experience:Number(p.experience)||0, playerLevel:Number(p.player_level)||1,
   hasWarehouse:p.has_warehouse, hasMarket:p.has_market, hasGreenhouse:p.has_greenhouse,
-  plots:p.plots, appleCapacity:null
+  plots:publicPlots(p.plots), appleCapacity:null
 });
 function xpForLevel(level){
   const thresholds=[0,0,100,250,450,700,1000];
@@ -194,22 +210,36 @@ app.post('/api/game/plant',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   if(!Number.isInteger(i)||i<0||i>=400) reject(400,'Invalid plot');
   if(plots.some(x=>x.index===i)) reject(409,'Plot occupied');
   if(p.seeds<1||p.coins<10) reject(409,'Not enough seeds or Green Coin');
-  await c.query('UPDATE players SET coins=coins-10,seeds=seeds-1,plots=plots || $2::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify([{index:i,grown:false}])]);
+  const now=new Date();
+  await c.query('UPDATE players SET coins=coins-10,seeds=seeds-1,plots=plots || $2::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify([{index:i,grown:false,plantedAt:now.toISOString(),readyAt:new Date(now.getTime()+GROWTH_MS).toISOString(),watered:false}])]);
   await awardExperience(c,req.playerId,p,5);
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/water',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const i=Number(req.body?.plotIndex);const plots=(Array.isArray(p.plots)?p.plots:[]).map(x=>({...x}));
-  const plot=plots.find(x=>x.index===i);if(!plot||plot.grown) reject(409,'Tree is not ready for watering');
-  plot.grown=true;
+  const plot=plots.find(x=>x.index===i);if(!plot) reject(404,'Tree not found');
+  const now=Date.now();
+  if(plot.grown&&!plot.readyAt) reject(409,'Harvest is already ready');
+  if(!plot.readyAt){plot.plantedAt=plot.plantedAt||new Date(now).toISOString();plot.readyAt=new Date(now+GROWTH_MS).toISOString();}
+  if(new Date(plot.readyAt).getTime()<=now) reject(409,'Harvest is already ready');
+  if(plot.watered) reject(409,'Tree has already been watered this cycle');
+  plot.readyAt=new Date(Math.max(now,new Date(plot.readyAt).getTime()-WATER_REDUCTION_MS)).toISOString();
+  plot.watered=true;
+  plot.grown=new Date(plot.readyAt).getTime()<=now;
   await c.query('UPDATE players SET plots=$2::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify(plots)]);
   await awardExperience(c,req.playerId,p,2);
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/harvest',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const i=Number(req.body?.plotIndex);const plots=(Array.isArray(p.plots)?p.plots:[]).map(x=>({...x}));
-  const plot=plots.find(x=>x.index===i);if(!plot?.grown) reject(409,'Tree is not ready to harvest');
+  const plot=plots.find(x=>x.index===i);if(!plot) reject(404,'Tree not found');
+  const now=Date.now();
+  const ready=(plot.grown&&!plot.readyAt)||(plot.readyAt&&new Date(plot.readyAt).getTime()<=now);
+  if(!ready) reject(409,'Harvest is not ready yet');
   const amount=p.has_greenhouse?8:5;
+  plot.plantedAt=new Date(now).toISOString();
+  plot.readyAt=new Date(now+GROWTH_MS).toISOString();
+  plot.watered=false;
   plot.grown=false;
   await c.query('UPDATE players SET apples=apples+$2,plots=$3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,amount,JSON.stringify(plots)]);
   await awardExperience(c,req.playerId,p,10);
