@@ -460,7 +460,7 @@ function update(){
   localStorage.setItem('apples',apples);
   localStorage.setItem('greenWorldFarm',JSON.stringify({
     coins,apples,seeds,hasWarehouse,hasMarket,hasGreenhouse,orchardLevel,experience,playerLevel,
-    plots:plots.map((p,i)=>p.tree?{index:i,grown:Boolean(p.tree.userData.grown)}:null).filter(Boolean)
+    plots:plots.map((p,i)=>p.tree?{index:i,grown:Boolean(p.tree.userData.grown),plantedAt:p.tree.userData.plantedAt,readyAt:p.tree.userData.readyAt,watered:Boolean(p.tree.userData.watered)}:null).filter(Boolean)
   }));
 }
 
@@ -508,7 +508,7 @@ function applyServerPlayer(player){
   warehouse=null;
   if(Array.isArray(player.plots)){
     for(const item of player.plots){
-      if(Number.isInteger(item.index)&&plots[item.index]) addTree(plots[item.index],Boolean(item.grown));
+      if(Number.isInteger(item.index)&&plots[item.index]) addTree(plots[item.index],item);
     }
   }
   if(hasWarehouse) createWarehouse();
@@ -595,6 +595,23 @@ async function connectGameServer(){
   }
 }
 
+const GROWTH_MS=8*60*60*1000;
+const WATER_REDUCTION_MS=4*60*60*1000;
+function remainingGrowthMs(tree){return Math.max(0,new Date(tree.userData.readyAt||Date.now()).getTime()-Date.now());}
+function formatDuration(ms){
+  const total=Math.ceil(ms/1000),hours=Math.floor(total/3600),minutes=Math.floor((total%3600)/60),seconds=total%60;
+  return [hours,minutes,seconds].map(v=>String(v).padStart(2,'0')).join(':');
+}
+function refreshTreeGrowth(){
+  for(const tree of trees) if(tree.userData.readyAt){
+    const ready=remainingGrowthMs(tree)===0;
+    if(Boolean(tree.userData.grown)!==ready) setTreeGrown(tree,ready);
+  }
+  if(selectedPlot?.tree){
+    const tree=selectedPlot.tree;
+    document.getElementById('selection').textContent=tree.userData.grown?'Урожай готов · можно собирать':(tree.userData.watered?'Полито · ':'Полив доступен · ')+'до урожая '+formatDuration(remainingGrowthMs(tree));
+  }
+}
 function setTreeGrown(tree,grown){
   if(!tree) return;
   tree.userData.grown=grown;
@@ -604,16 +621,20 @@ function setTreeGrown(tree,grown){
   for(const fruit of tree.userData.fruits||[]) fruit.visible=grown;
   if(tree.userData.readyRing) tree.userData.readyRing.visible=grown;
 }
-function addTree(plot,grown=false){
+function addTree(plot,item=false){
+  const data=typeof item==='object'&&item!==null?item:{grown:Boolean(item)};
   plot.tree=makeTree(plot.x,plot.z);
-  setTreeGrown(plot.tree,grown);
+  plot.tree.userData.plantedAt=data.plantedAt||new Date().toISOString();
+  plot.tree.userData.readyAt=data.readyAt||(data.grown?new Date(0).toISOString():new Date(Date.now()+GROWTH_MS).toISOString());
+  plot.tree.userData.watered=Boolean(data.watered);
+  setTreeGrown(plot.tree,Boolean(data.grown)||remainingGrowthMs(plot.tree)===0);
   trees.push(plot.tree);
 }
 
 // Восстановление фермы после перезагрузки
 if(Array.isArray(savedFarm?.plots)){
   savedFarm.plots.forEach(item=>{
-    if(Number.isInteger(item.index) && plots[item.index]) addTree(plots[item.index],Boolean(item.grown));
+    if(Number.isInteger(item.index) && plots[item.index]) addTree(plots[item.index],item);
   });
 }else{
   [0,1,2,3,4].forEach(i=>addTree(plots[i*3+22]));
@@ -683,7 +704,7 @@ window.plant=async function(){
   if(serverMode){await serverAction('/api/game/plant',{plotIndex:plots.indexOf(plot)},'Яблоня посажена. Прогресс сохранён на сервере.');return;}
   coins-=10;
   seeds--;
-  addTree(plot);
+  addTree(plot,{grown:false,plantedAt:new Date().toISOString(),readyAt:new Date(Date.now()+GROWTH_MS).toISOString(),watered:false});
   addLocalExperience(5);
   update();
   hint('Посажена яблоня! -10 Green Coin · осталось семян: '+seeds);
@@ -692,37 +713,31 @@ window.plant=async function(){
 // ===== ПОЛИВ =====
 window.water=async function(){
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
-  const tree=(selectedPlot?.tree && !selectedPlot.tree.userData.grown)
-    ? selectedPlot.tree : trees.find(t=>!t.userData.grown);
-
-  if(!tree){
-    hint('Все яблони уже выросли!');
-    return;
-  }
-
-  if(serverMode){const plot=plots.find(p=>p.tree===tree);await serverAction('/api/game/water',{plotIndex:plots.indexOf(plot)},'Яблоня полита.');return;}
-  setTreeGrown(tree,true);
+  const tree=(selectedPlot?.tree&&!selectedPlot.tree.userData.grown&&!selectedPlot.tree.userData.watered)?selectedPlot.tree:trees.find(t=>!t.userData.grown&&!t.userData.watered);
+  if(!tree){hint('Нет яблонь, которые можно полить сейчас. Каждое дерево можно полить один раз за цикл.');return;}
+  if(serverMode){const plot=plots.find(p=>p.tree===tree);await serverAction('/api/game/water',{plotIndex:plots.indexOf(plot)},'Полив ускорил созревание на 4 часа.');return;}
+  tree.userData.readyAt=new Date(Math.max(Date.now(),new Date(tree.userData.readyAt).getTime()-WATER_REDUCTION_MS)).toISOString();
+  tree.userData.watered=true;
+  setTreeGrown(tree,remainingGrowthMs(tree)===0);
   addLocalExperience(2);
-  hint('🌟 Яблоня выросла! +2 XP. На ней появились яблоки. Можно собирать урожай.');
+  update();
+  hint('💧 Полив сократил оставшееся ожидание на 4 часа.');
 };
 
 // ===== СБОР =====
 window.harvest=async function(){
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
-  const tree=(selectedPlot?.tree?.userData.grown)
-    ? selectedPlot.tree : trees.find(t=>t.userData.grown);
-
-  if(!tree){
-    hint('Сначала полей яблоню!');
-    return;
-  }
-
-  if(serverMode){const plot=plots.find(p=>p.tree===tree);await serverAction('/api/game/harvest',{plotIndex:plots.indexOf(plot)},'Урожай собран и сохранён на сервере.');return;}
+  const tree=selectedPlot?.tree?.userData.grown?selectedPlot.tree:trees.find(t=>t.userData.grown);
+  if(!tree){const growing=selectedPlot?.tree||trees.find(t=>!t.userData.grown);hint(growing?.userData?.readyAt?'До сбора осталось '+formatDuration(remainingGrowthMs(growing))+'.':'Урожай ещё созревает.');return;}
+  if(serverMode){const plot=plots.find(p=>p.tree===tree);await serverAction('/api/game/harvest',{plotIndex:plots.indexOf(plot)},'Урожай собран. Следующий цикл созревания — 8 часов.');return;}
   apples+=harvestAmount();
+  tree.userData.plantedAt=new Date().toISOString();
+  tree.userData.readyAt=new Date(Date.now()+GROWTH_MS).toISOString();
+  tree.userData.watered=false;
   setTreeGrown(tree,false);
   addLocalExperience(10);
   update();
-  hint('Собрано '+harvestAmount()+' яблок! Всего на складе '+apples+'. Лимита нет.');
+  hint('Собрано '+harvestAmount()+' яблок! Следующий урожай будет через 8 часов.');
 };
 
 // ===== ПРОДАЖА =====
@@ -749,6 +764,7 @@ function animate(){
   requestAnimationFrame(animate);
 
   const time=clock.getElapsedTime();
+  refreshTreeGrowth();
 
   // Вращение лопастей мельницы
   sails.rotation.z=time*0.8;
@@ -792,7 +808,7 @@ function setSelection(plot){
   if(plot?.tile) plot.tile.material.emissive?.setHex(0x315d12);
   const label=document.getElementById('selection');
   label.textContent=plot
-    ? (plot.tree ? 'Участок выбран · яблоня растёт здесь' : 'Участок выбран · свободная земля')
+    ? (plot.tree ? (plot.tree.userData.grown?'Урожай готов · можно собирать':'Яблоня растёт · ожидание 8 часов, полив −4 часа') : 'Участок выбран · свободная земля')
     : 'Участок не выбран · коснись земли';
 }
 function zoom(factor){
