@@ -424,7 +424,7 @@ let coins=Number(savedFarm?.coins ?? localStorage.getItem('coins') ?? 100);
 let apples=Number(savedFarm?.apples ?? localStorage.getItem('apples') ?? 0);
 let seeds=Number(savedFarm?.seeds ?? 5);
 let hasWarehouse=Boolean(savedFarm?.hasWarehouse ?? false);
-let warehouseLevel=Math.max(0,Number(savedFarm?.warehouseLevel ?? 0));
+let warehouseLevel=Boolean(savedFarm?.hasWarehouse)?Math.max(1,Number(savedFarm?.warehouseLevel ?? 1)):0;
 let hasMarket=Boolean(savedFarm?.hasMarket ?? false);
 let hasGreenhouse=Boolean(savedFarm?.hasGreenhouse ?? false);
 let orchardLevel=Math.max(1,Number(savedFarm?.orchardLevel ?? 1));
@@ -446,7 +446,7 @@ function update(){
   document.getElementById('coins').textContent=coins;
   document.getElementById('apples').textContent=apples;
   document.getElementById('seed-count').textContent=seeds;
-  document.getElementById('apple-count').textContent=apples+' / без лимита';
+  document.getElementById('apple-count').textContent=apples+' / '+appleCapacity();
   document.getElementById('warehouse-status').textContent=hasWarehouse?'Построен · уровень '+warehouseLevel:'Не построен';
   document.getElementById('warehouse-capacity').textContent=apples+' / '+appleCapacity()+' яблок';
   document.getElementById('upgrade-warehouse').textContent='📦 Улучшить амбар · '+(150*Math.max(1,warehouseLevel))+' GC';
