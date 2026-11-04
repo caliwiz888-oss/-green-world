@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS players (
   apples INTEGER NOT NULL DEFAULT 0 CHECK (apples >= 0),
   seeds INTEGER NOT NULL DEFAULT 5 CHECK (seeds >= 0),
   orchard_level INTEGER NOT NULL DEFAULT 1 CHECK (orchard_level >= 1),
+  experience INTEGER NOT NULL DEFAULT 0 CHECK (experience >= 0),
+  player_level INTEGER NOT NULL DEFAULT 1 CHECK (player_level >= 1),
   has_warehouse BOOLEAN NOT NULL DEFAULT FALSE,
   has_market BOOLEAN NOT NULL DEFAULT FALSE,
   has_greenhouse BOOLEAN NOT NULL DEFAULT FALSE,
@@ -29,3 +31,6 @@ CREATE INDEX IF NOT EXISTS refresh_sessions_family_idx ON refresh_sessions(famil
 
 ALTER TABLE players ADD COLUMN IF NOT EXISTS last_daily_claim DATE;
 ALTER TABLE players ADD COLUMN IF NOT EXISTS daily_streak INTEGER NOT NULL DEFAULT 0;
+
+ALTER TABLE players ADD COLUMN IF NOT EXISTS experience INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE players ADD COLUMN IF NOT EXISTS player_level INTEGER NOT NULL DEFAULT 1;
