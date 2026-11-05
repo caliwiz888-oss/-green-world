@@ -200,6 +200,17 @@ function makeHouse(){
  // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
  const roofL=box(g,3.95,.34,8.9,-1.93,5.72,0,M.roof);roofL.rotation.z=.58;
  const roofR=box(g,3.95,.34,8.9,1.43,5.72,0,M.roof);roofR.rotation.z=-.58;
+ // Тонкие поперечные швы формируют аккуратные ряды черепицы на обоих скатах.
+ for(let row=-4;row<=4;row++){
+   const z=row*.92;
+   const leftCourse=box(g,3.72,.035,.045,-1.93,5.72+.19*Math.cos(.58)+.025,z,M.roof2,false);
+   leftCourse.rotation.z=.58;
+   const rightCourse=box(g,3.72,.035,.045,1.43,5.72+.19*Math.cos(.58)+.025,z,M.roof2,false);
+   rightCourse.rotation.z=-.58;
+ }
+ // Коньковая накладка закрывает стык скатов и завершает силуэт крыши.
+ const ridge=cylinder(g,.13,.13,9.02,-.25,6.82,0,M.roof2,12);
+ ridge.rotation.x=Math.PI/2;
  // Front and rear triangular gables beneath the roof ridge.
  const makeGable=(z)=>{
    const shape=new THREE.Shape();shape.moveTo(-3.15,4.72);shape.lineTo(3.15,4.72);shape.lineTo(-.25,6.82);shape.closePath();
