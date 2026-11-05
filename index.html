@@ -71,6 +71,7 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
     <div class="menu-row"><span>📦 Вместимость амбара</span><strong id="warehouse-capacity">20 яблок</strong></div>
     <div class="menu-row"><span>🏪 Торговая лавка</span><strong id="market-status">Не построена</strong></div>
     <div class="menu-row"><span>🌿 Теплица</span><strong id="greenhouse-status">Не построена</strong></div>
+    <div class="menu-row"><span>🏭 Завод</span><strong id="factory-status">Не построен</strong></div>
     <div class="menu-row"><span>⭐ Уровень игрока</span><strong id="player-level">1</strong></div>
     <div class="menu-row"><span>✨ Опыт</span><strong id="player-xp">0 / 100 XP</strong></div>
     <div style="height:8px;background:#ffffff25;border-radius:8px;overflow:hidden;margin:0 0 8px"><div id="xp-progress" style="height:100%;width:0%;background:#f5d45c;border-radius:8px"></div></div>
@@ -758,6 +759,7 @@ function update(){
   document.getElementById('processed-inventory').textContent=processedRows.length?processedRows.join(' · '):'Пока нет';
   document.getElementById('factory-locked').style.display=hasFactory?'none':'block';
   document.getElementById('process-fruit').disabled=!hasFactory;
+  document.getElementById('factory-status').textContent=hasFactory?'Построен':'Не построен';
   document.getElementById('build-factory').textContent=hasFactory?'🏭 Завод построен':'🏭 Построить завод · 5 000 GC';
   document.getElementById('build-factory').disabled=hasFactory;
   document.getElementById('land-status').textContent=unlockedPlots+' / 400 мест · уровень '+landLevel;
@@ -846,6 +848,8 @@ function applyServerPlayer(player){
   if(oldMarket) scene.remove(oldMarket);
   const oldGreenhouse=scene.getObjectByName('greenhouseBuilding');
   if(oldGreenhouse) scene.remove(oldGreenhouse);
+  const oldFactory=scene.getObjectByName('factoryBuilding');
+  if(oldFactory) scene.remove(oldFactory);
   warehouse=null;
   if(Array.isArray(player.plots)){
     for(const item of player.plots){
@@ -855,6 +859,7 @@ function applyServerPlayer(player){
   if(hasWarehouse) createWarehouse();
   if(hasMarket) createMarket(marketLevel);
   if(hasGreenhouse) createGreenhouse(greenhouseLevel);
+  if(hasFactory) createFactory();
   update();
 }
 
@@ -1037,6 +1042,40 @@ function createGreenhouse(level=greenhouseLevel){
   }
   house.position.set(14,0,7);scene.add(house);
 }
+function createFactory(){
+  const old=scene.getObjectByName('factoryBuilding');
+  if(old) scene.remove(old);
+  const factory=new THREE.Group();factory.name='factoryBuilding';
+  const brick=material(0xb85c43), trim=material(0xe7d6b7), roofMat=material(0x46515a), metal=material(0x697982), glass=new THREE.MeshStandardMaterial({color:0x8ed5e5,metalness:0.25,roughness:0.18,emissive:0x15333b});
+  // Основной производственный корпус и высокий двускатный силуэт.
+  addBox(factory,6.2,3.4,4.6,brick,0,1.7,0);
+  const roof=new THREE.Mesh(new THREE.ConeGeometry(4.4,2.5,4),roofMat);roof.position.set(0,4.65,0);roof.rotation.y=Math.PI/4;factory.add(roof);
+  // Светлая обвязка фасада и крупные заводские ворота.
+  addBox(factory,2.0,2.35,0.16,trim,0,1.18,2.38);
+  addBox(factory,1.72,2.05,0.08,material(0x70452f),0,1.08,2.49);
+  for(const x of [-2.15,2.15]){
+    addBox(factory,0.95,1.0,0.14,glass,x,2.35,2.38);
+    addBox(factory,1.12,0.12,0.2,trim,x,2.91,2.42);
+    addBox(factory,0.12,1.12,0.2,trim,x,2.35,2.42);
+  }
+  // Высокая труба с металлическим ободом и боковой вентиляцией.
+  addBox(factory,0.72,3.5,0.72,material(0x8b5140),2.15,5.0,-1.35);
+  addBox(factory,1.05,0.22,1.05,metal,2.15,6.78,-1.35);
+  const cap=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.42,0.28,12),metal);cap.position.set(2.15,6.98,-1.35);factory.add(cap);
+  const vent=new THREE.Mesh(new THREE.CylinderGeometry(0.48,0.48,0.18,16),metal);vent.rotation.z=Math.PI/2;vent.position.set(-3.18,2.4,-0.6);factory.add(vent);
+  // Трубы вдоль стены и небольшой знак над входом.
+  const pipe=new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.11,3.5,10),metal);pipe.rotation.z=Math.PI/2;pipe.position.set(0,0.45,-2.38);factory.add(pipe);
+  addBox(factory,1.9,0.55,0.14,trim,0,3.45,2.43);
+  addBox(factory,1.55,0.28,0.08,material(0x28583c),0,3.45,2.53);
+  // Подиум и небольшие ящики сырья у стены.
+  addBox(factory,6.8,0.18,5.1,material(0x9b8a70),0,0.08,0);
+  for(let i=0;i<3;i++){
+    const crate=new THREE.Mesh(new THREE.BoxGeometry(0.65,0.55,0.6),material(i%2?0x9b6337:0xc58a43));
+    crate.position.set(-2.0+i*0.78,0.45,3.0);crate.castShadow=true;factory.add(crate);
+  }
+  factory.position.set(-15,0,7);scene.add(factory);
+}
+
 function createWarehouse(){
   if(warehouse) return;
   warehouse=new THREE.Group();warehouse.name='warehouseBuilding';
@@ -1050,6 +1089,7 @@ function createWarehouse(){
 if(hasWarehouse) createWarehouse();
 if(hasMarket) createMarket();
 if(hasGreenhouse) createGreenhouse();
+if(hasFactory) createFactory();
 update();
 
 // ===== ПОСАДКА =====
@@ -1342,7 +1382,7 @@ document.getElementById('build-factory').addEventListener('click',async()=>{
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером.');return;}
   if(serverMode){await serverAction('/api/game/build',{kind:'factory'},'🏭 Завод построен! Теперь можно перерабатывать фрукты.');return;}
   if(coins<5000){hint('Для строительства завода нужно 5 000 GC.');return;}
-  coins-=5000;hasFactory=true;update();hint('🏭 Завод построен! Переработка фруктов открыта.');
+  coins-=5000;hasFactory=true;createFactory();update();hint('🏭 Завод построен! Переработка фруктов открыта.');
 });
 document.getElementById('expand-land').addEventListener('click',async()=>{
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером.');return;}
