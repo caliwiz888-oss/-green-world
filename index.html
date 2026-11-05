@@ -108,8 +108,23 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
 <script>window.GREEN_WORLD_API_URL = 'https://green-world-api-mx3v.onrender.com';</script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script type="module">
-import * as THREE from
-'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
+// Надёжная загрузка 3D-движка: резервный CDN для Telegram WebView.
+let THREE;
+try {
+  THREE = await import('https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js?v=greenworld3d');
+} catch (primaryError) {
+  try {
+    THREE = await import('https://unpkg.com/three@0.170.0/build/three.module.js');
+  } catch (backupError) {
+    const status = document.getElementById('connection-status');
+    if (status) status.textContent = 'ОШИБКА ЗАГРУЗКИ 3D';
+    const panel = document.createElement('div');
+    panel.style.cssText = 'position:absolute;inset:25% 8% auto;padding:18px;background:#173f2c;color:white;border:1px solid #fff6;border-radius:16px;z-index:20;text-align:center;font:14px Arial';
+    panel.textContent = 'Не удалось загрузить 3D-мир. Проверь подключение к интернету и нажми «Обновить» в Telegram.';
+    document.body.appendChild(panel);
+    throw backupError;
+  }
+}
 
 // ===== ОСНОВА МИРА =====
 const scene = new THREE.Scene();
@@ -122,7 +137,18 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(28,32,34);
 camera.lookAt(0,0,0);
 
-const renderer = new THREE.WebGLRenderer({antialias:true});
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
+} catch (webglError) {
+  const status = document.getElementById('connection-status');
+  if (status) status.textContent = 'WEBGL НЕДОСТУПЕН';
+  const panel = document.createElement('div');
+  panel.style.cssText = 'position:absolute;inset:25% 8% auto;padding:18px;background:#173f2c;color:white;border:1px solid #fff6;border-radius:16px;z-index:20;text-align:center;font:14px Arial';
+  panel.textContent = 'На этом устройстве Telegram не запустил 3D-графику (WebGL). Обнови Telegram и попробуй открыть игру снова.';
+  document.body.appendChild(panel);
+  throw webglError;
+}
 renderer.setSize(innerWidth,innerHeight);
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.shadowMap.enabled=true;
