@@ -414,7 +414,7 @@ db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS fruit_inventory JSONB NOT
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS has_factory BOOLEAN NOT NULL DEFAULT FALSE"))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS factory_level INTEGER NOT NULL DEFAULT 1")))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS land_level INTEGER NOT NULL DEFAULT 1"))
-.then(()=>db.query("UPDATE players SET land_level=CASE WHEN jsonb_array_length(COALESCE(plots,'[]'::jsonb))>0 THEN 5 ELSE GREATEST(COALESCE(land_level,1),1) END"))
+.then(()=>db.query("UPDATE players SET land_level=GREATEST(COALESCE(land_level,1),1)"))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS seed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb"))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS experience INTEGER NOT NULL DEFAULT 0"))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS player_level INTEGER NOT NULL DEFAULT 1"))
