@@ -802,6 +802,19 @@ function makeFactory(level=1){
    box(g,.82,.78,.08,x,2.58,2.85,windowGlow);
    box(g,.1,.84,.08,x,2.58,2.91,M.gold,false);
    box(g,.86,.1,.08,x,2.58,2.91,M.gold,false);
+   // Front window crowns, carved stone sills and small corbels add depth to the factory facade.
+   box(g,1.34,.14,.28,x,3.18,2.78,M.stone2,false);
+   box(g,1.34,.14,.28,x,1.92,2.78,M.stone2,false);
+   for(const dx of [-.52,.52]){
+     box(g,.12,1.12,.16,x+dx,2.55,2.82,M.stone2,false);
+     box(g,.1,.18,.16,x+dx,3.28,2.86,M.gold,false);
+     box(g,.1,.18,.16,x+dx,1.82,2.86,M.gold,false);
+   }
+   box(g,.07,.78,.06,x,2.58,2.96,M.gold,false);
+   box(g,.78,.07,.06,x,2.58,2.96,M.gold,false);
+   for(const dx of [-.42,.42]){
+     box(g,.16,.16,.18,x+dx,1.78,2.88,M.stone2,false);
+   }
    box(g,1.05,1.05,.14,x,2.55,-2.75,M.wood);
    box(g,.82,.78,.08,x,2.58,-2.85,windowGlow);
  }
