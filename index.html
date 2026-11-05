@@ -185,6 +185,38 @@ function material(color,roughness=0.85){
   return new THREE.MeshStandardMaterial({color,roughness});
 }
 
+// Процедурные бесшовные текстуры: трава, влажная почва и древесная кора.
+// Рисуются локально в браузере — внешние изображения и дополнительные загрузки не нужны.
+function makeSurfaceTexture(base,marks,count,seed=1){
+  const canvas=document.createElement('canvas');
+  canvas.width=canvas.height=256;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle=base;ctx.fillRect(0,0,256,256);
+  let state=seed>>>0;
+  const rand=()=>{state=(state*1664525+1013904223)>>>0;return state/4294967296;};
+  for(let i=0;i<count;i++){
+    const x=rand()*256,y=rand()*256;
+    ctx.globalAlpha=0.12+rand()*0.24;
+    ctx.fillStyle=marks[Math.floor(rand()*marks.length)];
+    if(i%3===0){ctx.beginPath();ctx.ellipse(x,y,1+rand()*2,2+rand()*5,rand()*Math.PI,0,Math.PI*2);ctx.fill();}
+    else{ctx.fillRect(x,y,1+rand()*3,1+rand()*3);}
+  }
+  ctx.globalAlpha=1;
+  const texture=new THREE.CanvasTexture(canvas);
+  texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+  texture.colorSpace=THREE.SRGBColorSpace;
+  texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+  return texture;
+}
+const grassTexture=makeSurfaceTexture('#638f43',['#a0b968','#416f36','#d0c77a','#789d4b'],1800,17);
+grassTexture.repeat.set(9,9);
+const soilTexture=makeSurfaceTexture('#8a6742',['#b18a5b','#684b32','#d0a36b','#765638'],900,31);
+soilTexture.repeat.set(1,1);
+const barkTexture=makeSurfaceTexture('#704326',['#a4774b','#432b20','#8b5b36'],700,53);
+barkTexture.repeat.set(1,2);
+const grassMaterial=new THREE.MeshStandardMaterial({map:grassTexture,roughness:1});
+const soilMaterial=new THREE.MeshStandardMaterial({map:soilTexture,roughness:1});
+
 function addBox(parent,w,h,d,color,x,y,z){
   const mesh=new THREE.Mesh(
     new THREE.BoxGeometry(w,h,d),
@@ -229,7 +261,7 @@ groundGeometry.setAttribute('color',new THREE.Float32BufferAttribute(groundColor
 groundGeometry.computeVertexNormals();
 const ground=new THREE.Mesh(
   groundGeometry,
-  new THREE.MeshStandardMaterial({vertexColors:true,roughness:1})
+  new THREE.MeshStandardMaterial({vertexColors:true,map:grassTexture,roughness:1})
 );
 ground.rotation.x=-Math.PI/2;
 ground.position.y=-0.13;
@@ -243,7 +275,7 @@ for(let x=0;x<20;x++){
   for(let z=0;z<20;z++){
     const tile=new THREE.Mesh(
       new THREE.BoxGeometry(1.72,0.12,1.72),
-      material((x+z)%2?0x9a7547:0xb58a53)
+      new THREE.MeshStandardMaterial({map:soilTexture,color:(x+z)%2?0xd0b18a:0xffffff,roughness:1})
     );
     tile.position.set(x-9.5,0,z-9.5);
     tile.receiveShadow=true;
@@ -693,14 +725,14 @@ function makeTree(x,z,type='apple'){
   const profile=profiles[type]||profiles.apple;
   const trunk=new THREE.Mesh(
     new THREE.CylinderGeometry(0.18,0.25,profile.height,8),
-    material(0x754323)
+    new THREE.MeshStandardMaterial({map:barkTexture,color:0xffffff,roughness:1})
   );
   trunk.position.y=profile.height/2;
   trunk.castShadow=true;
   tree.add(trunk);
 
   // Ветви видны между ярусами листвы и делают ствол частью объёмной кроны.
-  const branchMat=material(0x684027);
+  const branchMat=new THREE.MeshStandardMaterial({map:barkTexture,color:0xd4b18a,roughness:1});
   for(let i=0;i<5;i++){
     const angle=i*Math.PI*2/5;
     const branch=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.09,0.95,7),branchMat);
