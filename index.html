@@ -478,31 +478,6 @@ function makeMarket(level=1){
  // Убраны три отдельные белые плиты перед лавкой по просьбе пользователя.
  return g;
 }
-function makeGreenhouse(level=1){
- const g=group(world,12,0,5);
- box(g,7.4,.28,5.4,0,.14,0,M.stone2);
- const frame=M.wood,glass=M.glass;
- for(const x of [-3.45,3.45])for(const z of [-2.45,2.45])box(g,.18,2.9,.18,x,1.55,z,frame);
- for(const x of [-1.75,0,1.75])for(const z of [-2.45,2.45])box(g,.1,2.8,.1,x,1.55,z,frame);
- for(const z of [-2.45,2.45])box(g,7,.12,.12,0,2.92,z,frame);
- for(const x of [-3.45,3.45])box(g,.12,.12,5,x,2.92,0,frame);
- // Transparent wall panes and a peaked glass roof.
- for(const z of [-2.4,2.4]){
-   const pane=new THREE.Mesh(new THREE.BoxGeometry(6.7,2.55,.045),glass);pane.position.set(0,1.55,z);g.add(pane);
- }
- for(const x of [-3.4,3.4]){
-   const pane=new THREE.Mesh(new THREE.BoxGeometry(.045,2.55,4.7),glass);pane.position.set(x,1.55,0);g.add(pane);
- }
- const roofA=box(g,3.8,.12,5.1,-1.55,3.3,0,glass);roofA.rotation.z=.38;
- const roofB=box(g,3.8,.12,5.1,1.55,3.3,0,glass);roofB.rotation.z=-.38;
- box(g,.12,.16,5.1,0,4.0,0,frame);
- // Central double door.
- box(g,1.4,2.2,.12,0,1.1,2.49,frame);
- box(g,.55,1.95,.06,-.34,1.1,2.57,glass);
- box(g,.55,1.95,.06,.34,1.1,2.57,glass);
- for(let i=0;i<4;i++)box(g,.06,2.35,.06,-3+i*2,1.45,2.52,M.gold,false);
- return g;
-}
 function makeFactory(level=1){
  const g=group(world,9.8,0,-11);
  const brick=mat(0x9b5943),brickLight=mat(0xb96c50),darkMetal=mat(0x39474a),metal=mat(0x657477),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
