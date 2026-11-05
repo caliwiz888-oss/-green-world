@@ -15,7 +15,7 @@
 body{margin:0;overflow:hidden;font-family:Arial,sans-serif;background:#9bd5ed;touch-action:none}
 canvas{display:block}
 #hud{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;color:#fff;z-index:2;pointer-events:none}
-.panel{background:linear-gradient(145deg,#123d2feF 0%,#28764beF 58%,#174b35ef 100%);border:1px solid #d8f5d755;padding:10px 13px;border-radius:16px;font-weight:700;font-size:13px;box-shadow:0 7px 22px #102b1b66,inset 0 1px 0 #ffffff25;backdrop-filter:blur(12px);text-shadow:0 1px 2px #0007}
+.panel{background:linear-gradient(155deg,#744321 0%,#a96b36 32%,#60371f 100%);border:2px solid #f4d58b;padding:10px 13px;border-radius:19px;font-weight:700;font-size:13px;box-shadow:0 7px 0 #3a2115,0 10px 22px #102b1b77,inset 0 2px 0 #ffe8b5,inset 0 -3px 0 #492716;text-shadow:0 1px 2px #2b160c}
 .panel:after{content:"";display:block;position:absolute;pointer-events:none}
 button{border-color:#d7f4dc66;box-shadow:0 4px 10px #071d1266,inset 0 1px 0 #ffffff35}
 button:focus-visible{outline:2px solid #f6df83;outline-offset:2px}
@@ -25,13 +25,13 @@ button:focus-visible{outline:2px solid #f6df83;outline-offset:2px}
 .stat strong{display:block;font-size:17px;color:#fff}
 .stat small{font-size:10px;color:#c8e8d0;letter-spacing:.5px}
 #hint{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 24px);color:white;background:#174b35ed;border:1px solid #ffffff35;padding:10px 15px;border-radius:13px;z-index:2;font-size:12px;text-align:center;box-shadow:0 4px 15px #0003}
-#actions{position:absolute;bottom:12px;left:9px;right:9px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;z-index:3;padding:8px;background:#123c2bd9;border:1px solid #ffffff30;border-radius:18px;backdrop-filter:blur(10px)}
-button{min-width:0;border:1px solid #ffffff30;border-radius:12px;padding:12px 5px;background:linear-gradient(180deg,#39985a,#237342);color:white;font-weight:700;font-size:12px;box-shadow:0 3px 8px #0003;touch-action:manipulation}
+#actions{position:absolute;bottom:12px;left:9px;right:9px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;z-index:3;padding:8px;background:linear-gradient(155deg,#704020f5,#3e2519f7);border:3px solid #f1cf7e;border-radius:24px;box-shadow:0 7px 0 #26170f,0 12px 26px #0008,inset 0 2px 0 #ffe6a9}
+button{min-width:0;border:2px solid #f4d58b;border-radius:17px;padding:12px 5px;background:linear-gradient(180deg,#55d85c 0%,#24a442 55%,#087331 100%);color:white;font-weight:800;font-size:12px;text-shadow:0 2px 2px #145324;box-shadow:0 5px 0 #154b2a,0 7px 12px #0005,inset 0 2px 0 #d8ffc0;touch-action:manipulation}
 button:active{transform:scale(.96);filter:brightness(1.15)}
 #camera-tools{position:absolute;right:12px;top:88px;display:flex;flex-direction:column;gap:7px;z-index:3}
-#camera-tools button{width:42px;height:42px;padding:0;font-size:18px;background:#174b35e8}
-#selection{position:absolute;left:50%;top:76px;transform:translateX(-50%);z-index:2;color:#16472e;background:#f2fff0e8;padding:6px 11px;border-radius:20px;font-size:11px;font-weight:700;pointer-events:none}
-#menu-button{position:absolute;top:88px;left:12px;z-index:3;width:46px;height:42px;background:#174b35e8}
+#camera-tools button{width:46px;height:46px;padding:0;font-size:20px;background:linear-gradient(155deg,#9b6335,#57321d);border:2px solid #f3d28a;border-radius:15px;box-shadow:0 4px 0 #342015,0 6px 12px #0006,inset 0 2px 0 #ffe8b5}
+#selection{position:absolute;left:50%;top:76px;transform:translateX(-50%);z-index:2;color:#613718;background:linear-gradient(180deg,#fff2ce,#e7bd7b);border:2px solid #b77b3f;padding:8px 14px;border-radius:18px;font-size:12px;font-weight:800;box-shadow:0 4px 0 #6a3c20,0 6px 12px #0004;pointer-events:none}
+#menu-button{position:absolute;top:88px;left:12px;z-index:3;width:46px;height:46px;background:linear-gradient(155deg,#9b6335,#57321d);border:2px solid #f3d28a;border-radius:15px;box-shadow:0 4px 0 #342015,0 6px 12px #0006,inset 0 2px 0 #ffe8b5}
 #game-menu{display:none;position:absolute;inset:0;z-index:5;background:#071b12b8;align-items:center;justify-content:center;padding:18px}
 #game-menu.open{display:flex}
 #menu-card{width:min(420px,100%);max-height:85vh;overflow:auto;background:linear-gradient(145deg,#174b35,#245c3c);border:1px solid #ffffff40;border-radius:20px;padding:18px;color:white;box-shadow:0 15px 50px #0008}
@@ -706,6 +706,31 @@ for(let i=0;i<13;i++){
   slab.rotation.y=-0.25;
   slab.receiveShadow=true;scene.add(slab);
 }
+
+
+ // ===== ПАРАДНЫЕ ФОНАРИ И КАМЕННЫЕ ДЕТАЛИ ДВОРА =====
+ const lanternMetal=material(0x493326);
+ const lanternGold=material(0xd7a84f);
+ const lanternGlass=new THREE.MeshStandardMaterial({color:0xffe2a0,emissive:0xffb94d,emissiveIntensity:0.42,roughness:0.25});
+ for(const [x,z] of [[-2.15,-10.6],[2.15,-10.6],[-2.15,-7.9],[2.15,-7.9]]){
+   const post=new THREE.Mesh(new THREE.CylinderGeometry(0.075,0.11,1.55,8),lanternMetal);
+   post.position.set(x,0.82,z);post.castShadow=true;scene.add(post);
+   const foot=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.28,0.16,10),lanternGold);
+   foot.position.set(x,0.12,z);scene.add(foot);
+   const lamp=new THREE.Mesh(new THREE.BoxGeometry(0.38,0.46,0.38),lanternGlass);
+   lamp.position.set(x,1.68,z);lamp.castShadow=true;scene.add(lamp);
+   const cap=new THREE.Mesh(new THREE.ConeGeometry(0.31,0.24,8),lanternMetal);
+   cap.position.set(x,2.03,z);scene.add(cap);
+ }
+ const mosaicMats=[material(0xd8c7a7),material(0xc5ae89),material(0xe5d6b8)];
+ for(let i=0;i<36;i++){
+   const a=(i/36)*Math.PI*2;
+   const r=3.0+(i%3)*0.16;
+   const tile=new THREE.Mesh(new THREE.BoxGeometry(0.52,0.055,0.34),mosaicMats[i%3]);
+   tile.position.set(Math.cos(a)*r,0.025,-7.5+Math.sin(a)*r);
+   tile.rotation.y=-a+Math.PI/2;
+   tile.receiveShadow=true;scene.add(tile);
+ }
 
 // Натуральная окантовка дорожки: отдельные камни с небольшим разбросом формы.
 const pathEdgeMaterial=material(0xa99d86);
@@ -2236,7 +2261,7 @@ function positionCamera(){
     cameraHeight,
     Math.cos(cameraAngle)*cameraRadius
   );
-  camera.lookAt(0,0.8,0);
+  camera.lookAt(0,1.0,-3.5);
 }
 function setSelection(plot){
   if(selectedPlot?.tile) selectedPlot.tile.material.emissive?.setHex(0x000000);
