@@ -40,7 +40,10 @@ app.disable('x-powered-by');
 app.set('trust proxy', 1);
 app.use(helmet());
 app.use(cors({
-  origin(origin, done) { done(null, !origin || ORIGINS.includes(origin)); },
+  origin(origin, done) {
+    if (origin && !ORIGINS.includes(origin)) console.warn('[cors] blocked origin:', origin);
+    done(null, !origin || ORIGINS.includes(origin));
+  },
   credentials: true,
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -132,7 +135,14 @@ async function loadState(c,id) { const q=await c.query('SELECT * FROM players WH
 
 app.get('/health',(_req,res)=>res.json({ok:true,service:'green-world-api'}));
 
-app.post('/api/auth/telegram',originGuard,async(req,res)=>{
+app.post('/api/auth/telegram',(req,res,next)=>{
+  console.info('[auth] Telegram login request:', {
+    origin: req.get('origin') || null,
+    hasInitData: typeof req.body?.initData === 'string',
+    initDataLength: typeof req.body?.initData === 'string' ? req.body.initData.length : 0
+  });
+  next();
+},originGuard,async(req,res)=>{
   try {
     const u=telegramUser(req.body?.initData);
     const c=await db.connect();
