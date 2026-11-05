@@ -413,6 +413,26 @@ function makeHouse(){
    box(g,.98,.16,.98,x,6.08,-2.2,M.stone2);
    box(g,.62,.12,.62,x,6.2,-2.2,M.wood);
  }
+ // Layered eaves: slim brass fascia lines, carved brackets and stone end returns.
+ for(const x of [-3.45,3.45]){
+   box(g,.055,.075,8.72,x+(x<0?-.13:.13),4.69,0,M.gold,false);
+   for(const z of [-3.75,-2.5,-1.25,0,1.25,2.5,3.75]){
+     const bracket=box(g,.18,.34,.22,x,4.43,z,M.stone2,false);
+     bracket.rotation.z=x<0?-.18:.18;
+     box(g,.2,.055,.25,x,4.24,z,M.gold,false);
+     sphere(g,.035,x,4.55,z,M.gold,.8);
+   }
+   for(const z of [-4.38,4.38]){
+     box(g,.3,.22,.24,x,4.65,z,M.stone2,false);
+     box(g,.34,.055,.28,x,4.78,z,M.gold,false);
+   }
+ }
+ // Decorative ridge-end finials complete the roof silhouette at both gable ends.
+ for(const z of [-4.32,4.32]){
+   box(g,.34,.12,.28,0,6.54,z,M.stone2,false);
+   sphere(g,.09,0,6.68,z,M.gold,.9);
+   cylinder(g,.055,.055,.22,0,6.78,z,M.gold,8);
+ }
  // Sculpted stone lintels and sills make the main facade read as a finished manor.
  for(const x of [-3.25,3.25]){
    box(g,1.62,.16,.3,x,3.52,4.2,M.stone2);
