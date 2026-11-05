@@ -172,7 +172,7 @@ box(world,26,.12,26,0,-.08,0,M.grass2,false);
 function makeHouse(){
  const g=group(world,-3,0,-10);
  // Индивидуальная фактура светлого тесаного камня главного дома: тонкие швы и мягкая неоднородность.
- const houseStone=houseStone.clone(),houseStoneTrim=houseStoneTrim.clone();
+ const houseStone=M.stone.clone(),houseStoneTrim=M.stone2.clone();
  const masonryCanvas=document.createElement('canvas');masonryCanvas.width=masonryCanvas.height=256;
  const masonryCtx=masonryCanvas.getContext('2d');
  masonryCtx.fillStyle='#d7d7d7';masonryCtx.fillRect(0,0,256,256);
