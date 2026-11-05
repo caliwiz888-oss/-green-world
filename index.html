@@ -172,6 +172,24 @@ function makeHouse(){
  box(g,1.16,.48,.055,0,.58,4.255,M.wood2,false);
  box(g,1.42,.12,.32,0,2.78,4.18,M.stone2);
  sphere(g,.085, .48,1.32,4.34,M.gold,.9);
+ // Entrance door craftsmanship: inset panel mouldings, brass hinge straps and a knocker.
+ for(const y of [.62,1.12,1.62,2.12]){
+   box(g,.045,.36,.045,-.53,y,4.326,M.gold,false);
+   box(g,.045,.36,.045,.53,y,4.326,M.gold,false);
+ }
+ for(const x of [-.69,.69]){
+   for(const y of [.62,1.18,1.74,2.3]){
+     box(g,.09,.22,.055,x,y,4.33,M.gold,false);
+     sphere(g,.035,x,y,4.37,M.stone2,.8);
+   }
+ }
+ // Fine brass door knocker and a pair of crisp stone step nosings.
+ box(g,.16,.22,.06,0,1.38,4.34,M.gold,false);
+ sphere(g,.075,0,1.25,4.38,M.gold,.9);
+ for(let i=0;i<3;i++){
+   const stepWidth=4.1-i*.35;
+   box(g,stepWidth,.055,.07,0,.085+i*.16,5.28+i*.58,M.stone,false);
+ }
  // Reflective inset glazing and delicate muntins give the front windows real depth.
  for(const x of [-3.25,3.25]){
   box(g,1.02,1.12,.045,x,2.72,4.205,windowInterior,false);
