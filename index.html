@@ -156,7 +156,7 @@ function makeTree(x,z,kind='apple'){
  return g;
 }
 function makeMarket(level=1){
- const g=group(world,9.5,0,5.4);
+ const g=group(world,8.0,0,-1.8);
  box(g,5.4,2.8,4.4,0,1.4,0,M.stone);
  box(g,5.65,.24,4.65,0,2.86,0,M.gold);
  // Timber-framed storefront and broad display windows.
@@ -192,7 +192,7 @@ function makeMarket(level=1){
    }
  }
  // A short paved apron makes the shop feel connected to the courtyard.
- for(let i=0;i<3;i++)box(g,1.35,.12,.9,0,.06,3.75+i*1.02,M.path,false);
+ for(let i=0;i<3;i++)box(g,1.35,.12,.9,0,.06,3.75+i*1.02,M.stone2,false);
  return g;
 }
 function makeGreenhouse(level=1){
@@ -320,13 +320,13 @@ function makeWorldDecor(){
  // Keep the courtyard paths, perimeter fence, gate, fountain, ornamental trees, lamps and flower beds.
  for(let i=0;i<13;i++){
    const z=-4.1+i*1.45;
-   box(world,1.35,.14,1.35,-3,.04,z,M.path,false);
-   box(world,1.35,.14,1.35,-1.5,.04,z,M.path,false);
+   box(world,1.35,.14,1.35,-3,.04,z,M.stone2,false);
+   box(world,1.35,.14,1.35,-1.5,.04,z,M.stone2,false);
  }
  for(let i=0;i<8;i++){
    const x=-10+i*1.4;
-   box(world,1.2,.14,1.2,x,.03,1,M.path,false);
-   box(world,1.2,.14,1.2,x,.03,2.4,M.path,false);
+   box(world,1.2,.14,1.2,x,.03,1,M.stone2,false);
+   box(world,1.2,.14,1.2,x,.03,2.4,M.stone2,false);
  }
  for(let i=0;i<17;i++){
    const p=-14+i*1.75;
