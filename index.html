@@ -854,6 +854,24 @@ function makeHouse(){
      box(g,.34,.12,.34,x,y,-4.15,houseStoneTrim,false);
    }
  }
+ // Rear window aprons: recessed limestone panels give the lower wall a finished, crafted rhythm.
+ for(const x of [-3.25,0,3.25]){
+   box(g,2.18,.72,.12,x,1.12,-4.13,houseStone,false);
+   box(g,2.34,.1,.2,x,1.53,-4.2,houseStoneTrim,false);
+   box(g,2.34,.1,.2,x,.71,-4.2,houseStoneTrim,false);
+   for(const dx of [-1.13,1.13]){
+     box(g,.12,.82,.2,x+dx,1.12,-4.2,houseStoneTrim,false);
+     box(g,.18,.1,.22,x+dx,1.12,-4.24,M.stone2,false);
+   }
+   // A shallow central inset and two fine joints echo the dressed stonework above.
+   box(g,1.72,.48,.035,x,1.12,-4.205,houseStoneTrim,false);
+   box(g,1.58,.34,.025,x,1.12,-4.23,houseStone,false);
+   box(g,.035,.34,.035,x,1.12,-4.255,houseStoneTrim,false);
+   for(const dx of [-.78,.78])sphere(g,.026,x+dx,1.12,-4.27,M.gold,.8);
+ }
+ // A continuous dressed-stone base ties the three rear panels into the corner blocks.
+ box(g,9.5,.16,.22,0,.24,-4.13,houseStoneTrim,false);
+ box(g,9.62,.055,.24,0,.34,-4.17,M.stone2,false);
  return g;
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
