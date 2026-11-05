@@ -198,10 +198,10 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(28,32,34);
 camera.lookAt(0,0,0);
 
-const isTouchDevice=window.matchMedia?.('(pointer: coarse)').matches||false;
+window.isTouchDevice=window.matchMedia?.('(pointer: coarse)').matches||false;
 let renderer;
 try {
-  renderer = new THREE.WebGLRenderer({antialias:!isTouchDevice, powerPreference:'high-performance'});
+  renderer = new THREE.WebGLRenderer({antialias:!window.isTouchDevice, powerPreference:'high-performance'});
 } catch (webglError) {
   const status = document.getElementById('connection-status');
   if (status) status.textContent = 'WEBGL НЕДОСТУПЕН';
@@ -212,7 +212,7 @@ try {
   throw webglError;
 }
 renderer.setSize(innerWidth,innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio,isTouchDevice?1.35:1.75));
+renderer.setPixelRatio(Math.min(devicePixelRatio,window.isTouchDevice?1.35:1.75));
 renderer.shadowMap.enabled=true;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -227,7 +227,7 @@ scene.add(new THREE.HemisphereLight(0xeaf7ff,0x45633a,1.35));
 const sun = new THREE.DirectionalLight(0xfff2d8,3.0);
 sun.position.set(18,34,12);
 sun.castShadow=true;
-sun.shadow.mapSize.set(isTouchDevice?1024:2048,isTouchDevice?1024:2048);
+sun.shadow.mapSize.set(window.isTouchDevice?1024:2048,isTouchDevice?1024:2048);
 sun.shadow.camera.left=-35;
 sun.shadow.camera.right=35;
 sun.shadow.camera.top=35;
