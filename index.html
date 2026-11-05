@@ -267,6 +267,13 @@ function makeHouse(){
  // Коньковая накладка закрывает стык скатов и завершает силуэт крыши.
  const ridge=cylinder(g,.13,.13,9.02,-.25,6.82,0,M.roof2,12);
  ridge.rotation.x=Math.PI/2;
+ // Небольшие латунные стяжки на коньке визуально соединяют секции кровельного покрытия.
+ for(const z of [-3.55,-2.15,-.72,.72,2.15,3.55]){
+   const ridgeBand=cylinder(g,.145,.145,.055,-.25,6.82,z,M.gold,16);
+   ridgeBand.rotation.x=Math.PI/2;
+   const bandHighlight=cylinder(g,.151,.151,.018,-.25,6.82,z+.035,houseStoneTrim,16);
+   bandHighlight.rotation.x=Math.PI/2;
+ }
  // Compact stone-and-brass ridge finials finish both visible ends of the manor roof.
  for(const z of [-4.52,4.52]){
    sphere(g,.16,-.25,6.82,z,houseStoneTrim,.9);
