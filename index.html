@@ -570,25 +570,56 @@ for(let i=0;i<13;i++){
     edging.receiveShadow=true;scene.add(edging);
   }
 }
-// Низкая луговая трава по краям мира, вдали от грядок и построек.
-// Один InstancedMesh сохраняет детализацию без большого числа draw calls.
-const tuftGeometry=new THREE.ConeGeometry(0.045,0.34,4);
-const tuftMaterial=new THREE.MeshStandardMaterial({color:0x6f9b45,roughness:1});
-const grassTufts=new THREE.InstancedMesh(tuftGeometry,tuftMaterial,96);
-const tuftDummy=new THREE.Object3D();
-let tuftIndex=0;
+// Луговая трава: небольшие естественные пучки из трёх разнонаправленных
+// стеблей. Инстансирование оставляет всю траву одним draw call.
+const grassBladeGeometry=new THREE.ConeGeometry(0.034,0.28,5);
+const grassBladeMaterial=new THREE.MeshStandardMaterial({color:0x759d49,roughness:1});
+const grassTufts=new THREE.InstancedMesh(grassBladeGeometry,grassBladeMaterial,288);
+const grassBladeDummy=new THREE.Object3D();
+let grassBladeIndex=0;
+const meadowPatches=[];
 for(let i=0;i<96;i++){
   const x=-28+((i*37)%560)/10;
   const z=-28+((i*71)%560)/10;
   if(Math.abs(x)<11 && Math.abs(z)<11) continue;
   if(x>-20 && x<-6 && z>-16 && z<0) continue;
-  tuftDummy.position.set(x,-0.02,z);
-  tuftDummy.rotation.set(0,(i*1.73)%Math.PI,0);
-  const scale=0.65+((i*13)%7)*0.09;
-  tuftDummy.scale.set(scale,scale,scale);
-  tuftDummy.updateMatrix();grassTufts.setMatrixAt(tuftIndex++,tuftDummy.matrix);
+  meadowPatches.push({x,z,i});
+  for(let blade=0;blade<3;blade++){
+    const angle=(i*1.73+blade*2.094)%Math.PI*2;
+    const spread=0.035+blade*0.025;
+    const height=0.72+((i*11+blade*7)%6)*0.11;
+    grassBladeDummy.position.set(x+Math.cos(angle)*spread,-0.015,z+Math.sin(angle)*spread);
+    grassBladeDummy.rotation.set((blade-1)*0.13,(i*1.73+blade*1.9)%Math.PI*2,(blade-1)*-0.12);
+    grassBladeDummy.scale.set(0.8+blade*0.12,height,0.8+blade*0.1);
+    grassBladeDummy.updateMatrix();
+    grassTufts.setMatrixAt(grassBladeIndex++,grassBladeDummy.matrix);
+  }
 }
-grassTufts.count=tuftIndex;grassTufts.instanceMatrix.needsUpdate=true;scene.add(grassTufts);
+grassTufts.count=grassBladeIndex;
+grassTufts.instanceMatrix.needsUpdate=true;
+scene.add(grassTufts);
+
+// Редкие полевые цветы у травяных пучков — отдельный компактный инстанс.
+const meadowFlowerGeometry=new THREE.SphereGeometry(0.052,7,5);
+const meadowFlowerMaterial=new THREE.MeshStandardMaterial({color:0xf4edcf,roughness:0.78});
+const meadowFlowers=new THREE.InstancedMesh(meadowFlowerGeometry,meadowFlowerMaterial,28);
+const flowerDummy=new THREE.Object3D();
+let meadowFlowerIndex=0;
+for(let i=4;i<meadowPatches.length;i+=7){
+  const patch=meadowPatches[i];
+  flowerDummy.position.set(patch.x+0.12,0.105,patch.z-0.08);
+  flowerDummy.scale.set(1,0.62,1);
+  flowerDummy.rotation.set(0,patch.i*0.7,0);
+  flowerDummy.updateMatrix();
+  meadowFlowers.setMatrixAt(meadowFlowerIndex,flowerDummy.matrix);
+  const flowerColor=[0xf4edcf,0xf1c7d5,0xe8d98e,0xd9e8ef][meadowFlowerIndex%4];
+  meadowFlowers.setColorAt(meadowFlowerIndex,new THREE.Color(flowerColor));
+  meadowFlowerIndex++;
+}
+meadowFlowers.count=meadowFlowerIndex;
+meadowFlowers.instanceMatrix.needsUpdate=true;
+if(meadowFlowers.instanceColor) meadowFlowers.instanceColor.needsUpdate=true;
+scene.add(meadowFlowers);
 
 // ===== ФОНТАН =====
 const fountain=new THREE.Group();
