@@ -259,6 +259,19 @@ function makeHouse(){
   box(g,.98,.055,.055,x,2.72,4.29,M.gold,false);
   box(g,1.08,.07,.28,x,3.48,4.22,M.stone2);
  }
+ // Carved stone window surrounds: layered lintels, central keystones and bracketed sills.
+ for(const x of [-3.25,3.25]){
+   box(g,1.34,.13,.2,x,3.58,4.22,M.stone2);
+   box(g,.22,.2,.22,x,3.65,4.34,M.stone2);
+   box(g,.12,.12,.08,x,3.69,4.47,M.gold,false);
+   for(const dx of [-.58,.58]){
+     box(g,.14,.2,.2,x+dx,3.48,4.27,M.stone2);
+     box(g,.18,.12,.22,x+dx,2.02,4.27,M.stone2);
+     box(g,.12,.1,.16,x+dx,1.91,4.31,M.gold,false);
+   }
+   box(g,1.32,.12,.24,x,2.08,4.23,M.stone2);
+   box(g,1.18,.045,.27,x,2.16,4.27,M.gold,false);
+ }
  // A pair of compact warm entrance lanterns adds a welcoming focal point without clutter.
  const lanternGlass=new THREE.MeshStandardMaterial({color:0xffe2a0,emissive:0xb8792e,emissiveIntensity:.72,roughness:.3});
  for(const x of [-1.32,1.32]){
