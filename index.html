@@ -1635,6 +1635,18 @@ function makeFactory(level=1){
  box(g,1.25,.22,1.25,2.55,7.42,-1.45,darkMetal);
  cylinder(g,.48,.55,.28,2.55,7.65,-1.45,darkMetal,12);
  cylinder(g,.27,.3,.38,2.55,7.95,-1.45,metal,12);
+ // Нависающий колпак защищает дымоход от осадков и завершает его силуэт.
+ box(g,2.48,.14,2.02,2.55,8.18,-1.45,darkMetal,false);
+ box(g,2.24,.08,1.78,2.55,8.29,-1.45,metal,false);
+ // Четыре опоры приподнимают крышку над выходом дыма, не перекрывая отверстие.
+ for(const x of [1.78,3.32])for(const z of [-2.02,-.88]){
+   box(g,.1,.22,.1,x,8.12,z,M.gold,false);
+ }
+ // Парные крепёжные заклёпки и тонкая кромка подчёркивают металлический колпак.
+ for(const x of [1.62,3.48])for(const z of [-2.12,-.78]){
+   sphere(g,.045,x,8.27,z,M.gold,.8);
+ }
+
  // Layered chimney masonry: crisp horizontal stone belts and corner quoins give the stack a crafted silhouette.
  for(const y of [3.62,4.48,5.34,6.2,6.92]){
    box(g,2.22,.105,1.78,2.55,y,-1.45,M.stone2,false);
