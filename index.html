@@ -673,6 +673,23 @@ for(const z of [18.55,23.45]){
 }
 scene.add(riverEdge);
 
+// Мягкие прибрежные кочки и травяные островки, собранные в один instanced mesh.
+const bankGrassGeo=new THREE.ConeGeometry(0.095,0.52,5);
+const bankGrassMat=new THREE.MeshStandardMaterial({color:0x4f8b45,roughness:0.92});
+const bankGrass=new THREE.InstancedMesh(bankGrassGeo,bankGrassMat,112);
+const grassDummy=new THREE.Object3D();
+for(let i=0;i<112;i++){
+  const side=i%2===0?-1:1;
+  const x=-20+((i*29)%395)/10;
+  const z=21+side*(2.9+((i*13)%8)*0.12);
+  grassDummy.position.set(x,0.24,z);
+  grassDummy.rotation.set(0,(i*1.71)%Math.PI,((i%5)-2)*0.12);
+  const scale=0.65+(i%4)*0.18;
+  grassDummy.scale.set(scale,scale,scale);
+  grassDummy.updateMatrix();bankGrass.setMatrixAt(i,grassDummy.matrix);
+}
+bankGrass.instanceMatrix.needsUpdate=true;bankGrass.castShadow=true;scene.add(bankGrass);
+
 // Каменные перила и фонари на мосту
 for(const x of [-3.25,3.25]){
   for(const z of [-1.35,1.35]){
@@ -734,6 +751,14 @@ function decorativeTree(x,z,size=1){
   const leafMats=[material(0x26783a),material(0x318b42),material(0x3d9849)];
   const trunk=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.34,1.8,9),trunkMat);
   trunk.position.y=0.9;trunk.castShadow=true;tree.add(trunk);
+  // Корневые наплывы у декоративных деревьев.
+  for(let i=0;i<4;i++){
+    const a=i*Math.PI/2+0.3;
+    const root=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.14,0.72,6),trunkMat);
+    root.position.set(Math.cos(a)*0.25,0.13,Math.sin(a)*0.25);
+    root.rotation.z=Math.cos(a)*0.42;root.rotation.x=-Math.sin(a)*0.42;
+    tree.add(root);
+  }
 
   // Видимые ветви под кроной
   for(let i=0;i<4;i++){
@@ -934,6 +959,16 @@ for(let i=0;i<11;i++){
   peak.position.set(-30+i*6,4.05,-29);peak.scale.set(0.72,1,0.72);peak.castShadow=true;scene.add(peak);
 }
 
+// Мелкие камни и моховые пятна вдоль садовых дорожек.
+const pathPebbleMat=material(0x9b9a86),mossMat=material(0x5d8750);
+for(let i=0;i<34;i++){
+  const pebble=new THREE.Mesh(new THREE.DodecahedronGeometry(0.16+(i%3)*0.045,0),i%4===0?mossMat:pathPebbleMat);
+  const side=i%2===0?-1:1;
+  pebble.position.set(-12+(i*17%240)/10,0.09,side*(5.2+((i*7)%9)*0.16));
+  pebble.scale.set(1.5,0.48,0.9);pebble.rotation.y=i*0.61;
+  scene.add(pebble);
+}
+
 // ===== ЯБЛОНИ =====
 function makeTree(x,z,type='apple'){
   const fruitSpec=fruitCatalog[type]||fruitCatalog.apple;
@@ -954,6 +989,16 @@ function makeTree(x,z,type='apple'){
   trunk.position.y=profile.height/2;
   trunk.castShadow=true;
   tree.add(trunk);
+
+  // Расходящиеся у основания корни и фактура коры.
+  const rootMat=new THREE.MeshStandardMaterial({map:barkTexture,bumpMap:barkBump,bumpScale:0.11,color:0xffffff,roughness:1});
+  for(let i=0;i<5;i++){
+    const a=i*Math.PI*2/5;
+    const root=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.13,0.72,6),rootMat);
+    root.position.set(Math.cos(a)*0.28,0.16,Math.sin(a)*0.28);
+    root.rotation.z=Math.cos(a)*0.48;root.rotation.x=-Math.sin(a)*0.48;
+    root.castShadow=true;tree.add(root);
+  }
 
   // Ветви видны между ярусами листвы и делают ствол частью объёмной кроны.
   const branchMat=new THREE.MeshStandardMaterial({map:barkTexture,bumpMap:barkBump,bumpScale:0.08,color:0xd4b18a,roughness:1});
@@ -1020,6 +1065,9 @@ function makeTree(x,z,type='apple'){
     fruit.visible=false;
     fruit.castShadow=true;
     tree.add(fruit);
+    // Едва заметный блик подчёркивает округлость каждого созревшего плода.
+    const sheen=new THREE.Mesh(new THREE.SphereGeometry(0.035,7,6),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.42}));
+    sheen.position.set(-0.045,0.055,0.095);fruit.add(sheen);
 
     // У черешни плоды собраны попарно на коротких веточках.
     if(type==='cherry' && i%2===0){
