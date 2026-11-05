@@ -89,8 +89,6 @@ function publicPlots(rawPlots) {
 const state = p => ({
   coins:p.coins, apples:p.apples, fruitInventory:p.fruit_inventory||{}, processedInventory:p.processed_inventory||{}, landLevel:Math.min(5,Number(p.land_level)||1), unlockedPlots:[0,36,100,196,324,400][Math.min(5,Math.max(1,Number(p.land_level)||1))], seeds:p.seeds, seedInventory:p.seed_inventory||{}, orchardLevel:p.orchard_level,
   experience:Number(p.experience)||0, playerLevel:Number(p.player_level)||1,
-  hasWarehouse:p.has_warehouse, warehouseLevel:Number(p.warehouse_level)||0,
-  appleCapacity:p.has_warehouse?100*(Number(p.warehouse_level)||1):20,
   hasMarket:p.has_market, marketLevel:Number(p.market_level)||0,
   hasGreenhouse:p.has_greenhouse, greenhouseLevel:Number(p.greenhouse_level)||0,
   hasFactory:Boolean(p.has_factory), factoryLevel:p.has_factory?Math.min(5,Math.max(1,Number(p.factory_level)||1)):0,
@@ -267,12 +265,11 @@ app.post('/api/game/harvest',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const now=Date.now();
   const ready=(plot.grown&&!plot.readyAt)||(plot.readyAt&&new Date(plot.readyAt).getTime()<=now);
   if(!ready) reject(409,'Harvest is not ready yet');
-  const capacity=p.has_warehouse?100*(Number(p.warehouse_level)||1):20;
+  const capacity=Infinity;
   const inventory=p.fruit_inventory&&typeof p.fruit_inventory==='object'?{...p.fruit_inventory}:{};
   const stored=Number(p.apples||0)+Object.values(inventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
   const greenhouseLevel=p.has_greenhouse?(Number(p.greenhouse_level)||1):0;
   const amount=Math.min(greenhouseLevel?5+greenhouseLevel*3:5,Math.max(0,capacity-stored));
-  if(amount<1) reject(409,'Warehouse is full. Sell fruit or upgrade the warehouse.');
   const type=({apple:'apple',peach:'peach',cherry:'cherry',pear:'pear',orange:'orange',mango:'mango'})[plot.type||'apple'];
   plot.plantedAt=new Date(now).toISOString();
   plot.readyAt=new Date(now+GROWTH_MS).toISOString();
@@ -312,7 +309,7 @@ app.post('/api/game/harvest-all',auth,(req,res)=>mutate(req,res,async(c,p)=>{
     plot.readyAt=new Date(now+GROWTH_MS).toISOString();
     plot.watered=false;plot.grown=false;
   }
-  if(!harvested) reject(409,stored>=capacity?'Warehouse is full. Sell fruit or upgrade the warehouse.':'No ripe fruit to harvest');
+  if(!harvested) reject(409,'No ripe fruit to harvest');
   await c.query('UPDATE players SET fruit_inventory=$2::jsonb,plots=$3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify(inventory),JSON.stringify(plots)]);
   for(let n=0;n<harvested;n++) await awardExperience(c,req.playerId,p,10);
   return {player:await loadState(c,req.playerId),harvested,totalFruits};
@@ -364,23 +361,13 @@ app.post('/api/game/expand-land',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   return {player:await loadState(c,req.playerId),unlockedPlots:[0,36,100,196,324,400][level+1]};
 }));
 app.post('/api/game/build',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const options={warehouse:['has_warehouse',100],market:['has_market',1500],greenhouse:['has_greenhouse',2500],factory:['has_factory',5000]};
+  const options={market:['has_market',1500],greenhouse:['has_greenhouse',2500],factory:['has_factory',5000]};
   const option=options[req.body?.kind];if(!option) reject(400,'Unknown building');
   if(p[option[0]]) reject(409,'Building already exists');
   if(p.coins<option[1]) reject(409,'Not enough Green Coin');
-  if(req.body?.kind==='warehouse') await c.query('UPDATE players SET coins=coins-$2,has_warehouse=TRUE,warehouse_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
-  else if(req.body?.kind==='market') await c.query('UPDATE players SET coins=coins-$2,has_market=TRUE,market_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
+  if(req.body?.kind==='market') await c.query('UPDATE players SET coins=coins-$2,has_market=TRUE,market_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
   else if(req.body?.kind==='greenhouse') await c.query('UPDATE players SET coins=coins-$2,has_greenhouse=TRUE,greenhouse_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
   else await c.query('UPDATE players SET coins=coins-$2,has_factory=TRUE,factory_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
-  return {player:await loadState(c,req.playerId)};
-}));
-app.post('/api/game/upgrade-warehouse',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  if(!p.has_warehouse) reject(409,'Build the warehouse first');
-  const level=Number(p.warehouse_level)||1;
-  const upgradeCosts=[0,300,700,1200,2000,3500,5500,8000,11000,15000];
-  const cost=upgradeCosts[level]??(15000+(level-9)*4000);
-  if(p.coins<cost) reject(409,'Not enough Green Coin');
-  await c.query('UPDATE players SET coins=coins-$2,warehouse_level=warehouse_level+1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,cost]);
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/upgrade-market',auth,(req,res)=>mutate(req,res,async(c,p)=>{
