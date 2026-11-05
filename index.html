@@ -325,6 +325,16 @@ mansionRoof.position.set(0,4.8,0);
 mansionRoof.rotation.y=Math.PI/4;
 mansion.add(mansionRoof);
 
+// Небольшие мансардные окна и декоративные фронтонные детали.
+for(const x of [-1.9,1.9]){
+  const dormer=new THREE.Group();
+  addBox(dormer,1.0,0.9,0.18,trimMat,x,3.85,2.48);
+  const pane=new THREE.Mesh(new THREE.BoxGeometry(0.66,0.58,0.08),glassMat);
+  pane.position.set(x,3.88,2.60);dormer.add(pane);
+  const hood=new THREE.Mesh(new THREE.ConeGeometry(0.72,0.65,4),material(0x963c32));
+  hood.position.set(x,4.55,2.55);hood.rotation.y=Math.PI/4;dormer.add(hood);
+  mansion.add(dormer);
+}
 for(const x of [-4.5,4.5]){
   const tower=new THREE.Mesh(
     new THREE.CylinderGeometry(0.8,0.9,4,12),
@@ -650,11 +660,16 @@ mill.add(millRoof);
 const sails=new THREE.Group();
 
 for(let i=0;i<4;i++){
-  const blade=new THREE.Mesh(
-    new THREE.BoxGeometry(0.35,3.5,0.15),
-    material(0xf4e9d2)
-  );
-  blade.position.y=1.7;
+  const blade=new THREE.Group();
+  const spar=new THREE.Mesh(new THREE.BoxGeometry(0.30,3.5,0.16),material(0xf4e9d2));
+  spar.position.y=1.7;blade.add(spar);
+  // Решётчатые паруса мельницы с поперечинами.
+  for(let j=0;j<4;j++){
+    const crossbar=new THREE.Mesh(new THREE.BoxGeometry(0.92,0.10,0.12),material(0xe8ddc7));
+    crossbar.position.set(0,0.42+j*0.78,0.10);blade.add(crossbar);
+  }
+  const tip=new THREE.Mesh(new THREE.BoxGeometry(0.48,0.18,0.2),material(0x8d4935));
+  tip.position.y=3.38;blade.add(tip);
   blade.rotation.z=i*Math.PI/2;
   sails.add(blade);
 }
@@ -1177,8 +1192,27 @@ function createGreenhouse(level=greenhouseLevel){
   for(const z of [-depth/2,depth/2]){
     const beam=new THREE.Mesh(new THREE.BoxGeometry(width,.12,.12),frameMat);beam.position.set(0,height+0.15,z);house.add(beam);
   }
-  const roof=new THREE.Mesh(new THREE.ConeGeometry(Math.max(width,depth)*0.62,1.5+(level-1)*.15,4),material(level>=4?0x477d4d:0x6c9d72));
-  roof.position.y=height+1;roof.rotation.y=Math.PI/4;house.add(roof);
+  // Двускатная стеклянная крыша вместо условного конуса.
+  const roofAngle=Math.atan2(1.35,width/2);
+  const roofPanelMat=new THREE.MeshStandardMaterial({color:level>=4?0x8fc99b:0x8fc9c8,transparent:true,opacity:0.42,metalness:0.12,roughness:0.18,side:THREE.DoubleSide});
+  for(const side of [-1,1]){
+    const panel=new THREE.Mesh(new THREE.BoxGeometry(width/2+0.12,0.10,depth+0.18),roofPanelMat);
+    panel.position.set(side*width/4,height+0.72,0);
+    panel.rotation.z=side*-roofAngle;
+    panel.castShadow=true;house.add(panel);
+  }
+  const ridge=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.18,depth+0.28),frameMat);
+  ridge.position.set(0,height+1.38,0);house.add(ridge);
+  // Частые стойки и форточки подчёркивают стеклянные секции теплицы.
+  for(let i=1;i<5;i++){
+    const x=-width/2+width*i/5;
+    const rib=new THREE.Mesh(new THREE.BoxGeometry(0.07,height,0.08),frameMat);
+    rib.position.set(x,height/2+0.1,depth/2+0.015);house.add(rib);
+  }
+  const door=new THREE.Mesh(new THREE.BoxGeometry(0.95,2.05,0.10),frameMat);
+  door.position.set(0,1.12,depth/2+0.08);house.add(door);
+  const handle=new THREE.Mesh(new THREE.SphereGeometry(0.055,8,8),material(0xb58b45));
+  handle.position.set(0.34,1.12,depth/2+0.15);house.add(handle);
   for(let row=0;row<level;row++){
     const bed=new THREE.Mesh(new THREE.BoxGeometry(.55,.25,depth*.62),material(0x795337));bed.position.set(-width*.32+row*(width*.64/Math.max(1,level-1)),.22,0);house.add(bed);
     for(let j=0;j<3;j++){const plant=new THREE.Mesh(new THREE.SphereGeometry(.22,8,8),material(0x3d9c45));plant.position.set(bed.position.x,.55,-depth*.22+j*depth*.22);house.add(plant);}
@@ -1202,9 +1236,17 @@ function createFactory(){
     addBox(factory,0.12,1.12,0.2,trim,x,2.35,2.42);
   }
   // Высокая труба с металлическим ободом и боковой вентиляцией.
-  addBox(factory,0.72,3.5,0.72,material(0x8b5140),2.15,5.0,-1.35);
-  addBox(factory,1.05,0.22,1.05,metal,2.15,6.78,-1.35);
-  const cap=new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.42,0.28,12),metal);cap.position.set(2.15,6.98,-1.35);factory.add(cap);
+  // Круглая кирпичная дымовая труба с металлическими обручами.
+  const stack=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.52,3.7,16),material(0x9a5744));
+  stack.position.set(2.15,5.05,-1.35);stack.castShadow=true;factory.add(stack);
+  for(const y of [3.55,5.2,6.65]){
+    const band=new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.45,0.12,16),metal);
+    band.position.set(2.15,y,-1.35);factory.add(band);
+  }
+  const cap=new THREE.Mesh(new THREE.CylinderGeometry(0.62,0.48,0.28,16),metal);
+  cap.position.set(2.15,6.98,-1.35);factory.add(cap);
+  const inner=new THREE.Mesh(new THREE.CylinderGeometry(0.34,0.34,0.03,16),material(0x252b2d));
+  inner.position.set(2.15,7.13,-1.35);factory.add(inner);
   const vent=new THREE.Mesh(new THREE.CylinderGeometry(0.48,0.48,0.18,16),metal);vent.rotation.z=Math.PI/2;vent.position.set(-3.18,2.4,-0.6);factory.add(vent);
   // Трубы вдоль стены и небольшой знак над входом.
   const pipe=new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.11,3.5,10),metal);pipe.rotation.z=Math.PI/2;pipe.position.set(0,0.45,-2.38);factory.add(pipe);
