@@ -2033,7 +2033,7 @@ function createGreenhouse(level=greenhouseLevel){
     roofEdge.rotation.z=side*-roofAngle;house.add(roofEdge);
     for(let i=0;i<=6;i++){
       const z=-depth/2+depth*i/6;
-      const cross=new THREE.Mesh(new THREE.BoxGeometry(width+0.08,0.07,0.07),railMat);
+      const cross=new THREE.Mesh(new THREE.BoxGeometry(width+0.08,0.07,0.07),frameMat);
       cross.position.set(0,height+0.42,z);house.add(cross);
     }
   }
