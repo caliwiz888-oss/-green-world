@@ -1300,6 +1300,43 @@ for(const [x,z,h] of [[-4,-2.8,7.2],[4,-2.8,7.2],[-4,2.8,6.5],[4,2.8,6.5]]){
   const collar=new THREE.Mesh(new THREE.CylinderGeometry(1.22,1.22,0.16,12),material(0xb9b09e));
   collar.position.set(x,h-0.15,z);castle.add(collar);
 }
+// Парадный вход: широкая каменная лестница, ступени и золотистая окантовка.
+const castleStepMat=material(0xe4d8c1),castleGoldMat=material(0xd8a84e),castleBannerMat=material(0x9f3435);
+for(let k=0;k<5;k++){
+  const step=new THREE.Mesh(new THREE.BoxGeometry(2.55+k*0.48,0.22,0.48),castleStepMat);
+  step.position.set(0,0.11+k*0.035,3.42+k*0.43);
+  step.castShadow=true;step.receiveShadow=true;castle.add(step);
+  const nosing=new THREE.Mesh(new THREE.BoxGeometry(2.58+k*0.48,0.045,0.08),castleGoldMat);
+  nosing.position.set(0,0.22+k*0.035,3.63+k*0.43);castle.add(nosing);
+}
+// Арочные оконные рамы, светящиеся витражи и вертикальные фасадные пилястры.
+const castleGlassMat=new THREE.MeshStandardMaterial({color:0x8ed8ed,emissive:0x244b58,emissiveIntensity:0.28,metalness:0.12,roughness:0.22});
+for(const x of [-3.05,-1.55,1.55,3.05]){
+  addBox(castle,0.12,3.7,0.18,0xeee2cc,x,2.45,3.13);
+  const pane=new THREE.Mesh(new THREE.BoxGeometry(0.48,1.12,0.08),castleGlassMat);
+  pane.position.set(x,3.85,3.22);castle.add(pane);
+  addBox(castle,0.66,0.12,0.16,castleGoldMat,x,4.43,3.22);
+  addBox(castle,0.66,0.12,0.16,castleGoldMat,x,3.27,3.22);
+  addBox(castle,0.10,1.22,0.12,castleGoldMat,x-0.28,3.85,3.23);
+  addBox(castle,0.10,1.22,0.12,castleGoldMat,x+0.28,3.85,3.23);
+}
+// Королевские знамёна на башнях.
+for(const x of [-4,4]){
+  const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.055,2.25,8),castleGoldMat);
+  pole.position.set(x,8.35,3.02);castle.add(pole);
+  const banner=new THREE.Mesh(new THREE.PlaneGeometry(0.9,1.35),new THREE.MeshStandardMaterial({color:0x9d3034,side:THREE.DoubleSide,roughness:0.82}));
+  banner.position.set(x+0.42,8.45,3.02);banner.rotation.y=0.08;castle.add(banner);
+  addBox(castle,0.12,0.9,0.04,castleGoldMat,x+0.42,8.45,3.0);
+}
+// Факелы у входа и небольшие декоративные клумбы у лестницы.
+for(const x of [-2.25,2.25]){
+  const plinth=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.34,0.55,8),castleStepMat);
+  plinth.position.set(x,0.28,4.05);castle.add(plinth);
+  const torch=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.11,0.58,8),castleGoldMat);
+  torch.position.set(x,0.78,4.05);castle.add(torch);
+  const flame=new THREE.Mesh(new THREE.SphereGeometry(0.16,10,8),new THREE.MeshBasicMaterial({color:0xffc65b}));
+  flame.position.set(x,1.13,4.05);castle.add(flame);
+}
 castle.position.set(23,0,-14);
 castle.scale.setScalar(0.9);
 scene.add(castle);
