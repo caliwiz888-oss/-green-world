@@ -874,6 +874,13 @@ function makeFactory(level=1){
    box(g,.98,.1,.08,x,2.55,-2.92,M.gold,false);
    box(g,1.38,.14,.28,x,3.12,-2.78,M.stone2);
    box(g,1.38,.14,.28,x,1.96,-2.78,M.stone2);
+   // Fine rear-window mullions and small stone corbels complete the industrial glazing.
+   box(g,.075,.78,.055,x,2.55,-2.96,M.gold,false);
+   box(g,.92,.065,.055,x,2.55,-2.96,M.gold,false);
+   for(const dx of [-.48,.48]){
+     box(g,.12,.16,.12,x+dx,3.22,-2.93,M.stone2,false);
+     box(g,.12,.16,.12,x+dx,1.86,-2.93,M.stone2,false);
+   }
  }
  for(const x of [-3.52,3.52]){
    box(g,.3,3.42,.3,x,2.12,-2.72,M.stone2);
