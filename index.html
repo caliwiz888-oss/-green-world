@@ -475,6 +475,26 @@ function makeHouse(){
    box(g,.48,.78,.1,x,4.85,-3.36,M.glass,false);
    box(g,.58,.1,.12,x,5.27,-3.38,M.stone2,false);
  }
+ // Side elevations: paired recessed windows echo the front facade and break up the broad stone walls.
+ for(const side of [-1,1]){
+   for(const z of [-1.35,1.35]){
+     // Deep timber reveal and inset glazing sit flush with the existing side wall.
+     box(g,.18,1.28,1.08,side*5.075,2.62,z,M.wood,false);
+     box(g,.055,1.08,.88,side*5.18,2.62,z,M.stone2,false);
+     box(g,.045,.96,.76,side*5.215,2.62,z,M.glass,false);
+     // Brass mullions and a central crossbar give each narrow side window a clear rhythm.
+     box(g,.055,.98,.055,side*5.255,2.62,z,M.gold,false);
+     box(g,.055,.055,.78,side*5.255,2.62,z,M.gold,false);
+     box(g,.24,.14,1.34,side*5.19,3.34,z,M.stone2,false);
+     box(g,.24,.12,1.34,side*5.19,1.9,z,M.stone2,false);
+     for(const dz of [-.49,.49]){
+       box(g,.2,.18,.12,side*5.2,3.2,z+dz,M.stone2,false);
+       box(g,.2,.18,.12,side*5.2,2.04,z+dz,M.stone2,false);
+     }
+     // Small centered keystone detail keeps the window treatment consistent on both sides.
+     box(g,.24,.12,.18,side*5.22,3.48,z,M.gold,false);
+   }
+ }
  // Side elevation corner caps and window crowns continue the same architectural language.
  for(const side of [-1,1]){
    for(const z of [-2.55,0,2.55]){
