@@ -1222,6 +1222,21 @@ function makeMarket(level=1){
      box(g,.12,1.22,.12,x+dx,1.62,-2.4,M.stone2,false);
    }
  }
+ // Непрерывный каменный пояс над задними окнами связывает их перемычки в единую композицию.
+ box(g,3.72,.14,.28,0,2.56,-2.34,M.stone2,false);
+ box(g,3.82,.045,.31,0,2.655,-2.35,M.stone,false);
+ box(g,3.62,.035,.32,0,2.70,-2.36,M.gold,false);
+ // Пять резных консолей поддерживают пояс и подчёркивают центральную ось заднего входа.
+ for(const x of [-1.82,-.92,0,.92,1.82]){
+   box(g,.26,.18,.22,x,2.39,-2.48,M.stone2,false);
+   box(g,.18,.06,.24,x,2.27,-2.5,M.gold,false);
+   sphere(g,.028,x,2.39,-2.615,M.gold,.8);
+ }
+ // Каменные накладки на концах пояса аккуратно соединяют его с угловой отделкой.
+ for(const x of [-2.48,2.48]){
+   box(g,.22,.22,.24,x,2.56,-2.36,M.stone2,false);
+   box(g,.12,.08,.26,x,2.70,-2.38,M.gold,false);
+ }
  // Rear shop plinth: dressed stone panels protect the wall beneath both rear windows.
  for(const side of [-1,1]){
    for(let n=0;n<3;n++){
