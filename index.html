@@ -950,6 +950,16 @@ function makeFactory(level=1){
    box(g,.16,.14,1.5,x,3.13,3.7,M.gold,false);
  }
  for(let i=0;i<9;i++)box(g,.055,.07,1.42,-2+i*.5,3.3,3.65,metal,false);
+ // Paired diagonal steel braces visibly carry the loading canopy back to the facade.
+ for(const x of [-1.9,1.9]){
+   const brace=box(g,.13,1.02,.13,x,2.92,3.42,darkMetal,false);
+   brace.rotation.x=-.82;
+   box(g,.24,.16,.24,x,3.38,3.16,M.stone2,false);
+   box(g,.24,.16,.24,x,2.53,3.78,metal,false);
+   for(const z of [3.16,3.78]){
+     sphere(g,.035,x, z===3.16?3.38:2.53,z+.13,M.gold,.8);
+   }
+ }
  // Visible side pipework, valves and service brackets.
  for(const z of [-1.85,-.75,.35,1.45]){
    cylinder(g,.09,.09,2.25,3.78,1.72,z,metal,12);
