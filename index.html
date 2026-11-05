@@ -887,8 +887,8 @@ function decorativeTree(x,z,size=1){
   [-20,14],[20,14]
 ].forEach(p=>decorativeTree(p[0],p[1],1.3));
 
-// Единый слой небольших листьев: добавляет естественную фактуру крон,
-// но использует всего один дополнительный draw call.
+// Общий слой небольших листьев: три цветовые партии инстансов
+// добавляют фактуру крон без отдельных объектов для каждого листа.
 const decorativeLeafGeometry=new THREE.SphereGeometry(0.16,8,6);
 const decorativeLeafMaterials=[
   new THREE.MeshStandardMaterial({color:0x4d9b4a,roughness:0.92}),
