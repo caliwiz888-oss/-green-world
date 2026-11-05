@@ -669,6 +669,25 @@ function makeMarket(level=1){
  }
  box(g,5.82,.1,.12,0,2.65,3.14,M.gold,false);
  // Убраны три отдельные белые плиты перед лавкой по просьбе пользователя.
+ // Gable-edge timber trims follow the existing roof pitch on both ends.
+ for(const z of [-2.48,2.48]){
+   for(const [x,angle] of [[-1.34,.42],[1.34,-.42]]){
+     const edge=box(g,3.28,.13,.16,x,3.82,z,M.wood2,false);
+     edge.rotation.z=angle;
+     const highlight=box(g,3.12,.045,.18,x,3.91,z+.025,M.gold,false);
+     highlight.rotation.z=angle;
+   }
+   box(g,.22,.16,.2,0,4.48,z,M.stone2,false);
+   sphere(g,.09,0,4.58,z+.02,M.gold,.8);
+ }
+ // Refined ridge caps and small forged fasteners unify the roof panels.
+ box(g,.26,.12,4.82,0,4.55,0,M.stone2,false);
+ for(const z of [-2.12,-1.06,0,1.06,2.12])sphere(g,.045,0,4.63,z,M.gold,.8);
+ // Slim carved fascia highlights finish the eaves without adding bulk.
+ for(const x of [-2.82,2.82]){
+   box(g,.055,.055,4.62,x,3.31,0,M.gold,false);
+   for(const z of [-1.85,-.92,0,.92,1.85])box(g,.12,.12,.1,x,3.26,z,M.wood2,false);
+ }
  return g;
 }
 function makeFactory(level=1){
