@@ -461,6 +461,22 @@ function makeHouse(){
    box(g,.72,.1,.16,x,5.38,4.32,M.gold,false);
    box(g,1.12,.14,.3,x,4.78,4.18,houseStoneTrim);
  }
+ // Тонкая внутренняя раскладка верхних окон фронтона: четыре аккуратных стеклянных поля.
+ for(const x of [-1.35,1.35]){
+   for(const y of [5.12,5.64]){
+     box(g,.76,.035,.045,x,y,4.345,M.gold,false);
+   }
+   // Каменные импосты и небольшие латунные розетки завершают оконные обрамления.
+   for(const dx of [-.49,.49]){
+     box(g,.11,.18,.12,x+dx,5.98,4.31,houseStoneTrim,false);
+     sphere(g,.045,x+dx,6.08,4.34,M.gold,.8);
+   }
+   // Опорные консоли подчёркивают нижнюю линию каждого окна.
+   for(const dx of [-.34,.34]){
+     const support=box(g,.13,.22,.18,x+dx,4.88,4.31,houseStoneTrim,false);
+     support.rotation.z=dx<0?-.18:.18;
+   }
+ }
  // Центральная эмблема фронтона: каменно-латунный медальон с зелёным листом.
  const gableCrest=cylinder(g,.36,.36,.075,0,5.55,4.22,houseStoneTrim,32);
  gableCrest.rotation.x=Math.PI/2;
