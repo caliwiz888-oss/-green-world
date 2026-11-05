@@ -733,7 +733,7 @@ const fruitStored=()=>Object.values(fruitInventory).reduce((sum,value)=>sum+Math
 const totalStoredFruit=()=>apples+fruitStored();
 const processedStored=()=>Object.values(processedInventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
 const landExpansionCost=level=>[0,500,1500,3500,7000][level]??null;
-const fruitBasePrice=type=>({apple:1+orchardLevel,peach:7,cherry:12,pear:18,orange:25,mango:35}[type]||1);
+const fruitBasePrice=type=>({apple:1+orchardLevel,peach:7,cherry:12,pear:9,orange:15,mango:22}[type]||1);
 const seedCount=type=>type==='apple'?seeds:Math.max(0,Number(seedInventory[type])||0);
 const fruitCatalog={apple:{label:'Яблоня',fruit:'🍎',cost:100,color:0xd92720,leaf:0x258b39},peach:{label:'Персик',fruit:'🍑',cost:300,color:0xffa45b,leaf:0x398b45},cherry:{label:'Черешня',fruit:'🍒',cost:700,color:0xb91f48,leaf:0x287c3c},pear:{label:'Груша',fruit:'🍐',cost:1200,color:0xa6bd38,leaf:0x438c42},orange:{label:'Апельсин',fruit:'🍊',cost:2000,color:0xf28b18,leaf:0x287a37},mango:{label:'Манго',fruit:'🥭',cost:3500,color:0xe8a52b,leaf:0x367b37}};
 const applePrice=()=>1+orchardLevel+(hasMarket?1:0);
