@@ -175,6 +175,37 @@ function makeHouse(){
  for(const z of [-3.4,-2.3,-1.2,0,1.2,2.3,3.4]){
    box(g,.16,.12,.72,0,6.48,z,M.gold,false);
  }
+ // Sculpted stone lintels and sills make the main facade read as a finished manor.
+ for(const x of [-3.25,3.25]){
+   box(g,1.62,.16,.3,x,3.52,4.2,M.stone2);
+   box(g,1.62,.16,.3,x,1.88,4.2,M.stone2);
+   box(g,.12,1.5,.28,x-.76,2.7,4.2,M.stone2);
+   box(g,.12,1.5,.28,x+.76,2.7,4.2,M.stone2);
+ }
+ // Recessed side windows with stone surrounds on both long walls.
+ for(const side of [-1,1]){
+   for(const z of [-2.55,0,2.55]){
+     box(g,.2,1.42,1.08,side*5.04,2.55,z,M.wood);
+     box(g,.12,1.12,.78,side*5.17,2.57,z,M.glass);
+     box(g,.22,.14,1.22,side*5.18,3.3,z,M.stone2);
+     box(g,.22,.14,1.22,side*5.18,1.8,z,M.stone2);
+     box(g,.22,1.5,.14,side*5.18,2.55,z-.58,M.stone2);
+     box(g,.22,1.5,.14,side*5.18,2.55,z+.58,M.stone2);
+     box(g,.12,1.18,.08,side*5.25,2.57,z,M.gold,false);
+     box(g,.12,.08,.84,side*5.25,2.57,z,M.gold,false);
+   }
+ }
+ // Tower corner stones, cornices and narrow upper lights.
+ for(const x of [-4.35,4.35]){
+   for(const z of [-3.34,-1.16]){
+     for(const y of [1.0,2.0,3.0,4.0,5.0]){
+       box(g,.24,.28,.24,x+(x<0?-.96:.96),y,z,M.stone2);
+     }
+   }
+   box(g,2.28,.16,2.28,x,5.94,-2.25,M.gold);
+   box(g,.78,1.32,.14,x,4.55,-1.13,M.glass);
+   box(g,.96,.14,.2,x,5.24,-1.13,M.stone2);
+ }
  return g;
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
