@@ -387,8 +387,13 @@ ground.position.y=-0.13;
 ground.receiveShadow=true;
 scene.add(ground);
 
-// Общая геометрия клеток устраняет лишние объекты GPU и перекрытия.
-const plotTileGeometry=new THREE.BoxGeometry(0.96,0.08,0.96);
+// Единые геометрия и материал клеток: без шахматной раскраски и
+// без сотен одинаковых экземпляров материала на мобильных устройствах.
+const plotTileGeometry=new THREE.BoxGeometry(0.985,0.075,0.985);
+const plotTileMaterial=new THREE.MeshStandardMaterial({
+  map:soilTexture,bumpMap:soilBump,bumpScale:0.022,
+  color:0xffffff,roughness:1
+});
 
 // ===== ПЛАНТАЦИЯ 20 × 20 =====
 const plots=[];
@@ -400,10 +405,7 @@ for(let x=0;x<20;x++){
     // вызывая z-fighting и крупный грязный шахматный узор на земле.
     const tile=new THREE.Mesh(
       plotTileGeometry,
-      new THREE.MeshStandardMaterial({
-        map:soilTexture,bumpMap:soilBump,bumpScale:0.035,
-        color:(x+z)%2?0xc6a078:0xd0ad7d,roughness:1
-      })
+      plotTileMaterial
     );
     tile.position.set(x-9.5,0,z-9.5);
     tile.receiveShadow=true;
