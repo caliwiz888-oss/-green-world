@@ -468,6 +468,15 @@ function makeMarket(level=1){
    const brace=box(g,.09,.72,.1,x,2.94,2.92,M.wood2,false);brace.rotation.z=x<0?-.42:.42;
    box(g,.16,.12,.16,x,2.62,2.96,M.gold,false);
  }
+ // Awning finish: fine fabric ribs, a continuous front hem and scalloped edge.
+ for(let i=0;i<7;i++){
+   const x=-2.52+i*.84;
+   box(g,.035,.035,.82,x,2.84,3.12,M.gold,false);
+   box(g,.68,.12,.08,x,2.62,3.16,i%2?M.roof2:M.roof);
+   box(g,.08,.18,.09,x-.3,2.54,3.18,M.roof2,false);
+   box(g,.08,.18,.09,x+.3,2.54,3.18,M.roof2,false);
+ }
+ box(g,5.82,.1,.12,0,2.65,3.14,M.gold,false);
  // Убраны три отдельные белые плиты перед лавкой по просьбе пользователя.
  return g;
 }
