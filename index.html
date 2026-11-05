@@ -156,7 +156,7 @@ function makeTree(x,z,kind='apple'){
  return g;
 }
 function makeMarket(level=1){
- const g=group(world,10,0,5);
+ const g=group(world,9.5,0,5.4);
  box(g,5.4,2.8,4.4,0,1.4,0,M.stone);
  box(g,5.65,.24,4.65,0,2.86,0,M.gold);
  // Timber-framed storefront and broad display windows.
@@ -174,6 +174,25 @@ function makeMarket(level=1){
  for(let i=0;i<7;i++)box(g,.72,.18,.85,-2.52+i*.84,2.75,2.72,i%2?M.roof:M.roof2);
  box(g,5.9,.22,.18,0,2.55,3.05,M.wood);
  for(const x of [-2.2,2.2])box(g,.18,1.2,.18,x,.6,2.7,M.wood);
+ // Warm timber sign, small hanging lamps and a welcoming stone forecourt.
+ box(g,2.05,.62,.16,0,4.05,2.62,M.wood);
+ box(g,1.78,.34,.08,0,4.05,2.73,M.gold,false);
+ for(const x of [-2.35,2.35]){
+   box(g,.16,.72,.16,x,3.15,2.82,M.wood);
+   const lamp=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),new THREE.MeshStandardMaterial({color:0xffe6a3,emissive:0x9b6b22,emissiveIntensity:.45}));
+   lamp.position.set(x,3.48,2.82);g.add(lamp);
+ }
+ // Produce baskets and stacked delivery crates beside the entrance.
+ for(const x of [-3.25,3.25]){
+   box(g,.92,.58,.78,x,.52,2.7,M.wood);
+   box(g,.98,.1,.84,x,.84,2.7,M.gold,false);
+   for(let i=0;i<3;i++){
+     const fruit=new THREE.Mesh(new THREE.SphereGeometry(.16,10,8),mat([0xd94c3d,0xe5a34b,0x78a94d][i]));
+     fruit.position.set(x-.22+i*.22,1.02,2.72);g.add(fruit);
+   }
+ }
+ // A short paved apron makes the shop feel connected to the courtyard.
+ for(let i=0;i<3;i++)box(g,1.35,.12,.9,0,.06,3.75+i*1.02,M.path,false);
  return g;
 }
 function makeGreenhouse(level=1){
@@ -346,7 +365,7 @@ for(let x=0;x<20;x++)for(let z=0;z<20;z++){
 function clearDynamic(){for(const t of treeObjects)world.remove(t);treeObjects=[];for(const b of buildingObjects)world.remove(b);buildingObjects=[]}
 function unlocked(i){const level=Math.max(1,Number(player?.landLevel)||1),side=[0,6,10,14,18,20][level],start=Math.floor((20-side)/2),x=Math.floor(i/20),z=i%20;return x>=start&&x<start+side&&z>=start&&z<start+side}
 function drawPlayer(){if(!player)return;clearDynamic();const map=new Map((player.plots||[]).map(p=>[p.index,p]));for(let i=0;i<400;i++){const p=map.get(i);if(p){const x=(Math.floor(i/20)-9.5)*1.45,z=((i%20)-9.5)*1.45;const tree=makeTree(x,z,p.type||'apple');treeObjects.push(tree);tree.userData.plotIndex=i;tree.userData.plot=p}}
- if(player.hasMarket)buildingObjects.push(makeMarket(player.marketLevel));buildingObjects.push(makeFactory(player.factoryLevel||1));
+ buildingObjects.push(makeMarket(player.marketLevel||1));buildingObjects.push(makeFactory(player.factoryLevel||1));
  for(let i=0;i<400;i++){const p=map.get(i);tiles[i].material=p?(p.grown?mat(0x8fbd55):mat(0x719a49)):((Math.floor(i/20)+i%20)%2?M.grass:M.grass2);tiles[i].material.needsUpdate=true}
  updateHud();
 }
