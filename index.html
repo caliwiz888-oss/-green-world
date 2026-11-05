@@ -2364,6 +2364,11 @@ function makeWorldLandscape(){
    cone(world,r,h,x,h*.46,z,farRock,8);
    cone(world,r*.38,h*.31,x-.35,h*.79,z+.12,farSnow,7);
  }
+ // A few offset snow faces soften the repeated silhouettes of the distant alpine peaks.
+ for(const [x,y,z,sx,sy,sz] of [[-19,9.4,-53,1.9,.18,.62],[-5,8.1,-56,1.6,.16,.55],[8,10.3,-54,2.1,.18,.68],[23,7.9,-50,1.55,.15,.5]]){
+   const snowFace=new THREE.Mesh(new THREE.SphereGeometry(1,14,8),farSnow);
+   snowFace.position.set(x,y,z);snowFace.scale.set(sx,sy,sz);snowFace.rotation.y=.18;world.add(snowFace);
+ }
  // Soft, translucent mountain mist settles in the valleys without obscuring the playable area.
  const mistMat=new THREE.MeshBasicMaterial({color:0xe3eee9,transparent:true,opacity:.16,depthWrite:false,fog:false});
  for(const [x,y,z,sx,sy,sz] of [[-17,3.2,-39,10,.7,2.1],[3,3.8,-41,13,.8,2.4],[23,3.1,-37,9,.65,2]]){
