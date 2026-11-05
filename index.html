@@ -439,11 +439,24 @@ function makeGardenBed(x,z){
  const b=group(world,x,0,z);
  box(b,2.8,.28,2.1,0,.14,0,M.wood,false);
  box(b,2.48,.14,1.78,0,.34,0,M.soil,false);
- for(let row=0;row<3;row++)for(let col=0;col<4;col++){
-   const px=-.88+col*.58,pz=-.55+row*.55;
-   cylinder(b,.045,.045,.32,px,.55,pz,M.leaf,6);
-   sphere(b,.18,px,.78,pz,mat((row+col)%3===0?0x73a94b:0x4f923f),.85);
+ for(let row=0;row<3;row++){
+   // Fine raised planting ridges make the soil read as cultivated rows.
+   box(b,2.22,.045,.09,0,.45,-.56+row*.56,mat(0x76563a),false);
+   for(let col=0;col<4;col++){
+     const px=-.88+col*.58,pz=-.55+row*.55;
+     cylinder(b,.045,.045,.32,px,.55,pz,M.leaf,6);
+     sphere(b,.18,px,.78,pz,mat((row+col)%3===0?0x73a94b:0x4f923f),.85);
+     sphere(b,.075,px-.07,.84,pz-.035,mat(0x91bd61),.7);
+   }
  }
+ // Clean timber corner joints and a narrow stone lip around each bed.
+ const edge=mat(0x59402b),lip=mat(0xc8bda2);
+ for(const x0 of [-1.34,1.34])for(const z0 of [-.98,.98]){
+   box(b,.12,.34,.12,x0,.31,z0,edge,false);
+   box(b,.16,.055,.16,x0,.49,z0,lip,false);
+ }
+ box(b,2.62,.055,.07,0,.39,-.91,lip,false);
+ box(b,2.62,.055,.07,0,.39,.91,lip,false);
 }
 function makeLamp(x,z){
  const l=group(world,x,0,z);
