@@ -72,6 +72,7 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
     <div class="menu-row"><span>🏪 Торговая лавка</span><strong id="market-status">Не построена</strong></div>
     <div class="menu-row"><span>🌿 Теплица</span><strong id="greenhouse-status">Не построена</strong></div>
     <div class="menu-row"><span>🏭 Завод</span><strong id="factory-status">Не построен</strong></div>
+      <div class="menu-row"><span>🏭 Производительность</span><strong id="factory-capacity">—</strong></div>
     <div class="menu-row"><span>⭐ Уровень игрока</span><strong id="player-level">1</strong></div>
     <div class="menu-row"><span>✨ Опыт</span><strong id="player-xp">0 / 100 XP</strong></div>
     <div style="height:8px;background:#ffffff25;border-radius:8px;overflow:hidden;margin:0 0 8px"><div id="xp-progress" style="height:100%;width:0%;background:#f5d45c;border-radius:8px"></div></div>
@@ -96,6 +97,7 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
       <button id="build-market">🏪 Торговая лавка · 1 500 GC</button>
       <button id="build-greenhouse">🌿 Теплица · 2 500 GC</button>
       <button id="build-factory">🏭 Построить завод · 5 000 GC</button>
+      <button id="upgrade-factory" disabled>⬆️ Улучшить завод</button>
       <button id="sell-in-menu">🛒 Продать урожай</button>
     </div>
     <button id="menu-close">Закрыть</button>
@@ -720,6 +722,7 @@ let hasMarket=Boolean(savedFarm?.hasMarket ?? false);
 let marketLevel=hasMarket?Math.max(1,Number(savedFarm?.marketLevel ?? 1)):0;
 let hasGreenhouse=Boolean(savedFarm?.hasGreenhouse ?? false);
 let hasFactory=Boolean(savedFarm?.hasFactory ?? false);
+let factoryLevel=hasFactory?Math.min(5,Math.max(1,Number(savedFarm?.factoryLevel)||1)):0;
 let greenhouseLevel=hasGreenhouse?Math.max(1,Number(savedFarm?.greenhouseLevel ?? 1)):0;
 let orchardLevel=Math.max(1,Number(savedFarm?.orchardLevel ?? 1));
 let experience=Math.max(0,Number(savedFarm?.experience ?? 0));
@@ -759,7 +762,14 @@ function update(){
   document.getElementById('processed-inventory').textContent=processedRows.length?processedRows.join(' · '):'Пока нет';
   document.getElementById('factory-locked').style.display=hasFactory?'none':'block';
   document.getElementById('process-fruit').disabled=!hasFactory;
-  document.getElementById('factory-status').textContent=hasFactory?'Построен':'Не построен';
+  document.getElementById('factory-status').textContent=hasFactory?'Построен · уровень '+factoryLevel:'Не построен';
+  const juiceBatch=5*Math.max(1,factoryLevel),jamBatch=8*Math.max(1,factoryLevel);
+  document.getElementById('factory-capacity').textContent=hasFactory?juiceBatch+' фруктов → '+factoryLevel+' сока · '+jamBatch+' → '+factoryLevel+' варенья':'—';
+  document.getElementById('process-kind').innerHTML='<option value="juice">🧃 Сок — '+juiceBatch+' фруктов</option><option value="jam">🍯 Варенье — '+jamBatch+' фруктов</option>';
+  const factoryUpgradeCosts=[0,3000,6000,10000,15000];
+  const factoryUpgrade=document.getElementById('upgrade-factory');
+  factoryUpgrade.textContent=factoryLevel>=5?'🏭 Максимальный уровень (5/5)':'⬆️ Улучшить завод до уровня '+(factoryLevel+1)+' · '+factoryUpgradeCosts[factoryLevel]+' GC';
+  factoryUpgrade.disabled=!hasFactory||factoryLevel>=5; 
   document.getElementById('build-factory').textContent=hasFactory?'🏭 Завод построен':'🏭 Построить завод · 5 000 GC';
   document.getElementById('build-factory').disabled=hasFactory;
   document.getElementById('land-status').textContent=unlockedPlots+' / 400 мест · уровень '+landLevel;
@@ -838,6 +848,7 @@ function applyServerPlayer(player){
   hasGreenhouse=Boolean(player.hasGreenhouse);
   greenhouseLevel=hasGreenhouse?Math.max(1,Number(player.greenhouseLevel)||1):0;
   hasFactory=Boolean(player.hasFactory);
+  factoryLevel=hasFactory?Math.min(5,Math.max(1,Number(player.factoryLevel)||1)):0;
   for(const plot of plots){
     if(plot.tree){scene.remove(plot.tree);plot.tree=null;}
   }
@@ -1377,12 +1388,21 @@ document.getElementById('claim-daily-reward').addEventListener('click',async()=>
   }
 });
 document.getElementById('sell-in-menu').addEventListener('click',async()=>{await window.sell();update()});
+document.getElementById('upgrade-factory').addEventListener('click',async()=>{
+  if(!hasFactory){hint('Сначала построй завод.');return;}
+  if(factoryLevel>=5){hint('Завод уже достиг максимального 5-го уровня.');return;}
+  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером.');return;}
+  const costs=[0,3000,6000,10000,15000],cost=costs[factoryLevel];
+  if(serverMode){await serverAction('/api/game/upgrade-factory',{},'Завод улучшен до '+(factoryLevel+1)+' уровня! Теперь можно перерабатывать больше фруктов.');return;}
+  if(coins<cost){hint('Для улучшения завода нужно '+cost+' GC.');return;}
+  coins-=cost;factoryLevel++;update();hint('🏭 Завод улучшен до '+factoryLevel+' уровня!');
+});
 document.getElementById('build-factory').addEventListener('click',async()=>{
   if(hasFactory){hint('Завод уже построен.');return;}
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером.');return;}
   if(serverMode){await serverAction('/api/game/build',{kind:'factory'},'🏭 Завод построен! Теперь можно перерабатывать фрукты.');return;}
   if(coins<5000){hint('Для строительства завода нужно 5 000 GC.');return;}
-  coins-=5000;hasFactory=true;createFactory();update();hint('🏭 Завод построен! Переработка фруктов открыта.');
+  coins-=5000;hasFactory=true;factoryLevel=1;createFactory();update();hint('🏭 Завод построен! Переработка фруктов открыта.');
 });
 document.getElementById('expand-land').addEventListener('click',async()=>{
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером.');return;}
@@ -1398,12 +1418,12 @@ document.getElementById('process-fruit').addEventListener('click',async()=>{
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером.');return;}
   const fruitType=document.getElementById('process-fruit-type').value;
   const kind=document.getElementById('process-kind').value;
-  const need=kind==='juice'?5:8;
+  const need=(kind==='juice'?5:8)*factoryLevel;
   const available=fruitType==='apple'?apples:Number(fruitInventory[fruitType]||0);
   if(available<need){hint('Для переработки нужно '+need+' фруктов.');return;}
   if(serverMode){await serverAction('/api/game/process',{fruitType,kind},kind==='juice'?'Сок изготовлен!':'Варенье изготовлено!');return;}
   if(fruitType==='apple') apples-=need; else fruitInventory[fruitType]-=need;
-  const key=fruitType+'_'+kind;processedInventory[key]=(Number(processedInventory[key])||0)+1;
+  const key=fruitType+'_'+kind;processedInventory[key]=(Number(processedInventory[key])||0)+factoryLevel;
   update();hint(kind==='juice'?'🧃 Сок готов! Его можно продать дороже фруктов.':'🍯 Варенье готово! Его можно продать дороже фруктов.');
 });
 
