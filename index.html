@@ -200,7 +200,8 @@ camera.lookAt(0,0,0);
 
 let renderer;
 try {
-  const isTouchDevice=window.matchMedia?.('(pointer: coarse)').matches||false;\n  renderer = new THREE.WebGLRenderer({antialias:!isTouchDevice, powerPreference:'high-performance'});
+  const isTouchDevice=window.matchMedia?.('(pointer: coarse)').matches||false;
+  renderer = new THREE.WebGLRenderer({antialias:!isTouchDevice, powerPreference:'high-performance'});
 } catch (webglError) {
   const status = document.getElementById('connection-status');
   if (status) status.textContent = 'WEBGL НЕДОСТУПЕН';
