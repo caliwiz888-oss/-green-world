@@ -67,8 +67,6 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
       <option value="orange">🍊 Апельсин — 2 000 GC</option>
       <option value="mango">🥭 Манго — 3 500 GC</option>
     </select>
-    <div class="menu-row"><span>🏚️ Амбар</span><strong id="warehouse-status">Не построен</strong></div>
-    <div class="menu-row"><span>📦 Вместимость амбара</span><strong id="warehouse-capacity">20 яблок</strong></div>
     <div class="menu-row"><span>🏪 Торговая лавка</span><strong id="market-status">Не построена</strong></div>
     <div class="menu-row"><span>🌿 Теплица</span><strong id="greenhouse-status">Не построена</strong></div>
     <div class="menu-row"><span>🏭 Завод</span><strong id="factory-status">Не построен</strong></div>
@@ -91,8 +89,6 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
       <button id="process-fruit" style="width:100%;margin:6px 0" disabled>Переработать фрукты</button>
     </div>
     <div class="menu-actions">
-      <button id="build-warehouse">🏚️ Построить амбар · 80 GC</button>
-      <button id="upgrade-warehouse">📦 Улучшить амбар · 300 GC</button>
       <button id="upgrade-orchard">🌳 Улучшить сад · 150 GC</button>
       <button id="build-market">🏪 Торговая лавка · 1 500 GC</button>
       <button id="build-greenhouse">🌿 Теплица · 2 500 GC</button>
@@ -716,8 +712,6 @@ let unlockedPlots=landPlotCount(landLevel);
 let selectedTreeType='apple';
 let seeds=Number(savedFarm?.seeds ?? 5);
 let seedInventory={...(savedFarm?.seedInventory||{})};
-let hasWarehouse=Boolean(savedFarm?.hasWarehouse ?? false);
-let warehouseLevel=Boolean(savedFarm?.hasWarehouse)?Math.max(1,Number(savedFarm?.warehouseLevel ?? 1)):0;
 let hasMarket=Boolean(savedFarm?.hasMarket ?? false);
 let marketLevel=hasMarket?Math.max(1,Number(savedFarm?.marketLevel ?? 1)):0;
 let hasGreenhouse=Boolean(savedFarm?.hasGreenhouse ?? false);
@@ -735,7 +729,7 @@ let serverMode=false;
 let serverRequired=Boolean(apiBase);
 let apiBusy=false;
 let dailyReward={claimedToday:false,day:1,reward:10};
-const appleCapacity=()=>hasWarehouse?100*Math.max(1,warehouseLevel):20;
+const appleCapacity=()=>Infinity; // Вместимость урожая не ограничена: амбар больше не нужен.
 const fruitStored=()=>Object.values(fruitInventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
 const totalStoredFruit=()=>apples+fruitStored();
 const processedStored=()=>Object.values(processedInventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
@@ -777,10 +771,6 @@ function update(){
   const expandCost=landExpansionCost(landLevel);
   expandButton.textContent=unlockedPlots>=400?'🏞️ Вся территория открыта':'🏞️ Открыть ещё '+Math.min(40,400-unlockedPlots)+' мест · '+expandCost+' GC';
   expandButton.disabled=unlockedPlots>=400;
-  document.getElementById('warehouse-capacity').textContent=totalStoredFruit()+' / '+appleCapacity()+' фруктов';
-  document.getElementById('warehouse-status').textContent=hasWarehouse?'Построен · уровень '+warehouseLevel:'Не построен';
-
-  document.getElementById('upgrade-warehouse').textContent='📦 Улучшить амбар · '+warehouseUpgradeCost(warehouseLevel)+' GC';
   document.getElementById('market-status').textContent=hasMarket?'Уровень '+marketLevel+' · +'+marketBonus()+' GC за яблоко':'Не построена';
   document.getElementById('greenhouse-status').textContent=hasGreenhouse?'Уровень '+greenhouseLevel+' · '+harvestAmount()+' фруктов за сбор':'Не построена';
   const marketButton=document.getElementById('build-market');
@@ -802,7 +792,7 @@ function update(){
   localStorage.setItem('coins',coins);
   localStorage.setItem('apples',apples);
   localStorage.setItem('greenWorldFarm',JSON.stringify({
-    coins,apples,fruitInventory,processedInventory,landLevel,seeds,seedInventory,hasWarehouse,warehouseLevel,hasMarket,marketLevel,hasGreenhouse,greenhouseLevel,hasFactory,orchardLevel,experience,playerLevel,
+    coins,apples,fruitInventory,processedInventory,landLevel,seeds,seedInventory,hasMarket,marketLevel,hasGreenhouse,greenhouseLevel,hasFactory,orchardLevel,experience,playerLevel,
     plots:plots.map((p,i)=>p.tree?{index:i,type:p.tree.userData.type||'apple',grown:Boolean(p.tree.userData.grown),plantedAt:p.tree.userData.plantedAt,readyAt:p.tree.userData.readyAt,watered:Boolean(p.tree.userData.watered)}:null).filter(Boolean)
   }));
 }
@@ -814,7 +804,6 @@ function xpForLevel(level){
   return 1000+extra*400+extra*(extra-1)*25;
 }
 function orchardUpgradeCost(){return 150*orchardLevel;}
-function warehouseUpgradeCost(level){const costs=[0,300,700,1200,2000,3500,5500,8000,11000,15000];return costs[level]??(15000+(level-9)*4000);}
 function addLocalExperience(amount){
   experience+=amount;
   while(experience>=xpForLevel(playerLevel+1)){
@@ -841,8 +830,6 @@ function applyServerPlayer(player){
   orchardLevel=Math.max(1,Number(player.orchardLevel)||1);
   experience=Math.max(0,Number(player.experience)||0);
   playerLevel=Math.max(1,Number(player.playerLevel)||1);
-  hasWarehouse=Boolean(player.hasWarehouse);
-  warehouseLevel=Math.max(0,Number(player.warehouseLevel)||0);
   hasMarket=Boolean(player.hasMarket);
   marketLevel=hasMarket?Math.max(1,Number(player.marketLevel)||1):0;
   hasGreenhouse=Boolean(player.hasGreenhouse);
@@ -853,21 +840,17 @@ function applyServerPlayer(player){
     if(plot.tree){scene.remove(plot.tree);plot.tree=null;}
   }
   trees=[];
-  const oldWarehouse=scene.getObjectByName('warehouseBuilding');
-  if(oldWarehouse) scene.remove(oldWarehouse);
   const oldMarket=scene.getObjectByName('marketBuilding');
   if(oldMarket) scene.remove(oldMarket);
   const oldGreenhouse=scene.getObjectByName('greenhouseBuilding');
   if(oldGreenhouse) scene.remove(oldGreenhouse);
   const oldFactory=scene.getObjectByName('factoryBuilding');
   if(oldFactory) scene.remove(oldFactory);
-  warehouse=null;
   if(Array.isArray(player.plots)){
     for(const item of player.plots){
       if(Number.isInteger(item.index)&&plots[item.index]) addTree(plots[item.index],item);
     }
   }
-  if(hasWarehouse) createWarehouse();
   if(hasMarket) createMarket(marketLevel);
   if(hasGreenhouse) createGreenhouse(greenhouseLevel);
   if(hasFactory) createFactory();
@@ -1012,8 +995,6 @@ if(Array.isArray(savedFarm?.plots)){
   [0,1,2,3,4].forEach(i=>addTree(plots[i*3+22]));
 }
 
-// Амбар появляется в мире после покупки
-let warehouse=null;
 function createMarket(level=marketLevel){
   const old=scene.getObjectByName('marketBuilding');if(old)scene.remove(old);
   const booth=new THREE.Group();booth.name='marketBuilding';
@@ -1087,17 +1068,6 @@ function createFactory(){
   factory.position.set(-15,0,7);scene.add(factory);
 }
 
-function createWarehouse(){
-  if(warehouse) return;
-  warehouse=new THREE.Group();warehouse.name='warehouseBuilding';
-  addBox(warehouse,4,2.8,3.5,0xc99a5b,0,1.4,0);
-  const roof=new THREE.Mesh(new THREE.ConeGeometry(3.1,1.8,4),material(0x70412e));
-  roof.position.y=3.7;roof.rotation.y=Math.PI/4;warehouse.add(roof);
-  addBox(warehouse,1.1,1.8,0.12,0x70452b,0,0.9,1.82);
-  warehouse.position.set(12,0,4);
-  scene.add(warehouse);
-}
-if(hasWarehouse) createWarehouse();
 if(hasMarket) createMarket();
 if(hasGreenhouse) createGreenhouse();
 if(hasFactory) createFactory();
@@ -1146,8 +1116,7 @@ window.harvest=async function(){
   const tree=selectedPlot?.tree?.userData.grown?selectedPlot.tree:trees.find(t=>t.userData.grown);
   if(!tree){const growing=selectedPlot?.tree||trees.find(t=>!t.userData.grown);hint(growing?.userData?.readyAt?'До сбора осталось '+formatDuration(remainingGrowthMs(growing))+'.':'Урожай ещё созревает.');return;}
   if(serverMode){const plot=plots.find(p=>p.tree===tree);await serverAction('/api/game/harvest',{plotIndex:plots.indexOf(plot)},'Урожай собран. Следующий цикл созревания — 8 часов.');return;}
-  const collected=Math.min(harvestAmount(),Math.max(0,appleCapacity()-totalStoredFruit()));
-  if(collected<1){hint('Амбар заполнен! Продай фрукты или улучши амбар.');return;}
+  const collected=harvestAmount();
   const fruitType=tree.userData.type||'apple';
   if(fruitType==='apple') apples+=collected;
   else fruitInventory[fruitType]=(Number(fruitInventory[fruitType])||0)+collected;
@@ -1182,8 +1151,7 @@ window.harvestAll=async function(){
   if(!readyTrees.length){hint('Пока нет созревших деревьев.');return;}
   let total=0,count=0;
   for(const tree of readyTrees){
-    const amount=Math.min(harvestAmount(),Math.max(0,appleCapacity()-totalStoredFruit()));
-    if(amount<1) break;
+    const amount=harvestAmount();
     const type=tree.userData.type||'apple';
     if(type==='apple') apples+=amount;
     else fruitInventory[type]=(Number(fruitInventory[type])||0)+amount;
@@ -1195,7 +1163,7 @@ window.harvestAll=async function(){
     total+=amount;count++;
   }
   update();
-  hint(count?'🌳 Собрано деревьев: '+count+'. Получено фруктов: '+total+'.':'Амбар заполнен! Продай фрукты или улучши амбар.');
+  hint(count?'🌳 Собрано деревьев: '+count+'. Получено фруктов: '+total+'.':'Нет созревших деревьев для сбора.');
 };
 
 // ===== ПРОДАЖА =====
@@ -1345,21 +1313,6 @@ document.getElementById('menu-button').addEventListener('click',()=>{
 });
 document.getElementById('menu-close').addEventListener('click',()=>gameMenu.classList.remove('open'));
 gameMenu.addEventListener('click',e=>{if(e.target===gameMenu)gameMenu.classList.remove('open')});
-document.getElementById('build-warehouse').addEventListener('click',async()=>{
-  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
-  if(serverMode){await serverAction('/api/game/build',{kind:'warehouse'},'Амбар построен.');return;}
-  if(hasWarehouse){hint('Амбар уже построен.');return}
-  if(coins<100){hint('Для амбара нужно 100 Green Coin.');return}
-  coins-=100;hasWarehouse=true;warehouseLevel=1;createWarehouse();update();hint('Амбар построен! Вместимость — 100 яблок.');
-});
-document.getElementById('upgrade-warehouse').addEventListener('click',async()=>{
-  if(!hasWarehouse){hint('Сначала построй амбар.');return;}
-  const cost=warehouseUpgradeCost(Math.max(1,warehouseLevel));
-  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
-  if(serverMode){await serverAction('/api/game/upgrade-warehouse',{},'Амбар улучшен. Вместимость увеличена на 100 яблок.');return;}
-  if(coins<cost){hint('Для улучшения амбара нужно '+cost+' Green Coin.');return;}
-  coins-=cost;warehouseLevel++;update();hint('Амбар улучшен до уровня '+warehouseLevel+'. Вместимость: '+appleCapacity()+' яблок.');
-});
 document.getElementById('upgrade-orchard').addEventListener('click',async()=>{
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   if(serverMode){await serverAction('/api/game/upgrade-orchard',{},'Сад улучшен.');return;}
