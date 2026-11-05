@@ -867,6 +867,20 @@ function makeFactory(level=1){
  }
  cylinder(g,.22,.22,.18,3.86,1.25,-.75,M.gold,16);
  cylinder(g,.11,.11,.24,3.86,1.25,-.75,metal,12);
+ // Точные крепёжные детали на фасадных трубах: опорные хомуты и болтовые пластины.
+ for(const z of [-1.85,-.75,.35,1.45]){
+   for(const y of [1.05,2.42]){
+     box(g,.34,.16,.18,3.78,y,z,M.stone2,false);
+     box(g,.12,.12,.2,3.96,y,z,M.gold,false);
+     sphere(g,.035,4.075,y,z,M.gold,.85);
+   }
+ }
+ // Узкие защитные жалюзи вентиляции под карнизом, без изменения габаритов здания.
+ for(const x of [-2.55,2.55]){
+   box(g,.72,.48,.12,x,3.55,2.83,darkMetal,false);
+   for(let k=0;k<4;k++)box(g,.62,.045,.08,x,3.39+k*.105,2.91,metal,false);
+   box(g,.82,.1,.16,x,3.82,2.84,M.stone2,false);
+ }
  // Roof skylights and raised ventilation housings.
  for(const x of [-2.15,-.7,.7,2.15]){
    const skylight=box(g,.82,.12,1.1,x,5.12,-.25,windowGlow);
