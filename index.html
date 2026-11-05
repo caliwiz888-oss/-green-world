@@ -619,23 +619,23 @@ function makeHouse(){
    box(g,.72,.1,.16,x,5.38,4.32,M.gold,false);
    box(g,1.12,.14,.3,x,4.78,4.18,houseStoneTrim);
  }
- // Тонкая внутренняя раскладка верхних окон фронтона: четыре аккуратных стеклянных поля.
- for(const x of [-1.35,1.35]){
-   for(const y of [5.12,5.64]){
-     box(g,.76,.035,.045,x,y,4.345,M.gold,false);
-   }
-   // Каменные импосты и небольшие латунные розетки завершают оконные обрамления.
-   for(const dx of [-.49,.49]){
-     box(g,.11,.18,.12,x+dx,5.98,4.31,houseStoneTrim,false);
-     sphere(g,.045,x+dx,6.08,4.34,M.gold,.8);
-   }
-   // Опорные консоли подчёркивают нижнюю линию каждого окна.
-   for(const dx of [-.34,.34]){
-     const support=box(g,.13,.22,.18,x+dx,4.88,4.31,houseStoneTrim,false);
-     support.rotation.z=dx<0?-.18:.18;
-   }
- }
- // Центральная эмблема фронтона: каменно-латунный медальон с зелёным листом.
+   // Разнесённая по глубине раскладка верхних окон: переплёты не совпадают с плоскостью стекла.
+  for(const x of [-1.35,1.35]){
+    for(const y of [5.12,5.64]){
+      box(g,.76,.035,.035,x,y,4.385,M.gold,false);
+    }
+    // Каменные импосты и небольшие латунные розетки находятся выше оконной рамы.
+    for(const dx of [-.49,.49]){
+      box(g,.11,.18,.1,x+dx,5.98,4.39,houseStoneTrim,false);
+      sphere(g,.045,x+dx,6.08,4.42,M.gold,.8);
+    }
+    // Опорные консоли вынесены вперёд относительно деревянной рамы.
+    for(const dx of [-.34,.34]){
+      const support=box(g,.13,.22,.12,x+dx,4.88,4.39,houseStoneTrim,false);
+      support.rotation.z=dx<0?-.18:.18;
+    }
+  }
+// Центральная эмблема фронтона: каменно-латунный медальон с зелёным листом.
  const gableCrest=cylinder(g,.36,.36,.075,0,5.55,4.22,houseStoneTrim,32);
  gableCrest.rotation.x=Math.PI/2;
  const crestFace=cylinder(g,.285,.285,.085,0,5.55,4.275,mat(0x315b3d,.48),32);
@@ -1870,13 +1870,8 @@ function makeFactory(level=1){
  for(let i=0;i<Math.min(5,Math.max(1,level));i++){
    box(g,.5,.22,.7,-2.45+i*1.05,5.12,.85,metal);
  }
- // Architectural facade upgrade: shaped entrance pediment, masonry pilasters and framed windows.
- for(const x of [-3.48,3.48]){
-   box(g,.42,3.62,.38,x,2.12,2.86,M.stone2);
-   box(g,.54,.22,.48,x,3.94,2.86,M.gold);
-   box(g,.5,.16,.46,x,.38,2.86,M.stone);
- }
- // Layered lintel and a shallow triangular crown above the loading entrance.
+   // Повторные передние пилястры удалены: угловые опоры уже заданы в основном фасаде.
+// Layered lintel and a shallow triangular crown above the loading entrance.
  box(g,2.82,.2,.34,0,3.28,3.08,M.stone2);
  box(g,2.58,.12,.38,0,3.42,3.1,M.gold,false);
  const pedimentShape=new THREE.Shape();
@@ -1928,23 +1923,8 @@ function makeFactory(level=1){
  box(g,2.38,.18,1.92,2.55,7.28,-1.45,metal);
  box(g,1.52,.14,1.5,2.55,7.43,-1.45,M.gold,false);
   // Повторные продольные швы удалены: они накладывались на швы отдельных кровельных панелей.
- // Rear elevation: framed industrial windows, lintels and a continuous masonry belt.
- for(const x of [-2.45,0,2.45]){
-   box(g,1.18,1.02,.14,x,2.55,-2.76,darkMetal);
-   box(g,.92,.76,.08,x,2.55,-2.86,windowGlow);
-   box(g,.1,.82,.08,x,2.55,-2.92,M.gold,false);
-   box(g,.98,.1,.08,x,2.55,-2.92,M.gold,false);
-   box(g,1.38,.14,.28,x,3.12,-2.78,M.stone2);
-   box(g,1.38,.14,.28,x,1.96,-2.78,M.stone2);
-   // Fine rear-window mullions and small stone corbels complete the industrial glazing.
-   box(g,.075,.78,.055,x,2.55,-2.96,M.gold,false);
-   box(g,.92,.065,.055,x,2.55,-2.96,M.gold,false);
-   for(const dx of [-.48,.48]){
-     box(g,.12,.16,.12,x+dx,3.22,-2.93,M.stone2,false);
-     box(g,.12,.16,.12,x+dx,1.86,-2.93,M.stone2,false);
-   }
- }
- // Rear brick piers between the three windows add depth without narrowing any openings.
+  // Повторный комплект задних окон удалён: полноценные рамы уже созданы выше.
+// Rear brick piers between the three windows add depth without narrowing any openings.
  for(const x of [-1.225,1.225]){
    box(g,.22,2.62,.2,x,2.28,-2.79,M.stone2,false);
    box(g,.3,2.36,.08,x,2.28,-2.91,M.stone,false);
