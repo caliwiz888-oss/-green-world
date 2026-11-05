@@ -234,6 +234,40 @@ function makeHouse(){
    lantern.position.set(x,2.68,4.34);g.add(lantern);
    box(g,.38,.08,.32,x,2.9,4.34,M.stone2,false);
  }
+ // Manor finishing pass: crisp gable framing, carved window crowns and tower details.
+ const gableLeft=box(g,3.72,.16,.22,-1.72,5.76,4.24,M.stone2);gableLeft.rotation.z=.626;
+ const gableRight=box(g,3.72,.16,.22,1.22,5.76,4.24,M.stone2);gableRight.rotation.z=-.626;
+ box(g,.34,.34,.2,-.25,6.83,4.22,M.gold,false);
+ // Carved crowns and side shutters sharpen the two main front windows.
+ for(const x of [-3.25,3.25]){
+   box(g,1.48,.16,.34,x,3.55,4.42,M.stone2);
+   box(g,.28,.22,.32,x,3.72,4.38,M.gold,false);
+   for(const dx of [-.92,.92]){
+     box(g,.24,.92,.16,x+dx,2.72,4.34,M.wood);
+     for(const y of [2.35,2.72,3.09])box(g,.27,.055,.18,x+dx,y,4.44,M.gold,false);
+   }
+ }
+ // Upper gable windows receive deeper stone frames and small keystone accents.
+ for(const x of [-1.35,1.35]){
+   box(g,1.02,.14,.28,x,5.98,4.28,M.stone2);
+   box(g,.18,.18,.18,x,6.12,4.3,M.gold,false);
+ }
+ // Tower window surrounds and stepped cornices make both corner towers read clearly.
+ for(const x of [-4.35,4.35]){
+   box(g,.92,.16,.24,x,4.12,1.23,M.stone2);
+   box(g,.92,.16,.24,x,2.58,1.23,M.stone2);
+   for(const dx of [-.48,.48]){
+     box(g,.12,1.55,.2,x+dx,3.35,1.2,M.stone2);
+   }
+   box(g,2.42,.14,2.42,x,5.78,-2.25,M.stone2);
+   box(g,2.12,.1,2.12,x,5.9,-2.25,M.gold,false);
+ }
+ // Fine ridge crest and restrained roof-end accents.
+ box(g,.22,.16,7.95,-.25,6.74,0,M.gold,false);
+ for(const z of [-3.55,3.55]){
+   box(g,.18,.14,.22,-3.3,4.72,z,M.gold,false);
+   box(g,.18,.14,.22,2.8,4.72,z,M.gold,false);
+ }
  // Tower corner stones, cornices and narrow upper lights.
  for(const x of [-4.35,4.35]){
    for(const z of [-3.34,-1.16]){
