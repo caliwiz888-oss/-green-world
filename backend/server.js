@@ -352,7 +352,7 @@ app.post('/api/game/process',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const processed=p.processed_inventory&&typeof p.processed_inventory==='object'?{...p.processed_inventory}:{};
   const key=type+'_'+kind;processed[key]=(Number(processed[key])||0)+factoryLevel;
   await c.query('UPDATE players SET fruit_inventory=$2::jsonb,processed_inventory=$3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify(inventory),JSON.stringify(processed)]);
-  return {player:await loadState(c,req.playerId),product:key,quantity:1};
+  return {player:await loadState(c,req.playerId),product:key,quantity:factoryLevel};
 }));
 app.post('/api/game/expand-land',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const level=Math.min(5,Math.max(1,Number(p.land_level)||1));
