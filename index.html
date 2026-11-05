@@ -86,7 +86,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.m
 const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
 let token='',busy=false,player=null,daily=null,selected=null;
-let cameraRadius=49,cameraHeight=34,pointer=null,dragged=false;
+let cameraRadius=55,cameraHeight=31,pointer=null,dragged=false;
 let plots=[],treeObjects=[],buildingObjects=[];
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,65,145);
 const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,300);
@@ -380,7 +380,7 @@ $('upgrade-orchard').onclick=()=>action('/api/game/upgrade-orchard',{},'Сад �
 $('daily-claim').onclick=async()=>{await action('/api/game/daily-reward/claim',{},'Ежедневный подарок получен');await loadDaily()};
 $('process-fruit').onclick=()=>action('/api/game/process',{fruitType:$('process-fruit-type').value,kind:$('process-kind').value},'Продукция изготовлена');
 $('menu-open').onclick=()=>$('shade').classList.add('open');$('menu-close').onclick=()=>$('shade').classList.remove('open');$('shade').addEventListener('click',e=>{if(e.target===$('shade'))$('shade').classList.remove('open')});
-function cameraPosition(){camera.position.set(0,cameraHeight,cameraRadius);camera.lookAt(0,1,-2)}
+function cameraPosition(){camera.position.set(0,cameraHeight,cameraRadius);camera.lookAt(0,.8,-1.5)}
 const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
 renderer.domElement.addEventListener('pointerdown',e=>{pointer={x:e.clientX,y:e.clientY,id:e.pointerId};dragged=false});
 renderer.domElement.addEventListener('pointermove',e=>{if(!pointer||pointer.id!==e.pointerId)return;const dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;if(Math.abs(dx)+Math.abs(dy)>5)dragged=true});
