@@ -1110,6 +1110,22 @@ function makeFactory(level=1){
  const roofB=box(g,3.95,.3,5.85,1.48,4.72,0,metal);roofB.rotation.z=-.34;
  box(g,.2,.28,5.9,0,5.38,0,M.gold);
  for(let i=0;i<7;i++)box(g,.055,.08,5.55,-3+i,4.95,0,M.stone2,false);
+ // Segmented metal ridge caps protect the roof peak with overlapping crafted sections.
+ for(let i=0;i<8;i++){
+   const z=-2.58+i*.74;
+   box(g,.34,.14,.78,0,5.53,z,i%2===0?metal:darkMetal,false);
+   box(g,.37,.045,.12,0,5.62,z-.31,M.stone2,false);
+   box(g,.37,.045,.12,0,5.62,z+.31,M.stone2,false);
+   for(const x of [-.12,.12]){
+     sphere(g,.027,x,5.63,z,M.gold,.8);
+   }
+ }
+ // Raised terminal caps and brass end plates finish both ridge ends.
+ for(const z of [-2.98,2.98]){
+   box(g,.42,.18,.16,0,5.54,z,M.stone2,false);
+   box(g,.3,.08,.08,0,5.66,z,M.gold,false);
+   for(const x of [-.13,.13])sphere(g,.035,x,5.68,z,M.gold,.8);
+ }
  // Individually laid industrial roof panels add scale, rhythm and realistic metal relief.
  for(const side of [-1,1]){
    const angle=side===-1?.34:-.34;
