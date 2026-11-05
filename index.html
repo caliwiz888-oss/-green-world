@@ -910,6 +910,26 @@ function makeFactory(level=1){
  // Small sign plate over the loading entrance.
  box(g,2.4,.48,.16,0,3.55,2.84,darkMetal);
  box(g,2.15,.12,.08,0,3.55,2.94,M.gold,false);
+ // Branded enamel factory plaque: crisp lettering, double brass keyline and restrained industrial finish.
+ const factorySignCanvas=document.createElement('canvas');
+ factorySignCanvas.width=768;factorySignCanvas.height=128;
+ const signCtx=factorySignCanvas.getContext('2d');
+ const signGradient=signCtx.createLinearGradient(0,0,0,128);
+ signGradient.addColorStop(0,'#405b53');signGradient.addColorStop(.5,'#263e39');signGradient.addColorStop(1,'#172d2a');
+ signCtx.fillStyle=signGradient;signCtx.fillRect(0,0,768,128);
+ signCtx.strokeStyle='#d9b76b';signCtx.lineWidth=5;signCtx.strokeRect(7,7,754,114);
+ signCtx.strokeStyle='#8c7040';signCtx.lineWidth=1.5;signCtx.strokeRect(15,15,738,98);
+ signCtx.textAlign='center';signCtx.textBaseline='middle';
+ signCtx.fillStyle='#f3dfaa';signCtx.font='bold 43px Georgia,serif';
+ signCtx.fillText('GREEN WORLD',384,51);
+ signCtx.fillStyle='#d5c49a';signCtx.font='bold 17px Arial,sans-serif';
+ signCtx.letterSpacing='5px';signCtx.fillText('П Р О И З В О Д С Т В О',384,91);
+ const factorySignTexture=new THREE.CanvasTexture(factorySignCanvas);
+ factorySignTexture.colorSpace=THREE.SRGBColorSpace;
+ factorySignTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const factorySignMaterial=new THREE.MeshStandardMaterial({map:factorySignTexture,roughness:.38,metalness:.28});
+ box(g,2.08,.34,.035,0,3.55,2.935,factorySignMaterial,false);
+ for(const x of [-.96,.96])for(const y of [3.43,3.67])sphere(g,.025,x,y,2.96,M.gold,.8);
  // Decorative brick corner quoins and stone belt courses sharpen the industrial facade.
  for(const x of [-3.52,3.52]){
    box(g,.32,3.55,.34,x,2.16,2.72,M.stone2);
