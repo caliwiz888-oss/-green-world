@@ -236,17 +236,9 @@ app.post('/api/game/plant',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   if(plots.some(x=>x.index===i)) reject(409,'Plot occupied');
   if(!Object.prototype.hasOwnProperty.call(costs,type)) reject(400,'Unknown fruit tree');
   if(p.coins<costs[type]) reject(409,'Not enough Green Coin');
-  const seedInventory=p.seed_inventory&&typeof p.seed_inventory==='object'?{...p.seed_inventory}:{};
-  const availableSeeds=type==='apple'?Number(p.seeds)||0:Number(seedInventory[type])||0;
-  if(availableSeeds<1) reject(409,'Not enough '+type+' seeds');
   const now=new Date();
   const newPlot={index:i,type,grown:false,plantedAt:now.toISOString(),readyAt:new Date(now.getTime()+GROWTH_MS).toISOString(),watered:false};
-  if(type==='apple'){
-    await c.query('UPDATE players SET coins=coins-$2,seeds=seeds-1,plots=plots || $3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,costs[type],JSON.stringify([newPlot])]);
-  }else{
-    seedInventory[type]=availableSeeds-1;
-    await c.query('UPDATE players SET coins=coins-$2,seed_inventory=$3::jsonb,plots=plots || $4::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,costs[type],JSON.stringify(seedInventory),JSON.stringify([newPlot])]);
-  }
+  await c.query('UPDATE players SET coins=coins-$2,plots=plots || $3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,costs[type],JSON.stringify([newPlot])]);
   await awardExperience(c,req.playerId,p,5);
   return {player:await loadState(c,req.playerId)};
 }));
@@ -332,20 +324,6 @@ app.post('/api/game/sell',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   await c.query("UPDATE players SET coins=coins+$2,apples=0,fruit_inventory='{}'::jsonb,updated_at=NOW() WHERE telegram_id=$1",[req.playerId,earned]);
   await awardExperience(c,req.playerId,p,5);
   return {player:await loadState(c,req.playerId),earned};
-}));
-app.post('/api/game/buy-seeds',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const type=String(req.body?.treeType||'apple');
-  const validTypes=['apple','peach','cherry','pear','orange','mango'];
-  if(!validTypes.includes(type)) reject(400,'Unknown seed type');
-  if(p.coins<30) reject(409,'Not enough Green Coin');
-  if(type==='apple'){
-    await c.query('UPDATE players SET coins=coins-30,seeds=seeds+5,updated_at=NOW() WHERE telegram_id=$1',[req.playerId]);
-  }else{
-    const inventory=p.seed_inventory&&typeof p.seed_inventory==='object'?{...p.seed_inventory}:{};
-    inventory[type]=(Number(inventory[type])||0)+5;
-    await c.query('UPDATE players SET coins=coins-30,seed_inventory=$2::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify(inventory)]);
-  }
-  return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/build',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const options={warehouse:['has_warehouse',100],market:['has_market',1500],greenhouse:['has_greenhouse',2500]};
