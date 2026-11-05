@@ -165,6 +165,22 @@ function makeHouse(){
    box(g,1.22,.13,.25,x,2.7,4.27,M.gold,false);
    box(g,1.55,.18,.38,x,1.82,4.18,M.stone2);
  }
+ // Reflective inset glazing and delicate muntins give the front windows real depth.
+ for(const x of [-3.25,3.25]){
+  box(g,1.02,1.12,.045,x,2.72,4.245,M.glass,false);
+  box(g,.055,1.08,.055,x,2.72,4.29,M.gold,false);
+  box(g,.98,.055,.055,x,2.72,4.29,M.gold,false);
+  box(g,1.08,.07,.28,x,3.48,4.22,M.stone2);
+ }
+ // A pair of compact warm entrance lanterns adds a welcoming focal point without clutter.
+ const lanternGlass=new THREE.MeshStandardMaterial({color:0xffe2a0,emissive:0xb8792e,emissiveIntensity:.72,roughness:.3});
+ for(const x of [-1.32,1.32]){
+  box(g,.12,.48,.12,x,2.18,4.34,M.gold);
+  box(g,.28,.34,.22,x,2.2,4.43,lanternGlass,false);
+  box(g,.34,.07,.28,x,2.42,4.43,M.gold,false);
+  box(g,.34,.07,.28,x,1.98,4.43,M.gold,false);
+  box(g,.42,.08,.32,x,2.48,4.43,M.wood,false);
+ }
  // Two corner towers with separate steep roofs and golden finials.
  for(const x of [-4.35,4.35]){
    const t=group(g,x,0,-2.25);
