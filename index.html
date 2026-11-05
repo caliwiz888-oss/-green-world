@@ -858,6 +858,39 @@ function makeMarket(level=1){
    box(g,.16,1.55,.18,x,1.65,2.48,M.stone2);
    box(g,.22,.16,.24,x,2.48,2.48,M.gold);
  }
+ // Carved masonry rhythm across the shop front: segmented lintel, keystones and dressed corner blocks.
+ // A layered stone head visually crowns the display glazing without changing its opening.
+ box(g,3.92,.12,.22,0,2.39,2.49,M.stone2,false);
+ box(g,3.72,.055,.25,0,2.47,2.5,M.gold,false);
+ for(const x of [-1.78,-.9,0,.9,1.78]){
+   box(g,.72,.09,.2,x,2.4,2.53,M.stone,false);
+   box(g,.12,.16,.22,x,2.48,2.55,M.stone2,false);
+ }
+ // Paired dressed quoins reinforce the visible front corners with alternating stone blocks.
+ for(const x of [-2.58,2.58]){
+   for(const y of [.48,.94,1.4,1.86,2.32]){
+     box(g,.28,.32,.24,x,y,2.49,M.stone2,false);
+     box(g,.32,.055,.26,x,y+.18,2.5,M.gold,false);
+   }
+   box(g,.38,.12,.32,x,.22,2.5,M.stone,false);
+   box(g,.38,.12,.32,x,2.72,2.5,M.stone,false);
+ }
+ // Deep sill moulding and small bracket stones add a crisp shadow line below the shop window.
+ box(g,3.88,.09,.3,0,.96,2.52,M.stone2,false);
+ for(const x of [-1.55,-.78,0,.78,1.55]){
+   box(g,.16,.2,.22,x,.82,2.56,M.stone2,false);
+   box(g,.1,.08,.24,x,.72,2.58,M.gold,false);
+ }
+ // Fine brass hinge straps and a central escutcheon finish the timber entrance door.
+ for(const x of [-.47,.47]){
+   for(const y of [.62,1.28,1.94]){
+     box(g,.075,.34,.055,x,y,2.91,M.gold,false);
+     sphere(g,.035,x,y-.12,2.95,M.stone,false?0.5:.8);
+     sphere(g,.035,x,y+.12,2.95,M.gold,.8);
+   }
+ }
+ box(g,.18,.24,.055,0,1.42,2.94,M.gold,false);
+ sphere(g,.07,0,1.42,2.99,M.stone2,.8);
  // Subtle horizontal timber courses finish both visible side elevations.
  for(const side of [-1,1]){
    for(const y of [.72,1.28,1.84,2.4]){
