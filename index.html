@@ -214,6 +214,26 @@ function makeHouse(){
      box(g,.12,.08,.84,side*5.25,2.57,z,M.gold,false);
    }
  }
+ // Главный вход: выразительный каменный портик с колоннами и отдельной кровлей.
+ const porchStone=mat(0xd8c9a8),porchRoof=mat(0x754037);
+ for(const x of [-1.48,1.48]){
+   cylinder(g,.16,.2,2.45,x,1.42,4.62,porchStone,12);
+   cylinder(g,.23,.23,.18,x,.2,4.62,M.stone2,12);
+   cylinder(g,.22,.22,.16,x,2.67,4.62,M.gold,12);
+ }
+ box(g,3.35,.24,.32,0,2.72,4.62,porchStone);
+ box(g,3.55,.16,1.48,0,2.92,4.93,porchRoof);
+ const porchLeft=box(g,1.95,.16,1.55,-.78,3.22,4.93,porchRoof);porchLeft.rotation.z=.24;
+ const porchRight=box(g,1.95,.16,1.55,.78,3.22,4.93,porchRoof);porchRight.rotation.z=-.24;
+ box(g,3.58,.12,.18,0,3.04,5.68,M.gold,false);
+ // Каменные обрамления входа и симметричные настенные фонари на фасаде.
+ box(g,2.05,.18,.3,0,2.82,4.25,M.stone2);
+ for(const x of [-2.15,2.15]){
+   box(g,.18,.72,.18,x,2.35,4.3,M.gold,false);
+   const lantern=new THREE.Mesh(new THREE.BoxGeometry(.28,.34,.24),new THREE.MeshStandardMaterial({color:0xffd98a,emissive:0xa66a20,emissiveIntensity:.42,roughness:.35}));
+   lantern.position.set(x,2.68,4.34);g.add(lantern);
+   box(g,.38,.08,.32,x,2.9,4.34,M.stone2,false);
+ }
  // Tower corner stones, cornices and narrow upper lights.
  for(const x of [-4.35,4.35]){
    for(const z of [-3.34,-1.16]){
