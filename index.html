@@ -2277,6 +2277,16 @@ function makeWorldLandscape(){
  ]){
    const h=sphere(world,1,x,sy*.42,z,m,1);h.scale.set(sx,sy,sz);
  }
+ // Soft contour layers on the distant foothills add terrain depth while keeping the farm perimeter clear.
+ const foothillShade=mat(0x557d59),foothillLight=mat(0x91ad78);
+ for(const [x,y,z,sx,sy,sz,material] of [
+   [-22,1.25,-20,6.8,.42,1.2,foothillShade],[-12,1.55,-24,7.4,.38,1.25,foothillLight],
+   [1,1.45,-25,8.8,.4,1.35,foothillShade],[14,1.45,-23,7.2,.36,1.15,foothillLight],
+   [23,1.15,-19,5.8,.34,1.05,foothillShade]
+ ]){
+   const contour=new THREE.Mesh(new THREE.SphereGeometry(1,20,10),material);
+   contour.position.set(x,y,z);contour.scale.set(sx,sy,sz);world.add(contour);
+ }
  // Layered alpine range: overlapping faceted peaks create a varied skyline and visible depth.
  const peaks=[[-23,-31,14,7.8],[-13,-36,18,9.4],[-2,-39,21,10.2],[10,-36,18,9.2],[22,-31,14,7.5]];
  for(let i=0;i<peaks.length;i++){
