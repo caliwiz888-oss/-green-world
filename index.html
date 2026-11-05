@@ -447,6 +447,23 @@ function makeHouse(){
      box(g,.28,.12,.28,side*5.12,.58,z,M.stone2,false);
    }
  }
+ // Rear facade finishing: shallow window hoods, centered mullions and discreet sill brackets.
+ for(const x of [-3.25,0,3.25]){
+   box(g,.07,1.12,.055,x,2.72,-4.345,M.gold,false);
+   box(g,.92,.065,.055,x,2.72,-4.35,M.gold,false);
+   box(g,1.58,.12,.34,x,3.62,-4.22,M.stone2,false);
+   for(const dx of [-.58,.58]){
+     box(g,.1,.18,.12,x+dx,3.48,-4.36,M.gold,false);
+     box(g,.1,.18,.12,x+dx,1.96,-4.36,M.gold,false);
+   }
+ }
+ // Continuous rear cornice and restrained corner quoins balance the back elevation.
+ box(g,9.72,.12,.18,0,4.02,-4.13,M.stone2,false);
+ for(const x of [-4.72,4.72]){
+   for(const y of [1.0,1.85,2.7,3.55]){
+     box(g,.34,.12,.34,x,y,-4.15,M.stone2,false);
+   }
+ }
  return g;
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
