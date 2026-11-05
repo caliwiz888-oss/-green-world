@@ -720,38 +720,7 @@ function makeHouse(){
      box(g,.72,.035,.045,x,y,4.145,houseStoneTrim,false);
    }
  }
- // Fine roof ribs and ridge caps add scale and definition to the roof.
- for(const x of [-3.35,-2.65,-1.95,-1.25,-.55,.15,.85,1.55,2.25,2.95,3.65]){
-   const rib=box(g,.055,.09,8.65,x,5.83,0,M.roof2,false);rib.rotation.z=x<-.25?.58:-.58;
- }
- for(const z of [-3.4,-2.3,-1.2,0,1.2,2.3,3.4]){
-   box(g,.16,.12,.72,0,6.48,z,M.gold,false);
- }
- // Fine transverse tile courses follow both roof slopes for a more realistic finish.
- for(const [cx,angle] of [[-1.93,.58],[1.43,-.58]]){
-   const tiles=group(g,cx,5.72,0);tiles.rotation.z=angle;
-   for(const z of [-3.65,-2.75,-1.85,-.95,-.05,.85,1.75,2.65,3.55]){
-     box(tiles,3.68,.045,.055,0,.205,z,M.roof2,false);
-   }
-   // Subtle raised slate joints divide the roof into smaller panels.
-   for(const x of [-1.25,-.42,.42,1.25]){
-     box(tiles,.035,.035,8.35,x,.205,0,M.roof,false);
-   }
- }
- // Individually layered ceramic shingles with a staggered pattern on both roof pitches.
- const shingleMat=new THREE.MeshStandardMaterial({color:0x587d4d,roughness:.78,metalness:.08});
- const shingleEdge=new THREE.MeshStandardMaterial({color:0x9aab70,roughness:.72,metalness:.12});
- for(const [cx,angle] of [[-1.93,.58],[1.43,-.58]]){
-   const shingleField=group(g,cx,5.72,0);shingleField.rotation.z=angle;
-   for(let row=0;row<10;row++){
-     const z=-3.62+row*.805;
-     for(let col=0;col<7;col++){
-       const x=-1.38+col*.46+(row%2)*.12;
-       box(shingleField,.405,.055,.365,x,.255,z,shingleMat,false);
-       box(shingleField,.34,.018,.025,x,.291,z-.165,shingleEdge,false);
-     }
-   }
- }
+ // Убраны повторные слои рёбер и черепицы: они накладывались на основной рисунок кровли и вызывали мерцание глубины.
  // Continuous dark eaves and shaped stone chimney crowns.
  for(const x of [-3.45,3.45]){
    box(g,.22,.18,8.95,x,4.63,0,M.wood,false);
