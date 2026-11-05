@@ -391,6 +391,20 @@ function makeHouse(){
      box(tiles,.035,.035,8.35,x,.205,0,M.roof,false);
    }
  }
+ // Individually layered ceramic shingles with a staggered pattern on both roof pitches.
+ const shingleMat=new THREE.MeshStandardMaterial({color:0x587d4d,roughness:.78,metalness:.08});
+ const shingleEdge=new THREE.MeshStandardMaterial({color:0x9aab70,roughness:.72,metalness:.12});
+ for(const [cx,angle] of [[-1.93,.58],[1.43,-.58]]){
+   const shingleField=group(g,cx,5.72,0);shingleField.rotation.z=angle;
+   for(let row=0;row<10;row++){
+     const z=-3.62+row*.805;
+     for(let col=0;col<7;col++){
+       const x=-1.38+col*.46+(row%2)*.12;
+       box(shingleField,.405,.055,.365,x,.255,z,shingleMat,false);
+       box(shingleField,.34,.018,.025,x,.291,z-.165,shingleEdge,false);
+     }
+   }
+ }
  // Continuous dark eaves and shaped stone chimney crowns.
  for(const x of [-3.45,3.45]){
    box(g,.22,.18,8.95,x,4.63,0,M.wood,false);
