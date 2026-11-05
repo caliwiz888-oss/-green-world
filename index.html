@@ -1545,7 +1545,6 @@ function makeFactory(level=1){
  box(g,7.38,.2,5.38,0,3.92,0,M.stone);
  // Brick pilasters and contrasting horizontal courses.
  for(const x of [-3.48,-2.3,2.3,3.48]){
-   if(Math.abs(x)>3)box(g,.24,3.35,.28,x,2.15,2.68,brickLight);
    box(g,.24,3.35,.28,x,2.15,-2.68,brickLight);
  }
  for(const y of [.8,3.45])box(g,7.25,.12,.16,0,y,2.72,M.stone2);
@@ -1823,8 +1822,8 @@ function makeFactory(level=1){
  factorySignTexture.colorSpace=THREE.SRGBColorSpace;
  factorySignTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const factorySignMaterial=new THREE.MeshStandardMaterial({map:factorySignTexture,roughness:.38,metalness:.28});
- box(g,2.08,.34,.035,0,3.55,2.935,factorySignMaterial,false);
- for(const x of [-.96,.96])for(const y of [3.43,3.67])sphere(g,.025,x,y,2.96,M.gold,.8);
+ box(g,2.08,.34,.035,0,3.55,3.12,factorySignMaterial,false);
+ for(const x of [-.96,.96])for(const y of [3.43,3.67])sphere(g,.025,x,y,3.145,M.gold,.8);
  // Decorative brick corner quoins and stone belt courses sharpen the industrial facade.
  for(const x of [-3.52,3.52]){
    box(g,.32,3.55,.34,x,2.16,2.72,M.stone2);
@@ -2439,7 +2438,7 @@ function makeWorldLandscape(){
  box(world,3.8,.18,5.4,25.4,-2.25,22.2,water,false);
 }
 window.GREEN_WORLD_STARTUP_STAGE='building-world';
-makeHouse();makeWorldDecor();makeWorldLandscape();
+buildingObjects.push(makeHouse());makeWorldDecor();makeWorldLandscape();
 window.GREEN_WORLD_STARTUP_STAGE='world-built';
 const tileGeo=new THREE.BoxGeometry(1.28,.16,1.28);
 const tiles=[];
