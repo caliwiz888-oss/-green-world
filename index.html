@@ -414,6 +414,11 @@ function makeHouse(){
  const porchLeft=box(g,1.95,.16,1.55,-.78,3.22,4.93,porchRoof);porchLeft.rotation.z=.24;
  const porchRight=box(g,1.95,.16,1.55,.78,3.22,4.93,porchRoof);porchRight.rotation.z=-.24;
  box(g,3.58,.12,.18,0,3.04,5.68,M.gold,false);
+ // Дополнительные каменные накладки на фронтальной балке портика.
+ for(const x of [-1.15,0,1.15]){
+   box(g,.62,.11,.12,x,2.79,5.12,M.stone2,false);
+   box(g,.42,.035,.14,x,2.86,5.13,M.gold,false);
+ }
  // Парадный портик: три утопленные панели на нижней стороне навеса с тонкой латунной окантовкой.
  for(const x of [-.92,0,.92]){
    box(g,.72,.035,.72,x,2.835,4.96,M.wood2,false);
