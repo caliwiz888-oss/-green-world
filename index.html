@@ -219,7 +219,7 @@ const skyDome=new THREE.Mesh(skyGeometry,new THREE.MeshBasicMaterial({vertexColo
 skyDome.frustumCulled=false;scene.add(skyDome);
 
 const camera = new THREE.PerspectiveCamera(
-  42,innerWidth/innerHeight,0.1,220
+  50,innerWidth/innerHeight,0.1,220
 );
 camera.position.set(28,32,34);
 camera.lookAt(0,0,0);
@@ -2024,9 +2024,10 @@ window.addEventListener('resize',()=>{
 
 // ===== УПРАВЛЕНИЕ КАМЕРОЙ И ВЫБОР УЧАСТКА =====
 // Более низкая и близкая перспектива подчёркивает объём зданий и рельеф.
-let cameraRadius=46;
+// Более близкая перспективная камера: видны фасады, боковые стены и рельеф, а не только план сверху.
+let cameraRadius=37;
 let cameraAngle=Math.PI/4;
-let cameraHeight=25;
+let cameraHeight=23;
 let pointerStart=null;
 let pointerMoved=false;
 const raycaster=new THREE.Raycaster();
@@ -2057,7 +2058,7 @@ function zoom(factor){
 document.getElementById('zoom-in').addEventListener('click',()=>zoom(.88));
 document.getElementById('zoom-out').addEventListener('click',()=>zoom(1.14));
 document.getElementById('camera-reset').addEventListener('click',()=>{
-  cameraRadius=46;cameraHeight=25;cameraAngle=Math.PI/4;positionCamera();
+  cameraRadius=37;cameraHeight=23;cameraAngle=Math.PI/4;positionCamera();
 });
 renderer.domElement.addEventListener('pointerdown',e=>{
   pointerStart={x:e.clientX,y:e.clientY,id:e.pointerId};
