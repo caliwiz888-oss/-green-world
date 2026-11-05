@@ -536,6 +536,33 @@ function makeFactory(level=1){
  for(const x of [-2.8,-1.4,1.4,2.8]){
    box(g,.12,.18,.34,x,4.13,2.72,M.gold,false);
  }
+ // Factory roof and chimney finishing: raised ridge ventilator, framed gable lights and metal bands.
+ const ridgeVent=box(g,1.05,.62,3.25,0,5.53,-.55,darkMetal);
+ box(g,1.18,.12,3.38,0,5.86,-.55,metal);
+ for(const z of [-1.8,-1.1,-.4,.3,.9]){
+   box(g,1.2,.07,.08,0,5.48,z,metal,false);
+ }
+ for(const x of [-1.7,1.7]){
+   const frame=box(g,.92,.16,.22,x,4.15,2.78,M.stone2);
+   box(g,.7,.72,.12,x,4.55,2.78,darkMetal);
+   box(g,.52,.54,.08,x,4.55,2.88,windowGlow);
+   box(g,.08,.58,.08,x,4.55,2.94,M.gold,false);
+   box(g,.58,.08,.08,x,4.55,2.94,M.gold,false);
+   box(g,.98,.12,.28,x,4.96,2.78,M.stone2);
+ }
+ // Chimney receives layered masonry bands, a wider crown and clean flue detailing.
+ for(const y of [4.05,6.35]){
+   box(g,2.18,.14,1.72,2.55,y,-1.45,M.stone2);
+ }
+ box(g,2.38,.18,1.92,2.55,7.28,-1.45,metal);
+ box(g,1.52,.14,1.5,2.55,7.43,-1.45,M.gold,false);
+ // Repeated roof standing seams follow the two existing slopes.
+ for(const [x,angle] of [[-1.48,.34],[1.48,-.34]]){
+   const seamGroup=group(g,x,4.72,0);seamGroup.rotation.z=angle;
+   for(const z of [-2.45,-1.65,-.85,0,.85,1.65,2.45]){
+     box(seamGroup,3.55,.045,.045,0,.19,z,metal,false);
+   }
+ }
  // Reinforced lower wall panels, riveted brackets and a service access hatch.
  for(const x of [-2.75,-1.4,0,1.4,2.75]){
    box(g,.72,.58,.08,x,.48,2.78,darkMetal,false);
