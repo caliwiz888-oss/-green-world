@@ -669,6 +669,27 @@ river.rotation.x=-Math.PI/2;
 river.position.set(0,0.025,21);
 scene.add(river);
 
+// Светлая пена и тонкие водоворотные следы вдоль каменных берегов.
+// Один InstancedMesh добавляет детали воды без десятков отдельных draw calls.
+const riverFoamGeometry=new THREE.SphereGeometry(0.19,7,5);
+const riverFoamMaterial=new THREE.MeshBasicMaterial({color:0xe5fbff,transparent:true,opacity:0.48,depthWrite:false});
+const riverFoam=new THREE.InstancedMesh(riverFoamGeometry,riverFoamMaterial,56);
+const riverFoamDummy=new THREE.Object3D();
+const riverFoamSeeds=[];
+for(let i=0;i<56;i++){
+  const side=i%2===0?-1:1;
+  const x=-20.5+((i*37)%410)/10;
+  const z=21+side*(1.92+((i*13)%7)*0.045);
+  riverFoamDummy.position.set(x,0.075,z);
+  riverFoamDummy.rotation.set(0,(i*1.91)%Math.PI,0);
+  riverFoamDummy.scale.set(0.8+(i%4)*0.38,0.055,0.18+(i%3)*0.08);
+  riverFoamDummy.updateMatrix();
+  riverFoam.setMatrixAt(i,riverFoamDummy.matrix);
+  riverFoamSeeds.push({x,z,side,phase:i*0.71,scale:0.8+(i%4)*0.38});
+}
+riverFoam.instanceMatrix.needsUpdate=true;
+scene.add(riverFoam);
+
 // ===== КАМЕННЫЙ МОСТ =====
 const bridge=new THREE.Group();
 
@@ -1809,6 +1830,16 @@ function animate(){
     drop.material.opacity=0.3+Math.abs(Math.sin(time*3+i))*0.55;
   });
   splash.scale.set(1+Math.sin(time*2.4)*0.05,1,1+Math.cos(time*2.4)*0.05);
+  // Пена медленно скользит вдоль берегов, подчёркивая течение реки.
+  for(let i=0;i<riverFoamSeeds.length;i++){
+    const seed=riverFoamSeeds[i];
+    const drift=((seed.x+20.5+time*(0.34+(i%3)*0.08))%41)-20.5;
+    riverFoamDummy.position.set(drift,0.075+Math.sin(time*2+seed.phase)*0.008,seed.z+Math.sin(time*0.7+seed.phase)*0.035);
+    riverFoamDummy.rotation.set(0,Math.sin(time*0.5+seed.phase)*0.18,0);
+    riverFoamDummy.scale.set(seed.scale*(0.88+Math.sin(time*1.4+seed.phase)*0.12),0.045,0.16+(i%3)*0.07);
+    riverFoamDummy.updateMatrix();riverFoam.setMatrixAt(i,riverFoamDummy.matrix);
+  }
+  riverFoam.instanceMatrix.needsUpdate=true;
   // Лёгкое движение воды и мерцание солнечных бликов
   pool.material.opacity=0.85+Math.sin(time*2)*0.1;
   waterGlints.children.forEach((glint,i)=>{glint.material.opacity=0.18+((Math.sin(time*1.7+i*0.8)+1)*0.18);glint.position.x=-18+((i*19+time*1.8)%36);});
