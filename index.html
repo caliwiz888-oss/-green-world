@@ -355,6 +355,23 @@ function makeHouse(){
      box(g,.12,1.32,.09,x+side*.1,2.72,z+.48,houseStoneTrim,false);
    }
  }
+ // Боковые угловые пилястры главного дома: каменные блоки связывают боковые стены с фасадом.
+ for(const side of [-1,1]){
+   for(const z of [-3.82,3.82]){
+     box(g,.22,4.18,.34,side*5.075,2.25,z,houseStoneTrim,false);
+     box(g,.32,.22,.46,side*5.075,4.28,z,houseStoneTrim,false);
+     box(g,.3,.16,.44,side*5.075,.32,z,houseStoneTrim,false);
+     for(const y of [.72,1.48,2.24,3.0,3.76]){
+       box(g,.26,.12,.4,side*5.095,y,z,houseStone,false);
+       box(g,.29,.035,.43,side*5.12,y+.07,z,M.gold,false);
+     }
+     for(const dz of [-.13,.13]){
+       for(const y of [.58,1.34,2.1,2.86,3.62]){
+         sphere(g,.025,side*5.145,y,z+dz,M.gold,.75);
+       }
+     }
+   }
+ }
  // Two corner towers with separate steep roofs and golden finials.
  for(const x of [-4.35,4.35]){
    const t=group(g,x,0,-2.25);
