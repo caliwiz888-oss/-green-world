@@ -595,6 +595,62 @@ mill.userData.sails=sails;
 mill.position.set(15,0,-9);
 scene.add(mill);
 
+// ===== ДЕКОРАТИВНЫЙ ЗАМОК И ВОДОПАД =====
+// Дальний сказочный замок завершает панораму фермы и не занимает игровые участки.
+const castle = new THREE.Group();
+const castleStone = material(0xd9d1bd);
+const castleRoofMat = material(0x684a72);
+addBox(castle, 8.5, 5.2, 6.2, 0xc9bea8, 0, 2.6, 0);
+addBox(castle, 9.2, 0.35, 6.8, 0xeee3cc, 0, 5.15, 0);
+for (const [x,z,h] of [[-4,-2.8,7.2],[4,-2.8,7.2],[-4,2.8,6.5],[4,2.8,6.5]]) {
+  const tower = new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.2,h,12), castleStone);
+  tower.position.set(x,h/2,z); tower.castShadow=true; castle.add(tower);
+  const cap = new THREE.Mesh(new THREE.ConeGeometry(1.35,2.5,12), castleRoofMat);
+  cap.position.set(x,h+1.2,z); cap.castShadow=true; castle.add(cap);
+}
+addBox(castle,1.5,2.8,0.18,0x65432f,0,1.4,3.16);
+for (const x of [-2,0,2]) {
+  addBox(castle,0.55,0.9,0.12,0x75c9e8,x,3.5,3.16);
+}
+castle.position.set(23,0,-14);
+castle.scale.setScalar(0.9);
+scene.add(castle);
+
+// Скальный уступ и водопад, стекающий в реку.
+const waterfallCliff = new THREE.Group();
+const cliffMat = material(0x777f70);
+const cliff = new THREE.Mesh(new THREE.BoxGeometry(5.5,5.8,3.2),cliffMat);
+cliff.position.set(0,2.9,0); cliff.castShadow=true; cliff.receiveShadow=true;
+waterfallCliff.add(cliff);
+const waterSheet = new THREE.Mesh(
+  new THREE.PlaneGeometry(2.5,5.4),
+  new THREE.MeshStandardMaterial({color:0x48c5ed,metalness:0.25,roughness:0.16,transparent:true,opacity:0.82,side:THREE.DoubleSide,emissive:0x0b536c,emissiveIntensity:0.18})
+);
+waterSheet.position.set(0,2.75,1.64);
+waterfallCliff.add(waterSheet);
+const splash = new THREE.Mesh(
+  new THREE.CylinderGeometry(2.0,2.4,0.18,24),
+  new THREE.MeshStandardMaterial({color:0x56c9e9,transparent:true,opacity:0.72,roughness:0.2})
+);
+splash.position.set(0,0.16,2.1);
+waterfallCliff.add(splash);
+for(let i=0;i<9;i++){
+  const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(0.48,0),cliffMat);
+  rock.scale.set(1.4,0.8,1.0);
+  rock.position.set(-2.2+(i%5)*1.05,0.25,1.7+(i%2)*0.65);
+  rock.castShadow=true; waterfallCliff.add(rock);
+}
+waterfallCliff.position.set(-23,0,17.5);
+scene.add(waterfallCliff);
+
+// Небольшая каменная площадка связывает сад и дальнюю прогулочную зону.
+for(let i=0;i<12;i++){
+  const pathStone = new THREE.Mesh(new THREE.BoxGeometry(1.05,0.1,0.82),gardenStone);
+  pathStone.position.set(-18+i*0.9,0.02,5.2+i*0.18);
+  pathStone.rotation.y=0.12;
+  pathStone.receiveShadow=true; scene.add(pathStone);
+}
+
 // ===== ГОРЫ =====
 for(let i=0;i<11;i++){
   const mountain=new THREE.Mesh(
