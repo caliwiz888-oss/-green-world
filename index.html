@@ -921,6 +921,27 @@ function makeFactory(level=1){
    box(g,.5,.12,.12,x,3.68,2.76,M.gold,false);
    box(g,.34,.055,.08,x,3.77,2.84,metal,false);
  }
+ // Side elevations: restrained stone string-courses and crisp corner piers.
+ for(const side of [-1,1]){
+   for(const y of [.62,3.72]){
+     box(g,.18,.12,5.12,side*3.69,y,0,M.stone2,false);
+   }
+   for(const z of [-2.42,2.42]){
+     box(g,.18,3.18,.22,side*3.7,2.12,z,M.stone2,false);
+     for(const y of [1.05,1.82,2.59,3.36]){
+       box(g,.22,.1,.28,side*3.72,y,z,M.gold,false);
+     }
+   }
+ }
+ // Three recessed service vents on the quieter left wall, with fine metal grilles.
+ for(const z of [-1.55,0,1.55]){
+   box(g,.1,.92,.72,-3.7,2.28,z,darkMetal,false);
+   box(g,.055,.72,.54,-3.77,2.28,z,metal,false);
+   for(const y of [2.02,2.15,2.28,2.41,2.54]){
+     box(g,.035,.045,.5,-3.81,y,z,M.gold,false);
+   }
+   box(g,.12,1.08,.84,-3.73,2.28,z,M.stone2,false);
+ }
  return g;
 }
 function makeGardenBed(x,z){
