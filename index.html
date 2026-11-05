@@ -858,6 +858,12 @@ function makeFactory(level=1){
    box(g,.24,3.35,.28,x,2.15,-2.68,brickLight);
  }
  for(const y of [.8,3.45])box(g,7.25,.12,.16,0,y,2.72,M.stone2);
+ // Каменные консоли под верхним поясом фасада подчёркивают переход к кровле.
+ for(const x of [-2.85,-1.42,0,1.42,2.85]){
+   box(g,.42,.2,.3,x,3.78,2.78,M.stone2,false);
+   box(g,.28,.08,.32,x,3.64,2.83,M.gold,false);
+   box(g,.3,.12,.26,x,3.52,2.78,M.stone,false);
+ }
  // Tall pitched roof with a crisp ridge, dark eaves and metal seams.
  const roofA=box(g,3.95,.3,5.85,-1.48,4.72,0,darkMetal);roofA.rotation.z=.34;
  const roofB=box(g,3.95,.3,5.85,1.48,4.72,0,metal);roofB.rotation.z=-.34;
