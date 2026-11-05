@@ -1626,6 +1626,18 @@ function makeFactory(level=1){
    // Thin recessed sill line adds a crisp shadow beneath each glazed opening.
    box(g,1.12,.045,.045,x,1.84,3.045,darkMetal,false);
  }
+ // Тонкие горизонтальные каменные пояса связывают боковые фасады завода и подчёркивают этажность кладки.
+ for(const side of [-1,1]){
+   const face=side*3.73;
+   for(const y of [.62,1.42,3.48,3.72]){
+     box(g,.12,.095,5.18,face,y,0,M.stone2,false);
+   }
+   for(const z of [-2.48,2.48]){
+     box(g,.2,.16,.22,side*3.74,1.42,z,M.stone,false);
+     box(g,.22,.055,.24,side*3.76,1.52,z,M.gold,false);
+     box(g,.2,.16,.22,side*3.74,3.48,z,M.stone,false);
+   }
+ }
  // Боковые фасады завода: парные высокие окна с металлическими переплётами и каменными откосами.
  for(const side of [-1,1]){
    for(const z of [-1.38,1.38]){
