@@ -1347,7 +1347,7 @@ function makeMarket(level=1){
 }
 function makeFactory(level=1){
  // Keep the factory in the back-right corner while fully inside the playable plots and mobile camera frame.
- const g=group(world,7.8,0,-9.5);
+ const g=group(world,9.35,0,-8.8);
  const brick=mat(0x9b5943),brickLight=mat(0xb96c50),darkMetal=mat(0x39474a),metal=mat(0x657477),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
  // Subtle repeating masonry relief gives the factory brickwork individual courses and mortar joints.
  const brickCanvas=document.createElement('canvas');brickCanvas.width=brickCanvas.height=256;
@@ -2201,7 +2201,7 @@ function drawPlayer(){if(!player)return;clearDynamic();const map=new Map((player
    for(const child of [...world.children])if(!factoryChildrenBefore.has(child))world.remove(child);
  }
  if(!factory){
-   factory=group(world,7.8,0,-9.5);
+   factory=group(world,9.35,0,-8.8);
    const fallbackBrick=mat(0x985b43),fallbackStone=mat(0xb5a58b),fallbackRoof=mat(0x39474a);
    box(factory,7.25,3.35,5.25,0,1.85,0,fallbackBrick);
    box(factory,7.55,.24,5.5,0,3.62,0,fallbackStone);
