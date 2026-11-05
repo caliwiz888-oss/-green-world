@@ -87,7 +87,7 @@ function publicPlots(rawPlots) {
   });
 }
 const state = p => ({
-  coins:p.coins, apples:p.apples, fruitInventory:p.fruit_inventory||{}, seeds:p.seeds, seedInventory:p.seed_inventory||{}, orchardLevel:p.orchard_level,
+  coins:p.coins, apples:p.apples, fruitInventory:p.fruit_inventory||{}, processedInventory:p.processed_inventory||{}, landLevel:Number(p.land_level)||1, unlockedPlots:Math.min(400,40+((Number(p.land_level)||1)-1)*40), seeds:p.seeds, seedInventory:p.seed_inventory||{}, orchardLevel:p.orchard_level,
   experience:Number(p.experience)||0, playerLevel:Number(p.player_level)||1,
   hasWarehouse:p.has_warehouse, warehouseLevel:Number(p.warehouse_level)||0,
   appleCapacity:p.has_warehouse?100*(Number(p.warehouse_level)||1):20,
@@ -233,6 +233,9 @@ app.post('/api/game/plant',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const type=String(req.body?.treeType||'apple');
   const costs={apple:100,peach:300,cherry:700,pear:1200,orange:2000,mango:3500};
   if(!Number.isInteger(i)||i<0||i>=400) reject(400,'Invalid plot');
+  const landLevel=Math.max(1,Number(p.land_level)||1);
+  const unlockedPlots=Math.min(400,40+(landLevel-1)*40);
+  if(i>=unlockedPlots) reject(403,'This land plot is locked. Expand your territory first.');
   if(plots.some(x=>x.index===i)) reject(409,'Plot occupied');
   if(!Object.prototype.hasOwnProperty.call(costs,type)) reject(400,'Unknown fruit tree');
   if(p.coins<costs[type]) reject(409,'Not enough Green Coin');
@@ -315,15 +318,47 @@ app.post('/api/game/harvest-all',auth,(req,res)=>mutate(req,res,async(c,p)=>{
 }));
 app.post('/api/game/sell',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const inventory=p.fruit_inventory&&typeof p.fruit_inventory==='object'?p.fruit_inventory:{};
-  const salePrices={peach:7,cherry:12,pear:9,orange:15,mango:22};
+  const processed=p.processed_inventory&&typeof p.processed_inventory==='object'?p.processed_inventory:{};
+  const salePrices={peach:7,cherry:12,pear:18,orange:25,mango:35};
   const marketBonus=p.has_market?(Number(p.market_level)||1):0;
   let earned=Number(p.apples||0)*(1+p.orchard_level+marketBonus);
   for(const [type,price] of Object.entries(salePrices)) earned+=(Math.max(0,Number(inventory[type])||0))*(price+marketBonus);
-  const total=Number(p.apples||0)+Object.values(inventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
-  if(total<1) reject(409,'No fruit to sell');
-  await c.query("UPDATE players SET coins=coins+$2,apples=0,fruit_inventory='{}'::jsonb,updated_at=NOW() WHERE telegram_id=$1",[req.playerId,earned]);
+  const baseApplePrice=1+(Number(p.orchard_level)||1);
+  for(const [key,count] of Object.entries(processed)){
+    const match=key.match(/^(apple|peach|cherry|pear|orange|mango)_(juice|jam)$/);
+    if(!match) continue;
+    const base=match[1]==='apple'?baseApplePrice:(salePrices[match[1]]||1);
+    earned+=Math.max(0,Number(count)||0)*base*(match[2]==='juice'?6.5:12);
+  }
+  const total=Number(p.apples||0)+Object.values(inventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0)+Object.values(processed).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
+  if(total<1) reject(409,'No fruit or processed goods to sell');
+  await c.query("UPDATE players SET coins=coins+$2,apples=0,fruit_inventory='{}'::jsonb,processed_inventory='{}'::jsonb,updated_at=NOW() WHERE telegram_id=$1",[req.playerId,Math.floor(earned)]);
   await awardExperience(c,req.playerId,p,5);
   return {player:await loadState(c,req.playerId),earned};
+}));
+app.post('/api/game/process',auth,(req,res)=>mutate(req,res,async(c,p)=>{
+  const type=String(req.body?.fruitType||''),kind=String(req.body?.kind||'');
+  if(!['apple','peach','cherry','pear','orange','mango'].includes(type)) reject(400,'Unknown fruit type');
+  if(!['juice','jam'].includes(kind)) reject(400,'Unknown processing recipe');
+  const need=kind==='juice'?5:8;
+  const inventory=p.fruit_inventory&&typeof p.fruit_inventory==='object'?{...p.fruit_inventory}:{};
+  const available=type==='apple'?Number(p.apples)||0:Number(inventory[type])||0;
+  if(available<need) reject(409,'Not enough fruit for this recipe');
+  if(type==='apple') await c.query('UPDATE players SET apples=apples-$2 WHERE telegram_id=$1',[req.playerId,need]);
+  else inventory[type]-=need;
+  const processed=p.processed_inventory&&typeof p.processed_inventory==='object'?{...p.processed_inventory}:{};
+  const key=type+'_'+kind;processed[key]=(Number(processed[key])||0)+1;
+  await c.query('UPDATE players SET fruit_inventory=$2::jsonb,processed_inventory=$3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify(inventory),JSON.stringify(processed)]);
+  return {player:await loadState(c,req.playerId),product:key,quantity:1};
+}));
+app.post('/api/game/expand-land',auth,(req,res)=>mutate(req,res,async(c,p)=>{
+  const level=Math.max(1,Number(p.land_level)||1),slots=Math.min(400,40+(level-1)*40);
+  if(slots>=400) reject(409,'All land is already unlocked');
+  const costs=[0,500,1000,2000,3500,6000,9000,13000,18000,24000];
+  const cost=costs[level]??(24000+(level-9)*6000);
+  if(Number(p.coins)<cost) reject(409,'Not enough Green Coin');
+  await c.query('UPDATE players SET coins=coins-$2,land_level=land_level+1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,cost]);
+  return {player:await loadState(c,req.playerId),unlockedPlots:Math.min(400,slots+40)};
 }));
 app.post('/api/game/build',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const options={warehouse:['has_warehouse',100],market:['has_market',1500],greenhouse:['has_greenhouse',2500]};
@@ -373,6 +408,9 @@ app.post('/api/game/upgrade-orchard',auth,(req,res)=>mutate(req,res,async(c,p)=>
 app.use((err,_req,res,_next)=>{console.error(err.message);res.status(500).json({error:'Internal server error'});});
 const port=Number(process.env.PORT||3000);
 db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS fruit_inventory JSONB NOT NULL DEFAULT '{}'::jsonb")
+.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS processed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb"))
+.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS land_level INTEGER NOT NULL DEFAULT 1"))
+.then(()=>db.query("UPDATE players SET land_level=GREATEST(COALESCE(land_level,1),LEAST(10,CEIL((COALESCE((SELECT MAX((item->>'index')::int) FROM jsonb_array_elements(COALESCE(players.plots,'[]'::jsonb)) AS t(item)),-1)+1)/40.0)::int))"))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS seed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb"))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS experience INTEGER NOT NULL DEFAULT 0"))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS player_level INTEGER NOT NULL DEFAULT 1"))
