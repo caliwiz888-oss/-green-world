@@ -432,7 +432,7 @@ function makeSurfaceTexture(base,marks,count,seed=1){
   return texture;
 }
 const grassTexture=makeSurfaceTexture('#638f43',['#a0b968','#416f36','#d0c77a','#789d4b'],1800,17);
-grassTexture.repeat.set(9,9);
+grassTexture.repeat.set(12,12);
 const soilTexture=makeSurfaceTexture('#8a6742',['#b18a5b','#684b32','#d0a36b','#765638'],900,31);
 soilTexture.repeat.set(1,1);
 const barkTexture=makeSurfaceTexture('#704326',['#a4774b','#432b20','#8b5b36'],700,53);
@@ -482,7 +482,7 @@ for(let i=0;i<7;i++){
 
 // ===== ЗЕМЛЯ =====
 // Неровная поверхность с мягкой вариацией оттенков травы вместо плоского однотонного поля.
-const groundGeometry=new THREE.PlaneGeometry(60,60,48,48);
+const groundGeometry=new THREE.PlaneGeometry(72,72,64,64);
 const groundPositions=groundGeometry.attributes.position;
 const groundColors=[];
 for(let i=0;i<groundPositions.count;i++){
@@ -2518,9 +2518,9 @@ window.addEventListener('resize',()=>{
 // ===== УПРАВЛЕНИЕ КАМЕРОЙ И ВЫБОР УЧАСТКА =====
 // Более низкая и близкая перспектива подчёркивает объём зданий и рельеф.
 // Более близкая перспективная камера: видны фасады, боковые стены и рельеф, а не только план сверху.
-let cameraRadius=41;
+let cameraRadius=36;
 let cameraAngle=0;
-let cameraHeight=25;
+let cameraHeight=22;
 let pointerStart=null;
 let pointerMoved=false;
 const raycaster=new THREE.Raycaster();
@@ -2532,7 +2532,7 @@ function positionCamera(){
     cameraHeight,
     Math.cos(cameraAngle)*cameraRadius
   );
-  camera.lookAt(3.2,1.1,-3.5);
+  camera.lookAt(1.4,1.0,-5.2);
 }
 function setSelection(plot){
   if(selectedPlot?.tile) selectedPlot.tile.material.emissive?.setHex(0x000000);
@@ -2544,14 +2544,14 @@ function setSelection(plot){
     : 'Участок не выбран · коснись земли';
 }
 function zoom(factor){
-  cameraRadius=Math.max(20,Math.min(72,cameraRadius*factor));
-  cameraHeight=Math.max(13,Math.min(42,cameraHeight*factor));
+  cameraRadius=Math.max(18,Math.min(66,cameraRadius*factor));
+  cameraHeight=Math.max(12,Math.min(38,cameraHeight*factor));
   positionCamera();
 }
 document.getElementById('zoom-in').addEventListener('click',()=>zoom(.88));
 document.getElementById('zoom-out').addEventListener('click',()=>zoom(1.14));
 document.getElementById('camera-reset').addEventListener('click',()=>{
-  cameraRadius=41;cameraHeight=25;cameraAngle=0;positionCamera();
+  cameraRadius=36;cameraHeight=22;cameraAngle=0;positionCamera();
 });
 renderer.domElement.addEventListener('pointerdown',e=>{
   pointerStart={x:e.clientX,y:e.clientY,id:e.pointerId};
