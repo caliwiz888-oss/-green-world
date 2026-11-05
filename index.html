@@ -2348,14 +2348,14 @@ function makeWorldLandscape(){
    ridgeLine.position.set(x,y,z);ridgeLine.scale.set(sx,sy,sz);world.add(ridgeLine);
  }
  // Far blue-grey peaks sit behind the main range, giving the horizon a true layered-distance effect.
- const farRock=mat(0x849b9c),farSnow=mat(0xcbd9d6);
+ const farRockBack=mat(0x849b9c),farSnowBack=mat(0xcbd9d6);
  for(const [x,z,h,r] of [[-29,-49,9,7],[-18,-54,12,8],[-5,-57,10,7],[9,-55,13,8],[23,-51,10,7],[32,-47,8,6]]){
-   cone(world,r,h,x,h*.46,z,farRock,8);
-   cone(world,r*.38,h*.31,x-.35,h*.79,z+.12,farSnow,7);
+   cone(world,r,h,x,h*.46,z,farRockBack,8);
+   cone(world,r*.38,h*.31,x-.35,h*.79,z+.12,farSnowBack,7);
  }
  // A few offset snow faces soften the repeated silhouettes of the distant alpine peaks.
  for(const [x,y,z,sx,sy,sz] of [[-19,9.4,-53,1.9,.18,.62],[-5,8.1,-56,1.6,.16,.55],[8,10.3,-54,2.1,.18,.68],[23,7.9,-50,1.55,.15,.5]]){
-   const snowFace=new THREE.Mesh(new THREE.SphereGeometry(1,14,8),farSnow);
+   const snowFace=new THREE.Mesh(new THREE.SphereGeometry(1,14,8),farSnowBack);
    snowFace.position.set(x,y,z);snowFace.scale.set(sx,sy,sz);snowFace.rotation.y=.18;world.add(snowFace);
  }
  // Узкие световые грани на дальних скальных вершинах подчёркивают рельеф без изменения силуэта гор.
