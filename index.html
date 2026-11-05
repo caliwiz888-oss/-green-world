@@ -518,8 +518,8 @@ for(let x=0;x<20;x++){
 /* Полностью новая архитектурная сборка: центральный корпус, боковые крылья,
    две башни, высокий двускатный кровельный силуэт и парадный вход. */
 const mansion=new THREE.Group();
-const castleStone=material(0xe7d8bd);
-const castleStoneShade=material(0xc9b99a);
+const mainCastleStone=material(0xe7d8bd);
+const mainCastleStoneShade=material(0xc9b99a);
 const castleTrim=material(0xf5e8ce);
 const castleRoof=material(0x853a32);
 const castleRoofLight=material(0xa94b3d);
@@ -531,7 +531,7 @@ function castleRoofPanel(w,d,x,y,z,rot){
   const p=new THREE.Mesh(new THREE.BoxGeometry(w,0.22,d),castleRoof);
   p.position.set(x,y,z);p.rotation.x=rot;p.castShadow=true;p.receiveShadow=true;mansion.add(p);
   const edge=new THREE.Mesh(new THREE.BoxGeometry(w+0.12,0.12,0.16),castleRoofLight);
-  edge.position.set(x,y-0.12,z+Math.sign(rot)*d*0.48);edge.rotation.x=rot;mansion.add(edge);
+  edge.position.set(x,y-0.12,z-Math.sign(rot)*d*0.48);edge.rotation.x=rot;mansion.add(edge);
   return p;
 }
 function castleWindow(x,y,z,scale=1){
@@ -540,11 +540,11 @@ function castleWindow(x,y,z,scale=1){
   frame.position.y=0.68*scale;g.add(frame);
   const pane=new THREE.Mesh(new THREE.BoxGeometry(0.72*scale,1.14*scale,0.09),facadeGlassMaterial);
   pane.position.set(0,0.7*scale,0.12);g.add(pane);
-  const mullion=new THREE.Mesh(new THREE.BoxGeometry(0.07*scale,1.1*scale,0.08),castleStoneShade);
+  const mullion=new THREE.Mesh(new THREE.BoxGeometry(0.07*scale,1.1*scale,0.08),mainCastleStoneShade);
   mullion.position.set(0,0.7*scale,0.18);g.add(mullion);
-  const cross=new THREE.Mesh(new THREE.BoxGeometry(0.68*scale,0.065*scale,0.08),castleStoneShade);
+  const cross=new THREE.Mesh(new THREE.BoxGeometry(0.68*scale,0.065*scale,0.08),mainCastleStoneShade);
   cross.position.set(0,0.72*scale,0.18);g.add(cross);
-  const sill=new THREE.Mesh(new THREE.BoxGeometry(1.12*scale,0.14*scale,0.32),castleStoneShade);
+  const sill=new THREE.Mesh(new THREE.BoxGeometry(1.12*scale,0.14*scale,0.32),mainCastleStoneShade);
   sill.position.set(0,0.02*scale,0.08);g.add(sill);
   const arch=new THREE.Mesh(new THREE.TorusGeometry(0.39*scale,0.085*scale,8,20,Math.PI),castleTrim);
   arch.position.set(0,1.38*scale,0.09);arch.rotation.z=Math.PI;g.add(arch);
@@ -552,13 +552,13 @@ function castleWindow(x,y,z,scale=1){
 }
 function castleTower(x){
   const t=new THREE.Group();
-  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(0.92,1.08,4.65,16),castleStone);
+  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(0.92,1.08,4.65,16),mainCastleStone);
   shaft.position.y=2.45;shaft.castShadow=true;shaft.receiveShadow=true;t.add(shaft);
-  const foot=new THREE.Mesh(new THREE.CylinderGeometry(1.18,1.2,0.34,16),castleStoneShade);foot.position.y=0.34;t.add(foot);
+  const foot=new THREE.Mesh(new THREE.CylinderGeometry(1.18,1.2,0.34,16),mainCastleStoneShade);foot.position.y=0.34;t.add(foot);
   for(const yy of [1.05,3.85,4.55]){
     const band=new THREE.Mesh(new THREE.CylinderGeometry(1.0,1.0,0.16,16),castleTrim);band.position.y=yy;t.add(band);
   }
-  const upper=new THREE.Mesh(new THREE.CylinderGeometry(0.98,0.98,0.58,16),castleStoneShade);upper.position.y=4.95;t.add(upper);
+  const upper=new THREE.Mesh(new THREE.CylinderGeometry(0.98,0.98,0.58,16),mainCastleStoneShade);upper.position.y=4.95;t.add(upper);
   for(let i=0;i<12;i++){
     const a=i*Math.PI/6;
     const merlon=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.55,0.34),castleTrim);
@@ -576,15 +576,15 @@ function castleTower(x){
   flag.position.set(0,9.15,0.02);t.add(flag);
   t.position.set(x,0,0);mansion.add(t);
 }
-const mainBody=new THREE.Mesh(new THREE.BoxGeometry(8.2,4.25,5.0),castleStone);
+const mainBody=new THREE.Mesh(new THREE.BoxGeometry(8.2,4.25,5.0),mainCastleStone);
 mainBody.position.set(0,2.18,0);mainBody.castShadow=true;mainBody.receiveShadow=true;mansion.add(mainBody);
-const lowerPlinth=new THREE.Mesh(new THREE.BoxGeometry(8.55,0.48,5.28),castleStoneShade);lowerPlinth.position.set(0,0.36,0);mansion.add(lowerPlinth);
+const lowerPlinth=new THREE.Mesh(new THREE.BoxGeometry(8.55,0.48,5.28),mainCastleStoneShade);lowerPlinth.position.set(0,0.36,0);mansion.add(lowerPlinth);
 const cornice=new THREE.Mesh(new THREE.BoxGeometry(8.55,0.26,5.3),castleTrim);cornice.position.set(0,4.28,0);mansion.add(cornice);
 // Боковые крылья формируют ступенчатый силуэт вместо одного прямоугольного блока.
 for(const side of [-1,1]){
-  const wing=new THREE.Mesh(new THREE.BoxGeometry(2.5,3.2,4.55),castleStone);
+  const wing=new THREE.Mesh(new THREE.BoxGeometry(2.5,3.2,4.55),mainCastleStone);
   wing.position.set(side*4.55,1.7,-0.12);wing.castShadow=true;wing.receiveShadow=true;mansion.add(wing);
-  const wingBase=new THREE.Mesh(new THREE.BoxGeometry(2.72,0.38,4.78),castleStoneShade);wingBase.position.set(side*4.55,0.28,-0.12);mansion.add(wingBase);
+  const wingBase=new THREE.Mesh(new THREE.BoxGeometry(2.72,0.38,4.78),mainCastleStoneShade);wingBase.position.set(side*4.55,0.28,-0.12);mansion.add(wingBase);
   const wingRoof=new THREE.Mesh(new THREE.BoxGeometry(2.85,0.32,4.95),castleRoof);wingRoof.position.set(side*4.55,3.42,-0.12);mansion.add(wingRoof);
   for(const z of [-1.35,0.35]){
     const w=new THREE.Mesh(new THREE.BoxGeometry(0.72,1.25,0.12),facadeGlassMaterial);w.position.set(side*4.55,1.85,z+2.23);mansion.add(w);
@@ -600,13 +600,13 @@ const ridge=new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.16,9.0,10),castleGo
 // Треугольные фронтоны на торцах крыши.
 for(const z of [-2.48,2.48]){
   const sh=new THREE.Shape();sh.moveTo(-4.25,0);sh.lineTo(4.25,0);sh.lineTo(0,2.45);sh.closePath();
-  const face=new THREE.Mesh(new THREE.ShapeGeometry(sh),castleStone);face.position.set(0,4.15,z);mansion.add(face);
-  const inset=new THREE.Mesh(new THREE.ShapeGeometry(sh),castleStoneShade);inset.scale.set(0.72,0.7,1);inset.position.set(0.0,4.45,z+(z>0?0.025:-0.025));mansion.add(inset);
+  const face=new THREE.Mesh(new THREE.ShapeGeometry(sh),mainCastleStone);face.position.set(0,4.15,z);mansion.add(face);
+  const inset=new THREE.Mesh(new THREE.ShapeGeometry(sh),mainCastleStoneShade);inset.scale.set(0.72,0.7,1);inset.position.set(0.0,4.45,z+(z>0?0.025:-0.025));mansion.add(inset);
 }
 for(const x of [-3.05,-1.55,0,1.55,3.05]) castleWindow(x,1.45,2.53,0.78);
 for(const x of [-2.05,2.05]) castleWindow(x,3.15,2.54,0.78);
 // Парадный вход с глубоким порталом, двойными створками и арочным навесом.
-const portal=new THREE.Mesh(new THREE.BoxGeometry(1.8,2.45,0.3),castleStoneShade);portal.position.set(0,1.25,2.62);mansion.add(portal);
+const portal=new THREE.Mesh(new THREE.BoxGeometry(1.8,2.45,0.3),mainCastleStoneShade);portal.position.set(0,1.25,2.62);mansion.add(portal);
 const door=new THREE.Mesh(new THREE.BoxGeometry(1.28,2.08,0.12),castleWood);door.position.set(0,1.08,2.81);mansion.add(door);
 for(const x of [-0.33,0.33]){
   const panel=new THREE.Mesh(new THREE.BoxGeometry(0.48,1.45,0.035),material(0x795033));panel.position.set(x,1.13,2.89);mansion.add(panel);
@@ -616,10 +616,10 @@ const archFrame=new THREE.Mesh(new THREE.TorusGeometry(0.9,0.16,10,24,Math.PI),c
 const porchRoof=new THREE.Mesh(new THREE.BoxGeometry(2.7,0.22,1.35),castleRoof);porchRoof.position.set(0,3.05,3.15);mansion.add(porchRoof);
 for(const x of [-1.12,1.12]){
   const col=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.18,2.35,12),castleTrim);col.position.set(x,1.45,3.65);col.castShadow=true;mansion.add(col);
-  const base=new THREE.Mesh(new THREE.BoxGeometry(0.48,0.18,0.48),castleStoneShade);base.position.set(x,0.3,3.65);mansion.add(base);
+  const base=new THREE.Mesh(new THREE.BoxGeometry(0.48,0.18,0.48),mainCastleStoneShade);base.position.set(x,0.3,3.65);mansion.add(base);
   const cap=new THREE.Mesh(new THREE.BoxGeometry(0.48,0.18,0.48),castleGold);cap.position.set(x,2.65,3.65);mansion.add(cap);
 }
-const balcony=new THREE.Mesh(new THREE.BoxGeometry(3.25,0.2,0.82),castleStoneShade);balcony.position.set(0,3.42,2.88);mansion.add(balcony);
+const balcony=new THREE.Mesh(new THREE.BoxGeometry(3.25,0.2,0.82),mainCastleStoneShade);balcony.position.set(0,3.42,2.88);mansion.add(balcony);
 for(let i=0;i<13;i++){
   const x=-1.48+i*0.247;
   const bal=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.06,0.52,8),castleTrim);bal.position.set(x,3.76,3.22);mansion.add(bal);
@@ -627,11 +627,11 @@ for(let i=0;i<13;i++){
 const rail=new THREE.Mesh(new THREE.BoxGeometry(3.25,0.12,0.13),castleGold);rail.position.set(0,4.04,3.22);mansion.add(rail);
 // Широкая парадная лестница с каменными боковыми щеками.
 for(let i=0;i<5;i++){
-  const step=new THREE.Mesh(new THREE.BoxGeometry(2.45+i*0.38,0.18,0.42),i%2?castleStone:castleTrim);
+  const step=new THREE.Mesh(new THREE.BoxGeometry(2.45+i*0.38,0.18,0.42),i%2?mainCastleStone:castleTrim);
   step.position.set(0,0.12+i*0.16,3.95+i*0.38);step.receiveShadow=true;mansion.add(step);
 }
 for(const x of [-1.75,1.75]){
-  const cheek=new THREE.Mesh(new THREE.BoxGeometry(0.24,0.72,2.1),castleStoneShade);cheek.position.set(x,0.43,4.55);mansion.add(cheek);
+  const cheek=new THREE.Mesh(new THREE.BoxGeometry(0.24,0.72,2.1),mainCastleStoneShade);cheek.position.set(x,0.43,4.55);mansion.add(cheek);
   const post=new THREE.Mesh(new THREE.BoxGeometry(0.38,0.85,0.38),castleTrim);post.position.set(x,0.48,5.45);mansion.add(post);
   const orb=new THREE.Mesh(new THREE.SphereGeometry(0.18,10,8),castleGold);orb.position.set(x,0.98,5.45);mansion.add(orb);
 }
@@ -1235,12 +1235,12 @@ scene.add(mill);
 // ===== ДЕКОРАТИВНЫЙ ЗАМОК И ВОДОПАД =====
 // Дальний сказочный замок завершает панораму фермы и не занимает игровые участки.
 const castle = new THREE.Group();
-const castleStone = material(0xd9d1bd);
+const mainCastleStone = material(0xd9d1bd);
 const castleRoofMat = material(0x684a72);
 addBox(castle, 8.5, 5.2, 6.2, 0xc9bea8, 0, 2.6, 0);
 addBox(castle, 9.2, 0.35, 6.8, 0xeee3cc, 0, 5.15, 0);
 for (const [x,z,h] of [[-4,-2.8,7.2],[4,-2.8,7.2],[-4,2.8,6.5],[4,2.8,6.5]]) {
-  const tower = new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.2,h,12), castleStone);
+  const tower = new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.2,h,12), mainCastleStone);
   tower.position.set(x,h/2,z); tower.castShadow=true; castle.add(tower);
   const cap = new THREE.Mesh(new THREE.ConeGeometry(1.35,2.5,12), castleRoofMat);
   cap.position.set(x,h+1.2,z); cap.castShadow=true; castle.add(cap);
@@ -1251,8 +1251,8 @@ for (const x of [-2,0,2]) {
 }
 // Каменные зубцы стен, карнизы башен и тёмные оконные проёмы.
 for(let x=-3.4;x<=3.41;x+=1.1){
-  addBox(castle,0.42,0.55,0.48,castleStone,x,5.52,3.0);
-  addBox(castle,0.42,0.55,0.48,castleStone,x,5.52,-3.0);
+  addBox(castle,0.42,0.55,0.48,mainCastleStone,x,5.52,3.0);
+  addBox(castle,0.42,0.55,0.48,mainCastleStone,x,5.52,-3.0);
 }
 for(const [x,z,h] of [[-4,-2.8,7.2],[4,-2.8,7.2],[-4,2.8,6.5],[4,2.8,6.5]]){
   const slit=new THREE.Mesh(new THREE.BoxGeometry(0.28,0.9,0.08),material(0x394653));
