@@ -142,6 +142,9 @@ body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 #actions button svg{width:36px;height:36px;fill:none;stroke:#fff5d7;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 1px #145324)}
 #actions button span{display:block}
 #actions button small{font-size:10px;color:#fff0c8;font-weight:800}
+/* В нижней панели оставляем только подписи: никаких картинок и псевдо-иконок. */
+#actions button svg,#actions button img,#actions button::before,#actions button::after{display:none!important;content:none!important}
+#actions button{min-height:68px!important;gap:0!important}
 #actions button:first-child{background:linear-gradient(180deg,#91df77 0%,#43b64c 48%,#147b38 100%)}
 #actions button:nth-child(2){background:linear-gradient(180deg,#70c9e8 0%,#258ebd 52%,#17628d 100%)}
 #actions button:nth-child(3){background:linear-gradient(180deg,#f0c85d 0%,#c18a2e 52%,#80501c 100%)}
