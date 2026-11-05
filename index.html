@@ -219,6 +219,19 @@ function makeHouse(){
    const rightCourse=box(g,3.72,.035,.045,1.43,5.72+.19*Math.cos(.58)+.025,z,M.roof2,false);
    rightCourse.rotation.z=-.58;
  }
+ // Карнизные балки вдоль обоих скатов закрывают торцы кровли и подчёркивают её толщину.
+ for(const [x,y,angle] of [[-3.55,4.63,.58],[3.09,4.78,-.58]]){
+   const fascia=box(g,.2,.24,9.02,x,y,0,M.wood2);
+   fascia.rotation.z=angle;
+   const fasciaHighlight=box(g,.075,.055,8.92,x+Math.sin(angle)*.14,y+Math.cos(angle)*.14,0,M.gold,false);
+   fasciaHighlight.rotation.z=angle;
+   // Ритмичные резные кронштейны поддерживают длинный карниз главного дома.
+   for(const z of [-3.65,-2.2,-.73,.73,2.2,3.65]){
+     const bracket=box(g,.16,.42,.2,x+(x<0?.12:-.12),y-.2,z,M.stone2,false);
+     bracket.rotation.z=angle;
+     sphere(g,.045,x+(x<0?.24:-.24),y-.34,z,M.gold,.8);
+   }
+ }
  // Коньковая накладка закрывает стык скатов и завершает силуэт крыши.
  const ridge=cylinder(g,.13,.13,9.02,-.25,6.82,0,M.roof2,12);
  ridge.rotation.x=Math.PI/2;
