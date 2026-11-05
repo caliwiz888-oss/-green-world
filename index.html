@@ -1346,7 +1346,8 @@ function makeMarket(level=1){
  return g;
 }
 function makeFactory(level=1){
- const g=group(world,9.8,0,-11);
+ // Keep the factory in the back-right corner while fully inside the playable plots and mobile camera frame.
+ const g=group(world,7.8,0,-9.5);
  const brick=mat(0x9b5943),brickLight=mat(0xb96c50),darkMetal=mat(0x39474a),metal=mat(0x657477),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
  // Subtle repeating masonry relief gives the factory brickwork individual courses and mortar joints.
  const brickCanvas=document.createElement('canvas');brickCanvas.width=brickCanvas.height=256;
