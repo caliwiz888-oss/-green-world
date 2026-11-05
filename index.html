@@ -106,18 +106,24 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
    if(!initData)throw new Error('Telegram не передал данные запуска. Открой игру через кнопку Mini App в меню бота.');
    tg.ready();
    tg.expand();
-   const response=await fetch(api+'/api/auth/telegram',{
-    method:'POST',credentials:'include',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({initData})
-   });
+   const controller=new AbortController();
+   const timeout=setTimeout(()=>controller.abort(),20000);
+   let response;
+   try {
+    response=await fetch(api+'/api/auth/telegram',{
+     method:'POST',credentials:'include',
+     headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({initData}),
+     signal:controller.signal
+    });
+   } finally { clearTimeout(timeout); }
    const data=await response.json().catch(()=>({}));
    if(!response.ok)throw new Error(data.error||'Ошибка сервера '+response.status);
    window.GREEN_WORLD_AUTH_RESULT=data;
    window.dispatchEvent(new CustomEvent('green-world-auth',{detail:data}));
    error.textContent='Аккаунт подключён. Загружаем хозяйство…';
   }catch(e){
-   error.textContent=e&&e.message?e.message:'Не удалось подключиться. Попробуй ещё раз.';
+   error.textContent=e?.name==='AbortError'?'Сервер не ответил за 20 секунд. Попробуй ещё раз.':(e&&e.message?e.message:'Не удалось подключиться. Попробуй ещё раз.');
   }finally{
    connecting=false;
    button.disabled=false;
@@ -125,14 +131,36 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
   }
  }
  button.addEventListener('click',connectTelegram);
- window.addEventListener('green-world-auth',()=>{
-  document.getElementById('login').style.display='none';
+ window.addEventListener('error',event=>{
+  const status=document.getElementById('status');
+  if(status)status.textContent='ОШИБКА ЗАПУСКА ИГРЫ';
+  if(error&&event.message)error.textContent='Ошибка загрузки игры: '+event.message;
+ });
+ window.addEventListener('unhandledrejection',event=>{
+  const status=document.getElementById('status');
+  if(status)status.textContent='ОШИБКА ПОДКЛЮЧЕНИЯ';
+  if(error)error.textContent='Ошибка: '+(event.reason?.message||String(event.reason||'неизвестная ошибка'));
  });
  connectTelegram();
 })();
 </script>
 <script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
+let THREE;
+try {
+ THREE=await import('https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js');
+} catch(primaryError) {
+ console.warn('[render] Primary Three.js CDN failed; trying fallback:',primaryError);
+ try {
+  THREE=await import('https://unpkg.com/three@0.170.0/build/three.module.js');
+ } catch(fallbackError) {
+  console.error('[render] All Three.js sources failed:',fallbackError);
+  const status=document.getElementById('status');
+  const error=document.getElementById('login-error');
+  if(status)status.textContent='НЕ УДАЛОСЬ ЗАГРУЗИТЬ 3D-МИР';
+  if(error)error.textContent='Не загрузилась графическая библиотека. Проверь интернет и перезапусти игру.';
+  throw fallbackError;
+ }
+}
 
 const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
