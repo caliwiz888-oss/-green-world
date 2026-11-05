@@ -1346,7 +1346,7 @@ function makeMarket(level=1){
  return g;
 }
 function makeFactory(level=1){
- const g=group(world,9.8,0,-11);
+ const g=group(world,6.8,0,-7.4);
  const brick=mat(0x9b5943),brickLight=mat(0xb96c50),darkMetal=mat(0x39474a),metal=mat(0x657477),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
  // Subtle repeating masonry relief gives the factory brickwork individual courses and mortar joints.
  const brickCanvas=document.createElement('canvas');brickCanvas.width=brickCanvas.height=256;
@@ -2190,7 +2190,7 @@ function unlocked(i){const level=Math.max(1,Number(player?.landLevel)||1),side=[
 function drawPlayer(){if(!player)return;clearDynamic();const map=new Map((player.plots||[]).map(p=>[p.index,p]));
  // Render every planted fruit tree on its matching plot; ripe trees show full-colour fruit.
  for(const p of player.plots||[]){const x=(Math.floor(p.index/20)-9.5)*1.45,z=(p.index%20-9.5)*1.45;const tree=makeTree(x,z,p.type||'apple',!!p.grown);tree.scale.setScalar(.72);treeObjects.push(tree)}
- buildingObjects.push(makeMarket(player.marketLevel||1));buildingObjects.push(makeFactory(player.factoryLevel||1));
+ buildingObjects.push(makeHouse());buildingObjects.push(makeMarket(player.marketLevel||1));buildingObjects.push(makeFactory(player.factoryLevel||1));
  for(let i=0;i<400;i++){const p=map.get(i);tiles[i].material=p?(p.grown?mat(0x8fbd55):mat(0x719a49)):((Math.floor(i/20)+i%20)%2?M.grass:M.grass2);tiles[i].material.needsUpdate=true}
  updateHud();
 }
