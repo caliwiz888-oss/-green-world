@@ -472,7 +472,7 @@ for(const x of [-2,0,2]){
 // Дверь
 addBox(mansion,1.1,2,0.15,0x70452b,0,1,2.6);
 
-mansion.position.set(-6,0,-12.5);
+mansion.position.set(0,0,-14);
 mansion.rotation.y=0.28;
 scene.add(mansion);
 
@@ -603,16 +603,16 @@ const gardenStone=material(0xc9bda5);
 const hedgeMat=material(0x286b38);
 const flowerColors=[0xe9a4b6,0xf3d36b,0xffffff,0xb9a0e8];
 // Невысокие живые изгороди обрамляют двор, не меняя планировку построек.
-for(const z of [-15.2,-8.4]){
+for(const z of [-17.2,-5.8]){
   for(let i=0;i<9;i++){
     const bush=new THREE.Mesh(new THREE.SphereGeometry(0.48,10,8),hedgeMat);
     bush.scale.set(1.15,0.78,0.9);
-    bush.position.set(-10.2+i*1.05,0.38,z);
+    bush.position.set(-7.2+i*1.8,0.38,z);
     bush.castShadow=true;scene.add(bush);
   }
 }
 // Цветочные клумбы у парадного двора
-for(const [cx,cz] of [[-10,-8.0],[-2,-8.0],[-10,-15.5],[-2,-15.5]]){
+for(const [cx,cz] of [[-5.4,-8.2],[5.4,-8.2],[-5.4,-16.2],[5.4,-16.2]]){
   const bed=new THREE.Mesh(new THREE.CylinderGeometry(1.0,1.05,0.18,20),gardenStone);
   bed.position.set(cx,0.12,cz);bed.receiveShadow=true;scene.add(bed);
   for(let i=0;i<9;i++){
@@ -626,8 +626,8 @@ for(const [cx,cz] of [[-10,-8.0],[-2,-8.0],[-10,-15.5],[-2,-15.5]]){
 // Каменная дорожка из отдельных плит от дома к фонтану
 for(let i=0;i<13;i++){
   const t=i/12;
-  const x=-4.9+(6.5*t);
-  const z=-8.1-1.8*t;
+  const x=-0.45+(0.9*t);
+  const z=-11.2+3.7*t;
   const slab=new THREE.Mesh(new THREE.BoxGeometry(0.95,0.12,0.72),gardenStone);
   slab.position.set(x,0.015,z);
   slab.rotation.y=-0.25;
@@ -638,8 +638,8 @@ for(let i=0;i<13;i++){
 const pathEdgeMaterial=material(0xa99d86);
 for(let i=0;i<13;i++){
   const t=i/12;
-  const x=-5.55+6.5*t;
-  const z=-8.55-1.8*t;
+  const x=-0.95+(1.9*t);
+  const z=-11.55+3.7*t;
   for(const side of [-1,1]){
     const edging=new THREE.Mesh(new THREE.BoxGeometry(0.34,0.16,0.22),pathEdgeMaterial);
     edging.position.set(x+side*0.68,0.04,z+side*0.12);
@@ -732,7 +732,7 @@ const fountainBall=new THREE.Mesh(
 fountainBall.position.y=1.9;
 fountain.add(fountainBall);
 
-fountain.position.set(0,0,-8);
+fountain.position.set(0,0,-7.5);
 scene.add(fountain);
 
 // ===== РЕКА =====
@@ -1083,7 +1083,7 @@ for(let i=0;i<2;i++){
   step.castShadow=true;step.receiveShadow=true;mill.add(step);
 }
 
-mill.position.set(16,0,-13);
+mill.position.set(-15,0,-12.5);
 mill.rotation.y=0.28;
 scene.add(mill);
 
@@ -1746,7 +1746,7 @@ function createMarket(level=marketLevel){
       produce.position.set(x+(j-1)*0.15,0.66,1.9);booth.add(produce);
     }
   }
-  booth.position.set(10,0,-8.5);booth.rotation.y=0.28;scene.add(booth);
+  booth.position.set(12,0,-8.5);booth.rotation.y=0.28;scene.add(booth);
 }
 function createGreenhouse(level=greenhouseLevel){
   const old=scene.getObjectByName('greenhouseBuilding');if(old)scene.remove(old);
