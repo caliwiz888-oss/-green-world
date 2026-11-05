@@ -1780,6 +1780,13 @@ function animate(){
     canopy.rotation.z=Math.sin(time*0.55+i*0.8)*0.018;
     canopy.rotation.x=Math.cos(time*0.42+i)*0.012;
   });
+  // Едва заметное покачивание посаженных деревьев на ветру.
+  // Движение применяется к группе целиком и не добавляет draw calls.
+  trees.forEach((tree,i)=>{
+    if(!tree?.userData?.type) return;
+    tree.rotation.z=Math.sin(time*0.68+i*1.37)*0.006;
+    tree.rotation.x=Math.cos(time*0.54+i*1.11)*0.004;
+  });
   clouds.forEach((cloud,i)=>{
     cloud.position.x=-25+((i*8+time*0.22)%56);
   });
