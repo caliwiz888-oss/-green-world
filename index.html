@@ -1342,6 +1342,20 @@ function makeMarket(level=1){
    for(const z of [-1.85,-.92,0,.92,1.85])box(g,.12,.12,.1,x,3.26,z,M.wood2,false);
  }
 
+ // Передние водосточные трубы лавки аккуратно продолжают линию карниза по углам фасада.
+ const shopFrontMetal=mat(0x596866,.58);
+ for(const side of [-1,1]){
+   const px=side*2.72,pz=2.34;
+   cylinder(g,.062,.062,2.72,px,1.78,pz,shopFrontMetal,10);
+   cylinder(g,.072,.072,.28,px,3.18,pz-.12,shopFrontMetal,10).rotation.x=Math.PI/2;
+   cylinder(g,.072,.072,.18,px,3.04,pz,shopFrontMetal,10);
+   for(const y of [.72,1.62,2.52]){
+     box(g,.18,.07,.12,px,y,pz-.035,M.gold,false);
+     sphere(g,.026,px+side*.09,y,pz-.09,M.stone2,.8);
+   }
+   box(g,.24,.2,.24,px,.38,pz,M.stone2,false);
+   box(g,.18,.055,.2,px,.51,pz,M.gold,false);
+ }
  // Каменное крыльцо лавки: две компактные ступени с тонкими латунными кромками.
  box(g,2.05,.12,.48,0,.12,2.92,M.stone2,false);
  box(g,1.82,.12,.42,0,.24,2.67,M.stone,false);
