@@ -2116,6 +2116,47 @@ function createFactory(){
     glow.position.set(x,2.58,2.65);factory.add(glow);
   }
   addBox(factory,2.6,0.16,1.0,factoryStone,0,0.18,3.05);
+  
+  // Боковой фасад: высокие окна, опорные балки и вентиляционные решётки.
+  for(const z of [-1.45,0,1.45]){
+    const sideFrame=new THREE.Mesh(new THREE.BoxGeometry(0.12,1.18,0.92),factoryStone);
+    sideFrame.position.set(3.12,2.12,z);factory.add(sideFrame);
+    const sideGlass=new THREE.Mesh(new THREE.BoxGeometry(0.08,0.88,0.66),glass);
+    sideGlass.position.set(3.2,2.12,z);factory.add(sideGlass);
+    const mullion=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.9,0.07),darkMetal);
+    mullion.position.set(3.25,2.12,z);factory.add(mullion);
+  }
+  // Стальные фермы под кровлей и рёбра металлической крыши.
+  for(const x of [-2.45,-1.25,0,1.25,2.45]){
+    const beam=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.16,4.45),darkMetal);
+    beam.position.set(x,3.58,0);factory.add(beam);
+  }
+  for(let z=-1.8;z<=1.81;z+=0.6){
+    const rib=new THREE.Mesh(new THREE.BoxGeometry(6.1,0.08,0.09),metal);
+    rib.position.set(0,5.18,z);factory.add(rib);
+  }
+  // Загрузочная рампа и металлические направляющие перед воротами.
+  const ramp=new THREE.Mesh(new THREE.BoxGeometry(3.1,0.22,1.15),factoryStone);
+  ramp.position.set(0,0.12,3.35);factory.add(ramp);
+  for(const x of [-1.25,1.25]){
+    const rail=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.045,1.1,8),metal);
+    rail.rotation.x=Math.PI/2;rail.position.set(x,0.55,3.55);factory.add(rail);
+  }
+  // Небольшие маркировочные таблички и крепёж на фасаде.
+  const signPlate=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.42,0.09),darkMetal);
+  signPlate.position.set(0,4.02,2.43);factory.add(signPlate);
+  for(const x of [-0.32,0,0.32]){
+    const mark=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.22,0.04),lanternGold);
+    mark.position.set(x,4.02,2.49);factory.add(mark);
+  }
+  // Каменная отмостка по периметру производственного корпуса.
+  for(let i=0;i<12;i++){
+    const a=i/12*Math.PI*2;
+    const paver=new THREE.Mesh(new THREE.BoxGeometry(0.82,0.1,0.5),factoryStone);
+    paver.position.set(Math.cos(a)*3.55,0.12,Math.sin(a)*2.75);
+    paver.rotation.y=-a;paver.receiveShadow=true;factory.add(paver);
+  }
+
   factory.position.set(-15,0,2);factory.rotation.y=0.28;scene.add(factory);
 }
 
