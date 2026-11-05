@@ -2722,10 +2722,17 @@ document.getElementById('build-greenhouse').addEventListener('click',async()=>{
   const pattern=new RegExp(keys.join('|'),'gu');
   function convert(root){
     if(!root||!root.ownerDocument)return;
+    const blocked=root.nodeType===Node.ELEMENT_NODE&&root.closest?.('script,style,textarea,noscript,code,pre');
+    if(blocked)return;
     const doc=root.ownerDocument,walker=doc.createTreeWalker(root,NodeFilter.SHOW_TEXT);
-    const nodes=[];while(walker.nextNode())if(pattern.test(walker.currentNode.nodeValue)){nodes.push(walker.currentNode);pattern.lastIndex=0;}
+    const nodes=[];while(walker.nextNode()){
+      const node=walker.currentNode;
+      if(node.parentElement?.closest?.('script,style,textarea,noscript,code,pre,.gw-icon'))continue;
+      pattern.lastIndex=0;
+      if(pattern.test(node.nodeValue))nodes.push(node);
+    }
     for(const node of nodes){
-      if(!node.parentNode||node.parentNode.closest?.('.gw-icon'))continue;
+      if(!node.parentNode||node.parentNode.closest?.('script,style,textarea,noscript,code,pre,.gw-icon'))continue;
       const value=node.nodeValue,fragment=doc.createDocumentFragment();let last=0,m;
       pattern.lastIndex=0;
       while((m=pattern.exec(value))){
