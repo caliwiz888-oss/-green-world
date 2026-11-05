@@ -1009,17 +1009,49 @@ for(let i=0;i<12;i++){
 }
 
 // ===== ГОРЫ =====
+// Неровные многослойные склоны с естественным переходом от лесного подножия
+// к открытым каменным уступам. Геометрия остаётся лёгкой для мобильного WebGL.
 for(let i=0;i<11;i++){
+  const mountainGeometry=new THREE.ConeGeometry(5,10,7,5);
+  const mountainPositions=mountainGeometry.attributes.position;
+  const mountainColors=[];
+  const lowColor=new THREE.Color(i%2?0x66865d:0x78916a);
+  const rockColor=new THREE.Color(i%2?0x89958a:0x9a9b8b);
+  const highColor=new THREE.Color(0xc4cec5);
+  for(let v=0;v<mountainPositions.count;v++){
+    const x=mountainPositions.getX(v),y=mountainPositions.getY(v),z=mountainPositions.getZ(v);
+    const radial=Math.sqrt(x*x+z*z);
+    const variation=Math.sin((i+1)*2.17+x*1.7+z*2.3)*0.13;
+    if(y>-4.7 && radial>0.12){
+      const factor=1+variation;
+      mountainPositions.setXYZ(v,x*factor,y,z*factor);
+    }
+    const height=THREE.MathUtils.clamp((y+5)/10,0,1);
+    const band=THREE.MathUtils.smoothstep(height,0.16,0.62);
+    const upper=THREE.MathUtils.smoothstep(height,0.62,0.9);
+    const color=lowColor.clone().lerp(rockColor,band).lerp(highColor,upper*0.72);
+    const fleck=0.94+0.06*Math.sin(x*3.1+z*2.7+i);
+    color.multiplyScalar(fleck);
+    mountainColors.push(color.r,color.g,color.b);
+  }
+  mountainGeometry.setAttribute('color',new THREE.Float32BufferAttribute(mountainColors,3));
+  mountainGeometry.computeVertexNormals();
   const mountain=new THREE.Mesh(
-    new THREE.ConeGeometry(5,10,5),
-    material(i%2?0x759b75:0x88a77c)
+    mountainGeometry,
+    new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,flatShading:true})
   );
   mountain.position.set(-30+i*6,-1,-29);
+  mountain.rotation.y=(i%3)*0.19;
   mountain.castShadow=true;
   scene.add(mountain);
-  // Светлые каменные вершины и скальные уступы на дальнем хребте.
-  const peak=new THREE.Mesh(new THREE.ConeGeometry(2.15,3.15,5),material(i%2?0xd7e2dc:0xe7e8dc));
-  peak.position.set(-30+i*6,4.05,-29);peak.scale.set(0.72,1,0.72);peak.castShadow=true;scene.add(peak);
+  // Снежные шапки повторяют силуэт хребта и смягчают переход к небу.
+  const peakGeometry=new THREE.ConeGeometry(2.05,3.0,7,2);
+  const peak=new THREE.Mesh(peakGeometry,material(i%2?0xe0e8e3:0xf0eee3));
+  peak.position.set(-30+i*6,4.02,-29);
+  peak.scale.set(0.72,1,0.72);
+  peak.rotation.y=(i%3)*0.19;
+  peak.castShadow=true;
+  scene.add(peak);
 }
 
 // Мелкие камни и моховые пятна вдоль садовых дорожек.
