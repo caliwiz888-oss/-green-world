@@ -237,10 +237,10 @@ body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 </div>
 <div id="hint">Выбери участок на поле, чтобы посадить яблоню</div>
 <div id="actions">
-  <button id="plant-button" onclick="plant()"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 40V25M24 30c-10 0-16-6-14-15 8-1 13 3 14 10 1-10 7-15 15-14 2 9-4 17-15 19Z"/><path d="M18 40h12"/></svg><span>Купить и посадить</span><small>Яблоня · 100 GC</small></button>
-  <button onclick="water()"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5C18 15 11 22 11 30a13 13 0 0 0 26 0C37 22 30 15 24 5Z"/><path d="M18 31c0 4 2 6 5 7"/></svg><span>Полить</span></button>
-  <button onclick="harvestAll()"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M25 13c-2-6 1-9 7-10M25 14c-9-5-17 1-16 11 1 11 7 17 15 17 8 0 14-6 15-17 1-10-7-16-16-11Z"/><path d="M25 14c2 5 6 7 11 7"/></svg><span>Собрать всё</span></button>
-  <button onclick="sell()"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M5 12h5l5 22h22l5-16H13"/><circle cx="19" cy="40" r="2.5"/><circle cx="35" cy="40" r="2.5"/><path d="M20 18h15"/></svg><span>Продать</span></button>
+  <button id="plant-button" onclick="plant()"><span>Купить и посадить</span><small>Яблоня · 100 GC</small></button>
+  <button onclick="water()"><span>Полить</span></button>
+  <button onclick="harvestAll()"><span>Собрать всё</span></button>
+  <button onclick="sell()"><span>Продать</span></button>
 </div>
 
 <!-- После размещения API укажи здесь его HTTPS-адрес, например https://green-world-api.example.com -->
@@ -251,9 +251,10 @@ body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
   var status=document.getElementById('connection-status');
   if(!status)return;
   function showStartupError(message){
-    status.textContent='ОШИБКА ЗАПУСКА 3D';
+    var detail=String(message||'ошибка графики').replace(/\\s+/g,' ').slice(0,140);
+    status.textContent='ОШИБКА 3D: '+detail;
     var hint=document.getElementById('hint');
-    if(hint) hint.textContent='Не удалось создать 3D-мир: '+String(message||'ошибка графики').slice(0,120);
+    if(hint) hint.textContent='Сбой 3D: '+detail;
   }
   window.addEventListener('error',function(event){
     if(status.textContent==='СОЗДАНИЕ 3D-МИРА…'||status.textContent==='ЗАГРУЗКА ИГРЫ…'){
