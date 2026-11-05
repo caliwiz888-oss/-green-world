@@ -1012,6 +1012,35 @@ for(let i=0;i<8;i++){
   drop.position.set(Math.sin(i*2.4)*1.25,0.35+(i%4)*0.16,2.05+Math.cos(i*1.7)*0.48);
   waterfallCliff.add(drop);waterfallDroplets.push(drop);
 }
+// Мелкая водяная пыль и расходящиеся круги пены у места падения потока.
+// Частицы собраны в InstancedMesh, чтобы не перегружать мобильный WebGL.
+const waterfallMistGeometry=new THREE.SphereGeometry(0.055,7,6);
+const waterfallMistMaterial=new THREE.MeshBasicMaterial({color:0xd8f8ff,transparent:true,opacity:0.62,depthWrite:false});
+const waterfallMist=new THREE.InstancedMesh(waterfallMistGeometry,waterfallMistMaterial,20);
+const waterfallMistDummy=new THREE.Object3D();
+const waterfallMistSeeds=[];
+for(let i=0;i<20;i++){
+  const seed={phase:i*1.73,spread:0.35+(i%5)*0.24,height:0.35+(i%4)*0.16};
+  waterfallMistSeeds.push(seed);
+  waterfallMistDummy.position.set(Math.sin(seed.phase)*seed.spread,seed.height,2.08+Math.cos(seed.phase)*0.42);
+  waterfallMistDummy.scale.setScalar(0.7+(i%3)*0.22);
+  waterfallMistDummy.updateMatrix();waterfallMist.setMatrixAt(i,waterfallMistDummy.matrix);
+}
+waterfallMist.instanceMatrix.needsUpdate=true;waterfallCliff.add(waterfallMist);
+const waterfallFoamGeometry=new THREE.TorusGeometry(0.16,0.026,5,12);
+const waterfallFoamMaterial=new THREE.MeshBasicMaterial({color:0xe4fbff,transparent:true,opacity:0.48,depthWrite:false});
+const waterfallFoam=new THREE.InstancedMesh(waterfallFoamGeometry,waterfallFoamMaterial,14);
+const waterfallFoamDummy=new THREE.Object3D();
+const waterfallFoamSeeds=[];
+for(let i=0;i<14;i++){
+  const seed={phase:i*2.399,radius:0.35+(i%4)*0.34,scale:0.65+(i%3)*0.32};
+  waterfallFoamSeeds.push(seed);
+  waterfallFoamDummy.position.set(Math.cos(seed.phase)*seed.radius,0.19,2.1+Math.sin(seed.phase)*seed.radius*0.48);
+  waterfallFoamDummy.rotation.x=Math.PI/2;
+  waterfallFoamDummy.scale.set(seed.scale,seed.scale,seed.scale);
+  waterfallFoamDummy.updateMatrix();waterfallFoam.setMatrixAt(i,waterfallFoamDummy.matrix);
+}
+waterfallFoam.instanceMatrix.needsUpdate=true;waterfallCliff.add(waterfallFoam);
 for(let i=0;i<9;i++){
   const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(0.48,0),cliffMat);
   rock.scale.set(1.4,0.8,1.0);
@@ -1829,6 +1858,25 @@ function animate(){
     drop.position.x=Math.sin(time*2.2+i*2.4)*(0.75+(i%3)*0.2);
     drop.material.opacity=0.3+Math.abs(Math.sin(time*3+i))*0.55;
   });
+  for(let i=0;i<waterfallMistSeeds.length;i++){
+    const seed=waterfallMistSeeds[i];
+    const phase=time*2.1+seed.phase;
+    waterfallMistDummy.position.set(Math.sin(phase)*seed.spread,seed.height+((time*0.32+i*0.047)%0.72),2.08+Math.cos(phase*0.8)*0.48);
+    waterfallMistDummy.scale.setScalar((0.55+Math.abs(Math.sin(phase))*0.55)*(0.7+(i%3)*0.22));
+    waterfallMistDummy.updateMatrix();waterfallMist.setMatrixAt(i,waterfallMistDummy.matrix);
+  }
+  waterfallMist.instanceMatrix.needsUpdate=true;
+  for(let i=0;i<waterfallFoamSeeds.length;i++){
+    const seed=waterfallFoamSeeds[i];
+    const phase=time*0.75+seed.phase;
+    const radius=seed.radius+Math.sin(phase*1.4)*0.08;
+    waterfallFoamDummy.position.set(Math.cos(phase)*radius,0.19+Math.sin(phase*2)*0.012,2.1+Math.sin(phase)*radius*0.48);
+    waterfallFoamDummy.rotation.set(Math.PI/2,0,phase*0.35);
+    const scale=seed.scale*(0.82+Math.sin(phase*1.7)*0.18);
+    waterfallFoamDummy.scale.set(scale,scale,scale);
+    waterfallFoamDummy.updateMatrix();waterfallFoam.setMatrixAt(i,waterfallFoamDummy.matrix);
+  }
+  waterfallFoam.instanceMatrix.needsUpdate=true;
   splash.scale.set(1+Math.sin(time*2.4)*0.05,1,1+Math.cos(time*2.4)*0.05);
   // Пена медленно скользит вдоль берегов, подчёркивая течение реки.
   for(let i=0;i<riverFoamSeeds.length;i++){
