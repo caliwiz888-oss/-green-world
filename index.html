@@ -153,12 +153,17 @@ try {
  try {
   THREE=await import('https://unpkg.com/three@0.170.0/build/three.module.js');
  } catch(fallbackError) {
-  console.error('[render] All Three.js sources failed:',fallbackError);
-  const status=document.getElementById('status');
-  const error=document.getElementById('login-error');
-  if(status)status.textContent='НЕ УДАЛОСЬ ЗАГРУЗИТЬ 3D-МИР';
-  if(error)error.textContent='Не загрузилась графическая библиотека. Проверь интернет и перезапусти игру.';
-  throw fallbackError;
+  console.warn('[render] unpkg failed; trying esm.sh:',fallbackError);
+  try {
+   THREE=await import('https://esm.sh/three@0.170.0');
+  } catch(lastError) {
+   console.error('[render] All Three.js sources failed:',lastError);
+   const status=document.getElementById('status');
+   const error=document.getElementById('login-error');
+   if(status)status.textContent='НЕ УДАЛОСЬ ЗАГРУЗИТЬ 3D-МИР';
+   if(error)error.textContent='Не удалось загрузить 3D-библиотеку из трёх источников. Закрой игру и попробуй снова при стабильном интернете.';
+   throw lastError;
+  }
  }
 }
 
