@@ -161,6 +161,13 @@ body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 #stats .stat strong svg{width:17px;height:17px;fill:none;stroke:#ffe6a2;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 @media(max-width:380px){.brand-mark{width:25px;height:25px}.brand-mark svg{width:21px;height:21px}.brand-copy{font-size:11px}.brand-copy small{font-size:8px}}
 
+
+/* Единая система векторных игровых пиктограмм */
+.gw-icon{display:inline-flex;align-items:center;justify-content:center;width:1.18em;height:1.18em;margin:0 .12em;vertical-align:-.22em;color:#ffe2a0;flex:0 0 auto}
+.gw-icon svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 1px #38200f66)}
+#menu-card .gw-icon{color:#f6d48e}
+#actions .gw-icon{width:1.35em;height:1.35em}
+#hud .gw-icon{color:#ffe28c}
 </style>
 </head>
 
@@ -2688,6 +2695,57 @@ document.getElementById('build-greenhouse').addEventListener('click',async()=>{
   if(coins<cost){hint('Для улучшения теплицы нужно '+cost+' Green Coin.');return;}
   coins-=cost;greenhouseLevel++;createGreenhouse(greenhouseLevel);update();hint('Теплица улучшена до уровня '+greenhouseLevel+'! Урожай — '+harvestAmount()+' яблок за сбор.');
 });
+</script>
+
+<script>
+/* Заменяет оставшиеся эмодзи на единые SVG-значки, включая динамические подписи. */
+(function(){
+  const icons={
+    '🍎':'<path d="M12 7c-5-3-9 1-8 7 1 5 4 8 8 8s7-3 8-8c1-6-3-10-8-7Z"/><path d="M12 7c0-3 2-4 5-4M12 8c-1-2-3-3-5-3"/>',
+    '🌳':'<path d="M12 21v-6M8 21h8"/><path d="M12 3 7 9h3l-4 5h12l-4-5h3Z"/>',
+    '🏭':'<path d="M3 21V9l6 3V8l6 4V5h6v16Z"/><path d="M7 17h2m3 0h2m3 0h2M17 8h2"/>',
+    '🏪':'<path d="M4 10v11h16V10M3 10l2-6h14l2 6"/><path d="M3 10c0 2 4 2 4 0 0 2 5 2 5 0 0 2 5 2 5 0 0 2 4 2 4 0M9 21v-6h6v6"/>',
+    '🌿':'<path d="M5 20c0-9 5-14 15-16-1 10-6 15-15 16Z"/><path d="M5 20 16 9"/>',
+    '🏡':'<path d="m3 11 9-8 9 8v10H3Z"/><path d="M9 21v-7h6v7M3 11h18"/>',
+    '🍑':'<path d="M12 7c-6-4-10 2-7 9 2 5 10 7 14 1 4-7-2-13-7-10Z"/><path d="M12 7c0-3 2-4 5-4M12 7c-2 2-2 6 0 10"/>',
+    '🍒':'<path d="M8 13c-5-2-7 5-3 8 4 2 7-2 5-6M16 13c5-2 7 5 3 8-4 2-7-2-5-6"/><path d="M10 15 12 4l5-2M12 4c-2-2-4-2-6-1"/>',
+    '🍐':'<path d="M12 5c-1 3-5 5-6 10-1 5 3 7 6 7s7-2 6-7c-1-5-5-7-6-10Z"/><path d="M12 5c0-2 2-3 4-3"/>',
+    '🍊':'<circle cx="12" cy="13" r="8"/><path d="M12 5c0-2 2-3 4-3M12 5v2"/>',
+    '🥭':'<path d="M7 5c7-4 13 2 11 9-2 7-9 9-14 4-4-4-2-10 3-13Z"/><path d="M8 5c-1-2 0-3 2-4"/>',
+    '⭐':'<path d="m12 2 3 7 7 1-5 5 1 7-6-4-6 4 1-7-5-5 7-1Z"/>',
+    '✨':'<path d="m12 2 1.5 6.5L20 11l-6.5 1.5L12 19l-1.5-6.5L4 11l6.5-2.5Z"/><path d="m19 16 .8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8Z"/>',
+    '🏰':'<path d="M4 21V5h4v3h3V5h4v3h3V5h2v16Z"/><path d="M8 21v-6h3v6m4 0v-6h3v6M2 5h4m12 0h4"/>',
+    '⬆️':'<path d="M12 20V4m-7 7 7-7 7 7"/>',
+    '🏭':'<path d="M3 21V9l6 3V8l6 4V5h6v16Z"/>'
+  };
+  const keys=Object.keys(icons).sort((a,b)=>b.length-a.length);
+  const pattern=new RegExp(keys.map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\</body>')).join('|'),'gu');
+  function convert(root){
+    if(!root||!root.ownerDocument)return;
+    const doc=root.ownerDocument,walker=doc.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+    const nodes=[];while(walker.nextNode())if(pattern.test(walker.currentNode.nodeValue)){nodes.push(walker.currentNode);pattern.lastIndex=0;}
+    for(const node of nodes){
+      if(!node.parentNode||node.parentNode.closest?.('.gw-icon'))continue;
+      const value=node.nodeValue,fragment=doc.createDocumentFragment();let last=0,m;
+      pattern.lastIndex=0;
+      while((m=pattern.exec(value))){
+        if(m.index>last)fragment.appendChild(doc.createTextNode(value.slice(last,m.index)));
+        const span=doc.createElement('span');span.className='gw-icon';span.setAttribute('aria-hidden','true');
+        span.innerHTML='<svg viewBox="0 0 24 24">'+icons[m[0]]+'</svg>';fragment.appendChild(span);last=m.index+m[0].length;
+      }
+      if(last<value.length)fragment.appendChild(doc.createTextNode(value.slice(last)));
+      node.parentNode.replaceChild(fragment,node);
+    }
+  }
+  function start(){
+    convert(document.body);
+    const observer=new MutationObserver(records=>records.forEach(record=>{
+      record.addedNodes.forEach(node=>{if(node.nodeType===Node.TEXT_NODE){const p=node.parentNode;if(p&&p.isConnected)convert(p);}else if(node.nodeType===Node.ELEMENT_NODE&&!node.classList.contains('gw-icon'))convert(node);});
+    }));
+    observer.observe(document.body,{childList:true,subtree:true,characterData:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
 </script>
 </body>
 </html>
