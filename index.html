@@ -94,7 +94,7 @@ let plots=[],treeObjects=[],buildingObjects=[];
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,78,175);
 const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,.1,320);
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio,1.85));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.18;renderer.useLegacyLights=false;
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.18;renderer.useLegacyLights=false;
 scene.add(new THREE.HemisphereLight(0xeaf7ff,0x526b3d,2.25));
 scene.add(new THREE.AmbientLight(0xffffff,.28));
 const sun=new THREE.DirectionalLight(0xfff1d9,3.35);sun.position.set(-28,42,24);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-30;sun.shadow.camera.right=30;sun.shadow.camera.top=30;sun.shadow.camera.bottom=-30;sun.shadow.bias=-0.00012;sun.shadow.normalBias=.018;sun.shadow.radius=3;scene.add(sun);
@@ -329,12 +329,12 @@ function makeHouse(){
  return g;
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
-function makeTree(x,z,kind='apple'){
+function makeTree(x,z,kind='apple',mature=false){
  const g=group(world,x,0,z);cylinder(g,.17,.25,1.5,0,.75,0,M.trunk,8);
  const colors={apple:0x438b42,peach:0x6e9c45,cherry:0x367b4a,pear:0x679947,orange:0x4b8a3d,mango:0x398044};
  sphere(g,.9,0,1.8,0,mat(colors[kind]||0x438b42),1.05);sphere(g,.65,.55,2.05,.12,M.leaf2);sphere(g,.62,-.55,2.03,-.1,M.leaf);
- const fruit=kind==='apple'?0xd94335:kind==='peach'?0xf0a06a:kind==='cherry'?0xb32239:kind==='pear'?0xb3c84b:kind==='orange'?0xe88c27:0xe8b23c;
- for(let i=0;i<5;i++){const a=i*Math.PI*2/5;sphere(g,.12,Math.cos(a)*.68,1.8+(i%2)*.35,Math.sin(a)*.68,mat(fruit),1)}
+ const fruit=mature?(kind==='apple'?0xd94335:kind==='peach'?0xf0a06a:kind==='cherry'?0xb32239:kind==='pear'?0xb3c84b:kind==='orange'?0xe88c27:0xe8b23c):0x79a94a;
+ for(let i=0;i<5;i++){const a=i*Math.PI*2/5;sphere(g,mature?.13:.075,Math.cos(a)*.68,1.8+(i%2)*.35,Math.sin(a)*.68,mat(fruit),1)}
  return g;
 }
 function makeMarket(level=1){
@@ -890,8 +890,10 @@ for(let x=0;x<20;x++)for(let z=0;z<20;z++){
 function clearDynamic(){for(const t of treeObjects)world.remove(t);treeObjects=[];for(const b of buildingObjects)world.remove(b);buildingObjects=[]}
 function unlocked(i){const level=Math.max(1,Number(player?.landLevel)||1),side=[0,6,10,14,18,20][level],start=Math.floor((20-side)/2),x=Math.floor(i/20),z=i%20;return x>=start&&x<start+side&&z>=start&&z<start+side}
 function drawPlayer(){if(!player)return;clearDynamic();const map=new Map((player.plots||[]).map(p=>[p.index,p]));
- // Trees are temporarily hidden from the 3D scene as requested; plot data and server mechanics are preserved.
+ // Render every planted fruit tree on its matching plot; ripe trees show full-colour fruit.
+ for(const p of player.plots||[]){const x=(Math.floor(p.index/20)-9.5)*1.45,z=(p.index%20-9.5)*1.45;const tree=makeTree(x,z,p.type||'apple',!!p.grown);tree.scale.setScalar(.72);treeObjects.push(tree)}
  buildingObjects.push(makeMarket(player.marketLevel||1));buildingObjects.push(makeFactory(player.factoryLevel||1));
+ if(player.hasGreenhouse)buildingObjects.push(makeGreenhouse(player.greenhouseLevel||1));
  for(let i=0;i<400;i++){const p=map.get(i);tiles[i].material=p?(p.grown?mat(0x8fbd55):mat(0x719a49)):((Math.floor(i/20)+i%20)%2?M.grass:M.grass2);tiles[i].material.needsUpdate=true}
  updateHud();
 }
