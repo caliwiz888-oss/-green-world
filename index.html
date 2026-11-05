@@ -921,8 +921,10 @@ waterfallCliff.add(cliff);
 // Горизонтальные пласты скалы и выступы вокруг падающей воды.
 const cliffStrata=[0x8b9180,0x666f65,0x9b9b87,0x747d70];
 for(let i=0;i<4;i++){
-  const ledge=new THREE.Mesh(new THREE.BoxGeometry(5.72,0.16,3.35),material(cliffStrata[i]));
-  ledge.position.set(0,0.55+i*1.28,0.02);ledge.castShadow=true;ledge.receiveShadow=true;waterfallCliff.add(ledge);
+  for(const side of [-1,1]){
+    const ledge=new THREE.Mesh(new THREE.BoxGeometry(1.48,0.16,3.35),material(cliffStrata[i]));
+    ledge.position.set(side*2.02,0.55+i*1.28,0.02);ledge.castShadow=true;ledge.receiveShadow=true;waterfallCliff.add(ledge);
+  }
 }
 for(let side of [-1,1]){
   for(let i=0;i<5;i++){
