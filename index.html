@@ -1073,12 +1073,12 @@ function makeHouse(){
    }
  }
   // Круглое слуховое окно в центре фронтона: каменный обод, латунное кольцо и тонкие переплёты.
-  const atticGlass=new THREE.Mesh(new THREE.CircleGeometry(.255,24),windowInterior);
-  atticGlass.position.set(-.25,6.34,4.34);g.add(atticGlass);
-  const atticRing=new THREE.Mesh(new THREE.TorusGeometry(.31,.055,8,32),M.stone2);
-  atticRing.position.set(-.25,6.34,4.35);g.add(atticRing);
-  const atticBrass=new THREE.Mesh(new THREE.TorusGeometry(.235,.018,6,32),M.gold);
-  atticBrass.position.set(-.25,6.34,4.365);g.add(atticBrass);
+  const atticGlassUpper=new THREE.Mesh(new THREE.CircleGeometry(.255,24),windowInterior);
+  atticGlassUpper.position.set(-.25,6.34,4.34);g.add(atticGlassUpper);
+  const atticRingUpper=new THREE.Mesh(new THREE.TorusGeometry(.31,.055,8,32),M.stone2);
+  atticRingUpper.position.set(-.25,6.34,4.35);g.add(atticRingUpper);
+  const atticBrassUpper=new THREE.Mesh(new THREE.TorusGeometry(.235,.018,6,32),M.gold);
+  atticBrassUpper.position.set(-.25,6.34,4.365);g.add(atticBrassUpper);
   box(g,.045,.46,.045,-.25,6.34,4.38,M.gold,false);
   box(g,.44,.045,.045,-.25,6.34,4.38,M.gold,false);
   // Веер из отдельных каменных клиньев обрамляет круглое слуховое окно фронтона.
