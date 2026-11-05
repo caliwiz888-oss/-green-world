@@ -227,7 +227,7 @@ scene.add(new THREE.HemisphereLight(0xeaf7ff,0x45633a,1.35));
 const sun = new THREE.DirectionalLight(0xfff2d8,3.0);
 sun.position.set(18,34,12);
 sun.castShadow=true;
-sun.shadow.mapSize.set(window.isTouchDevice?1024:2048,isTouchDevice?1024:2048);
+sun.shadow.mapSize.set(window.isTouchDevice?1024:2048,window.isTouchDevice?1024:2048);
 sun.shadow.camera.left=-35;
 sun.shadow.camera.right=35;
 sun.shadow.camera.top=35;
