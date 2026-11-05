@@ -409,6 +409,23 @@ function makeMarket(level=1){
  // Timber-framed storefront and broad display windows.
  box(g,5.1,2.45,.18,0,1.42,2.22,M.wood);
  box(g,3.65,1.25,.12,0,1.65,2.34,M.glass);
+ // A softly illuminated interior display gives the shop windows depth and a lived-in feel.
+ const shopGlow=new THREE.MeshStandardMaterial({color:0xe8b96f,emissive:0x8a4b18,emissiveIntensity:.24,roughness:.72});
+ const displayWood=mat(0x80502f,.78);
+ box(g,3.38,.96,.035,0,1.65,2.255,shopGlow,false);
+ for(const y of [1.22,1.82]){
+   box(g,3.18,.075,.24,0,y,2.29,displayWood,false);
+   box(g,3.22,.035,.25,0,y+.055,2.29,M.gold,false);
+ }
+ const displayGoods=[
+   [-1.22,1.43,0xc94d39],[-.72,1.43,0xe6a64d],[-.22,1.43,0x78a94d],
+   [.42,2.02,0xd18b42],[.96,2.02,0xb94a38],[1.42,2.02,0x83a94c]
+ ];
+ for(const [x,y,color] of displayGoods){
+   cylinder(g,.105,.12,.24,x,y,2.31,mat(color,.42),10);
+   cylinder(g,.11,.11,.045,x,y+.14,2.31,M.gold,10);
+   sphere(g,.055,x,y+.18,2.31,mat(0xead9ad,.5),.55);
+ }
  for(const x of [-2.35,-1.25,0,1.25,2.35])box(g,.13,2.5,.22,x,1.42,2.4,M.gold);
  box(g,1.1,2.25,.22,0,1.35,2.48,M.wood);
  box(g,.12,2.0,.24,-.38,1.35,2.62,M.gold,false);
