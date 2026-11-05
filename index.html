@@ -2191,7 +2191,31 @@ function unlocked(i){const level=Math.max(1,Number(player?.landLevel)||1),side=[
 function drawPlayer(){if(!player)return;clearDynamic();const map=new Map((player.plots||[]).map(p=>[p.index,p]));
  // Render every planted fruit tree on its matching plot; ripe trees show full-colour fruit.
  for(const p of player.plots||[]){const x=(Math.floor(p.index/20)-9.5)*1.45,z=(p.index%20-9.5)*1.45;const tree=makeTree(x,z,p.type||'apple',!!p.grown);tree.scale.setScalar(.72);treeObjects.push(tree)}
- buildingObjects.push(makeHouse());buildingObjects.push(makeMarket(player.marketLevel||1));buildingObjects.push(makeFactory(player.factoryLevel||1));
+ buildingObjects.push(makeHouse());
+ buildingObjects.push(makeMarket(player.marketLevel||1));
+ // Build the factory independently: a failure in one decorative detail must never remove it from the 3D world.
+ const factoryChildrenBefore=new Set(world.children);
+ let factory=null;
+ try{factory=makeFactory(player.factoryLevel||1)}catch(factoryError){
+   console.error('[render] Detailed factory construction failed; using safe factory model:',factoryError);
+   for(const child of [...world.children])if(!factoryChildrenBefore.has(child))world.remove(child);
+ }
+ if(!factory){
+   factory=group(world,7.8,0,-9.5);
+   const fallbackBrick=mat(0x985b43),fallbackStone=mat(0xb5a58b),fallbackRoof=mat(0x39474a);
+   box(factory,7.25,3.35,5.25,0,1.85,0,fallbackBrick);
+   box(factory,7.55,.24,5.5,0,3.62,0,fallbackStone);
+   const roofLeft=box(factory,3.95,.28,5.8,-1.45,4.48,0,fallbackRoof);roofLeft.rotation.z=.34;
+   const roofRight=box(factory,3.95,.28,5.8,1.45,4.48,0,fallbackRoof);roofRight.rotation.z=-.34;
+   box(factory,1.45,3.2,1.35,2.55,5.15,-1.35,fallbackBrick);
+   box(factory,1.65,.22,1.55,2.55,6.82,-1.35,fallbackStone);
+   box(factory,2.15,2.35,.18,0,1.48,2.72,fallbackStone);
+   box(factory,1.78,2.05,.1,0,1.42,2.86,fallbackRoof);
+ }
+ factory.visible=true;
+ factory.traverse(object=>{object.visible=true;if(object.isMesh)object.frustumCulled=false});
+ factory.updateMatrixWorld(true);
+ buildingObjects.push(factory);
  for(let i=0;i<400;i++){const p=map.get(i);tiles[i].material=p?(p.grown?mat(0x8fbd55):mat(0x719a49)):((Math.floor(i/20)+i%20)%2?M.grass:M.grass2);tiles[i].material.needsUpdate=true}
  updateHud();
 }
