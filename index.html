@@ -87,6 +87,50 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 </div></div>
 <script>window.GREEN_WORLD_API_URL='https://green-world-api-mx3v.onrender.com';</script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+/* Telegram sign-in must not depend on the Three.js module loading successfully. */
+(()=>{
+ const button=document.getElementById('retry-login');
+ const error=document.getElementById('login-error');
+ const api=window.GREEN_WORLD_API_URL;
+ let connecting=false;
+ async function connectTelegram(){
+  if(connecting)return;
+  connecting=true;
+  button.disabled=true;
+  button.textContent='ПОДКЛЮЧЕНИЕ…';
+  error.textContent='Проверяем подключение Telegram…';
+  try{
+   const tg=window.Telegram&&window.Telegram.WebApp;
+   const initData=tg&&tg.initData||'';
+   if(!initData)throw new Error('Telegram не передал данные запуска. Открой игру через кнопку Mini App в меню бота.');
+   tg.ready();
+   tg.expand();
+   const response=await fetch(api+'/api/auth/telegram',{
+    method:'POST',credentials:'include',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({initData})
+   });
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(data.error||'Ошибка сервера '+response.status);
+   window.GREEN_WORLD_AUTH_RESULT=data;
+   window.dispatchEvent(new CustomEvent('green-world-auth',{detail:data}));
+   error.textContent='Аккаунт подключён. Загружаем хозяйство…';
+  }catch(e){
+   error.textContent=e&&e.message?e.message:'Не удалось подключиться. Попробуй ещё раз.';
+  }finally{
+   connecting=false;
+   button.disabled=false;
+   button.textContent='ПОДКЛЮЧИТЬ TELEGRAM';
+  }
+ }
+ button.addEventListener('click',connectTelegram);
+ window.addEventListener('green-world-auth',()=>{
+  document.getElementById('login').style.display='none';
+ });
+ connectTelegram();
+})();
+</script>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
 
@@ -2626,7 +2670,18 @@ renderer.domElement.addEventListener('pointercancel',()=>pointer=null);
 
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
 cameraPosition();function animate(){requestAnimationFrame(animate);renderer.render(scene,camera)}animate();
-$('retry-login').onclick=login;login();
+window.addEventListener('green-world-auth',event=>{
+ const data=event.detail||window.GREEN_WORLD_AUTH_RESULT;
+ if(!data||!data.accessToken||!data.player)return;
+ token=data.accessToken;
+ applyPlayer(data.player);
+ loadDaily();
+});
+if(window.GREEN_WORLD_AUTH_RESULT){
+ token=window.GREEN_WORLD_AUTH_RESULT.accessToken;
+ applyPlayer(window.GREEN_WORLD_AUTH_RESULT.player);
+ loadDaily();
+}
 </script>
 </body>
 </html>
