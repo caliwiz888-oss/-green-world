@@ -2293,6 +2293,16 @@ function makeWorldLandscape(){
    const contour=new THREE.Mesh(new THREE.SphereGeometry(1,20,10),material);
    contour.position.set(x,y,z);contour.scale.set(sx,sy,sz);world.add(contour);
  }
+ // Restrained sunlit grass facets give the distant foothills a less uniform natural surface.
+ const hillSunMat=mat(0x9ab47a),hillShadeMat=mat(0x5f815d);
+ for(const [x,y,z,sx,sy,sz,material] of [
+   [-25,1.35,-21,3.2,.16,.72,hillSunMat],[-14,1.65,-25,3.7,.14,.68,hillShadeMat],
+   [0,1.5,-26,4.2,.15,.76,hillSunMat],[14,1.55,-24,3.4,.14,.7,hillShadeMat],
+   [25,1.2,-20,2.8,.13,.62,hillSunMat]
+ ]){
+   const facet=new THREE.Mesh(new THREE.SphereGeometry(1,16,8),material);
+   facet.position.set(x,y,z);facet.scale.set(sx,sy,sz);world.add(facet);
+ }
  // Layered alpine range: overlapping faceted peaks create a varied skyline and visible depth.
  const peaks=[[-23,-31,14,7.8],[-13,-36,18,9.4],[-2,-39,21,10.2],[10,-36,18,9.2],[22,-31,14,7.5]];
  for(let i=0;i<peaks.length;i++){
