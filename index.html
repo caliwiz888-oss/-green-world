@@ -2268,6 +2268,12 @@ function makeWorldLandscape(){
    const cloud=new THREE.Mesh(new THREE.SphereGeometry(1,18,10),cloudMat);
    cloud.position.set(x,y,z);cloud.scale.set(sx,sy,sz);world.add(cloud);
  }
+ // Fine high-altitude cirrus wisps add depth to the sky while staying translucent.
+ const cirrusMat=new THREE.MeshBasicMaterial({color:0xf4f7f2,transparent:true,opacity:.085,depthWrite:false,fog:false});
+ for(const [x,y,z,sx,sy,sz,rz] of [[-27,29,-53,8,.16,.62,-.08],[-8,31,-61,10,.13,.48,.035],[12,28,-57,7,.14,.55,-.045],[29,26,-49,6,.12,.42,.07]]){
+   const wisp=new THREE.Mesh(new THREE.SphereGeometry(1,20,8),cirrusMat);
+   wisp.position.set(x,y,z);wisp.scale.set(sx,sy,sz);wisp.rotation.z=rz;world.add(wisp);
+ }
  const hillMat=mat(0x668f58),hillLight=mat(0x82a968),mountain=mat(0x71877b),snow=mat(0xe5eee5),water=new THREE.MeshPhysicalMaterial({color:0x4aa9c5,roughness:.2,metalness:.08,transparent:true,opacity:.82});
  // Layered green foothills and distant mountain silhouettes beyond the playable fence.
  for(const [x,z,sx,sy,sz,m] of [
