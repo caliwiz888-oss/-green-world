@@ -2026,6 +2026,19 @@ function createGreenhouse(level=greenhouseLevel){
   }
   const ridge=new THREE.Mesh(new THREE.BoxGeometry(0.16,0.18,depth+0.28),frameMat);
   ridge.position.set(0,height+1.38,0);house.add(ridge);
+  // Продольные рёбра крыши и поперечные фермы визуально делят стекло на секции.
+  for(const side of [-1,1]){
+    const roofEdge=new THREE.Mesh(new THREE.BoxGeometry(0.13,0.14,depth+0.3),frameMat);
+    roofEdge.position.set(side*(width/2+0.02),height+0.12,0);
+    roofEdge.rotation.z=side*-roofAngle;house.add(roofEdge);
+    for(let i=0;i<=6;i++){
+      const z=-depth/2+depth*i/6;
+      const cross=new THREE.Mesh(new THREE.BoxGeometry(width+0.08,0.07,0.07),railMat);
+      cross.position.set(0,height+0.42,z);house.add(cross);
+    }
+  }
+  const greenhouseCap=new THREE.Mesh(new THREE.BoxGeometry(width+0.18,0.12,0.18),material(0xf0e8d4));
+  greenhouseCap.position.set(0,height+1.4,0);house.add(greenhouseCap);
   // Частые стойки и форточки подчёркивают стеклянные секции теплицы.
   for(let i=1;i<5;i++){
     const x=-width/2+width*i/5;
@@ -2135,7 +2148,28 @@ function createFactory(){
   const brick=material(0xb85c43), trim=material(0xe7d6b7), roofMat=material(0x46515a), metal=material(0x697982), glass=new THREE.MeshStandardMaterial({color:0x8ed5e5,metalness:0.25,roughness:0.18,emissive:0x15333b});
   // Основной производственный корпус и высокий двускатный силуэт.
   addBox(factory,6.2,3.4,4.6,brick,0,1.7,0);
-  const roof=new THREE.Mesh(new THREE.ConeGeometry(4.4,2.5,4),roofMat);roof.position.set(0,4.65,0);roof.rotation.y=Math.PI/4;factory.add(roof);
+  // Полноценная двускатная заводская кровля с коньком и торцевыми фронтонами.
+  const roofAngle=Math.atan2(1.45,2.45);
+  for(const side of [-1,1]){
+    const roofPanel=new THREE.Mesh(new THREE.BoxGeometry(6.75,0.2,2.75),roofMat);
+    roofPanel.position.set(0,4.38,side*1.12);
+    roofPanel.rotation.x=side*-roofAngle;
+    roofPanel.castShadow=true;roofPanel.receiveShadow=true;factory.add(roofPanel);
+    const eave=new THREE.Mesh(new THREE.BoxGeometry(6.95,0.18,0.16),metal);
+    eave.position.set(0,3.68,side*2.32);eave.rotation.x=side*-roofAngle;factory.add(eave);
+  }
+  const roofRidge=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,6.95,10),metal);
+  roofRidge.rotation.z=Math.PI/2;roofRidge.position.set(0,5.13,0);factory.add(roofRidge);
+  for(const z of [-2.31,2.31]){
+    const gableShape=new THREE.Shape();gableShape.moveTo(-3.12,0);gableShape.lineTo(3.12,0);gableShape.lineTo(0,1.48);gableShape.closePath();
+    const gable=new THREE.Mesh(new THREE.ShapeGeometry(gableShape),brick);
+    gable.position.set(0,3.4,z);factory.add(gable);
+    const trimGable=new THREE.Mesh(new THREE.BufferGeometry(),trim);
+    const edgePts=[new THREE.Vector3(-3.15,3.42,z+0.025),new THREE.Vector3(0,4.9,z+0.025),new THREE.Vector3(3.15,3.42,z+0.025)];
+    const edgeGeo=new THREE.BufferGeometry().setFromPoints(edgePts);
+    const edgeLine=new THREE.Line(edgeGeo,new THREE.LineBasicMaterial({color:0xe7d6b7}));
+    factory.add(edgeLine);
+  }
   // Светлая обвязка фасада и крупные заводские ворота.
   addBox(factory,2.0,2.35,0.16,trim,0,1.18,2.38);
   addBox(factory,1.72,2.05,0.08,material(0x70452f),0,1.08,2.49);
@@ -2226,9 +2260,12 @@ function createFactory(){
     const beam=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.16,4.45),darkMetal);
     beam.position.set(x,3.58,0);factory.add(beam);
   }
-  for(let z=-1.8;z<=1.81;z+=0.6){
-    const rib=new THREE.Mesh(new THREE.BoxGeometry(6.1,0.08,0.09),metal);
-    rib.position.set(0,5.18,z);factory.add(rib);
+  for(const side of [-1,1]){
+    for(let i=0;i<7;i++){
+      const x=-2.85+i*0.95;
+      const rib=new THREE.Mesh(new THREE.BoxGeometry(0.075,0.09,2.55),metal);
+      rib.position.set(x,4.35,side*1.1);rib.rotation.x=side*-roofAngle;factory.add(rib);
+    }
   }
   // Загрузочная рампа и металлические направляющие перед воротами.
   const ramp=new THREE.Mesh(new THREE.BoxGeometry(3.1,0.22,1.15),factoryStone);
