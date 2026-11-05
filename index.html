@@ -123,6 +123,25 @@ function makeSurfaceTexture(kind,seed){
   image.data[i]=v;image.data[i+1]=v;image.data[i+2]=v;image.data[i+3]=255;
  }
  ctx.putImageData(image,0,0);
+ // Мягкие травяные штрихи и редкие пятна придают газону естественную фактуру без визуального мусора.
+ if(kind==='grass'){
+  for(let i=0;i<1450;i++){
+   const x=rand()*size,y=rand()*size,len=2+rand()*7,tone=rand()>.5?154:92;
+   ctx.strokeStyle='rgba('+tone+','+tone+','+tone+','+(.12+rand()*.16)+')';
+   ctx.lineWidth=.6+rand()*.65;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+(rand()-.5)*2,y-len);ctx.stroke();
+  }
+  for(let i=0;i<42;i++){
+   const x=rand()*size,y=rand()*size,r=2+rand()*5;
+   ctx.fillStyle='rgba(125,125,125,.12)';ctx.beginPath();ctx.ellipse(x,y,r,r*.55,rand()*Math.PI,0,Math.PI*2);ctx.fill();
+  }
+ }
+ if(kind==='soil'){
+  for(let i=0;i<620;i++){
+   const x=rand()*size,y=rand()*size,r=.5+rand()*1.8,tone=rand()>.5?125:75;
+   ctx.fillStyle='rgba('+tone+','+tone+','+tone+','+(.12+rand()*.18)+')';
+   ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+  }
+ }
  const texture=new THREE.CanvasTexture(canvas);
  texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
  texture.repeat.set(kind==='wood'?2:3,kind==='wood'?2:3);
