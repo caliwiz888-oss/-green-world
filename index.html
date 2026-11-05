@@ -1575,6 +1575,20 @@ function makeFactory(level=1){
  const pediment=new THREE.Mesh(new THREE.ShapeGeometry(pedimentShape),M.stone2);
  pediment.position.set(0,0,2.94);pediment.castShadow=true;g.add(pediment);
  box(g,.12,.12,.08,0,3.68,3.04,M.gold,false);
+ // Фирменный промышленный медальон над воротами: латунная шестерня и зелёный центр.
+ const factoryCrest=cylinder(g,.27,.27,.075,0,3.91,3.055,M.gold,24);
+ factoryCrest.rotation.x=Math.PI/2;
+ const factoryCrestFace=cylinder(g,.205,.205,.085,0,3.91,3.105,mat(0x315b3d,.48),24);
+ factoryCrestFace.rotation.x=Math.PI/2;
+ for(let tooth=0;tooth<8;tooth++){
+   const angle=tooth*Math.PI/4;
+   const tab=box(g,.075,.11,.045,Math.cos(angle)*.275,3.91+Math.sin(angle)*.275,3.115,M.gold,false);
+   tab.rotation.z=angle;
+ }
+ const factoryLeaf=box(g,.075,.19,.035,0,3.93,3.16,mat(0x9ab86a,.52),false);
+ factoryLeaf.rotation.z=-.38;
+ const factoryStem=box(g,.035,.14,.035,0,3.86,3.17,M.gold,false);
+ factoryStem.rotation.z=.32;
  // Deep stone sills and top caps give the front windows a stronger architectural frame.
  for(const x of [-2.35,2.35]){
    box(g,1.28,.16,.32,x,1.91,2.98,M.stone2);
