@@ -1169,6 +1169,17 @@ function makeFactory(level=1){
      }
    }
  }
+ // Фасадные водосточные трубы с хомутами и нижними отводами завершают заводской карниз.
+ for(const x of [-3.22,3.22]){
+   box(g,.14,3.12,.14,x,2.12,2.91,darkMetal,false);
+   for(const y of [.82,1.72,2.62,3.52]){
+     box(g,.28,.12,.2,x,y,2.94,metal,false);
+     sphere(g,.035,x-.1,y,3.055,M.gold,.8);
+     sphere(g,.035,x+.1,y,3.055,M.gold,.8);
+   }
+   box(g,.16,.16,.42,x,.55,3.04,metal,false);
+   box(g,.22,.12,.2,x,.38,3.12,M.stone2,false);
+ }
  // Three recessed service vents on the quieter left wall, with fine metal grilles.
  for(const z of [-1.55,0,1.55]){
    box(g,.1,.92,.72,-3.7,2.28,z,darkMetal,false);
