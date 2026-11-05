@@ -414,6 +414,23 @@ function makeHouse(){
  const porchLeft=box(g,1.95,.16,1.55,-.78,3.22,4.93,porchRoof);porchLeft.rotation.z=.24;
  const porchRight=box(g,1.95,.16,1.55,.78,3.22,4.93,porchRoof);porchRight.rotation.z=-.24;
  box(g,3.58,.12,.18,0,3.04,5.68,M.gold,false);
+ // Парадный портик: три утопленные панели на нижней стороне навеса с тонкой латунной окантовкой.
+ for(const x of [-.92,0,.92]){
+   box(g,.72,.035,.72,x,2.835,4.96,M.wood2,false);
+   for(const dx of [-.39,.39]){
+     box(g,.035,.025,.78,x+dx,2.86,4.96,M.gold,false);
+   }
+   for(const z of [-.39,.39]){
+     box(g,.78,.025,.035,x,2.86,4.96+z,M.gold,false);
+   }
+   box(g,.42,.025,.035,x,2.865,4.96,M.stone2,false);
+ }
+ // Каменные консоли под внешними краями навеса подчёркивают опору портика.
+ for(const x of [-1.28,1.28]){
+   const corbel=box(g,.18,.42,.2,x,2.78,5.42,M.stone2,false);
+   corbel.rotation.x=x<0?-.28:.28;
+   box(g,.28,.08,.24,x,2.98,5.42,M.gold,false);
+ }
  // Каменные обрамления входа и симметричные настенные фонари на фасаде.
  box(g,2.05,.18,.3,0,2.82,4.25,M.stone2);
  for(const x of [-2.15,2.15]){
