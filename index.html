@@ -731,7 +731,7 @@ function makeHouse(){
  }
  // Layered eaves: slim brass fascia lines, carved brackets and stone end returns.
  for(const x of [-3.45,3.45]){
-   box(g,.055,.075,8.72,x+(x<0?-.13:.13),4.69,0,M.gold,false);
+   box(g,.055,.075,8.72,x+(x<0?-.17:.17),4.69,0,M.gold,false);
    for(const z of [-3.75,-2.5,-1.25,0,1.25,2.5,3.75]){
      const bracket=box(g,.18,.34,.22,x,4.43,z,houseStoneTrim,false);
      bracket.rotation.z=x<0?-.18:.18;
@@ -2068,13 +2068,7 @@ function makeFactory(level=1){
  }
  box(g,2.38,.18,1.92,2.55,7.28,-1.45,metal);
  box(g,1.52,.14,1.5,2.55,7.43,-1.45,M.gold,false);
- // Repeated roof standing seams follow the two existing slopes.
- for(const [x,angle] of [[-1.48,.34],[1.48,-.34]]){
-   const seamGroup=group(g,x,4.72,0);seamGroup.rotation.z=angle;
-   for(const z of [-2.45,-1.65,-.85,0,.85,1.65,2.45]){
-     box(seamGroup,3.55,.045,.045,0,.19,z,metal,false);
-   }
- }
+  // Повторные продольные швы удалены: они накладывались на швы отдельных кровельных панелей.
  // Rear elevation: framed industrial windows, lintels and a continuous masonry belt.
  for(const x of [-2.45,0,2.45]){
    box(g,1.18,1.02,.14,x,2.55,-2.76,darkMetal);
