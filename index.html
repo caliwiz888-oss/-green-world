@@ -2363,6 +2363,16 @@ function makeWorldLandscape(){
    const lip=new THREE.Mesh(new THREE.SphereGeometry(1,14,8),snowLipMat);
    lip.position.set(x,y,z);lip.scale.set(sx,.085,sz);world.add(lip);
  }
+ // Small cool-toned snow facets break the broad summit caps into natural irregular planes.
+ const summitShadeMat=mat(0xd0dfda),summitLightMat=mat(0xf0f4ec);
+ for(const [x,y,z,sx,sy,sz,material,rz] of [
+   [-22,10.9,-30.55,1.65,.13,.48,summitShadeMat,-.16],[-12,13.15,-35.55,1.9,.14,.52,summitLightMat,.12],
+   [-1,14.2,-38.55,2.1,.15,.56,summitShadeMat,-.1],[11,12.85,-35.55,1.85,.13,.5,summitLightMat,.14],
+   [22,10.25,-30.55,1.5,.12,.44,summitShadeMat,-.13]
+ ]){
+   const facet=new THREE.Mesh(new THREE.SphereGeometry(1,14,8),material);
+   facet.position.set(x,y,z);facet.scale.set(sx,sy,sz);facet.rotation.z=rz;world.add(facet);
+ }
  // A low, blue-green ridge in front of the peaks gives the mountain range atmospheric depth.
  for(const [x,z,sx,sy,sz] of [[-19,-25,8,5,4],[0,-27,11,6,4.8],[19,-24,8,4.8,4]]){
    const ridge=sphere(world,1,x,sy*.36,z,mat(0x78977f),1);
