@@ -55,11 +55,10 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
 <div id="game-menu">
   <div id="menu-card">
     <h2>🏡 Ферма GREEN WORLD</h2>
-    <div class="menu-row"><span id="seed-label">🌰 Семена яблони</span><strong id="seed-count">5</strong></div>
     <div class="menu-row"><span>🍎 Яблоки на складе</span><strong id="apple-count">0</strong></div>
     <div class="menu-row"><span>🍑 Другие фрукты</span><strong id="fruit-count">0</strong></div>
     <div id="fruit-inventory" style="font-size:13px;color:#e4f5df;padding:4px 0 10px">Персик · Черешня · Груша · Апельсин · Манго</div>
-    <label for="tree-type" style="display:block;margin:8px 0 4px;color:#e5f5df">Выбери саженец</label>
+    <label for="tree-type" style="display:block;margin:8px 0 4px;color:#e5f5df">Выбери дерево для покупки</label>
     <select id="tree-type" style="width:100%;padding:11px;border-radius:10px;background:#234b32;color:white;border:1px solid #9dc99e">
       <option value="apple">🍎 Яблоня — 100 GC</option>
       <option value="peach">🍑 Персик — 300 GC</option>
@@ -80,7 +79,6 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
     <div style="font-size:12px;color:#d7f5d9;padding:8px 0" id="daily-reward-info">Заходи каждый день и получай Green Coin. Награда 7-го дня — 100 GC.</div>
     <button id="claim-daily-reward" style="width:100%;margin:8px 0">🎁 Забрать ежедневную награду</button>
     <div class="menu-actions">
-      <button id="buy-seeds">🌰 Купить 5 семян · 30 GC</button>
       <button id="build-warehouse">🏚️ Построить амбар · 80 GC</button>
       <button id="upgrade-warehouse">📦 Улучшить амбар · 300 GC</button>
       <button id="upgrade-orchard">🌳 Улучшить сад · 150 GC</button>
@@ -98,7 +96,7 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
 </div>
 <div id="hint">Выбери участок на поле, чтобы посадить яблоню</div>
 <div id="actions">
-  <button onclick="plant()">🌱 Посадить</button>
+  <button id="plant-button" onclick="plant()">🌳 Купить и посадить дерево</button>
   <button onclick="water()">💧 Полить</button>
   <button onclick="harvestAll()">🌳 Собрать всё</button>
   <button onclick="sell()">🛒 Продать</button>
@@ -730,9 +728,7 @@ function update(){
   document.getElementById('coins').textContent=coins;
   document.getElementById('apples').textContent=apples;
   const selectedSpec=fruitCatalog[selectedTreeType]||fruitCatalog.apple;
-  document.getElementById('seed-label').textContent='🌰 Семена: '+selectedSpec.label;
-  document.getElementById('seed-count').textContent=seedCount(selectedTreeType);
-  document.getElementById('buy-seeds').textContent='🌰 Купить 5 семян '+selectedSpec.label+' · 30 GC';
+  document.getElementById('plant-button').textContent='🌳 Купить и посадить '+selectedSpec.label+' · '+selectedSpec.cost+' GC';
   document.getElementById('apple-count').textContent=apples+' ябл.';
   document.getElementById('fruit-count').textContent=fruitStored()+' шт.';
   const fruitRows=Object.entries(fruitInventory).filter(([,n])=>Number(n)>0).map(([type,n])=>(fruitCatalog[type]?.fruit||'🍇')+' '+(fruitCatalog[type]?.label||type)+': '+n);
@@ -1027,10 +1023,8 @@ window.plant=async function(){
   if(!plot){hint('Свободной земли нет!');return;}
   const spec=fruitCatalog[selectedTreeType]||fruitCatalog.apple;
   if(coins<spec.cost){hint('Для саженца '+spec.label+' нужно '+spec.cost+' Green Coin.');return;}
-  if(seedCount(selectedTreeType)<1){hint('Нет семян '+spec.label.toLowerCase()+'. Выбери этот саженец и купи семена в меню фермы.');return;}
   if(serverMode){await serverAction('/api/game/plant',{plotIndex:plots.indexOf(plot),treeType:selectedTreeType},'Посажено: '+spec.label+'. Прогресс сохранён на сервере.');return;}
   coins-=spec.cost;
-  if(selectedTreeType==='apple') seeds--; else seedInventory[selectedTreeType]=seedCount(selectedTreeType)-1;
   addTree(plot,{type:selectedTreeType,grown:false,plantedAt:new Date().toISOString(),readyAt:new Date(Date.now()+GROWTH_MS).toISOString(),watered:false});
   addLocalExperience(5);
   update();
@@ -1041,7 +1035,7 @@ if(document.getElementById('tree-type')){
     selectedTreeType=event.target.value;
     const spec=fruitCatalog[selectedTreeType]||fruitCatalog.apple;
     update();
-    hint('Выбран саженец: '+spec.label+' · '+spec.cost+' GC.');
+    hint('Выбрано дерево для покупки: '+spec.label+' · '+spec.cost+' GC.');
   });
 }
 
@@ -1257,16 +1251,6 @@ document.getElementById('menu-button').addEventListener('click',()=>{
 });
 document.getElementById('menu-close').addEventListener('click',()=>gameMenu.classList.remove('open'));
 gameMenu.addEventListener('click',e=>{if(e.target===gameMenu)gameMenu.classList.remove('open')});
-document.getElementById('buy-seeds').addEventListener('click',async()=>{
-  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
-  const type=selectedTreeType;
-  const spec=fruitCatalog[type]||fruitCatalog.apple;
-  if(serverMode){await serverAction('/api/game/buy-seeds',{treeType:type},'Куплено 5 семян: '+spec.label+'.');return;}
-  if(coins<30){hint('Нужно 30 Green Coin для покупки семян.');return}
-  coins-=30;
-  if(type==='apple') seeds+=5; else seedInventory[type]=(Number(seedInventory[type])||0)+5;
-  update();hint('Куплено 5 семян: '+spec.label+'. Теперь семян: '+seedCount(type));
-});
 document.getElementById('build-warehouse').addEventListener('click',async()=>{
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   if(serverMode){await serverAction('/api/game/build',{kind:'warehouse'},'Амбар построен.');return;}
