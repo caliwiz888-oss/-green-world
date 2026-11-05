@@ -463,10 +463,9 @@ scene.add(ground);
 
 // Единые геометрия и материал клеток: без шахматной раскраски и
 // без сотен одинаковых экземпляров материала на мобильных устройствах.
-const plotTileGeometry=new THREE.BoxGeometry(0.985,0.075,0.985);
+const plotTileGeometry=new THREE.BoxGeometry(1.005,0.075,1.005);
 const plotTileMaterial=new THREE.MeshStandardMaterial({
-  map:soilTexture,bumpMap:soilBump,bumpScale:0.022,
-  color:0xffffff,roughness:1
+  color:0xb98b59,roughness:0.96
 });
 
 // ===== ПЛАНТАЦИЯ 20 × 20 =====
@@ -2224,7 +2223,7 @@ window.addEventListener('resize',()=>{
 // Более низкая и близкая перспектива подчёркивает объём зданий и рельеф.
 // Более близкая перспективная камера: видны фасады, боковые стены и рельеф, а не только план сверху.
 let cameraRadius=37;
-let cameraAngle=Math.PI/4;
+let cameraAngle=0;
 let cameraHeight=23;
 let pointerStart=null;
 let pointerMoved=false;
@@ -2256,7 +2255,7 @@ function zoom(factor){
 document.getElementById('zoom-in').addEventListener('click',()=>zoom(.88));
 document.getElementById('zoom-out').addEventListener('click',()=>zoom(1.14));
 document.getElementById('camera-reset').addEventListener('click',()=>{
-  cameraRadius=37;cameraHeight=23;cameraAngle=Math.PI/4;positionCamera();
+  cameraRadius=37;cameraHeight=23;cameraAngle=0;positionCamera();
 });
 renderer.domElement.addEventListener('pointerdown',e=>{
   pointerStart={x:e.clientX,y:e.clientY,id:e.pointerId};
