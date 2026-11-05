@@ -123,7 +123,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
    if(!response.ok)throw new Error(data.error||'Ошибка сервера '+response.status);
    window.GREEN_WORLD_AUTH_RESULT=data;
    window.dispatchEvent(new CustomEvent('green-world-auth',{detail:data}));
-   error.textContent='Аккаунт подключён. Загружаем хозяйство…';
+   error.textContent=window.GREEN_WORLD_STARTUP_ERROR||'Аккаунт подключён. Загружаем хозяйство…';
   }catch(e){
    error.textContent=e?.name==='AbortError'?'Сервер не ответил за 20 секунд. Попробуй ещё раз.':(e&&e.message?e.message:'Не удалось подключиться. Попробуй ещё раз.');
   }finally{
@@ -136,12 +136,12 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
  window.addEventListener('error',event=>{
   const status=document.getElementById('status');
   if(status)status.textContent='ОШИБКА ЗАПУСКА ИГРЫ';
-  if(error&&event.message)error.textContent='Ошибка загрузки игры: '+event.message;
+  if(error&&event.message){window.GREEN_WORLD_STARTUP_ERROR='Ошибка загрузки игры: '+event.message;error.textContent=window.GREEN_WORLD_STARTUP_ERROR;}
  });
  window.addEventListener('unhandledrejection',event=>{
   const status=document.getElementById('status');
   if(status)status.textContent='ОШИБКА ПОДКЛЮЧЕНИЯ';
-  if(error)error.textContent='Ошибка: '+(event.reason?.message||String(event.reason||'неизвестная ошибка'));
+  if(error){window.GREEN_WORLD_STARTUP_ERROR='Ошибка: '+(event.reason?.message||String(event.reason||'неизвестная ошибка'));error.textContent=window.GREEN_WORLD_STARTUP_ERROR;}
  });
  connectTelegram();
 })();
@@ -173,6 +173,7 @@ try {
  }
 }
 
+window.GREEN_WORLD_STARTUP_STAGE='three-loaded';
 const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
 let token='',busy=false,player=null,daily=null,selected=null;
@@ -181,6 +182,7 @@ let plots=[],treeObjects=[],buildingObjects=[];
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,78,175);
 const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,.1,320);
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});
+window.GREEN_WORLD_STARTUP_STAGE='webgl-ready';
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;renderer.useLegacyLights=false;renderer.setClearColor(0x9acbe8,1);
 scene.add(new THREE.HemisphereLight(0xeaf7ff,0x526b3d,2.15));
 scene.add(new THREE.AmbientLight(0xffffff,.28));
@@ -2627,7 +2629,9 @@ function makeWorldLandscape(){
  }
  box(world,3.8,.18,5.4,25.4,-2.25,22.2,water,false);
 }
+window.GREEN_WORLD_STARTUP_STAGE='building-world';
 makeHouse();makeWorldDecor();makeWorldLandscape();
+window.GREEN_WORLD_STARTUP_STAGE='world-built';
 const tileGeo=new THREE.BoxGeometry(1.28,.16,1.28);
 const tiles=[];
 for(let x=0;x<20;x++)for(let z=0;z<20;z++){
@@ -2709,7 +2713,8 @@ renderer.domElement.addEventListener('pointercancel',()=>pointer=null);
 
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
 cameraPosition();function animate(){requestAnimationFrame(animate);renderer.render(scene,camera)}animate();
-window.GREEN_WORLD_MODULE_READY=true;window.dispatchEvent(new Event('green-world-renderer-ready'));
+window.GREEN_WORLD_STARTUP_STAGE='renderer-running';
+window.GREEN_WORLD_MODULE_READY=true;window.GREEN_WORLD_STARTUP_STAGE='module-ready';window.dispatchEvent(new Event('green-world-renderer-ready'));
 window.addEventListener('green-world-auth',event=>{
  const data=event.detail||window.GREEN_WORLD_AUTH_RESULT;
  if(!data||!data.accessToken||!data.player)return;
