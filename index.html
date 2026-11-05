@@ -43,7 +43,7 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
 <body>
 
 <div id="hud">
-  <div class="panel">🌳 GREEN WORLD<br><span>Уровень игрока · Ур. <span id="hud-player-level">1</span></span></div>
+  <div class="panel">🌳 GREEN WORLD<br><span>Уровень · Ур. <span id="hud-player-level">1</span> · ✨ <span id="hud-player-xp">0</span> XP</span></div>
   <div id="stats" class="panel">
     <div class="stat"><strong><span id="coins">100</span></strong><small>GREEN COIN</small></div>
     <div class="stat"><strong><span id="apples">0</span></strong><small>ЯБЛОКИ</small></div>
@@ -752,6 +752,7 @@ function update(){
   greenhouseButton.disabled=hasGreenhouse&&greenhouseLevel>=5;
   document.getElementById('orchard-level').textContent=orchardLevel;
   document.getElementById('hud-player-level').textContent=playerLevel;
+  document.getElementById('hud-player-xp').textContent=experience;
   document.getElementById('player-level').textContent=playerLevel;
   const xpTarget=xpForLevel(playerLevel+1);
   const xpStart=xpForLevel(playerLevel);
@@ -847,10 +848,12 @@ async function apiRequest(path,body=null,retry=true){
 async function serverAction(path,body,message){
   if(apiBusy) return;
   apiBusy=true;
+  const previousExperience=experience;
   try{
     const data=await apiRequest(path,body);
     if(data.player) applyServerPlayer(data.player);
-    hint(message||'Изменения сохранены на сервере.');
+    const gained=Math.max(0,experience-previousExperience);
+    hint((message||'Изменения сохранены на сервере.')+(gained?' · ✨ +'+gained+' XP':''));
     return true;
   }catch(error){
     hint(error.message||'Не удалось выполнить действие.');
