@@ -348,7 +348,7 @@ for(let x=0;x<20;x++)for(let z=0;z<20;z++){
 }
 function clearDynamic(){for(const t of treeObjects)world.remove(t);treeObjects=[];for(const b of buildingObjects)world.remove(b);buildingObjects=[]}
 function unlocked(i){const level=Math.max(1,Number(player?.landLevel)||1),side=[0,6,10,14,18,20][level],start=Math.floor((20-side)/2),x=Math.floor(i/20),z=i%20;return x>=start&&x<start+side&&z>=start&&z<start+side}
-function drawPlayer(){if(!player)return;clearDynamic();
+function drawPlayer(){if(!player)return;clearDynamic();const map=new Map((player.plots||[]).map(p=>[p.index,p]));
  // Trees are temporarily hidden from the 3D scene as requested; plot data and server mechanics are preserved.
  buildingObjects.push(makeMarket(player.marketLevel||1));buildingObjects.push(makeFactory(player.factoryLevel||1));
  for(let i=0;i<400;i++){const p=map.get(i);tiles[i].material=p?(p.grown?mat(0x8fbd55):mat(0x719a49)):((Math.floor(i/20)+i%20)%2?M.grass:M.grass2);tiles[i].material.needsUpdate=true}
