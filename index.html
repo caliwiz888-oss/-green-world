@@ -892,8 +892,10 @@ async function connectGameServer(){
     await refreshDailyReward();
     hint('Ты вошёл в GREEN WORLD. Прогресс хранится в игровом аккаунте.');
   }catch(error){
-    status.textContent='СЕРВЕР НЕДОСТУПЕН';
-    hint('Не удалось подключиться к серверу. Проверь адрес API и настройки Telegram.');
+    serverMode=false;
+    status.textContent='ОШИБКА ПОДКЛЮЧЕНИЯ';
+    const detail=String(error?.message||'неизвестная ошибка').slice(0,180);
+    hint('Сервер GREEN WORLD не подтвердил вход: '+detail+'. Закрой игру и открой её заново через бота.');
   }
 }
 
