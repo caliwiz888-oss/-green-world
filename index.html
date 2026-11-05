@@ -387,14 +387,23 @@ ground.position.y=-0.13;
 ground.receiveShadow=true;
 scene.add(ground);
 
+// Общая геометрия клеток устраняет лишние объекты GPU и перекрытия.
+const plotTileGeometry=new THREE.BoxGeometry(0.96,0.08,0.96);
+
 // ===== ПЛАНТАЦИЯ 20 × 20 =====
 const plots=[];
 
 for(let x=0;x<20;x++){
   for(let z=0;z<20;z++){
+    // Каждая грядка занимает только свою клетку сетки.
+    // Раньше плитки 1.72 × 1.72 перекрывали соседние клетки,
+    // вызывая z-fighting и крупный грязный шахматный узор на земле.
     const tile=new THREE.Mesh(
-      new THREE.BoxGeometry(1.72,0.12,1.72),
-      new THREE.MeshStandardMaterial({map:soilTexture,bumpMap:soilBump,bumpScale:0.065,color:(x+z)%2?0xd0b18a:0xffffff,roughness:1})
+      plotTileGeometry,
+      new THREE.MeshStandardMaterial({
+        map:soilTexture,bumpMap:soilBump,bumpScale:0.035,
+        color:(x+z)%2?0xc6a078:0xd0ad7d,roughness:1
+      })
     );
     tile.position.set(x-9.5,0,z-9.5);
     tile.receiveShadow=true;
