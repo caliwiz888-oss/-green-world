@@ -1370,6 +1370,21 @@ function makeFactory(level=1){
    }
  }
  box(g,.28,.12,.1,0,1.48,3.13,M.gold,false);
+ // Сегментированная каменная перемычка над воротами с центральным замковым камнем.
+ for(let n=0;n<7;n++){
+   const x=-.9+n*.3;
+   const block=box(g,.29,.18,.22,x,3.22,2.91,n%2===0?M.stone2:M.stone,false);
+   block.rotation.z=(n-3)*.012;
+   sphere(g,.025,x,3.325,3.035,M.gold,.75);
+ }
+ box(g,.42,.26,.24,0,3.27,2.94,M.stone2,false);
+ box(g,.22,.12,.08,0,3.43,3.04,M.gold,false);
+ // Compact impost bands tie the lintel into the two existing stone jambs.
+ for(const x of [-1.22,1.22]){
+   box(g,.32,.18,.3,x,3.12,2.88,M.stone2,false);
+   box(g,.24,.055,.32,x,3.22,2.92,M.gold,false);
+   sphere(g,.04,x,3.25,3.1,M.gold,.8);
+ }
  // Усиленные вертикальные рёбра ворот и аккуратные заклёпки подчёркивают промышленную конструкцию.
  for(const x of [-.62,.62]){
    box(g,.075,2.28,.075,x,1.52,3.105,darkMetal,false);
