@@ -203,23 +203,70 @@ function makeGreenhouse(level=1){
 }
 function makeFactory(level=1){
  const g=group(world,9.8,0,-11);
- box(g,7.2,3.6,5.2,0,1.8,0,M.stone2);
- box(g,7.45,.28,5.45,0,3.72,0,M.gold);
- // Industrial roof, front gable and reinforced corner columns.
- const r1=box(g,4.1,.28,5.65,-1.45,4.35,0,M.roof);r1.rotation.z=.34;
- const r2=box(g,4.1,.28,5.65,1.45,4.35,0,M.roof2);r2.rotation.z=-.34;
- for(const x of [-3.35,3.35])box(g,.42,3.8,.42,x,1.9,2.48,M.wood);
- // Large loading door and gold framing.
- box(g,2.3,2.65,.18,0,1.45,2.68,M.wood);
- for(const y of [.35,.85,1.35,1.85,2.35])box(g,2.05,.07,.08,0,y,2.8,M.gold,false);
- for(const x of [-1.25,1.25])box(g,.12,2.8,.18,x,1.45,2.78,M.gold,false);
- // Tall brick chimney with flared cap.
- box(g,1.05,4.2,1.05,2.5,5.1,-1.45,M.stone);
- box(g,1.3,.25,1.3,2.5,7.25,-1.45,M.stone2);
- cylinder(g,.34,.45,.3,2.5,7.55,-1.45,M.roof2,10);
- // Small windows and roof vents.
- for(const x of [-2.25,2.25])for(const z of [-2.68,2.68])box(g,.75,.72,.12,x,2.65,z,M.glass);
- for(let i=0;i<4;i++)box(g,.28,.18,.5,-1.5+i,4.65,-1.6,M.wood);
+ const brick=mat(0x9b5943),brickLight=mat(0xb96c50),darkMetal=mat(0x39474a),metal=mat(0x657477),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
+ // Stone foundation and a broad paved loading yard.
+ box(g,9.2,.22,8.1,0,.1,.15,M.stone2,false);
+ box(g,7.6,.48,5.7,0,.34,0,M.stone2);
+ box(g,7.25,3.45,5.25,0,2.18,0,brick);
+ box(g,7.38,.2,5.38,0,3.92,0,M.stone);
+ // Brick pilasters and contrasting horizontal courses.
+ for(const x of [-3.48,-2.3,2.3,3.48]){
+   box(g,.24,3.35,.28,x,2.15,2.68,brickLight);
+   box(g,.24,3.35,.28,x,2.15,-2.68,brickLight);
+ }
+ for(const y of [.8,3.45])box(g,7.25,.12,.16,0,y,2.72,M.stone2);
+ // Tall pitched roof with a crisp ridge, dark eaves and metal seams.
+ const roofA=box(g,3.95,.3,5.85,-1.48,4.72,0,darkMetal);roofA.rotation.z=.34;
+ const roofB=box(g,3.95,.3,5.85,1.48,4.72,0,metal);roofB.rotation.z=-.34;
+ box(g,.2,.28,5.9,0,5.38,0,M.gold);
+ for(let i=0;i<7;i++)box(g,.055,.08,5.55,-3+i,4.95,0,M.stone2,false);
+ // Front loading entrance with a stone arch-like surround and timber doors.
+ box(g,2.55,2.9,.22,0,1.75,2.78,M.stone2);
+ box(g,2.12,2.55,.12,0,1.52,2.94,darkMetal);
+ for(const y of [.48,.98,1.48,1.98,2.48])box(g,1.98,.075,.08,0,y,3.03,metal,false);
+ box(g,.12,2.55,.1,-1.02,1.52,3.04,M.gold,false);
+ box(g,.12,2.55,.1,1.02,1.52,3.04,M.gold,false);
+ // Lit multi-pane factory windows on both long walls.
+ for(const x of [-2.35,2.35]){
+   box(g,1.05,1.05,.14,x,2.55,2.75,M.wood);
+   box(g,.82,.78,.08,x,2.58,2.85,windowGlow);
+   box(g,.1,.84,.08,x,2.58,2.91,M.gold,false);
+   box(g,.86,.1,.08,x,2.58,2.91,M.gold,false);
+   box(g,1.05,1.05,.14,x,2.55,-2.75,M.wood);
+   box(g,.82,.78,.08,x,2.58,-2.85,windowGlow);
+ }
+ // Tall masonry chimney, metal collar and a visible dark flue.
+ box(g,2.1,3.8,1.65,2.55,5.25,-1.45,brick);
+ box(g,2.22,.22,1.78,2.55,7.18,-1.45,M.stone2);
+ box(g,1.25,.22,1.25,2.55,7.42,-1.45,darkMetal);
+ cylinder(g,.48,.55,.28,2.55,7.65,-1.45,darkMetal,12);
+ cylinder(g,.27,.3,.38,2.55,7.95,-1.45,metal,12);
+ // Side exhaust pipes, small roof vents and an industrial water tank.
+ for(const z of [-1.6,-.25,1.1]){
+   cylinder(g,.12,.12,1.7,3.9,3.15,z,metal,10).rotation.z=Math.PI/2;
+   cylinder(g,.15,.15,.18,4.72,3.15,z,metal,10);
+ }
+ for(const x of [-1.8,-.4,1]){
+   box(g,.52,.22,.48,x,5.2,-1.45,metal);
+   box(g,.58,.08,.54,x,5.34,-1.45,M.gold);
+ }
+ cylinder(g,.62,.62,1.2,-2.7,4.65,-1.65,metal,16);
+ cylinder(g,.68,.68,.16,-2.7,5.3,-1.65,M.gold,16);
+ // Loading platform, crates and two barrels make the factory feel active.
+ box(g,3.9,.24,1.05,0,.24,3.55,M.stone);
+ for(const x of [-2.7,2.7]){
+   box(g,.78,.72,.72,x,.72,3.75,M.wood);
+   for(const y of [.42,.82,1.12])box(g,.82,.055,.76,x,y,3.75,M.gold,false);
+   cylinder(g,.34,.34,.78,x===-2.7?-3.65:3.65,.5,2.7,metal,12);
+   cylinder(g,.37,.37,.12,x===-2.7?-3.65:3.65,.92,2.7,M.gold,12);
+ }
+ // Small sign plate over the loading entrance.
+ box(g,2.4,.48,.16,0,3.55,2.84,darkMetal);
+ box(g,2.15,.12,.08,0,3.55,2.94,M.gold,false);
+ // Building upgrades add subtle roof equipment rather than changing its footprint.
+ for(let i=0;i<Math.min(5,Math.max(1,level));i++){
+   box(g,.5,.22,.7,-2.45+i*1.05,5.12,.85,metal);
+ }
  return g;
 }
 function makeGardenBed(x,z){
@@ -299,7 +346,7 @@ for(let x=0;x<20;x++)for(let z=0;z<20;z++){
 function clearDynamic(){for(const t of treeObjects)world.remove(t);treeObjects=[];for(const b of buildingObjects)world.remove(b);buildingObjects=[]}
 function unlocked(i){const level=Math.max(1,Number(player?.landLevel)||1),side=[0,6,10,14,18,20][level],start=Math.floor((20-side)/2),x=Math.floor(i/20),z=i%20;return x>=start&&x<start+side&&z>=start&&z<start+side}
 function drawPlayer(){if(!player)return;clearDynamic();const map=new Map((player.plots||[]).map(p=>[p.index,p]));for(let i=0;i<400;i++){const p=map.get(i);if(p){const x=(Math.floor(i/20)-9.5)*1.45,z=((i%20)-9.5)*1.45;const tree=makeTree(x,z,p.type||'apple');treeObjects.push(tree);tree.userData.plotIndex=i;tree.userData.plot=p}}
- if(player.hasMarket)buildingObjects.push(makeMarket(player.marketLevel));if(player.hasFactory)buildingObjects.push(makeFactory(player.factoryLevel));
+ if(player.hasMarket)buildingObjects.push(makeMarket(player.marketLevel));buildingObjects.push(makeFactory(player.factoryLevel||1));
  for(let i=0;i<400;i++){const p=map.get(i);tiles[i].material=p?(p.grown?mat(0x8fbd55):mat(0x719a49)):((Math.floor(i/20)+i%20)%2?M.grass:M.grass2);tiles[i].material.needsUpdate=true}
  updateHud();
 }
