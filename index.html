@@ -604,6 +604,41 @@ for(let i=0;i<3;i++){
   step.position.set(0,0.08+i*0.11,3.95+i*0.32);
   step.receiveShadow=true;mansionDetails.add(step);
 }
+
+ // Каменные русты по углам и декоративные горизонтальные карнизы.
+ for(const x of [-3.42,3.42]){
+   for(let y=0.55;y<3.25;y+=0.62) addBox(mansionDetails,0.42,0.22,0.2,stoneMat,x,y,2.62);
+ }
+ // Арочные оконные акценты и подоконные полки.
+ for(const x of [-2,0,2]){
+   const arch=new THREE.Mesh(new THREE.TorusGeometry(0.43,0.075,6,16,Math.PI),facadeTrimMaterial);
+   arch.position.set(x,2.72,2.78);arch.rotation.z=Math.PI;mansionDetails.add(arch);
+   addBox(mansionDetails,1.18,0.12,0.26,stoneMat,x,1.38,2.72);
+ }
+ // Резной герб над главным входом.
+ const crestBase=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.12,12),facadeTrimMaterial);
+ crestBase.rotation.x=Math.PI/2;crestBase.position.set(0,3.42,2.94);mansionDetails.add(crestBase);
+ const crest=new THREE.Mesh(new THREE.SphereGeometry(0.24,12,10),material(0xd8ad4e));
+ crest.scale.set(0.82,1.2,0.38);crest.position.set(0,3.45,3.04);mansionDetails.add(crest);
+ // Балюстрада крыльца с точёными стойками и поручнями.
+ for(const z of [3.08,3.72]){
+   for(let i=0;i<9;i++){
+     const x=-1.18+i*0.295;
+     const baluster=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.055,0.48,7),facadeTrimMaterial);
+     baluster.position.set(x,0.88,z);mansionDetails.add(baluster);
+   }
+   addBox(mansionDetails,2.55,0.09,0.1,stoneMat,0,1.13,z);
+ }
+ // Дополнительные слуховые окна на красной крыше.
+ for(const x of [-2.65,2.65]){
+   const dormerFrame=new THREE.Mesh(new THREE.BoxGeometry(0.82,0.76,0.16),facadeTrimMaterial);
+   dormerFrame.position.set(x,4.18,1.88);dormerFrame.rotation.z=x<0?-0.12:0.12;mansionDetails.add(dormerFrame);
+   const dormerGlass=new THREE.Mesh(new THREE.BoxGeometry(0.55,0.5,0.08),facadeGlassMaterial);
+   dormerGlass.position.set(x,4.18,1.99);dormerGlass.rotation.z=x<0?-0.12:0.12;mansionDetails.add(dormerGlass);
+   const dormerRoof=new THREE.Mesh(new THREE.ConeGeometry(0.62,0.55,4),material(0x9d4034));
+   dormerRoof.position.set(x,4.72,1.9);dormerRoof.rotation.y=Math.PI/4;mansionDetails.add(dormerRoof);
+ }
+
 mansion.add(mansionDetails);
 
 // ===== РАСШИРЕННАЯ АРХИТЕКТУРА ГЛАВНОГО ЗАМКА =====
