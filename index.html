@@ -91,6 +91,8 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 /* Telegram sign-in must not depend on the Three.js module loading successfully. */
 (()=>{
  const button=document.getElementById('retry-login');
+ window.GREEN_WORLD_MODULE_READY=false;
+ setTimeout(()=>{if(!window.GREEN_WORLD_MODULE_READY){const status=document.getElementById('status');if(status)status.textContent='3D-МИР НЕ ЗАПУСТИЛСЯ';if(error)error.textContent='Графический модуль не запустился. Проверяю загрузку 3D-сцены.';}},25000);
  const error=document.getElementById('login-error');
  const api=window.GREEN_WORLD_API_URL;
  let connecting=false;
@@ -146,16 +148,20 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 </script>
 <script type="module">
 let THREE;
+const loadThreeWithTimeout=(url,ms=8000)=>Promise.race([
+ import(url),
+ new Promise((_,reject)=>setTimeout(()=>reject(new Error('Тайм-аут загрузки '+url)),ms))
+]);
 try {
- THREE=await import('https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js');
+ THREE=await loadThreeWithTimeout('https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js');
 } catch(primaryError) {
  console.warn('[render] Primary Three.js CDN failed; trying fallback:',primaryError);
  try {
-  THREE=await import('https://unpkg.com/three@0.170.0/build/three.module.js');
+  THREE=await loadThreeWithTimeout('https://unpkg.com/three@0.170.0/build/three.module.js');
  } catch(fallbackError) {
   console.warn('[render] unpkg failed; trying esm.sh:',fallbackError);
   try {
-   THREE=await import('https://esm.sh/three@0.170.0');
+   THREE=await loadThreeWithTimeout('https://esm.sh/three@0.170.0');
   } catch(lastError) {
    console.error('[render] All Three.js sources failed:',lastError);
    const status=document.getElementById('status');
@@ -2703,6 +2709,7 @@ renderer.domElement.addEventListener('pointercancel',()=>pointer=null);
 
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
 cameraPosition();function animate(){requestAnimationFrame(animate);renderer.render(scene,camera)}animate();
+window.GREEN_WORLD_MODULE_READY=true;window.dispatchEvent(new Event('green-world-renderer-ready'));
 window.addEventListener('green-world-auth',event=>{
  const data=event.detail||window.GREEN_WORLD_AUTH_RESULT;
  if(!data||!data.accessToken||!data.player)return;
