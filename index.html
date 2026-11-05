@@ -305,6 +305,37 @@ function makeMarket(level=1){
    box(g,.16,1.55,.18,x,1.65,2.48,M.stone2);
    box(g,.22,.16,.24,x,2.48,2.48,M.gold);
  }
+ // Refined shop architecture: layered gable, carved signboard and framed entrance.
+ box(g,2.42,.18,.24,0,4.22,2.7,M.stone2);
+ box(g,2.18,.12,.12,0,4.34,2.78,M.gold,false);
+ for(const x of [-1.92,1.92]){
+   box(g,.22,2.6,.26,x,1.52,2.56,M.stone2);
+   box(g,.34,.18,.32,x,2.86,2.56,M.gold);
+   box(g,.3,.14,.3,x,.22,2.56,M.stone2);
+ }
+ // Timber lintels and stone jambs frame the doorway as a distinct architectural feature.
+ box(g,1.38,.18,.3,0,2.56,2.78,M.stone2);
+ for(const x of [-.68,.68]){
+   box(g,.14,2.28,.28,x,1.35,2.76,M.stone2);
+   box(g,.1,2.12,.1,x,1.35,2.91,M.gold,false);
+ }
+ box(g,1.52,.16,.32,0,.22,2.78,M.stone2);
+ // Decorative gable brackets and a small centered attic window.
+ for(const x of [-1.72,1.72]){
+   const bracket=box(g,.16,.52,.18,x,3.35,2.36,M.wood);
+   bracket.rotation.z=x<0?-.28:.28;
+ }
+ box(g,.72,.72,.14,0,3.78,2.48,M.wood);
+ box(g,.5,.5,.08,0,3.78,2.58,M.glass);
+ box(g,.08,.56,.08,0,3.78,2.64,M.gold,false);
+ box(g,.54,.07,.08,0,3.78,2.64,M.gold,false);
+ // Layered eaves and fine roof ridge caps give the roof a finished silhouette.
+ for(const x of [-2.85,2.85]){
+   box(g,.18,.16,4.95,x,3.42,0,M.wood,false);
+ }
+ for(const z of [-2.1,-1.05,0,1.05,2.1]){
+   box(g,.24,.12,.2,0,4.49,z,M.stone2,false);
+ }
  // Roof tile seams and shaped end caps add depth without changing the shop footprint.
  for(const [cx,angle] of [[-1.35,.42],[1.35,-.42]]){
    const panel=group(g,cx,3.85,0);panel.rotation.z=angle;
