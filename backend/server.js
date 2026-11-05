@@ -192,14 +192,25 @@ app.post('/api/auth/refresh',originGuard,async(req,res)=>{
 });
 
 app.post('/api/auth/logout',originGuard,async(req,res)=>{
-  const raw=req.cookies[COOKIE];
-  if(raw) await db.query('UPDATE refresh_sessions SET revoked_at=NOW() WHERE token_hash=$1 AND revoked_at IS NULL',[hash(raw)]);
-  res.clearCookie(COOKIE,refreshCookie);res.json({ok:true});
+  try {
+    const raw=req.cookies[COOKIE];
+    if(raw) await db.query('UPDATE refresh_sessions SET revoked_at=NOW() WHERE token_hash=$1 AND revoked_at IS NULL',[hash(raw)]);
+    res.clearCookie(COOKIE,refreshCookie);
+    return res.json({ok:true});
+  } catch(error) {
+    console.error('[auth/logout] Session revocation failed:',error);
+    return res.status(500).json({error:'Could not log out'});
+  }
 });
 app.get('/api/me',auth,async(req,res)=>{
-  const q=await db.query('SELECT * FROM players WHERE telegram_id=$1',[req.playerId]);
-  if(!q.rowCount) return res.status(404).json({error:'Player not found'});
-  res.json({player:state(q.rows[0])});
+  try {
+    const q=await db.query('SELECT * FROM players WHERE telegram_id=$1',[req.playerId]);
+    if(!q.rowCount) return res.status(404).json({error:'Player not found'});
+    return res.json({player:state(q.rows[0])});
+  } catch(error) {
+    console.error('[api/me] Player state load failed:',error);
+    return res.status(500).json({error:'Could not load player'});
+  }
 });
 
 app.get('/api/game/daily-reward',auth,async(req,res)=>{
