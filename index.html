@@ -2719,7 +2719,7 @@ document.getElementById('build-greenhouse').addEventListener('click',async()=>{
     '🏭':'<path d="M3 21V9l6 3V8l6 4V5h6v16Z"/>'
   };
   const keys=Object.keys(icons).sort((a,b)=>b.length-a.length);
-  const pattern=new RegExp(keys.map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\</body>')).join('|'),'gu');
+  const pattern=new RegExp(keys.join('|'),'gu');
   function convert(root){
     if(!root||!root.ownerDocument)return;
     const doc=root.ownerDocument,walker=doc.createTreeWalker(root,NodeFilter.SHOW_TEXT);
