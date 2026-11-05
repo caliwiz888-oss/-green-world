@@ -148,7 +148,33 @@ function makeHouse(){
  for(let i=0;i<3;i++)box(g,4.1-i*.35,.2,.62,0,-.02+i*.16,5.58+i*.58,M.stone2);
  // Chimneys and planted stone urns.
  for(const x of [-3.6,3.6]){box(g,.72,1.65,.72,x,5.15,-2.2,M.stone2);box(g,.88,.18,.88,x,6,-2.2,M.stone)}
- // Two shrubs beside the front windows/entrance removed to keep the facade unobstructed.
+ // Rich stone facade: corner pilasters, horizontal courses and carved window surrounds.
+ for(const x of [-4.72,4.72]){
+   box(g,.28,4.15,.34,x,2.25,4.12,M.stone2);
+   box(g,.38,.22,.42,x,4.25,4.12,M.gold);
+ }
+ for(const y of [.62,4.18])box(g,9.7,.12,.2,0,y,4.12,M.stone2);
+ // Upper arched-looking windows in the front gable, with deep frames and crossbars.
+ for(const x of [-1.35,1.35]){
+   box(g,.92,1.12,.18,x,5.35,4.12,M.wood);
+   box(g,.68,.88,.12,x,5.38,4.24,M.glass);
+   box(g,.12,.96,.16,x,5.38,4.32,M.gold,false);
+   box(g,.72,.1,.16,x,5.38,4.32,M.gold,false);
+   box(g,1.12,.14,.3,x,4.78,4.18,M.stone2);
+ }
+ // Small projecting balconies on the two front towers.
+ for(const x of [-4.35,4.35]){
+   box(g,1.75,.18,.9,x,3.05,1.0,M.stone2);
+   for(const dx of [-.78,-.26,.26,.78])box(g,.09,.62,.09,x+dx,3.42,1.36,M.gold);
+   box(g,1.72,.1,.1,x,3.72,1.36,M.gold);
+ }
+ // Fine roof ribs and ridge caps add scale and definition to the roof.
+ for(const x of [-3.35,-2.65,-1.95,-1.25,-.55,.15,.85,1.55,2.25,2.95,3.65]){
+   const rib=box(g,.055,.09,8.65,x,5.83,0,M.roof2,false);rib.rotation.z=x<-.25?.58:-.58;
+ }
+ for(const z of [-3.4,-2.3,-1.2,0,1.2,2.3,3.4]){
+   box(g,.16,.12,.72,0,6.48,z,M.gold,false);
+ }
  return g;
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
@@ -196,6 +222,13 @@ function makeMarket(level=1){
      fruit.position.set(x-.22+i*.22,1.02,2.72);g.add(fruit);
    }
  }
+ // Extra storefront detailing: timber corner posts, window divisions and roof seams.
+ for(const x of [-2.48,2.48]){
+   box(g,.16,2.65,.22,x,1.42,2.48,M.gold);
+   box(g,.34,.18,.32,x,2.82,2.45,M.stone2);
+ }
+ for(const x of [-1.2,-.4,.4,1.2])box(g,.055,1.18,.1,x,1.65,2.43,M.gold,false);
+ for(let i=0;i<6;i++)box(g,.06,.08,4.55,-2.5+i,4.02,0,M.roof2,false);
  // Убраны три отдельные белые плиты перед лавкой по просьбе пользователя.
  return g;
 }
@@ -343,9 +376,45 @@ function makeWorldDecor(){
  // Expanded vegetable beds on the left side of the manor, balanced against the shop area.
  for(const x of [-10.2,-6.9])for(const z of [1.2,4.0,6.8])makeGardenBed(x,z);
  // The well, greenhouse and decorative orchard trees remain omitted.
-
 }
-makeHouse();makeWorldDecor();
+function makeWorldLandscape(){
+ const hillMat=mat(0x668f58),hillLight=mat(0x82a968),mountain=mat(0x71877b),snow=mat(0xe5eee5),water=new THREE.MeshPhysicalMaterial({color:0x4aa9c5,roughness:.2,metalness:.08,transparent:true,opacity:.82});
+ // Layered green foothills and distant mountain silhouettes beyond the playable fence.
+ for(const [x,z,sx,sy,sz,m] of [
+   [-22,-23,8,4,5,hillMat],[-12,-27,10,5,6,hillLight],[0,-29,12,5,7,hillMat],
+   [13,-27,10,5,6,hillLight],[23,-22,8,4,5,hillMat],
+   [-25,3,7,3,6,hillLight],[25,4,7,3,6,hillMat]
+ ]){
+   const h=sphere(world,1,x,sy*.42,z,m,1);h.scale.set(sx,sy,sz);
+ }
+ for(const [x,z,h,r] of [[-20,-30,13,7],[-7,-34,17,9],[8,-34,15,8],[21,-29,12,7]]){
+   cone(world,r,h,x,h*.48,z,mountain,7);
+   cone(world,r*.48,h*.42,x,h*.78,z+.25,snow,7);
+ }
+ // A broad river outside the farm boundary, with layered banks and a stone crossing.
+ box(world,52,.16,6.8,0,-.02,22.2,water,false);
+ box(world,52,.24,.7,0,.05,18.55,M.grass2,false);
+ box(world,52,.24,.7,0,.05,25.85,M.grass2,false);
+ for(let i=0;i<24;i++){
+   const x=-24+i*2.05;
+   box(world,1.75,.045,5.8,x,.075,22.2,i%2?water:mat(0x63bdd0),false);
+ }
+ // Stone bridge crossing the river, with parapets and evenly spaced balusters.
+ box(world,4.8,.62,9.2,0,.78,22.2,M.stone2);
+ box(world,4.45,.16,8.9,0,1.16,22.2,M.stone);
+ for(const x of [-2.15,2.15]){
+   box(world,.24,.82,9.1,x,1.55,22.2,M.stone2);
+   for(let z=18.4;z<=26.1;z+=1.1)box(world,.18,.55,.18,x,1.95,z,M.stone);
+   box(world,.28,.16,9.2,x,2.25,22.2,M.stone);
+ }
+ // Small cascades at the river's far end create a visible waterfall effect.
+ for(const z of [20.9,22.2,23.5]){
+   const fall=box(world,.22,2.6,.72,25.2,-1.0,z,water,false);
+   fall.rotation.z=-.08;
+ }
+ box(world,3.8,.18,5.4,25.4,-2.25,22.2,water,false);
+}
+makeHouse();makeWorldDecor();makeWorldLandscape();
 const tileGeo=new THREE.BoxGeometry(1.28,.16,1.28);
 const tiles=[];
 for(let x=0;x<20;x++)for(let z=0;z<20;z++){
