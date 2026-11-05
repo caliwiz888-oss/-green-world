@@ -107,22 +107,44 @@ box(world,76,.55,76,0,-.42,0,M.grass,false);
 box(world,26,.12,26,0,-.08,0,M.grass2,false);
 function makeHouse(){
  const g=group(world,-3,0,-10);
+ // Main manor: broad stone body, raised plinth and detailed gabled roof.
  box(g,10,4.5,8,0,2.25,0,M.stone);
  box(g,10.5,.38,8.5,0,4.55,0,M.stone2);
- // steep roof planes and gables
- const roof1=box(g,6,.28,9.2,-1.7,6.05,0,M.roof);roof1.rotation.z=-.55;
- const roof2=box(g,6,.28,9.2,1.7,6.05,0,M.roof);roof2.rotation.z=.55;
- cone(g,2.4,2.8,0,5.55,0,M.roof2,4).rotation.y=Math.PI/4;
- box(g,1.6,2.7,.22,0,1.35,4.12,M.wood);
- box(g,.16,2.3,.25,-.65,1.35,4.25,M.gold,false);
- for(const x of [-3.2,3.2]){box(g,1.25,1.35,.2,x,2.65,4.12,M.wood);box(g,.12,1.2,.23,x,2.65,4.24,M.gold,false);box(g,1.15,.12,.23,x,2.65,4.25,M.gold,false)}
- // tower, balcony, stone steps
- const t=group(g,4.2,0,-2.1);box(t,2.4,6,2.4,0,3,0,M.stone);cone(t,1.85,2.5,0,7.2,0,M.roof2,4);cylinder(t,.12,.12,1,0,8.7,0,M.gold,8);
- box(g,3,.3,1.5,0,.18,5,M.stone2);
- for(let i=0;i<3;i++)box(g,3.8-i*.5,.18,.65,0,-.05+i*.18,5.5+i*.58,M.stone2);
- // chimney and garden planters
- box(g,.8,2,.8,-3.5,5.2,-2,M.stone2);
- for(const x of [-5.6,5.6]){const p=group(g,x,0,2.5);box(p,1.3,.5,1.3,0,.25,0,M.stone2);sphere(p,.62,.0,.85,.0,M.leaf,1.1)}
+ box(g,10.25,.16,8.25,0,.18,0,M.stone2);
+ // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
+ const roofL=box(g,3.95,.34,8.9,-1.68,5.72,0,M.roof);roofL.rotation.z=.58;
+ const roofR=box(g,3.95,.34,8.9,1.68,5.72,0,M.roof);roofR.rotation.z=-.58;
+ // Front and rear triangular gables beneath the roof ridge.
+ const makeGable=(z)=>{
+   const shape=new THREE.Shape();shape.moveTo(-3.15,4.72);shape.lineTo(3.15,4.72);shape.lineTo(0,6.82);shape.closePath();
+   const mesh=new THREE.Mesh(new THREE.ShapeGeometry(shape),M.stone2);mesh.position.z=z;mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);
+ };
+ makeGable(4.06);makeGable(-4.06);
+ // Central entrance, gold cross details and symmetrical windows.
+ box(g,1.65,2.7,.24,0,1.35,4.12,M.wood);
+ box(g,.16,2.3,.28,-.65,1.35,4.27,M.gold,false);
+ box(g,.16,2.3,.28,.65,1.35,4.27,M.gold,false);
+ for(const x of [-3.25,3.25]){
+   box(g,1.35,1.45,.22,x,2.7,4.12,M.wood);
+   box(g,.13,1.3,.25,x,2.7,4.26,M.gold,false);
+   box(g,1.22,.13,.25,x,2.7,4.27,M.gold,false);
+   box(g,1.55,.18,.38,x,1.82,4.18,M.stone2);
+ }
+ // Two corner towers with separate steep roofs and golden finials.
+ for(const x of [-4.35,4.35]){
+   const t=group(g,x,0,-2.25);
+   box(t,2.15,5.8,2.15,0,2.9,0,M.stone);
+   box(t,2.35,.22,2.35,0,5.82,0,M.stone2);
+   cone(t,1.72,2.55,0,7.18,0,M.roof2,4);
+   cylinder(t,.1,.1,.85,0,8.82,0,M.gold,8);
+   for(const z of [-1.09,1.09])box(t,.65,1.15,.12,0,3.35,z,M.wood);
+ }
+ // Entry terrace and three broad stone steps.
+ box(g,3.5,.3,1.65,0,.18,5,M.stone2);
+ for(let i=0;i<3;i++)box(g,4.1-i*.35,.2,.62,0,-.02+i*.16,5.58+i*.58,M.stone2);
+ // Chimneys and planted stone urns.
+ for(const x of [-3.6,3.6]){box(g,.72,1.65,.72,x,5.15,-2.2,M.stone2);box(g,.88,.18,.88,x,6,-2.2,M.stone)}
+ for(const x of [-5.7,5.7]){const p=group(g,x,0,2.5);box(p,1.3,.5,1.3,0,.25,0,M.stone2);sphere(p,.62,0,.85,0,M.leaf,1.1)}
  return g;
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
