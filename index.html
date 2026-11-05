@@ -156,7 +156,7 @@ function makeTree(x,z,kind='apple'){
  return g;
 }
 function makeMarket(level=1){
- const g=group(world,10.1,0,9.4);g.rotation.y=-Math.PI/2;
+ const g=group(world,10.25,0,8.8);g.rotation.y=0;g.scale.setScalar(.72);
  box(g,5.4,2.8,4.4,0,1.4,0,M.stone);
  box(g,5.65,.24,4.65,0,2.86,0,M.gold);
  // Timber-framed storefront and broad display windows.
@@ -335,9 +335,10 @@ function makeWorldDecor(){
    box(world,.42,.55,1.25,-14,.27,p,M.stone2,false);
    box(world,.42,.55,1.25,14,.27,p,M.stone2,false);
  }
- // Fountain and entrance arch removed for a cleaner open courtyard.
- // Decorative orchard trees and planting beds removed; keep the land open.
- // The well, greenhouse, flower beds and decorative lamps remain omitted.
+ // Fountain, entrance arch, lamps and flower beds remain removed.
+ // Expanded vegetable beds on the left side of the manor, balanced against the shop area.
+ for(const x of [-11.1,-7.9])for(const z of [1.0,3.6,6.2])makeGardenBed(x,z);
+ // The well, greenhouse and decorative orchard trees remain omitted.
 
 }
 makeHouse();makeWorldDecor();
