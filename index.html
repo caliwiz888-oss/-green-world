@@ -132,6 +132,23 @@ body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 #hud{top:max(9px,env(safe-area-inset-top));}
 #actions{bottom:max(12px,env(safe-area-inset-bottom));}
 @media(max-width:430px){#hud{left:7px;right:7px;gap:5px}#hud .panel{font-size:11px}#stats{padding:7px 7px}#stats .stat{min-width:48px}#stats .stat strong{font-size:15px}#stats .stat small{font-size:8px}#selection{max-width:calc(100% - 104px);white-space:normal;text-align:center;line-height:1.25}#actions button{min-height:48px}}
+
+/* ПЕРЕРАБОТАННЫЙ ИНТЕРФЕЙС: отдельные рисованные SVG-значки вместо эмодзи. */
+#selection{top:116px}
+#connection-status{top:68px!important;left:50%!important;transform:translateX(-50%);max-width:calc(100% - 120px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#menu-button svg,#camera-tools svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
+#actions{align-items:stretch;gap:7px;padding:8px}
+#actions button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:116px;padding:8px 4px;border-radius:17px;font-size:12px;line-height:1.15;white-space:normal}
+#actions button svg{width:36px;height:36px;fill:none;stroke:#fff5d7;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 1px #145324)}
+#actions button span{display:block}
+#actions button small{font-size:10px;color:#fff0c8;font-weight:800}
+#actions button:first-child{background:linear-gradient(180deg,#91df77 0%,#43b64c 48%,#147b38 100%)}
+#actions button:nth-child(2){background:linear-gradient(180deg,#70c9e8 0%,#258ebd 52%,#17628d 100%)}
+#actions button:nth-child(3){background:linear-gradient(180deg,#f0c85d 0%,#c18a2e 52%,#80501c 100%)}
+#actions button:nth-child(4){background:linear-gradient(180deg,#e8a85a 0%,#bb7130 52%,#81431e 100%)}
+@media(max-width:430px){#actions button{min-height:108px;font-size:11px}#actions button svg{width:32px;height:32px}#actions button small{font-size:9px}}
+@media(max-width:380px){#actions{gap:4px;padding:6px}#actions button{min-height:100px;font-size:10px}}
+
 </style>
 </head>
 
@@ -146,7 +163,7 @@ body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 </div>
 <div id="connection-status" style="position:absolute;top:66px;left:12px;z-index:2;color:#174b35;background:#f2fff0df;border-radius:12px;padding:5px 9px;font-size:9px;font-weight:800;letter-spacing:.4px">ПОДКЛЮЧЕНИЕ…</div>
 <div id="selection">Участок не выбран · коснись земли</div>
-<button id="menu-button" aria-label="Инвентарь и постройки">☰</button>
+<button id="menu-button" aria-label="Инвентарь и постройки"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
 <div id="game-menu">
   <div id="menu-card">
     <h2>🏡 Ферма GREEN WORLD</h2>
@@ -195,16 +212,16 @@ body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
   </div>
 </div>
 <div id="camera-tools">
-  <button id="zoom-in" aria-label="Приблизить">＋</button>
-  <button id="zoom-out" aria-label="Отдалить">－</button>
-  <button id="camera-reset" aria-label="Вернуть обзор">⌂</button>
+  <button id="zoom-in" aria-label="Приблизить"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button id="zoom-out" aria-label="Отдалить"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+  <button id="camera-reset" aria-label="Вернуть обзор"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7M6 10v10h12V10"/></svg></button>
 </div>
 <div id="hint">Выбери участок на поле, чтобы посадить яблоню</div>
 <div id="actions">
-  <button id="plant-button" onclick="plant()">🌳 Купить и посадить дерево</button>
-  <button onclick="water()">💧 Полить</button>
-  <button onclick="harvestAll()">🌳 Собрать всё</button>
-  <button onclick="sell()">🛒 Продать</button>
+  <button id="plant-button" onclick="plant()"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 40V25M24 30c-10 0-16-6-14-15 8-1 13 3 14 10 1-10 7-15 15-14 2 9-4 17-15 19Z"/><path d="M18 40h12"/></svg><span>Купить и посадить</span><small>Яблоня · 100 GC</small></button>
+  <button onclick="water()"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5C18 15 11 22 11 30a13 13 0 0 0 26 0C37 22 30 15 24 5Z"/><path d="M18 31c0 4 2 6 5 7"/></svg><span>Полить</span></button>
+  <button onclick="harvestAll()"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M25 13c-2-6 1-9 7-10M25 14c-9-5-17 1-16 11 1 11 7 17 15 17 8 0 14-6 15-17 1-10-7-16-16-11Z"/><path d="M25 14c2 5 6 7 11 7"/></svg><span>Собрать всё</span></button>
+  <button onclick="sell()"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M5 12h5l5 22h22l5-16H13"/><circle cx="19" cy="40" r="2.5"/><circle cx="35" cy="40" r="2.5"/><path d="M20 18h15"/></svg><span>Продать</span></button>
 </div>
 
 <!-- После размещения API укажи здесь его HTTPS-адрес, например https://green-world-api.example.com -->
@@ -2513,9 +2530,9 @@ window.addEventListener('resize',()=>{
 // ===== УПРАВЛЕНИЕ КАМЕРОЙ И ВЫБОР УЧАСТКА =====
 // Более низкая и близкая перспектива подчёркивает объём зданий и рельеф.
 // Более близкая перспективная камера: видны фасады, боковые стены и рельеф, а не только план сверху.
-let cameraRadius=46;
+let cameraRadius=41;
 let cameraAngle=0;
-let cameraHeight=28;
+let cameraHeight=25;
 let pointerStart=null;
 let pointerMoved=false;
 const raycaster=new THREE.Raycaster();
@@ -2527,7 +2544,7 @@ function positionCamera(){
     cameraHeight,
     Math.cos(cameraAngle)*cameraRadius
   );
-  camera.lookAt(2.4,1.1,-4.2);
+  camera.lookAt(3.2,1.1,-3.5);
 }
 function setSelection(plot){
   if(selectedPlot?.tile) selectedPlot.tile.material.emissive?.setHex(0x000000);
@@ -2546,7 +2563,7 @@ function zoom(factor){
 document.getElementById('zoom-in').addEventListener('click',()=>zoom(.88));
 document.getElementById('zoom-out').addEventListener('click',()=>zoom(1.14));
 document.getElementById('camera-reset').addEventListener('click',()=>{
-  cameraRadius=46;cameraHeight=28;cameraAngle=0;positionCamera();
+  cameraRadius=41;cameraHeight=25;cameraAngle=0;positionCamera();
 });
 renderer.domElement.addEventListener('pointerdown',e=>{
   pointerStart={x:e.clientX,y:e.clientY,id:e.pointerId};
