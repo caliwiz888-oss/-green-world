@@ -86,14 +86,14 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.m
 const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
 let token='',busy=false,player=null,daily=null,selected=null;
-let cameraRadius=78,cameraHeight=49,pointer=null,dragged=false;
+let cameraRadius=49,cameraHeight=34,pointer=null,dragged=false;
 let plots=[],treeObjects=[],buildingObjects=[];
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,65,145);
-const camera=new THREE.PerspectiveCamera(43,innerWidth/innerHeight,.1,300);
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,300);
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
 scene.add(new THREE.HemisphereLight(0xe8f8ff,0x687d43,2));
-const sun=new THREE.DirectionalLight(0xfff0d5,3.1);sun.position.set(-28,42,24);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-45;sun.shadow.camera.right=45;sun.shadow.camera.top=45;sun.shadow.camera.bottom=-45;scene.add(sun);
+const sun=new THREE.DirectionalLight(0xfff0d5,3.1);sun.position.set(-28,42,24);sun.castShadow=true;sun.shadow.mapSize.set(4096,4096);sun.shadow.camera.left=-32;sun.shadow.camera.right=32;sun.shadow.camera.top=32;sun.shadow.camera.bottom=-32;sun.shadow.bias=-0.00018;sun.shadow.normalBias=.025;scene.add(sun);
 const mat=(c,r=.86)=>new THREE.MeshStandardMaterial({color:c,roughness:r});
 const M={grass:mat(0x78a94f),grass2:mat(0x699747),soil:mat(0x98734a),path:mat(0xd7bd8d),stone:mat(0xe8ddc5),stone2:mat(0xc8b898),roof:mat(0x91483a),roof2:mat(0xb8644c),wood:mat(0x71482d),wood2:mat(0xb77c47),leaf:mat(0x397b3c),leaf2:mat(0x5a9a48),trunk:mat(0x765034),gold:mat(0xd6b45d),glass:new THREE.MeshPhysicalMaterial({color:0x9bdde1,roughness:.2,transparent:true,opacity:.48})};
 function box(parent,w,h,d,x,y,z,material,cast=true){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=cast;o.receiveShadow=true;parent.add(o);return o}
@@ -111,11 +111,11 @@ function makeHouse(){
  box(g,10.5,.38,8.5,0,4.55,0,M.stone2);
  box(g,10.25,.16,8.25,0,.18,0,M.stone2);
  // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
- const roofL=box(g,3.95,.34,8.9,-1.68,5.72,0,M.roof);roofL.rotation.z=.58;
- const roofR=box(g,3.95,.34,8.9,1.68,5.72,0,M.roof);roofR.rotation.z=-.58;
+ const roofL=box(g,3.95,.34,8.9,-1.93,5.72,0,M.roof);roofL.rotation.z=.58;
+ const roofR=box(g,3.95,.34,8.9,1.43,5.72,0,M.roof);roofR.rotation.z=-.58;
  // Front and rear triangular gables beneath the roof ridge.
  const makeGable=(z)=>{
-   const shape=new THREE.Shape();shape.moveTo(-3.15,4.72);shape.lineTo(3.15,4.72);shape.lineTo(0,6.82);shape.closePath();
+   const shape=new THREE.Shape();shape.moveTo(-3.15,4.72);shape.lineTo(3.15,4.72);shape.lineTo(-.25,6.82);shape.closePath();
    const mesh=new THREE.Mesh(new THREE.ShapeGeometry(shape),M.stone2);mesh.position.z=z;mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);
  };
  makeGable(4.06);makeGable(-4.06);
@@ -202,7 +202,7 @@ function makeGreenhouse(level=1){
  return g;
 }
 function makeFactory(level=1){
- const g=group(world,10,0,-10);
+ const g=group(world,9.8,0,-11);
  box(g,7.2,3.6,5.2,0,1.8,0,M.stone2);
  box(g,7.45,.28,5.45,0,3.72,0,M.gold);
  // Industrial roof, front gable and reinforced corner columns.
@@ -284,7 +284,7 @@ function makeWorldDecor(){
  // Raised crop beds create a clear plantation/garden zone on the left.
  for(const [x,z] of [[-11,1],[-7.5,1],[-11,4.2],[-7.5,4.2],[-11,7.4],[-7.5,7.4]]) makeGardenBed(x,z);
  // The well and greenhouse are intentionally omitted from this stage.
- for(const [x,z] of [[-15,-12],[16,-13],[-15,14],[17,17]]){
+ for(const [x,z] of [[16,-13],[-15,14],[17,17]]){
    const tree=makeTree(x,z,'apple');tree.scale.setScalar(1.25);
  }
  for(const [x,z] of [[-8,-1],[2,-1],[-8,7],[2,7]])makeLamp(x,z);
