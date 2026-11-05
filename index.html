@@ -872,6 +872,20 @@ function makeHouse(){
  // A continuous dressed-stone base ties the three rear panels into the corner blocks.
  box(g,9.5,.16,.22,0,.24,-4.13,houseStoneTrim,false);
  box(g,9.62,.055,.24,0,.34,-4.17,M.stone2,false);
+ // Four restrained limestone pilasters organize the rear elevation between its existing windows.
+ // Their bases and stepped capitals align with the new rear window aprons and upper cornice.
+ for(const x of [-4.48,-1.62,1.62,4.48]){
+   box(g,.24,2.82,.2,x,2.05,-4.22,houseStoneTrim,false);
+   box(g,.34,2.56,.08,x,2.05,-4.34,houseStone,false);
+   box(g,.46,.18,.3,x,.48,-4.24,houseStoneTrim,false);
+   box(g,.52,.08,.32,x,.61,-4.26,M.stone2,false);
+   box(g,.46,.16,.3,x,3.53,-4.24,houseStoneTrim,false);
+   box(g,.54,.09,.34,x,3.66,-4.26,M.stone2,false);
+   // Fine inset reveals catch light along each vertical stone shaft.
+   for(const dx of [-.075,.075]){
+     box(g,.025,2.36,.025,x+dx,2.05,-4.39,M.stone2,false);
+   }
+ }
  return g;
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
