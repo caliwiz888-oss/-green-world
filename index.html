@@ -396,6 +396,19 @@ function makeHouse(){
    cylinder(g,.23,.23,.18,x,.2,4.62,M.stone2,12);
    cylinder(g,.22,.22,.16,x,2.67,4.62,M.gold,12);
  }
+ // Classical column capitals, stepped plinths and fine brass necking refine the entrance portico.
+ for(const x of [-1.48,1.48]){
+   box(g,.62,.16,.62,x,.12,4.62,M.stone2,false);
+   cylinder(g,.24,.24,.12,x,.32,4.62,M.gold,12);
+   cylinder(g,.22,.22,.1,x,2.53,4.62,M.gold,12);
+   cylinder(g,.3,.3,.14,x,2.68,4.62,porchStone,12);
+   box(g,.48,.1,.48,x,2.78,4.62,M.stone2,false);
+   for(let k=0;k<6;k++){
+     const a=k*Math.PI/3;
+     const flute=box(g,.035,1.72,.035,x+Math.cos(a)*.166,1.42,4.62+Math.sin(a)*.166,M.stone2,false);
+     flute.rotation.y=-a;
+   }
+ }
  box(g,3.35,.24,.32,0,2.72,4.62,porchStone);
  box(g,3.55,.16,1.48,0,2.92,4.93,porchRoof);
  const porchLeft=box(g,1.95,.16,1.55,-.78,3.22,4.93,porchRoof);porchLeft.rotation.z=.24;
