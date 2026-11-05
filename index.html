@@ -81,11 +81,12 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
     <div class="menu-row"><span>🏞️ Открытая территория</span><strong id="land-status">40 / 400 мест</strong></div>
     <button id="expand-land" style="width:100%;margin:8px 0">🏞️ Открыть ещё 40 мест · 500 GC</button>
     <div style="border-top:1px solid #ffffff30;margin-top:10px;padding-top:10px">
-      <strong>🏭 Переработка фруктов</strong>
+      <strong>🏭 Завод — переработка фруктов</strong>
+      <div id="factory-locked" style="font-size:12px;color:#ffd98a;padding:6px 0">Сначала построй завод за 5 000 GC, чтобы открыть производство.</div>
       <div class="menu-row"><span>Готовая продукция</span><strong id="processed-inventory">Пока нет</strong></div>
       <select id="process-fruit-type" style="width:100%;padding:10px;margin:6px 0;border-radius:9px;background:#234b32;color:white"><option value="apple">🍎 Яблоки</option><option value="peach">🍑 Персики</option><option value="cherry">🍒 Черешня</option><option value="pear">🍐 Груши</option><option value="orange">🍊 Апельсины</option><option value="mango">🥭 Манго</option></select>
       <select id="process-kind" style="width:100%;padding:10px;margin:4px 0;border-radius:9px;background:#234b32;color:white"><option value="juice">🧃 Сок — 5 фруктов</option><option value="jam">🍯 Варенье — 8 фруктов</option></select>
-      <button id="process-fruit" style="width:100%;margin:6px 0">Переработать фрукты</button>
+      <button id="process-fruit" style="width:100%;margin:6px 0" disabled>Переработать фрукты</button>
     </div>
     <div class="menu-actions">
       <button id="build-warehouse">🏚️ Построить амбар · 80 GC</button>
@@ -93,6 +94,7 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
       <button id="upgrade-orchard">🌳 Улучшить сад · 150 GC</button>
       <button id="build-market">🏪 Торговая лавка · 1 500 GC</button>
       <button id="build-greenhouse">🌿 Теплица · 2 500 GC</button>
+      <button id="build-factory">🏭 Построить завод · 5 000 GC</button>
       <button id="sell-in-menu">🛒 Продать урожай</button>
     </div>
     <button id="menu-close">Закрыть</button>
@@ -716,6 +718,7 @@ let warehouseLevel=Boolean(savedFarm?.hasWarehouse)?Math.max(1,Number(savedFarm?
 let hasMarket=Boolean(savedFarm?.hasMarket ?? false);
 let marketLevel=hasMarket?Math.max(1,Number(savedFarm?.marketLevel ?? 1)):0;
 let hasGreenhouse=Boolean(savedFarm?.hasGreenhouse ?? false);
+let hasFactory=Boolean(savedFarm?.hasFactory ?? false);
 let greenhouseLevel=hasGreenhouse?Math.max(1,Number(savedFarm?.greenhouseLevel ?? 1)):0;
 let orchardLevel=Math.max(1,Number(savedFarm?.orchardLevel ?? 1));
 let experience=Math.max(0,Number(savedFarm?.experience ?? 0));
@@ -753,6 +756,10 @@ function update(){
   document.getElementById('fruit-inventory').textContent=fruitRows.length?fruitRows.join(' · '):'Других фруктов пока нет';
   const processedRows=Object.entries(processedInventory).filter(([,n])=>Number(n)>0).map(([key,n])=>(key.endsWith('_juice')?'🧃 ':'🍯 ')+(fruitCatalog[key.replace(/_(juice|jam)$/,'')]?.label||key)+': '+n);
   document.getElementById('processed-inventory').textContent=processedRows.length?processedRows.join(' · '):'Пока нет';
+  document.getElementById('factory-locked').style.display=hasFactory?'none':'block';
+  document.getElementById('process-fruit').disabled=!hasFactory;
+  document.getElementById('build-factory').textContent=hasFactory?'🏭 Завод построен':'🏭 Построить завод · 5 000 GC';
+  document.getElementById('build-factory').disabled=hasFactory;
   document.getElementById('land-status').textContent=unlockedPlots+' / 400 мест · уровень '+landLevel;
   const expandButton=document.getElementById('expand-land');
   const expandCost=landExpansionCost(landLevel);
@@ -783,7 +790,7 @@ function update(){
   localStorage.setItem('coins',coins);
   localStorage.setItem('apples',apples);
   localStorage.setItem('greenWorldFarm',JSON.stringify({
-    coins,apples,fruitInventory,processedInventory,landLevel,seeds,seedInventory,hasWarehouse,warehouseLevel,hasMarket,marketLevel,hasGreenhouse,greenhouseLevel,orchardLevel,experience,playerLevel,
+    coins,apples,fruitInventory,processedInventory,landLevel,seeds,seedInventory,hasWarehouse,warehouseLevel,hasMarket,marketLevel,hasGreenhouse,greenhouseLevel,hasFactory,orchardLevel,experience,playerLevel,
     plots:plots.map((p,i)=>p.tree?{index:i,type:p.tree.userData.type||'apple',grown:Boolean(p.tree.userData.grown),plantedAt:p.tree.userData.plantedAt,readyAt:p.tree.userData.readyAt,watered:Boolean(p.tree.userData.watered)}:null).filter(Boolean)
   }));
 }
@@ -828,6 +835,7 @@ function applyServerPlayer(player){
   marketLevel=hasMarket?Math.max(1,Number(player.marketLevel)||1):0;
   hasGreenhouse=Boolean(player.hasGreenhouse);
   greenhouseLevel=hasGreenhouse?Math.max(1,Number(player.greenhouseLevel)||1):0;
+  hasFactory=Boolean(player.hasFactory);
   for(const plot of plots){
     if(plot.tree){scene.remove(plot.tree);plot.tree=null;}
   }
@@ -1329,6 +1337,13 @@ document.getElementById('claim-daily-reward').addEventListener('click',async()=>
   }
 });
 document.getElementById('sell-in-menu').addEventListener('click',async()=>{await window.sell();update()});
+document.getElementById('build-factory').addEventListener('click',async()=>{
+  if(hasFactory){hint('Завод уже построен.');return;}
+  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером.');return;}
+  if(serverMode){await serverAction('/api/game/build',{kind:'factory'},'🏭 Завод построен! Теперь можно перерабатывать фрукты.');return;}
+  if(coins<5000){hint('Для строительства завода нужно 5 000 GC.');return;}
+  coins-=5000;hasFactory=true;update();hint('🏭 Завод построен! Переработка фруктов открыта.');
+});
 document.getElementById('expand-land').addEventListener('click',async()=>{
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером.');return;}
   if(unlockedPlots>=400){hint('Вся территория уже открыта.');return;}
@@ -1339,6 +1354,7 @@ document.getElementById('expand-land').addEventListener('click',async()=>{
   hint('🏞️ Территория расширена! Теперь открыто '+unlockedPlots+' мест.');
 });
 document.getElementById('process-fruit').addEventListener('click',async()=>{
+  if(!hasFactory){hint('Сначала построй завод за 5 000 GC.');return;}
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером.');return;}
   const fruitType=document.getElementById('process-fruit-type').value;
   const kind=document.getElementById('process-kind').value;
