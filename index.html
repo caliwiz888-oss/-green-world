@@ -391,6 +391,18 @@ function makeHouse(){
      box(g,.3,.16,1.2,side*5.22,1.76,z,M.stone2);
    }
  }
+ // Discreet stone-coloured gutters and paired downpipes finish the manor roofline.
+ for(const side of [-1,1]){
+   box(g,.2,.18,8.72,side*5.12,4.56,0,M.stone2,false);
+   box(g,.24,.1,8.78,side*5.12,4.68,0,M.gold,false);
+   for(const z of [-3.82,3.82]){
+     cylinder(g,.075,.075,3.92,side*5.12,2.55,z,M.stone2,10);
+     for(const y of [1.15,2.35,3.55]){
+       box(g,.2,.08,.1,side*5.12,y,z,M.gold,false);
+     }
+     box(g,.28,.12,.28,side*5.12,.58,z,M.stone2,false);
+   }
+ }
  return g;
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
