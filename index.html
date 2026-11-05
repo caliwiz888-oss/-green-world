@@ -2436,6 +2436,16 @@ function makeWorldLandscape(){
    const snowFace=new THREE.Mesh(new THREE.SphereGeometry(1,14,8),farSnow);
    snowFace.position.set(x,y,z);snowFace.scale.set(sx,sy,sz);snowFace.rotation.y=.18;world.add(snowFace);
  }
+ // Узкие световые грани на дальних скальных вершинах подчёркивают рельеф без изменения силуэта гор.
+ const farRockLight=mat(0x9aada5);
+ for(const [x,y,z,sx,sy,sz,rz] of [
+   [-29,4.7,-45.9,1.45,.16,.42,-.22],[-18,6.2,-50.9,1.8,.18,.48,.16],
+   [-5,5.3,-53.9,1.35,.15,.4,-.12],[9,6.7,-51.9,1.9,.17,.5,.2],
+   [23,5.2,-47.9,1.5,.15,.42,-.18],[32,4.1,-43.9,1.2,.13,.36,.14]
+ ]){
+   const facet=new THREE.Mesh(new THREE.SphereGeometry(1,14,8),farRockLight);
+   facet.position.set(x,y,z);facet.scale.set(sx,sy,sz);facet.rotation.z=rz;world.add(facet);
+ }
  // Soft, translucent mountain mist settles in the valleys without obscuring the playable area.
  const mistMat=new THREE.MeshBasicMaterial({color:0xe3eee9,transparent:true,opacity:.16,depthWrite:false,fog:false});
  for(const [x,y,z,sx,sy,sz] of [[-17,3.2,-39,10,.7,2.1],[3,3.8,-41,13,.8,2.4],[23,3.1,-37,9,.65,2]]){
