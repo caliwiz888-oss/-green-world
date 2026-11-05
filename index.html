@@ -846,11 +846,11 @@ function makeMarket(level=1){
      for(let col=0;col<6;col++){
        const x=-1.17+col*.47+(row%2)*.12;
        const z=-1.72+row*.68;
-       const tile=box(panel,.43,.075,.58,x,.205,z,(row+col)%3===0?M.roof2:M.roof,false);
+       const tile=box(courses,.43,.075,.58,x,.205,z,(row+col)%3===0?M.roof2:M.roof,false);
        tile.rotation.y=(col%2===0?-.018:.018);
        // Tiny raised lower lip catches light and makes each tile read separately.
-       box(panel,.39,.025,.045,x,.251,z-.255,M.stone2,false);
-       sphere(panel,.025,x-.15,.26,z-.22,M.gold,.7);
+       box(courses,.39,.025,.045,x,.251,z-.255,M.stone2,false);
+       sphere(courses,.025,x-.15,.26,z-.22,M.gold,.7);
      }
    }
    // Тонкие продольные фальцы разделяют черепицу на ровные панели.
