@@ -1911,8 +1911,21 @@ function createMarket(level=marketLevel){
   const width=4.2+(level-1)*0.55;
   addBox(booth,width,2.2,2.8,0xd8b77b,0,1.1,0);
   addBox(booth,width+0.3,0.25,3.1,0x70452b,0,2.25,0);
-  const awning=new THREE.Mesh(new THREE.ConeGeometry(2.9+(level-1)*0.25,1.35,4),material(level>=4?0xc99a35:0x3c8b4d));
-  awning.position.set(0,3,0);awning.rotation.y=Math.PI/4;booth.add(awning);
+  // Настоящая двускатная крыша торгового павильона вместо конусного навеса.
+  const awningMat=material(level>=4?0xc99a35:0x3c8b4d);
+  const awningAngle=0.48;
+  for(const side of [-1,1]){
+    const roofPanel=new THREE.Mesh(new THREE.BoxGeometry(width+0.72,0.16,1.78),awningMat);
+    roofPanel.position.set(0,3.18,side*0.72);roofPanel.rotation.x=side*-awningAngle;roofPanel.castShadow=true;booth.add(roofPanel);
+    const fascia=new THREE.Mesh(new THREE.BoxGeometry(width+0.86,0.2,0.14),marketTrim);
+    fascia.position.set(0,2.78,side*1.47);fascia.rotation.x=side*-awningAngle;booth.add(fascia);
+  }
+  const marketRidge=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.09,width+0.9,8),marketTrim);
+  marketRidge.rotation.z=Math.PI/2;marketRidge.position.set(0,3.9,0);booth.add(marketRidge);
+  for(let i=0;i<7;i++){
+    const roofRib=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.08,2.75),marketTrim);
+    roofRib.position.set(-width/2+width*i/6,3.28,0);roofRib.rotation.x=0;booth.add(roofRib);
+  }
   addBox(booth,2.1,0.8,0.12,0xf0e2bd,0,1.35,1.48);
   for(let i=0;i<level+1;i++){
     const crate=new THREE.Mesh(new THREE.BoxGeometry(.55,.42,.5),material(i%2?0x9b6337:0xc58a43));
