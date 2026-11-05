@@ -12,7 +12,10 @@
 body{margin:0;overflow:hidden;font-family:Arial,sans-serif;background:#9bd5ed;touch-action:none}
 canvas{display:block}
 #hud{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;color:#fff;z-index:2;pointer-events:none}
-.panel{background:linear-gradient(145deg,#174b35ed,#246b43e8);border:1px solid #ffffff30;padding:10px 13px;border-radius:15px;font-weight:700;font-size:13px;box-shadow:0 5px 18px #102b1b55;backdrop-filter:blur(8px);text-shadow:0 1px 2px #0005}
+.panel{background:linear-gradient(145deg,#123d2feF 0%,#28764beF 58%,#174b35ef 100%);border:1px solid #d8f5d755;padding:10px 13px;border-radius:16px;font-weight:700;font-size:13px;box-shadow:0 7px 22px #102b1b66,inset 0 1px 0 #ffffff25;backdrop-filter:blur(12px);text-shadow:0 1px 2px #0007}
+.panel:after{content:"";display:block;position:absolute;pointer-events:none}
+button{border-color:#d7f4dc66;box-shadow:0 4px 10px #071d1266,inset 0 1px 0 #ffffff35}
+button:focus-visible{outline:2px solid #f6df83;outline-offset:2px}
 .panel span{font-weight:600;color:#d7f5d9}
 #stats{display:flex;gap:7px;text-align:center}
 .stat{min-width:75px}
@@ -181,8 +184,17 @@ sun.shadow.camera.bottom=-35;
 scene.add(sun);
 
 // ===== МАТЕРИАЛЫ =====
+// Единая система материалов: поверхности получают подходящую микрофактуру
+// без внешних загрузок и тяжёлых моделей.
+const detailMaps={stone:null,wood:null,roof:null,leaf:null,water:null};
 function material(color,roughness=0.85){
-  return new THREE.MeshStandardMaterial({color,roughness});
+  const c=new THREE.Color(color);
+  let map=null;
+  if(c.g>c.r*1.12 && c.g>c.b*1.08 && c.g>0.12) map=detailMaps.leaf;
+  else if(c.r>c.g*1.16 && c.g>c.b*1.12 && c.r<0.78) map=detailMaps.wood;
+  else if(c.r>c.g*1.24 && c.r>c.b*1.22) map=detailMaps.roof;
+  else if(Math.abs(c.r-c.g)<0.13 && Math.abs(c.g-c.b)<0.16) map=detailMaps.stone;
+  return new THREE.MeshStandardMaterial({color,roughness,map});
 }
 
 // Процедурные бесшовные текстуры: трава, влажная почва и древесная кора.
@@ -216,6 +228,15 @@ const barkTexture=makeSurfaceTexture('#704326',['#a4774b','#432b20','#8b5b36'],7
 barkTexture.repeat.set(1,2);
 const grassMaterial=new THREE.MeshStandardMaterial({map:grassTexture,roughness:1});
 const soilMaterial=new THREE.MeshStandardMaterial({map:soilTexture,roughness:1});
+
+// Нейтральные процедурные карты сохраняют исходные цвета построек,
+// но добавляют камню зерно, дереву волокна, крышам черепицу, листве вариации.
+detailMaps.stone=makeSurfaceTexture('#b8b8b8',['#858585','#d8d8d8','#a0a0a0'],1500,71);
+detailMaps.wood=makeSurfaceTexture('#b8b8b8',['#858585','#d2d2d2','#999999'],1100,83);
+detailMaps.roof=makeSurfaceTexture('#b8b8b8',['#777777','#d0d0d0','#a0a0a0'],900,97);
+detailMaps.leaf=makeSurfaceTexture('#b8b8b8',['#858585','#d0d0d0','#a0a0a0'],1300,109);
+detailMaps.water=makeSurfaceTexture('#b8d8df',['#e8f5f5','#7faebd','#c5e6eb'],650,127);
+for(const map of Object.values(detailMaps)){map.repeat.set(2,2);}
 
 function addBox(parent,w,h,d,color,x,y,z){
   const mesh=new THREE.Mesh(
@@ -425,7 +446,8 @@ const pool=new THREE.Mesh(
   new THREE.CylinderGeometry(1.9,1.9,0.08,32),
   new THREE.MeshStandardMaterial({
     color:0x39bde5,
-    metalness:0.3,
+    map:detailMaps.water,
+    metalness:0.22,
     roughness:0.2
   })
 );
@@ -454,7 +476,8 @@ const river=new THREE.Mesh(
   new THREE.PlaneGeometry(42,4.5),
   new THREE.MeshStandardMaterial({
     color:0x36aee0,
-    metalness:0.2,
+    map:detailMaps.water,
+    metalness:0.18,
     roughness:0.25
   })
 );
@@ -672,7 +695,7 @@ cliff.position.set(0,2.9,0); cliff.castShadow=true; cliff.receiveShadow=true;
 waterfallCliff.add(cliff);
 const waterSheet = new THREE.Mesh(
   new THREE.PlaneGeometry(2.5,5.4),
-  new THREE.MeshStandardMaterial({color:0x48c5ed,metalness:0.25,roughness:0.16,transparent:true,opacity:0.82,side:THREE.DoubleSide,emissive:0x0b536c,emissiveIntensity:0.18})
+  new THREE.MeshStandardMaterial({color:0x48c5ed,map:detailMaps.water,metalness:0.18,roughness:0.2,transparent:true,opacity:0.82,side:THREE.DoubleSide,emissive:0x0b536c,emissiveIntensity:0.18})
 );
 waterSheet.position.set(0,2.75,1.64);
 waterfallCliff.add(waterSheet);
