@@ -26,3 +26,8 @@ test('local storage writes are disabled after server login', () => {
   assert.match(html, /if\(serverMode\) return;[\s\S]*localStorage\.setItem\('coins'/);
   assert.match(html, /serverRequired&&!serverMode/);
 });
+
+test('creates the manor once and registers it for dynamic scene cleanup', () => {
+  assert.match(html, /buildingObjects\.push\(makeHouse\(\)\);makeWorldDecor\(\);makeWorldLandscape\(\);/);
+  assert.doesNotMatch(html, /\n\s*makeHouse\(\);makeWorldDecor\(\);/);
+});
