@@ -743,7 +743,33 @@ for(let i=0;i<13;i++){
 }
 
 
- // ===== ПАРАДНЫЕ ФОНАРИ И КАМЕННЫЕ ДЕТАЛИ ДВОРА =====
+ 
+ // ===== ДОПОЛНИТЕЛЬНЫЕ СЛОИ ЦВЕТНИКОВ И КАМЕННОЙ МОЩЁНОЙ ДОРОЖКИ =====
+ const borderStone=material(0xb8a68a);
+ const flowerLeafMat=material(0x3d8740);
+ const petalPalette=[0xf2c75c,0xe9a2b5,0xf7eee0,0xa994d6];
+ for(const [cx,cz] of [[-5.4,-8.2],[5.4,-8.2],[-5.4,-16.2],[5.4,-16.2]]){
+   for(let n=0;n<12;n++){
+     const a=n*Math.PI/6;
+     const radius=0.72+(n%3)*0.12;
+     const stem=new THREE.Mesh(new THREE.CylinderGeometry(0.018,0.025,0.28,5),flowerLeafMat);
+     stem.position.set(cx+Math.cos(a)*radius,0.28,cz+Math.sin(a)*radius);scene.add(stem);
+     const bloom=new THREE.Mesh(new THREE.SphereGeometry(0.12,8,7),material(petalPalette[n%4]));
+     bloom.scale.set(1.1,0.72,1.1);
+     bloom.position.set(cx+Math.cos(a)*radius,0.46,cz+Math.sin(a)*radius);scene.add(bloom);
+   }
+ }
+ // Бордюр из светлого камня отделяет центральную аллею от газона.
+ for(let i=0;i<18;i++){
+   const t=i/17;
+   for(const side of [-1,1]){
+     const curb=new THREE.Mesh(new THREE.BoxGeometry(0.22,0.14,0.66),borderStone);
+     curb.position.set(side*2.55,0.08,-16.2+t*9.2);
+     curb.rotation.y=0.03;curb.receiveShadow=true;scene.add(curb);
+   }
+ }
+
+// ===== ПАРАДНЫЕ ФОНАРИ И КАМЕННЫЕ ДЕТАЛИ ДВОРА =====
  const lanternMetal=material(0x493326);
  const lanternGold=material(0xd7a84f);
  const lanternGlass=new THREE.MeshStandardMaterial({color:0xffe2a0,emissive:0xffb94d,emissiveIntensity:0.42,roughness:0.25});
