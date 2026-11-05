@@ -647,14 +647,8 @@ function makeHouse(){
  for(const x of [-.22,.22]){
    sphere(g,.035,x,5.55,4.34,M.gold,.8);
  }
- // Небольшой замковый камень и боковые накладки объединяют оконную группу фронтона.
- for(const x of [-1.35,1.35]){
-   box(g,1.02,.09,.22,x,5.99,4.2,houseStoneTrim,false);
-   box(g,.14,.82,.18,x-.55,5.35,4.2,houseStoneTrim,false);
-   box(g,.14,.82,.18,x+.55,5.35,4.2,houseStoneTrim,false);
-   box(g,1.08,.075,.24,x,4.76,4.22,M.gold,false);
- }
- // Small projecting balconies on the two front towers.
+ // Дублирующие наличники верхних окон фронтона удалены: основные каменные рамы и переплёты сохранены.
+  // Small projecting balconies on the two front towers.
  for(const x of [-4.35,4.35]){
    box(g,1.75,.18,.9,x,3.05,1.0,houseStoneTrim);
    for(const dx of [-.78,-.26,.26,.78])box(g,.09,.62,.09,x+dx,3.42,1.36,M.gold);
@@ -673,13 +667,8 @@ function makeHouse(){
      corbel.rotation.z=dx===0?0:(dx<0?-.12:.12);
    }
  }
- // Каменные замковые акценты и узкие боковые накладки завершают верхние окна фронтона.
- for(const x of [-1.35,1.35]){
-   box(g,.16,.22,.2,x,6.18,4.31,houseStoneTrim,false);
-   box(g,.12,.42,.12,x-.49,5.43,4.28,houseStoneTrim,false);
-   box(g,.12,.42,.12,x+.49,5.43,4.28,houseStoneTrim,false);
- }
- // Небольшие латунные накладки подчёркивают углы каменного карниза башен.
+ // Повторные боковые накладки фронтонных окон удалены, чтобы исключить z-fighting.
+  // Небольшие латунные накладки подчёркивают углы каменного карниза башен.
  for(const x of [-4.35,4.35]){
    for(const z of [-1.12,1.12]){
      box(g,.28,.09,.09,x,5.92,z,M.gold,false);
