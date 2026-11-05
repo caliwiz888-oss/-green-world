@@ -2273,6 +2273,18 @@ function makeWorldLandscape(){
    const ridge=sphere(world,1,x,sy*.36,z,mat(0x78977f),1);
    ridge.scale.set(sx,sy,sz);
  }
+ // Far blue-grey peaks sit behind the main range, giving the horizon a true layered-distance effect.
+ const farRock=mat(0x849b9c),farSnow=mat(0xcbd9d6);
+ for(const [x,z,h,r] of [[-29,-49,9,7],[-18,-54,12,8],[-5,-57,10,7],[9,-55,13,8],[23,-51,10,7],[32,-47,8,6]]){
+   cone(world,r,h,x,h*.46,z,farRock,8);
+   cone(world,r*.38,h*.31,x-.35,h*.79,z+.12,farSnow,7);
+ }
+ // Soft, translucent mountain mist settles in the valleys without obscuring the playable area.
+ const mistMat=new THREE.MeshBasicMaterial({color:0xe3eee9,transparent:true,opacity:.16,depthWrite:false,fog:false});
+ for(const [x,y,z,sx,sy,sz] of [[-17,3.2,-39,10,.7,2.1],[3,3.8,-41,13,.8,2.4],[23,3.1,-37,9,.65,2]]){
+   const mist=new THREE.Mesh(new THREE.SphereGeometry(1,20,10),mistMat);
+   mist.position.set(x,y,z);mist.scale.set(sx,sy,sz);world.add(mist);
+ }
  // A broad river outside the farm boundary, with layered banks and a stone crossing.
  box(world,52,.16,6.8,0,-.02,22.2,water,false);
  box(world,52,.24,.7,0,.05,18.55,M.grass2,false);
