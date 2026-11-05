@@ -93,7 +93,7 @@ const state = p => ({
   appleCapacity:p.has_warehouse?100*(Number(p.warehouse_level)||1):20,
   hasMarket:p.has_market, marketLevel:Number(p.market_level)||0,
   hasGreenhouse:p.has_greenhouse, greenhouseLevel:Number(p.greenhouse_level)||0,
-  hasFactory:Boolean(p.has_factory),
+  hasFactory:Boolean(p.has_factory), factoryLevel:p.has_factory?Math.min(5,Math.max(1,Number(p.factory_level)||1)):0,
   plots:publicPlots(p.plots)
 });
 function xpForLevel(level){
@@ -342,14 +342,15 @@ app.post('/api/game/process',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const type=String(req.body?.fruitType||''),kind=String(req.body?.kind||'');
   if(!['apple','peach','cherry','pear','orange','mango'].includes(type)) reject(400,'Unknown fruit type');
   if(!['juice','jam'].includes(kind)) reject(400,'Unknown processing recipe');
-  const need=kind==='juice'?5:8;
+  const factoryLevel=Math.min(5,Math.max(1,Number(p.factory_level)||1));
+  const need=(kind==='juice'?5:8)*factoryLevel;
   const inventory=p.fruit_inventory&&typeof p.fruit_inventory==='object'?{...p.fruit_inventory}:{};
   const available=type==='apple'?Number(p.apples)||0:Number(inventory[type])||0;
   if(available<need) reject(409,'Not enough fruit for this recipe');
   if(type==='apple') await c.query('UPDATE players SET apples=apples-$2 WHERE telegram_id=$1',[req.playerId,need]);
   else inventory[type]-=need;
   const processed=p.processed_inventory&&typeof p.processed_inventory==='object'?{...p.processed_inventory}:{};
-  const key=type+'_'+kind;processed[key]=(Number(processed[key])||0)+1;
+  const key=type+'_'+kind;processed[key]=(Number(processed[key])||0)+factoryLevel;
   await c.query('UPDATE players SET fruit_inventory=$2::jsonb,processed_inventory=$3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify(inventory),JSON.stringify(processed)]);
   return {player:await loadState(c,req.playerId),product:key,quantity:1};
 }));
@@ -370,7 +371,7 @@ app.post('/api/game/build',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   if(req.body?.kind==='warehouse') await c.query('UPDATE players SET coins=coins-$2,has_warehouse=TRUE,warehouse_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
   else if(req.body?.kind==='market') await c.query('UPDATE players SET coins=coins-$2,has_market=TRUE,market_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
   else if(req.body?.kind==='greenhouse') await c.query('UPDATE players SET coins=coins-$2,has_greenhouse=TRUE,greenhouse_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
-  else await c.query('UPDATE players SET coins=coins-$2,has_factory=TRUE,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
+  else await c.query('UPDATE players SET coins=coins-$2,has_factory=TRUE,factory_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/upgrade-warehouse',auth,(req,res)=>mutate(req,res,async(c,p)=>{
@@ -402,6 +403,17 @@ app.post('/api/game/upgrade-greenhouse',auth,(req,res)=>mutate(req,res,async(c,p
   await c.query('UPDATE players SET coins=coins-$2,greenhouse_level=greenhouse_level+1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,cost]);
   return {player:await loadState(c,req.playerId)};
 }));
+app.post('/api/game/upgrade-factory',auth,(req,res)=>mutate(req,res,async(c,p)=>{
+  if(!p.has_factory) reject(409,'Build the factory first');
+  const level=Math.min(5,Math.max(1,Number(p.factory_level)||1));
+  if(level>=5) reject(409,'Factory is already at maximum level');
+  const costs=[0,3000,6000,10000,15000];
+  const cost=costs[level];
+  if(Number(p.coins)<cost) reject(409,'Not enough Green Coin');
+  await c.query('UPDATE players SET coins=coins-$2,factory_level=factory_level+1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,cost]);
+  return {player:await loadState(c,req.playerId)};
+}));
+
 app.post('/api/game/upgrade-orchard',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const cost=150*p.orchard_level;if(p.coins<cost) reject(409,'Not enough Green Coin');
   await c.query('UPDATE players SET coins=coins-$2,orchard_level=orchard_level+1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,cost]);
@@ -412,7 +424,8 @@ app.use((err,_req,res,_next)=>{console.error(err.message);res.status(500).json({
 const port=Number(process.env.PORT||3000);
 db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS fruit_inventory JSONB NOT NULL DEFAULT '{}'::jsonb")
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS processed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb")
-.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS has_factory BOOLEAN NOT NULL DEFAULT FALSE")))
+.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS has_factory BOOLEAN NOT NULL DEFAULT FALSE"))
+.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS factory_level INTEGER NOT NULL DEFAULT 1")))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS land_level INTEGER NOT NULL DEFAULT 1"))
 .then(()=>db.query("UPDATE players SET land_level=CASE WHEN jsonb_array_length(COALESCE(plots,'[]'::jsonb))>0 THEN 5 ELSE GREATEST(COALESCE(land_level,1),1) END"))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS seed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb"))
