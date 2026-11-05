@@ -2513,9 +2513,9 @@ window.addEventListener('resize',()=>{
 // ===== УПРАВЛЕНИЕ КАМЕРОЙ И ВЫБОР УЧАСТКА =====
 // Более низкая и близкая перспектива подчёркивает объём зданий и рельеф.
 // Более близкая перспективная камера: видны фасады, боковые стены и рельеф, а не только план сверху.
-let cameraRadius=41;
+let cameraRadius=46;
 let cameraAngle=0;
-let cameraHeight=25;
+let cameraHeight=28;
 let pointerStart=null;
 let pointerMoved=false;
 const raycaster=new THREE.Raycaster();
@@ -2527,7 +2527,7 @@ function positionCamera(){
     cameraHeight,
     Math.cos(cameraAngle)*cameraRadius
   );
-  camera.lookAt(3.2,1.1,-3.5);
+  camera.lookAt(2.4,1.1,-4.2);
 }
 function setSelection(plot){
   if(selectedPlot?.tile) selectedPlot.tile.material.emissive?.setHex(0x000000);
@@ -2546,7 +2546,7 @@ function zoom(factor){
 document.getElementById('zoom-in').addEventListener('click',()=>zoom(.88));
 document.getElementById('zoom-out').addEventListener('click',()=>zoom(1.14));
 document.getElementById('camera-reset').addEventListener('click',()=>{
-  cameraRadius=41;cameraHeight=25;cameraAngle=0;positionCamera();
+  cameraRadius=46;cameraHeight=28;cameraAngle=0;positionCamera();
 });
 renderer.domElement.addEventListener('pointerdown',e=>{
   pointerStart={x:e.clientX,y:e.clientY,id:e.pointerId};
