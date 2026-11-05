@@ -429,6 +429,18 @@ function makeHouse(){
      box(g,.12,1.32,.09,x+side*.1,2.72,z+.48,houseStoneTrim,false);
    }
  }
+ // Медные водосточные трубы на боковых фасадах добавляют дому реалистичную инженерную деталь.
+ for(const side of [-1,1]){
+   const pipeX=side*5.16;
+   box(g,.095,3.38,.095,pipeX,2.15,0,M.roof2,false);
+   box(g,.14,.11,.14,pipeX,.48,0,M.stone2,false);
+   for(const y of [.82,2.15,3.48]){
+     box(g,.19,.075,.16,pipeX,y,0,M.gold,false);
+   }
+   // Короткий отвод соединяет трубу с линией карниза.
+   box(g,.22,.085,.085,side*5.08,3.82,0,M.roof2,false);
+   sphere(g,.07,pipeX,.42,0,M.roof2,.8);
+ }
  // Боковые угловые пилястры главного дома: каменные блоки связывают боковые стены с фасадом.
  for(const side of [-1,1]){
    for(const z of [-3.82,3.82]){
