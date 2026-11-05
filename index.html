@@ -1319,6 +1319,23 @@ function createMarket(level=marketLevel){
     crate.position.set(-1.5+i*.55,.35,1.72);booth.add(crate);
   }
   if(level>=3){const sign=new THREE.Mesh(new THREE.BoxGeometry(1.2,.55,.12),material(0xf5d778));sign.position.set(0,3.55,1.45);booth.add(sign);}
+  // Деревянные опоры, тканевые полосы навеса и витрина с настоящим урожаем.
+  const postMat=material(0x70452b),fabricA=material(0xf0e2bd),fabricB=material(0x9f3f35);
+  for(const x of [-width/2+0.12,width/2-0.12]){
+    addBox(booth,0.16,2.7,0.16,postMat,x,1.35,1.18);
+    addBox(booth,0.22,0.18,0.22,material(0x4e3526),x,2.72,1.18);
+  }
+  for(let i=0;i<7;i++){
+    const stripe=new THREE.Mesh(new THREE.BoxGeometry(width/7+0.025,0.08,1.5),i%2?fabricA:fabricB);
+    stripe.position.set(-width/2+width*(i+0.5)/7,2.62,0.88);stripe.rotation.x=-0.12;booth.add(stripe);
+  }
+  const counter=new THREE.Mesh(new THREE.BoxGeometry(width-0.45,0.18,0.48),material(0x9a6338));
+  counter.position.set(0,1.02,1.58);booth.add(counter);
+  const fruitMats=[material(0xc83f32),material(0xe9a33b),material(0x75a94b)];
+  for(let i=0;i<Math.min(9,level+4);i++){
+    const fruit=new THREE.Mesh(new THREE.SphereGeometry(0.14,9,8),fruitMats[i%3]);
+    fruit.scale.set(1,0.9,1);fruit.position.set(-1.45+(i%5)*0.7,1.28+Math.floor(i/5)*0.13,1.72);booth.add(fruit);
+  }
   booth.position.set(8,0,-2);scene.add(booth);
 }
 function createGreenhouse(level=greenhouseLevel){
@@ -1361,6 +1378,31 @@ function createGreenhouse(level=greenhouseLevel){
     const bed=new THREE.Mesh(new THREE.BoxGeometry(.55,.25,depth*.62),material(0x795337));bed.position.set(-width*.32+row*(width*.64/Math.max(1,level-1)),.22,0);house.add(bed);
     for(let j=0;j<3;j++){const plant=new THREE.Mesh(new THREE.SphereGeometry(.22,8,8),material(0x3d9c45));plant.position.set(bed.position.x,.55,-depth*.22+j*depth*.22);house.add(plant);}
   }
+  // Полный каркас теплицы: боковые рёбра, диагональные связи и нижний цоколь.
+  const railMat=material(0xb8c5ad);
+  for(const side of [-1,1]){
+    for(let i=0;i<=5;i++){
+      const z=-depth/2+depth*i/5;
+      const rib=new THREE.Mesh(new THREE.BoxGeometry(0.075,height+0.05,0.09),frameMat);
+      rib.position.set(side*width/2, height/2+0.1,z);house.add(rib);
+    }
+    const sill=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.16,depth),railMat);
+    sill.position.set(side*width/2,0.2,0);house.add(sill);
+  }
+  for(let i=1;i<5;i++){
+    const z=-depth/2+depth*i/5;
+    const roofBrace=new THREE.Mesh(new THREE.BoxGeometry(width,0.055,0.055),railMat);
+    roofBrace.position.set(0,height+0.36,z);roofBrace.rotation.z=0;house.add(roofBrace);
+  }
+  // Небольшие вентиляционные окна на торцах.
+  for(const z of [-depth/2-0.04,depth/2+0.04]){
+    const vent=new THREE.Mesh(new THREE.BoxGeometry(0.8,0.42,0.07),roofPanelMat);
+    vent.position.set(0,height-0.38,z);house.add(vent);
+    for(let k=0;k<3;k++){
+      const slat=new THREE.Mesh(new THREE.BoxGeometry(0.72,0.035,0.09),frameMat);
+      slat.position.set(0,height-0.48+k*0.1,z+0.045);house.add(slat);
+    }
+  }
   house.position.set(14,0,7);scene.add(house);
 }
 function createFactory(){
@@ -1401,6 +1443,28 @@ function createFactory(){
   for(let i=0;i<3;i++){
     const crate=new THREE.Mesh(new THREE.BoxGeometry(0.65,0.55,0.6),material(i%2?0x9b6337:0xc58a43));
     crate.position.set(-2.0+i*0.78,0.45,3.0);crate.castShadow=true;factory.add(crate);
+  }
+  // Кирпичные швы фасада и металлические детали производственного корпуса.
+  const mortar=material(0xd29b7d),darkMetal=material(0x39464b);
+  for(let y=0.42;y<3.25;y+=0.48){
+    const course=new THREE.Mesh(new THREE.BoxGeometry(6.12,0.035,0.025),mortar);
+    course.position.set(0,y,2.315);factory.add(course);
+    for(let x=-2.7;x<2.8;x+=0.92){
+      const joint=new THREE.Mesh(new THREE.BoxGeometry(0.025,0.44,0.028),mortar);
+      joint.position.set(x+(Math.floor(y*10)%2?0.42:0),y+0.22,2.316);factory.add(joint);
+    }
+  }
+  // Ряд вентиляционных жалюзи над воротами.
+  for(let i=0;i<5;i++){
+    const slat=new THREE.Mesh(new THREE.BoxGeometry(0.78,0.07,0.09),darkMetal);
+    slat.position.set(-1.55+i*0.78,3.05,2.43);factory.add(slat);
+  }
+  // Наружный кабельный короб и опорные башмаки дымовой трубы.
+  const cable=new THREE.Mesh(new THREE.BoxGeometry(0.12,2.1,0.12),metal);
+  cable.position.set(-3.12,1.5,2.36);factory.add(cable);
+  for(const x of [-2.65,2.65]){
+    const foot=new THREE.Mesh(new THREE.BoxGeometry(0.48,0.22,0.48),darkMetal);
+    foot.position.set(x,0.2,-1.7);factory.add(foot);
   }
   factory.position.set(-15,0,7);scene.add(factory);
 }
