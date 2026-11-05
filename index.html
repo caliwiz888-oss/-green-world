@@ -366,6 +366,13 @@ function makeMarket(level=1){
    box(g,.16,1.55,.18,x,1.65,2.48,M.stone2);
    box(g,.22,.16,.24,x,2.48,2.48,M.gold);
  }
+ // Subtle horizontal timber courses finish both visible side elevations.
+ for(const side of [-1,1]){
+   for(const y of [.72,1.28,1.84,2.4]){
+     box(g,.075,.065,3.85,side*2.72,y,0,M.wood2,false);
+   }
+   box(g,.12,.12,4.18,side*2.73,2.72,0,M.stone2,false);
+ }
  // Refined shop architecture: layered gable, carved signboard and framed entrance.
  box(g,2.42,.18,.24,0,4.22,2.7,M.stone2);
  box(g,2.18,.12,.12,0,4.34,2.78,M.gold,false);
@@ -505,6 +512,10 @@ function makeFactory(level=1){
  box(g,1.25,.22,1.25,2.55,7.42,-1.45,darkMetal);
  cylinder(g,.48,.55,.28,2.55,7.65,-1.45,darkMetal,12);
  cylinder(g,.27,.3,.38,2.55,7.95,-1.45,metal,12);
+ // Safe-access ladder fixed to the chimney face, with evenly spaced metal rungs.
+ for(const x of [1.82,3.22])box(g,.075,2.25,.075,x,5.95,-.56,darkMetal,false);
+ for(let i=0;i<8;i++)box(g,1.48,.065,.09,2.52,5.05+i*.27,-.56,metal,false);
+
  // Side exhaust pipes, small roof vents and an industrial water tank.
  for(const z of [-1.6,-.25,1.1]){
    cylinder(g,.12,.12,1.7,3.9,3.15,z,metal,10).rotation.z=Math.PI/2;
