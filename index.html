@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#91c6df">
 <title>GREEN WORLD — Новый мир</title>
 <style>
@@ -156,7 +159,7 @@ function makeTree(x,z,kind='apple'){
  return g;
 }
 function makeMarket(level=1){
- const g=group(world,10.25,0,8.8);g.rotation.y=0;g.scale.setScalar(.72);
+ const g=group(world,9.8,0,8.8);g.rotation.y=0;g.scale.setScalar(.56);
  box(g,5.4,2.8,4.4,0,1.4,0,M.stone);
  box(g,5.65,.24,4.65,0,2.86,0,M.gold);
  // Timber-framed storefront and broad display windows.
@@ -337,7 +340,7 @@ function makeWorldDecor(){
  }
  // Fountain, entrance arch, lamps and flower beds remain removed.
  // Expanded vegetable beds on the left side of the manor, balanced against the shop area.
- for(const x of [-11.1,-7.9])for(const z of [1.0,3.6,6.2])makeGardenBed(x,z);
+ for(const x of [-10.2,-6.9])for(const z of [1.2,4.0,6.8])makeGardenBed(x,z);
  // The well, greenhouse and decorative orchard trees remain omitted.
 
 }
