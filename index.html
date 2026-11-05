@@ -319,6 +319,39 @@ function makeFactory(level=1){
  // Small sign plate over the loading entrance.
  box(g,2.4,.48,.16,0,3.55,2.84,darkMetal);
  box(g,2.15,.12,.08,0,3.55,2.94,M.gold,false);
+ // Decorative brick corner quoins and stone belt courses sharpen the industrial facade.
+ for(const x of [-3.52,3.52]){
+   box(g,.32,3.55,.34,x,2.16,2.72,M.stone2);
+   box(g,.38,.22,.4,x,3.9,2.72,M.gold);
+ }
+ for(const y of [.55,3.72])box(g,7.42,.12,.2,0,y,2.73,M.stone2);
+ // Additional multi-pane clerestory windows beneath the roof line.
+ for(const x of [-2.55,-.85,.85,2.55]){
+   box(g,.92,.72,.16,x,3.18,2.76,darkMetal);
+   box(g,.72,.52,.08,x,3.18,2.86,windowGlow);
+   box(g,.08,.56,.08,x,3.18,2.92,M.gold,false);
+   box(g,.76,.08,.08,x,3.18,2.92,M.gold,false);
+ }
+ // Covered loading canopy with steel brackets and ribbed metal roof.
+ box(g,4.35,.18,1.55,0,3.18,3.65,darkMetal);
+ for(const x of [-1.9,1.9]){
+   box(g,.14,1.45,.14,x,2.48,3.7,metal);
+   box(g,.16,.14,1.5,x,3.13,3.7,M.gold,false);
+ }
+ for(let i=0;i<9;i++)box(g,.055,.07,1.42,-2+i*.5,3.3,3.65,metal,false);
+ // Visible side pipework, valves and service brackets.
+ for(const z of [-1.85,-.75,.35,1.45]){
+   cylinder(g,.09,.09,2.25,3.78,1.72,z,metal,12);
+   for(const y of [.85,2.55])box(g,.42,.1,.12,3.82,y,z,M.gold,false);
+ }
+ cylinder(g,.22,.22,.18,3.86,1.25,-.75,M.gold,16);
+ cylinder(g,.11,.11,.24,3.86,1.25,-.75,metal,12);
+ // Roof skylights and raised ventilation housings.
+ for(const x of [-2.15,-.7,.7,2.15]){
+   const skylight=box(g,.82,.12,1.1,x,5.12,-.25,windowGlow);
+   skylight.rotation.z=x<0?.34:-.34;
+   box(g,.9,.12,.12,x,5.25,-.25,metal);
+ }
  // Building upgrades add subtle roof equipment rather than changing its footprint.
  for(let i=0;i<Math.min(5,Math.max(1,level));i++){
    box(g,.5,.22,.7,-2.45+i*1.05,5.12,.85,metal);
@@ -376,6 +409,15 @@ function makeWorldDecor(){
  // Expanded vegetable beds on the left side of the manor, balanced against the shop area.
  for(const x of [-10.2,-6.9])for(const z of [1.2,4.0,6.8])makeGardenBed(x,z);
  // The well, greenhouse and decorative orchard trees remain omitted.
+ // Low ornamental ground cover and natural stone clusters around the outer border.
+ const shrubMat=mat(0x477f3d),rockMat=mat(0x8b8979);
+ for(const [x,z,scale] of [[-17,-10,1.2],[-18,7,1.1],[17,-8,1.25],[18,8,1.15],[-12,18,1],[12,18,1]]){
+   const shrub=sphere(world,.72,x,.42,z,shrubMat,.72);shrub.scale.set(scale,scale*.78,scale);
+   sphere(world,.48,x+.42,.3,z+.22,M.leaf2,.7).scale.setScalar(scale*.82);
+ }
+ for(const [x,z,r] of [[-17,-17,.9],[17,-17,.8],[-18,15,.75],[18,15,1.0]]){
+   const rock=sphere(world,r,x,.22,z,rockMat,.62);rock.rotation.z=.22;
+ }
 }
 function makeWorldLandscape(){
  const hillMat=mat(0x668f58),hillLight=mat(0x82a968),mountain=mat(0x71877b),snow=mat(0xe5eee5),water=new THREE.MeshPhysicalMaterial({color:0x4aa9c5,roughness:.2,metalness:.08,transparent:true,opacity:.82});
