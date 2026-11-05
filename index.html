@@ -1336,6 +1336,27 @@ function makeFactory(level=1){
      box(g,.12,.22,.12,side*3.48,3.82,z,darkMetal,false);
    }
  }
+ // Торцевые фронтонные планки закрывают края металлической кровли и связывают скаты с кирпичными стенами.
+ for(const zSide of [-1,1]){
+   for(const [cx,angle] of [[-1.48,.34],[1.48,-.34]]){
+     const edge=box(g,4.02,.16,.18,cx,4.72,zSide*2.98,metal,false);
+     edge.rotation.z=angle;
+     const edgeLip=box(g,3.94,.045,.2,cx,4.82,zSide*3.0,M.gold,false);
+     edgeLip.rotation.z=angle;
+     // Ровные латунные заклёпки подчёркивают крепление торцевых планок.
+     for(let k=0;k<5;k++){
+       const lx=-1.58+k*.79;
+       const px=cx+Math.cos(angle)*lx;
+       const py=4.72+Math.sin(angle)*lx+.105;
+       sphere(g,.032,px,py,zSide*3.105,M.gold,.8);
+     }
+   }
+   // Каменные опорные блоки завершают нижние окончания фронтонных планок.
+   for(const x of [-3.28,3.28]){
+     box(g,.28,.2,.24,x,4.02,zSide*2.9,M.stone2,false);
+     box(g,.18,.07,.28,x,4.14,zSide*2.94,M.gold,false);
+   }
+ }
  // Front loading entrance with a stone arch-like surround and timber doors.
  box(g,2.55,2.9,.22,0,1.75,2.78,M.stone2);
  box(g,2.12,2.55,.12,0,1.52,2.94,darkMetal);
