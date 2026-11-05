@@ -1048,6 +1048,20 @@ function makeMarket(level=1){
  // Refined ridge caps and small forged fasteners unify the roof panels.
  box(g,.26,.12,4.82,0,4.55,0,M.stone2,false);
  for(const z of [-2.12,-1.06,0,1.06,2.12])sphere(g,.045,0,4.63,z,M.gold,.8);
+ // Individually layered ceramic ridge caps protect the shop roof seam with a handcrafted finish.
+ for(let i=0;i<8;i++){
+   const z=-2.1+i*.6;
+   box(g,.34,.13,.66,0,4.65,z,i%2===0?M.roof2:M.roof,false);
+   box(g,.38,.045,.09,0,4.72,z-.27,M.stone2,false);
+   box(g,.38,.045,.09,0,4.72,z+.27,M.stone2,false);
+   for(const x of [-.11,.11])sphere(g,.022,x,4.735,z,M.gold,.8);
+ }
+ // Shaped ceramic end pieces and small brass terminal studs finish both ends of the ridge.
+ for(const z of [-2.43,2.43]){
+   box(g,.4,.15,.14,0,4.65,z,M.stone2,false);
+   box(g,.28,.07,.08,0,4.75,z,M.gold,false);
+   for(const x of [-.1,.1])sphere(g,.025,x,4.78,z,M.gold,.8);
+ }
  // Slim carved fascia highlights finish the eaves without adding bulk.
  for(const x of [-2.82,2.82]){
    box(g,.055,.055,4.62,x,3.31,0,M.gold,false);
