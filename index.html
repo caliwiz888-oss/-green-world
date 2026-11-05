@@ -176,6 +176,17 @@ function makeHouse(){
  const masonryCanvas=document.createElement('canvas');masonryCanvas.width=masonryCanvas.height=256;
  const masonryCtx=masonryCanvas.getContext('2d');
  masonryCtx.fillStyle='#d7d7d7';masonryCtx.fillRect(0,0,256,256);
+ // Небольшая разница тона между блоками делает кладку естественной, а не плоской.
+ for(let row=0;row<8;row++){
+   const y=row*32,offset=row%2?32:0;
+   for(let x=offset-96;x<256;x+=96){
+     const shade=205+((row*17+Math.floor(x/32)*11)%25);
+     masonryCtx.fillStyle='rgb('+shade+','+shade+','+shade+')';
+     masonryCtx.fillRect(x+2,y+2,92,28);
+     masonryCtx.fillStyle='rgba(255,255,255,.12)';
+     masonryCtx.fillRect(x+4,y+3,88,2);
+   }
+ }
  masonryCtx.strokeStyle='#777777';masonryCtx.lineWidth=3;
  for(let row=0;row<8;row++){
    const y=row*32,offset=row%2?32:0;
@@ -1146,6 +1157,17 @@ function makeFactory(level=1){
  const brickCanvas=document.createElement('canvas');brickCanvas.width=brickCanvas.height=256;
  const brickCtx=brickCanvas.getContext('2d');
  brickCtx.fillStyle='#b8b8b8';brickCtx.fillRect(0,0,256,256);
+ // Разные оттенки кирпича и мягкий верхний блик подчёркивают отдельные ряды кладки.
+ for(let row=0;row<8;row++){
+   const y=row*32,offset=row%2?16:0;
+   for(let x=offset-64;x<256;x+=64){
+     const shade=174+((row*19+Math.floor(x/16)*13)%34);
+     brickCtx.fillStyle='rgb('+shade+','+shade+','+shade+')';
+     brickCtx.fillRect(x+2,y+2,60,28);
+     brickCtx.fillStyle='rgba(255,255,255,.13)';
+     brickCtx.fillRect(x+4,y+3,56,2);
+   }
+ }
  brickCtx.strokeStyle='#555555';brickCtx.lineWidth=5;
  for(let row=0;row<8;row++){
    const y=row*32;
