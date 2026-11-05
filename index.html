@@ -401,6 +401,29 @@ function makeMarket(level=1){
  for(const x of [-2.72,2.72]){
    box(g,.18,.18,4.7,x,3.1,0,M.stone2);
  }
+ // Rear and side elevations: matching framed glazing keeps the shop detailed from every angle.
+ for(const x of [-1.55,1.55]){
+   box(g,1.05,1.18,.14,x,1.62,-2.24,M.wood);
+   box(g,.82,.92,.08,x,1.62,-2.34,M.glass);
+   box(g,.1,.98,.1,x,1.62,-2.4,M.gold,false);
+   box(g,.88,.08,.1,x,1.62,-2.4,M.gold,false);
+   box(g,1.22,.14,.22,x,2.3,-2.28,M.stone2);
+   box(g,1.22,.14,.22,x,.94,-2.28,M.stone2);
+ }
+ for(const side of [-1,1]){
+   box(g,.16,1.12,1.15,side*2.72,1.68,0,M.wood);
+   box(g,.1,.86,.88,side*2.82,1.68,0,M.glass);
+   box(g,.12,1.0,.12,side*2.9,1.68,0,M.gold,false);
+   box(g,.12,.12,1.05,side*2.9,1.68,0,M.gold,false);
+   box(g,.24,.14,1.28,side*2.82,2.32,0,M.stone2);
+   box(g,.24,.14,1.28,side*2.82,1.02,0,M.stone2);
+   // restrained timber corner trim
+   for(const z of [-1.8,1.8])box(g,.14,2.45,.14,side*2.73,1.42,z,M.wood2,false);
+ }
+ // Roof underside fascia and evenly spaced exposed rafter ends.
+ for(const z of [-2.15,-1.1,0,1.1,2.15]){
+   for(const x of [-2.55,2.55])box(g,.24,.12,.16,x,3.36,z,M.wood2,false);
+ }
  // Убраны три отдельные белые плиты перед лавкой по просьбе пользователя.
  return g;
 }
@@ -584,6 +607,20 @@ function makeFactory(level=1){
      box(seamGroup,3.55,.045,.045,0,.19,z,metal,false);
    }
  }
+ // Rear elevation: framed industrial windows, lintels and a continuous masonry belt.
+ for(const x of [-2.45,0,2.45]){
+   box(g,1.18,1.02,.14,x,2.55,-2.76,darkMetal);
+   box(g,.92,.76,.08,x,2.55,-2.86,windowGlow);
+   box(g,.1,.82,.08,x,2.55,-2.92,M.gold,false);
+   box(g,.98,.1,.08,x,2.55,-2.92,M.gold,false);
+   box(g,1.38,.14,.28,x,3.12,-2.78,M.stone2);
+   box(g,1.38,.14,.28,x,1.96,-2.78,M.stone2);
+ }
+ for(const x of [-3.52,3.52]){
+   box(g,.3,3.42,.3,x,2.12,-2.72,M.stone2);
+   box(g,.38,.18,.36,x,3.88,-2.72,M.gold);
+ }
+ box(g,7.35,.12,.2,0,.62,-2.74,M.stone2);
  // Reinforced lower wall panels, riveted brackets and a service access hatch.
  for(const x of [-2.75,-1.4,0,1.4,2.75]){
    box(g,.72,.58,.08,x,.48,2.78,darkMetal,false);
