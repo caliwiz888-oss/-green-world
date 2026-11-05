@@ -131,7 +131,19 @@ for(const m of [M.grass,M.grass2])m.map=surfaceMaps.grass;
 M.soil.map=surfaceMaps.soil;M.stone.map=surfaceMaps.stone;M.stone2.map=surfaceMaps.stone;
 for(const m of [M.wood,M.wood2])m.map=surfaceMaps.wood;
 for(const m of [M.roof,M.roof2])m.map=surfaceMaps.roof;
-for(const m of [M.grass,M.grass2,M.soil,M.stone,M.stone2,M.wood,M.wood2,M.roof,M.roof2])m.needsUpdate=true;
+// Микрорельеф материалов: неглубокие неровности делают камень, дерево и черепицу объёмнее.
+const surfaceBumps=[
+ [M.grass,surfaceMaps.grass,.018],[M.grass2,surfaceMaps.grass,.018],
+ [M.soil,surfaceMaps.soil,.065],[M.stone,surfaceMaps.stone,.045],
+ [M.stone2,surfaceMaps.stone,.038],[M.wood,surfaceMaps.wood,.032],
+ [M.wood2,surfaceMaps.wood,.028],[M.roof,surfaceMaps.roof,.022],
+ [M.roof2,surfaceMaps.roof,.022]
+];
+for(const [material,texture,scale] of surfaceBumps){
+ material.bumpMap=texture;
+ material.bumpScale=scale;
+ material.needsUpdate=true;
+}
 
 function box(parent,w,h,d,x,y,z,material,cast=true){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=cast;o.receiveShadow=true;parent.add(o);return o}
 function cone(parent,r,h,x,y,z,material,n=4){const o=new THREE.Mesh(new THREE.ConeGeometry(r,h,n),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
