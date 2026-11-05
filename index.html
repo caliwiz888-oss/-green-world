@@ -315,44 +315,16 @@ function makeHouse(){
  // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
  const roofL=box(g,3.95,.34,8.9,-1.93,5.72,0,M.roof);roofL.rotation.z=.58;
  const roofR=box(g,3.95,.34,8.9,1.43,5.72,0,M.roof);roofR.rotation.z=-.58;
- // Тонкие поперечные швы формируют аккуратные ряды черепицы на обоих скатах.
- for(let row=-4;row<=4;row++){
-   const z=row*.92;
-   const leftCourse=box(g,3.72,.035,.045,-1.93,5.72+.19*Math.cos(.58)+.025,z,M.roof2,false);
-   leftCourse.rotation.z=.58;
-   const rightCourse=box(g,3.72,.035,.045,1.43,5.72+.19*Math.cos(.58)+.025,z,M.roof2,false);
-   rightCourse.rotation.z=-.58;
- }
- // Отдельные слегка приподнятые черепицы добавляют главной крыше мелкий архитектурный рельеф.
- // Ряды смещены друг относительно друга, чтобы рисунок выглядел как настоящая кладка.
- for(const [centerX,angle] of [[-1.93,.58],[1.43,-.58]]){
-   const roofTiles=group(g,centerX,5.72,0);roofTiles.rotation.z=angle;
-   for(let row=0;row<9;row++){
-     const z=-3.68+row*.92+(row%2)*.12;
-     for(let col=0;col<4;col++){
-       const lx=-1.35+col*.9;
-       const tile=box(roofTiles,.78,.055,.78,lx,.205,z,(row+col)%4===0?M.roof2:M.roof,false);
-       tile.rotation.y=(col%2===0?-.012:.012);
-     }
-   }
- }
+  // Основные скаты оставлены цельными: убраны накладные ряды и черепица, создававшие мерцание.
  // Карнизные балки вдоль обоих скатов закрывают торцы кровли и подчёркивают её толщину.
  for(const [x,y,angle] of [[-3.55,4.63,.58],[3.09,4.78,-.58]]){
    const fascia=box(g,.2,.24,9.02,x,y,0,M.wood2);
    fascia.rotation.z=angle;
-   const fasciaHighlight=box(g,.075,.055,8.92,x+Math.sin(angle)*.14,y+Math.cos(angle)*.14,0,M.gold,false);
-   fasciaHighlight.rotation.z=angle;
    // Ритмичные резные кронштейны поддерживают длинный карниз главного дома.
    for(const z of [-3.65,-2.2,-.73,.73,2.2,3.65]){
      const bracket=box(g,.16,.42,.2,x+(x<0?.12:-.12),y-.2,z,M.stone2,false);
      bracket.rotation.z=angle;
      sphere(g,.045,x+(x<0?.24:-.24),y-.34,z,M.gold,.8);
-   }
- }
- // Маленькие латунные заклёпки на карнизных накладках подчёркивают аккуратное крепление кровли.
- for(const [x,y] of [[-3.55,4.79],[3.09,4.94]]){
-   for(const z of [-3.65,-2.2,-.73,.73,2.2,3.65]){
-     sphere(g,.035,x,y,z,M.gold,.8);
    }
  }
  // Коньковая накладка закрывает стык скатов и завершает силуэт крыши.
@@ -1618,24 +1590,7 @@ function makeFactory(level=1){
    box(g,.3,.08,.08,0,5.66,z,M.gold,false);
    for(const x of [-.13,.13])sphere(g,.035,x,5.68,z,M.gold,.8);
  }
- // Individually laid industrial roof panels add scale, rhythm and realistic metal relief.
- for(const side of [-1,1]){
-   const angle=side===-1?.34:-.34;
-   const centerX=side===-1?-1.48:1.48;
-   for(let row=0;row<7;row++){
-     for(let col=0;col<7;col++){
-       const localX=-1.62+col*.54+(row%2)*.08;
-       const z=-2.34+row*.78;
-       const y=4.72+Math.sin(angle)*localX+Math.cos(angle)*.15+.055;
-       const panel=box(g,.49,.065,.7,centerX+Math.cos(angle)*localX,y,z,(row+col)%3===0?metal:darkMetal,false);
-       panel.rotation.z=angle;
-        // Шов и крепёж подняты над панелью с зазором, чтобы исключить пересечение поверхностей.
-        const seam=box(g,.025,.025,.64,centerX+Math.cos(angle)*localX+.21*Math.cos(angle),y+.055,z,(row+col)%3===0?M.stone2:M.gold,false);
-        seam.rotation.z=angle;
-        sphere(g,.027,centerX+Math.cos(angle)*localX-.16*Math.cos(angle),y+.09,z-.27,M.gold,.8);
-     }
-   }
- }
+  // Цельные металлические скаты без накладных панелей и крепежа: исключаем z-fighting.
  // Continuous metal eave fascias and evenly spaced support cleats finish both roof edges.
  for(const side of [-1,1]){
    box(g,.2,.2,5.82,side*3.38,4.02,0,darkMetal,false);
