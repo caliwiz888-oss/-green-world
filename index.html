@@ -1309,6 +1309,40 @@ function makeMarket(level=1){
    cylinder(g,.075,.075,.32,px, .38,pz+.12,shopMetal,10).rotation.x=Math.PI/2;
    box(g,.12,.1,.22,px,.2,pz+.22,M.stone2,false);
  }
+
+ // Задний фронтон главного дома: круглое слуховое окно с глубокой каменной оправой.
+ // Оно уравновешивает парадную эмблему и завершает силуэт крыши со стороны двора.
+ const rearOculus=new THREE.Mesh(new THREE.CircleGeometry(.29,32),windowInterior);
+ rearOculus.position.set(-.25,6.08,-4.31);rearOculus.rotation.y=Math.PI;g.add(rearOculus);
+ const rearOculusGlass=new THREE.Mesh(new THREE.CircleGeometry(.255,32),M.glass);
+ rearOculusGlass.position.set(-.25,6.08,-4.335);rearOculusGlass.rotation.y=Math.PI;g.add(rearOculusGlass);
+ const rearOculusRing=new THREE.Mesh(new THREE.TorusGeometry(.36,.075,10,40),houseStoneTrim);
+ rearOculusRing.position.set(-.25,6.08,-4.37);rearOculusRing.rotation.y=Math.PI;g.add(rearOculusRing);
+ const rearOculusInner=new THREE.Mesh(new THREE.TorusGeometry(.275,.025,8,32),M.gold);
+ rearOculusInner.position.set(-.25,6.08,-4.395);rearOculusInner.rotation.y=Math.PI;g.add(rearOculusInner);
+ // Четыре латунных переплёта делят круглое окно на аккуратные стеклянные секции.
+ box(g,.045,.48,.045,-.25,6.08,-4.405,M.gold,false);
+ box(g,.48,.045,.045,-.25,6.08,-4.405,M.gold,false);
+ // Каменные клинья по окружности и верхний замковый камень связывают окно с фронтоном.
+ for(let i=0;i<8;i++){
+   const angle=i*Math.PI/4,x=-.25+Math.cos(angle)*.46,y=6.08+Math.sin(angle)*.46;
+   const voussoir=box(g,.15,.085,.11,x,y,-4.35,houseStoneTrim,false);
+   voussoir.rotation.z=angle;
+   sphere(g,.024,x,y,-4.425,M.gold,.8);
+ }
+ box(g,.2,.16,.16,-.25,6.62,-4.34,houseStoneTrim,false);
+ sphere(g,.045,-.25,6.73,-4.39,M.gold,.85);
+ // Наклонные каменные тяги обрамляют задний фронтон вдоль обоих скатов.
+ for(const [x,y,angle] of [[-1.7,5.77,.626],[1.2,5.77,-.626]]){
+   const rake=box(g,3.72,.16,.2,x,y,-4.24,houseStoneTrim,false);
+   rake.rotation.z=angle;
+   const rakeLip=box(g,3.66,.045,.22,x,y+.095,-4.255,M.gold,false);
+   rakeLip.rotation.z=angle;
+   for(const t of [-1.35,-.45,.45,1.35]){
+     const px=x+Math.cos(angle)*t,py=y+Math.sin(angle)*t;
+     sphere(g,.028,px,py+.12,-4.38,M.gold,.8);
+   }
+ }
  return g;
 }
 function makeFactory(level=1){
