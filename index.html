@@ -1585,6 +1585,19 @@ function makeFactory(level=1){
 
  box(g,.12,2.55,.1,-1.02,1.52,3.04,M.gold,false);
  box(g,.12,2.55,.1,1.02,1.52,3.04,M.gold,false);
+ // Side-wall industrial ventilation grilles: restrained stone surrounds and individually spaced metal louvers.
+ for(const side of [-1,1]){
+   const x=side*3.69;
+   box(g,.12,.92,1.28,x,2.72,0,M.stone2,false);
+   box(g,.08,.68,1.02,x+side*.075,2.72,0,darkMetal,false);
+   for(let k=0;k<6;k++){
+     box(g,.09,.055,.92,x+side*.13,2.45+k*.108,0,k%2?metal:M.stone,false);
+   }
+   for(const z of [-.56,.56]){
+     box(g,.12,.12,.12,x+side*.14,2.72,z,M.gold,false);
+     sphere(g,.035,x+side*.21,2.72,z,M.gold,.8);
+   }
+ }
  // Lit multi-pane factory windows on both long walls.
  for(const x of [-2.35,2.35]){
    box(g,1.05,1.05,.14,x,2.55,2.75,M.wood);
