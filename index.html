@@ -171,17 +171,39 @@ box(world,76,.55,76,0,-.42,0,M.grass,false);
 box(world,26,.12,26,0,-.08,0,M.grass2,false);
 function makeHouse(){
  const g=group(world,-3,0,-10);
+ // Индивидуальная фактура светлого тесаного камня главного дома: тонкие швы и мягкая неоднородность.
+ const houseStone=houseStone.clone(),houseStoneTrim=houseStoneTrim.clone();
+ const masonryCanvas=document.createElement('canvas');masonryCanvas.width=masonryCanvas.height=256;
+ const masonryCtx=masonryCanvas.getContext('2d');
+ masonryCtx.fillStyle='#d7d7d7';masonryCtx.fillRect(0,0,256,256);
+ masonryCtx.strokeStyle='#777777';masonryCtx.lineWidth=3;
+ for(let row=0;row<8;row++){
+   const y=row*32,offset=row%2?32:0;
+   masonryCtx.beginPath();masonryCtx.moveTo(0,y);masonryCtx.lineTo(256,y);masonryCtx.stroke();
+   for(let x=offset;x<256;x+=96){
+     masonryCtx.beginPath();masonryCtx.moveTo(x,y);masonryCtx.lineTo(x,y+32);masonryCtx.stroke();
+   }
+ }
+ const masonryTexture=new THREE.CanvasTexture(masonryCanvas);
+ masonryTexture.colorSpace=THREE.SRGBColorSpace;
+ masonryTexture.wrapS=masonryTexture.wrapT=THREE.RepeatWrapping;
+ masonryTexture.repeat.set(1.8,1.2);
+ masonryTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const masonryBump=masonryTexture.clone();masonryBump.colorSpace=THREE.NoColorSpace;masonryBump.needsUpdate=true;
+ for(const material of [houseStone,houseStoneTrim]){
+   material.map=masonryTexture;material.bumpMap=masonryBump;material.bumpScale=.018;material.needsUpdate=true;
+ }
  // Main manor: broad stone body, raised plinth and detailed gabled roof.
- box(g,10,4.5,8,0,2.25,0,M.stone);
- box(g,10.5,.38,8.5,0,4.55,0,M.stone2);
- box(g,10.25,.16,8.25,0,.18,0,M.stone2);
+ box(g,10,4.5,8,0,2.25,0,houseStone);
+ box(g,10.5,.38,8.5,0,4.55,0,houseStoneTrim);
+ box(g,10.25,.16,8.25,0,.18,0,houseStoneTrim);
  // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
  const roofL=box(g,3.95,.34,8.9,-1.93,5.72,0,M.roof);roofL.rotation.z=.58;
  const roofR=box(g,3.95,.34,8.9,1.43,5.72,0,M.roof);roofR.rotation.z=-.58;
  // Front and rear triangular gables beneath the roof ridge.
  const makeGable=(z)=>{
    const shape=new THREE.Shape();shape.moveTo(-3.15,4.72);shape.lineTo(3.15,4.72);shape.lineTo(-.25,6.82);shape.closePath();
-   const mesh=new THREE.Mesh(new THREE.ShapeGeometry(shape),M.stone2);mesh.position.z=z;mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);
+   const mesh=new THREE.Mesh(new THREE.ShapeGeometry(shape),houseStoneTrim);mesh.position.z=z;mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);
  };
  makeGable(4.06);makeGable(-4.06);
  // Central entrance, gold cross details and symmetrical windows.
@@ -192,12 +214,12 @@ function makeHouse(){
    box(g,1.35,1.45,.22,x,2.7,4.12,M.wood);
    box(g,.13,1.3,.25,x,2.7,4.26,M.gold,false);
    box(g,1.22,.13,.25,x,2.7,4.27,M.gold,false);
-   box(g,1.55,.18,.38,x,1.82,4.18,M.stone2);
+   box(g,1.55,.18,.38,x,1.82,4.18,houseStoneTrim);
  }
  // Raised timber door panels, a stone lintel and a small brass handle finish the main entrance.
  box(g,1.16,.88,.055,0,1.92,4.255,M.wood2,false);
  box(g,1.16,.48,.055,0,.58,4.255,M.wood2,false);
- box(g,1.42,.12,.32,0,2.78,4.18,M.stone2);
+ box(g,1.42,.12,.32,0,2.78,4.18,houseStoneTrim);
  sphere(g,.085, .48,1.32,4.34,M.gold,.9);
  // Entrance door craftsmanship: inset panel mouldings, brass hinge straps and a knocker.
  for(const y of [.62,1.12,1.62,2.12]){
@@ -207,7 +229,7 @@ function makeHouse(){
  for(const x of [-.69,.69]){
    for(const y of [.62,1.18,1.74,2.3]){
      box(g,.09,.22,.055,x,y,4.33,M.gold,false);
-     sphere(g,.035,x,y,4.37,M.stone2,.8);
+     sphere(g,.035,x,y,4.37,houseStoneTrim,.8);
    }
  }
  // Парадная дверь: рельефные филёнки, латунная нижняя накладка и точечный крепёж.
@@ -225,40 +247,40 @@ function makeHouse(){
  }
  box(g,1.34,.16,.045,0,.34,4.35,M.gold,false);
  for(const x of [-.7,.7]){
-   box(g,.055,.38,.05,x,.36,4.35,M.stone2,false);
+   box(g,.055,.38,.05,x,.36,4.35,houseStoneTrim,false);
    sphere(g,.03,x,.55,4.39,M.gold,.8);
  }
  // Каменный верхний фриз с центральным замковым акцентом завершает дверное обрамление.
- box(g,1.82,.13,.22,0,2.91,4.28,M.stone2,false);
+ box(g,1.82,.13,.22,0,2.91,4.28,houseStoneTrim,false);
  box(g,.34,.2,.12,0,2.98,4.39,M.gold,false);
  // Fine brass door knocker and a pair of crisp stone step nosings.
  box(g,.16,.22,.06,0,1.38,4.34,M.gold,false);
  sphere(g,.075,0,1.25,4.38,M.gold,.9);
  for(let i=0;i<3;i++){
    const stepWidth=4.1-i*.35;
-   box(g,stepWidth,.055,.07,0,.085+i*.16,5.28+i*.58,M.stone,false);
+   box(g,stepWidth,.055,.07,0,.085+i*.16,5.28+i*.58,houseStone,false);
  }
  // Paired brass-and-glass entrance lanterns add a warm architectural focal point.
  for(const x of [-1.48,1.48]){
-   box(g,.34,.5,.12,x,2.34,4.16,M.stone2,false);
+   box(g,.34,.5,.12,x,2.34,4.16,houseStoneTrim,false);
    box(g,.24,.34,.2,x,2.34,4.29,windowInterior,false);
    box(g,.035,.42,.045,x-.13,2.34,4.405,M.gold,false);
    box(g,.035,.42,.045,x+.13,2.34,4.405,M.gold,false);
    box(g,.27,.045,.22,x,2.57,4.3,M.gold,false);
    box(g,.3,.055,.24,x,2.1,4.3,M.gold,false);
-   box(g,.16,.055,.16,x,2.65,4.3,M.stone2,false);
+   box(g,.16,.055,.16,x,2.65,4.3,houseStoneTrim,false);
    sphere(g,.045,x,2.03,4.34,M.gold,.85);
    warmLight(g,x,2.35,4.52,.22,3.2);
  }
  // Refined manor facade: shallow stone panel mouldings and restrained carved capitals.
  for(const x of [-4.72,-1.95,1.95,4.72]){
-   box(g,.16,3.72,.12,x,2.28,4.075,M.stone2,false);
-   box(g,.34,.16,.2,x,4.08,4.08,M.stone2,false);
-   box(g,.3,.12,.18,x,.42,4.08,M.stone2,false);
+   box(g,.16,3.72,.12,x,2.28,4.075,houseStoneTrim,false);
+   box(g,.34,.16,.2,x,4.08,4.08,houseStoneTrim,false);
+   box(g,.3,.12,.18,x,.42,4.08,houseStoneTrim,false);
    box(g,.24,.07,.22,x,4.19,4.09,M.gold,false);
  }
  // Fine horizontal string course ties the front elevation together.
- box(g,9.72,.12,.16,0,3.88,4.075,M.stone2,false);
+ box(g,9.72,.12,.16,0,3.88,4.075,houseStoneTrim,false);
  box(g,9.72,.055,.18,0,3.98,4.09,M.gold,false);
  // Reflective inset glazing and delicate muntins give the front windows real depth.
  for(const x of [-3.25,3.25]){
@@ -266,19 +288,19 @@ function makeHouse(){
   box(g,1.02,1.12,.045,x,2.72,4.245,M.glass,false);
   box(g,.055,1.08,.055,x,2.72,4.29,M.gold,false);
   box(g,.98,.055,.055,x,2.72,4.29,M.gold,false);
-  box(g,1.08,.07,.28,x,3.48,4.22,M.stone2);
+  box(g,1.08,.07,.28,x,3.48,4.22,houseStoneTrim);
  }
  // Carved stone window surrounds: layered lintels, central keystones and bracketed sills.
  for(const x of [-3.25,3.25]){
-   box(g,1.34,.13,.2,x,3.58,4.22,M.stone2);
-   box(g,.22,.2,.22,x,3.65,4.34,M.stone2);
+   box(g,1.34,.13,.2,x,3.58,4.22,houseStoneTrim);
+   box(g,.22,.2,.22,x,3.65,4.34,houseStoneTrim);
    box(g,.12,.12,.08,x,3.69,4.47,M.gold,false);
    for(const dx of [-.58,.58]){
-     box(g,.14,.2,.2,x+dx,3.48,4.27,M.stone2);
-     box(g,.18,.12,.22,x+dx,2.02,4.27,M.stone2);
+     box(g,.14,.2,.2,x+dx,3.48,4.27,houseStoneTrim);
+     box(g,.18,.12,.22,x+dx,2.02,4.27,houseStoneTrim);
      box(g,.12,.1,.16,x+dx,1.91,4.31,M.gold,false);
    }
-   box(g,1.32,.12,.24,x,2.08,4.23,M.stone2);
+   box(g,1.32,.12,.24,x,2.08,4.23,houseStoneTrim);
    box(g,1.18,.045,.27,x,2.16,4.27,M.gold,false);
  }
  // A pair of compact warm entrance lanterns adds a welcoming focal point without clutter.
@@ -294,10 +316,10 @@ function makeHouse(){
  // Two corner towers with separate steep roofs and golden finials.
  for(const x of [-4.35,4.35]){
    const t=group(g,x,0,-2.25);
-   box(t,2.15,5.8,2.15,0,2.9,0,M.stone);
-   box(t,2.35,.22,2.35,0,5.82,0,M.stone2);
+   box(t,2.15,5.8,2.15,0,2.9,0,houseStone);
+   box(t,2.35,.22,2.35,0,5.82,0,houseStoneTrim);
    // Tower roof base: layered eaves and a narrow brass weatherproofing band.
-   cylinder(t,1.76,1.76,.12,0,5.98,0,M.stone2,4);
+   cylinder(t,1.76,1.76,.12,0,5.98,0,houseStoneTrim,4);
    cylinder(t,1.79,1.79,.055,0,6.055,0,M.gold,4);
    cone(t,1.72,2.55,0,7.18,0,M.roof2,4);
    // Fine vertical roof ribs emphasize the four-sided tower silhouette.
@@ -312,13 +334,13 @@ function makeHouse(){
    // Corner stone dressings and a continuous upper cornice sharpen each tower.
    for(const sx of [-1,1]){
      for(const sz of [-1,1]){
-       box(t,.16,5.35,.16,sx*1.0,2.92,sz*1.0,M.stone2,false);
+       box(t,.16,5.35,.16,sx*1.0,2.92,sz*1.0,houseStoneTrim,false);
        box(t,.24,.16,.24,sx*1.0,5.68,sz*1.0,M.gold,false);
      }
    }
    for(const z of [-1.09,1.09]){
-     box(t,.82,.12,.2,0,3.98,z*1.035,M.stone2);
-     box(t,.82,.12,.2,0,2.72,z*1.035,M.stone2);
+     box(t,.82,.12,.2,0,3.98,z*1.035,houseStoneTrim);
+     box(t,.82,.12,.2,0,2.72,z*1.035,houseStoneTrim);
      box(t,.1,1.28,.18,-.39,3.35,z*1.035,M.gold,false);
      box(t,.1,1.28,.18,.39,3.35,z*1.035,M.gold,false);
      box(t,.08,.92,.12,0,3.35,z*1.09,M.gold,false);
@@ -326,24 +348,24 @@ function makeHouse(){
 
  }
  // Entry terrace and three broad stone steps.
- box(g,3.5,.3,1.65,0,.18,5,M.stone2);
- for(let i=0;i<3;i++)box(g,4.1-i*.35,.2,.62,0,-.02+i*.16,5.58+i*.58,M.stone2);
+ box(g,3.5,.3,1.65,0,.18,5,houseStoneTrim);
+ for(let i=0;i<3;i++)box(g,4.1-i*.35,.2,.62,0,-.02+i*.16,5.58+i*.58,houseStoneTrim);
  // Chimneys and planted stone urns.
- for(const x of [-3.6,3.6]){box(g,.72,1.65,.72,x,5.15,-2.2,M.stone2);box(g,.88,.18,.88,x,6,-2.2,M.stone)}
+ for(const x of [-3.6,3.6]){box(g,.72,1.65,.72,x,5.15,-2.2,houseStoneTrim);box(g,.88,.18,.88,x,6,-2.2,houseStone)}
  // Refined manor chimney masonry: layered crowns, corner quoins and brass rain collars.
  for(const x of [-3.6,3.6]){
    // A projecting cap and stepped crown protect the chimney top.
-   box(g,1.02,.12,1.02,x,6.12,-2.2,M.stone2,false);
+   box(g,1.02,.12,1.02,x,6.12,-2.2,houseStoneTrim,false);
    box(g,.84,.1,.84,x,6.23,-2.2,M.gold,false);
-   box(g,.92,.08,.92,x,6.29,-2.2,M.stone,false);
+   box(g,.92,.08,.92,x,6.29,-2.2,houseStone,false);
    // Raised corner stones and narrow horizontal masonry courses.
    for(const sx of [-.29,.29]){
      for(const sz of [-.29,.29]){
-       box(g,.14,1.34,.14,x+sx,5.18,-2.2+sz,M.stone,false);
+       box(g,.14,1.34,.14,x+sx,5.18,-2.2+sz,houseStone,false);
      }
    }
    for(const y of [4.58,5.02,5.46,5.82]){
-     box(g,.78,.055,.78,x,y,-2.2,M.stone,false);
+     box(g,.78,.055,.78,x,y,-2.2,houseStone,false);
    }
    // Fine brass collar below the crown and small visible fixing studs.
    box(g,.82,.045,.82,x,5.94,-2.2,M.gold,false);
@@ -355,21 +377,21 @@ function makeHouse(){
  }
  // Rich stone facade: corner pilasters, horizontal courses and carved window surrounds.
  for(const x of [-4.72,4.72]){
-   box(g,.28,4.15,.34,x,2.25,4.12,M.stone2);
+   box(g,.28,4.15,.34,x,2.25,4.12,houseStoneTrim);
    box(g,.38,.22,.42,x,4.25,4.12,M.gold);
  }
- for(const y of [.62,4.18])box(g,9.7,.12,.2,0,y,4.12,M.stone2);
+ for(const y of [.62,4.18])box(g,9.7,.12,.2,0,y,4.12,houseStoneTrim);
  // Upper arched-looking windows in the front gable, with deep frames and crossbars.
  for(const x of [-1.35,1.35]){
    box(g,.92,1.12,.18,x,5.35,4.12,M.wood);
    box(g,.68,.88,.12,x,5.38,4.24,M.glass);
    box(g,.12,.96,.16,x,5.38,4.32,M.gold,false);
    box(g,.72,.1,.16,x,5.38,4.32,M.gold,false);
-   box(g,1.12,.14,.3,x,4.78,4.18,M.stone2);
+   box(g,1.12,.14,.3,x,4.78,4.18,houseStoneTrim);
  }
  // Small projecting balconies on the two front towers.
  for(const x of [-4.35,4.35]){
-   box(g,1.75,.18,.9,x,3.05,1.0,M.stone2);
+   box(g,1.75,.18,.9,x,3.05,1.0,houseStoneTrim);
    for(const dx of [-.78,-.26,.26,.78])box(g,.09,.62,.09,x+dx,3.42,1.36,M.gold);
    box(g,1.72,.1,.1,x,3.72,1.36,M.gold);
    for(const dx of [-.52,0,.52]){
@@ -381,16 +403,16 @@ function makeHouse(){
  // Тонкие каменные консоли под главными окнами поддерживают глубокие подоконники.
  for(const x of [-3.25,3.25]){
    for(const dx of [-.48,0,.48]){
-     box(g,.18,.22,.2,x+dx,1.72,4.31,M.stone2,false);
+     box(g,.18,.22,.2,x+dx,1.72,4.31,houseStoneTrim,false);
      const corbel=box(g,.16,.16,.18,x+dx,1.84,4.34,M.gold,false);
      corbel.rotation.z=dx===0?0:(dx<0?-.12:.12);
    }
  }
  // Каменные замковые акценты и узкие боковые накладки завершают верхние окна фронтона.
  for(const x of [-1.35,1.35]){
-   box(g,.16,.22,.2,x,6.18,4.31,M.stone2,false);
-   box(g,.12,.42,.12,x-.49,5.43,4.28,M.stone2,false);
-   box(g,.12,.42,.12,x+.49,5.43,4.28,M.stone2,false);
+   box(g,.16,.22,.2,x,6.18,4.31,houseStoneTrim,false);
+   box(g,.12,.42,.12,x-.49,5.43,4.28,houseStoneTrim,false);
+   box(g,.12,.42,.12,x+.49,5.43,4.28,houseStoneTrim,false);
  }
  // Небольшие латунные накладки подчёркивают углы каменного карниза башен.
  for(const x of [-4.35,4.35]){
@@ -402,7 +424,7 @@ function makeHouse(){
  // Fine masonry joints on the manor facade add scale without visual clutter.
  for(const y of [1.02,1.52,3.98]){
    for(const x of [-4.05,-2.15,2.15,4.05]){
-     box(g,.72,.035,.045,x,y,4.145,M.stone2,false);
+     box(g,.72,.035,.045,x,y,4.145,houseStoneTrim,false);
    }
  }
  // Fine roof ribs and ridge caps add scale and definition to the roof.
@@ -442,51 +464,51 @@ function makeHouse(){
    box(g,.22,.18,8.95,x,4.63,0,M.wood,false);
  }
  for(const x of [-3.6,3.6]){
-   box(g,.98,.16,.98,x,6.08,-2.2,M.stone2);
+   box(g,.98,.16,.98,x,6.08,-2.2,houseStoneTrim);
    box(g,.62,.12,.62,x,6.2,-2.2,M.wood);
  }
  // Layered eaves: slim brass fascia lines, carved brackets and stone end returns.
  for(const x of [-3.45,3.45]){
    box(g,.055,.075,8.72,x+(x<0?-.13:.13),4.69,0,M.gold,false);
    for(const z of [-3.75,-2.5,-1.25,0,1.25,2.5,3.75]){
-     const bracket=box(g,.18,.34,.22,x,4.43,z,M.stone2,false);
+     const bracket=box(g,.18,.34,.22,x,4.43,z,houseStoneTrim,false);
      bracket.rotation.z=x<0?-.18:.18;
      box(g,.2,.055,.25,x,4.24,z,M.gold,false);
      sphere(g,.035,x,4.55,z,M.gold,.8);
    }
    for(const z of [-4.38,4.38]){
-     box(g,.3,.22,.24,x,4.65,z,M.stone2,false);
+     box(g,.3,.22,.24,x,4.65,z,houseStoneTrim,false);
      box(g,.34,.055,.28,x,4.78,z,M.gold,false);
    }
  }
  // Decorative ridge-end finials complete the roof silhouette at both gable ends.
  for(const z of [-4.32,4.32]){
-   box(g,.34,.12,.28,0,6.54,z,M.stone2,false);
+   box(g,.34,.12,.28,0,6.54,z,houseStoneTrim,false);
    sphere(g,.09,0,6.68,z,M.gold,.9);
    cylinder(g,.055,.055,.22,0,6.78,z,M.gold,8);
  }
  // Sculpted stone lintels and sills make the main facade read as a finished manor.
  for(const x of [-3.25,3.25]){
-   box(g,1.62,.16,.3,x,3.52,4.2,M.stone2);
-   box(g,1.62,.16,.3,x,1.88,4.2,M.stone2);
-   box(g,.12,1.5,.28,x-.76,2.7,4.2,M.stone2);
-   box(g,.12,1.5,.28,x+.76,2.7,4.2,M.stone2);
+   box(g,1.62,.16,.3,x,3.52,4.2,houseStoneTrim);
+   box(g,1.62,.16,.3,x,1.88,4.2,houseStoneTrim);
+   box(g,.12,1.5,.28,x-.76,2.7,4.2,houseStoneTrim);
+   box(g,.12,1.5,.28,x+.76,2.7,4.2,houseStoneTrim);
  }
  // Recessed side windows with stone surrounds on both long walls.
  for(const side of [-1,1]){
    for(const z of [-2.55,0,2.55]){
      box(g,.2,1.42,1.08,side*5.04,2.55,z,M.wood);
      box(g,.12,1.12,.78,side*5.17,2.57,z,M.glass);
-     box(g,.22,.14,1.22,side*5.18,3.3,z,M.stone2);
-     box(g,.22,.14,1.22,side*5.18,1.8,z,M.stone2);
-     box(g,.22,1.5,.14,side*5.18,2.55,z-.58,M.stone2);
-     box(g,.22,1.5,.14,side*5.18,2.55,z+.58,M.stone2);
+     box(g,.22,.14,1.22,side*5.18,3.3,z,houseStoneTrim);
+     box(g,.22,.14,1.22,side*5.18,1.8,z,houseStoneTrim);
+     box(g,.22,1.5,.14,side*5.18,2.55,z-.58,houseStoneTrim);
+     box(g,.22,1.5,.14,side*5.18,2.55,z+.58,houseStoneTrim);
      box(g,.12,1.18,.08,side*5.25,2.57,z,M.gold,false);
      box(g,.12,.08,.84,side*5.25,2.57,z,M.gold,false);
      // Side-window transoms and carved sill brackets add depth to both long elevations.
      box(g,.12,.075,.76,side*5.27,2.57,z,M.gold,false);
      for(const dz of [-.42,.42]){
-       box(g,.18,.12,.14,side*5.31,1.72,z+dz,M.stone2,false);
+       box(g,.18,.12,.14,side*5.31,1.72,z+dz,houseStoneTrim,false);
      }
      for(const dz of [-.48,.48]){
        box(g,.12,.18,.12,side*5.3,3.38,z+dz,M.gold,false);
@@ -505,19 +527,19 @@ function makeHouse(){
  const porchStone=mat(0xd8c9a8),porchRoof=mat(0x754037);
  for(const x of [-1.48,1.48]){
    cylinder(g,.16,.2,2.45,x,1.42,4.62,porchStone,12);
-   cylinder(g,.23,.23,.18,x,.2,4.62,M.stone2,12);
+   cylinder(g,.23,.23,.18,x,.2,4.62,houseStoneTrim,12);
    cylinder(g,.22,.22,.16,x,2.67,4.62,M.gold,12);
  }
  // Classical column capitals, stepped plinths and fine brass necking refine the entrance portico.
  for(const x of [-1.48,1.48]){
-   box(g,.62,.16,.62,x,.12,4.62,M.stone2,false);
+   box(g,.62,.16,.62,x,.12,4.62,houseStoneTrim,false);
    cylinder(g,.24,.24,.12,x,.32,4.62,M.gold,12);
    cylinder(g,.22,.22,.1,x,2.53,4.62,M.gold,12);
    cylinder(g,.3,.3,.14,x,2.68,4.62,porchStone,12);
-   box(g,.48,.1,.48,x,2.78,4.62,M.stone2,false);
+   box(g,.48,.1,.48,x,2.78,4.62,houseStoneTrim,false);
    for(let k=0;k<6;k++){
      const a=k*Math.PI/3;
-     const flute=box(g,.035,1.72,.035,x+Math.cos(a)*.166,1.42,4.62+Math.sin(a)*.166,M.stone2,false);
+     const flute=box(g,.035,1.72,.035,x+Math.cos(a)*.166,1.42,4.62+Math.sin(a)*.166,houseStoneTrim,false);
      flute.rotation.y=-a;
    }
  }
@@ -528,7 +550,7 @@ function makeHouse(){
  box(g,3.58,.12,.18,0,3.04,5.68,M.gold,false);
  // Дополнительные каменные накладки на фронтальной балке портика.
  for(const x of [-1.15,0,1.15]){
-   box(g,.62,.11,.12,x,2.79,5.12,M.stone2,false);
+   box(g,.62,.11,.12,x,2.79,5.12,houseStoneTrim,false);
    box(g,.42,.035,.14,x,2.86,5.13,M.gold,false);
  }
  // Парадный портик: три утопленные панели на нижней стороне навеса с тонкой латунной окантовкой.
@@ -540,29 +562,29 @@ function makeHouse(){
    for(const z of [-.39,.39]){
      box(g,.78,.025,.035,x,2.86,4.96+z,M.gold,false);
    }
-   box(g,.42,.025,.035,x,2.865,4.96,M.stone2,false);
+   box(g,.42,.025,.035,x,2.865,4.96,houseStoneTrim,false);
  }
  // Каменные консоли под внешними краями навеса подчёркивают опору портика.
  for(const x of [-1.28,1.28]){
-   const corbel=box(g,.18,.42,.2,x,2.78,5.42,M.stone2,false);
+   const corbel=box(g,.18,.42,.2,x,2.78,5.42,houseStoneTrim,false);
    corbel.rotation.x=x<0?-.28:.28;
    box(g,.28,.08,.24,x,2.98,5.42,M.gold,false);
  }
  // Каменные обрамления входа и симметричные настенные фонари на фасаде.
- box(g,2.05,.18,.3,0,2.82,4.25,M.stone2);
+ box(g,2.05,.18,.3,0,2.82,4.25,houseStoneTrim);
  for(const x of [-2.15,2.15]){
    box(g,.18,.72,.18,x,2.35,4.3,M.gold,false);
    const lantern=new THREE.Mesh(new THREE.BoxGeometry(.28,.34,.24),new THREE.MeshStandardMaterial({color:0xffd98a,emissive:0xa66a20,emissiveIntensity:.42,roughness:.35}));
    lantern.position.set(x,2.68,4.34);g.add(lantern);
-   box(g,.38,.08,.32,x,2.9,4.34,M.stone2,false);
+   box(g,.38,.08,.32,x,2.9,4.34,houseStoneTrim,false);
  }
  // Manor finishing pass: crisp gable framing, carved window crowns and tower details.
- const gableLeft=box(g,3.72,.16,.22,-1.72,5.76,4.24,M.stone2);gableLeft.rotation.z=.626;
- const gableRight=box(g,3.72,.16,.22,1.22,5.76,4.24,M.stone2);gableRight.rotation.z=-.626;
+ const gableLeft=box(g,3.72,.16,.22,-1.72,5.76,4.24,houseStoneTrim);gableLeft.rotation.z=.626;
+ const gableRight=box(g,3.72,.16,.22,1.22,5.76,4.24,houseStoneTrim);gableRight.rotation.z=-.626;
  box(g,.34,.34,.2,-.25,6.83,4.22,M.gold,false);
  // Carved crowns and side shutters sharpen the two main front windows.
  for(const x of [-3.25,3.25]){
-   box(g,1.48,.16,.34,x,3.55,4.42,M.stone2);
+   box(g,1.48,.16,.34,x,3.55,4.42,houseStoneTrim);
    box(g,.28,.22,.32,x,3.72,4.38,M.gold,false);
    for(const dx of [-.92,.92]){
      box(g,.24,.92,.16,x+dx,2.72,4.34,M.wood);
@@ -571,17 +593,17 @@ function makeHouse(){
  }
  // Upper gable windows receive deeper stone frames and small keystone accents.
  for(const x of [-1.35,1.35]){
-   box(g,1.02,.14,.28,x,5.98,4.28,M.stone2);
+   box(g,1.02,.14,.28,x,5.98,4.28,houseStoneTrim);
    box(g,.18,.18,.18,x,6.12,4.3,M.gold,false);
  }
  // Tower window surrounds and stepped cornices make both corner towers read clearly.
  for(const x of [-4.35,4.35]){
-   box(g,.92,.16,.24,x,4.12,1.23,M.stone2);
-   box(g,.92,.16,.24,x,2.58,1.23,M.stone2);
+   box(g,.92,.16,.24,x,4.12,1.23,houseStoneTrim);
+   box(g,.92,.16,.24,x,2.58,1.23,houseStoneTrim);
    for(const dx of [-.48,.48]){
-     box(g,.12,1.55,.2,x+dx,3.35,1.2,M.stone2);
+     box(g,.12,1.55,.2,x+dx,3.35,1.2,houseStoneTrim);
    }
-   box(g,2.42,.14,2.42,x,5.78,-2.25,M.stone2);
+   box(g,2.42,.14,2.42,x,5.78,-2.25,houseStoneTrim);
    box(g,2.12,.1,2.12,x,5.9,-2.25,M.gold,false);
  }
  // Fine ridge crest and restrained roof-end accents.
@@ -597,19 +619,19 @@ function makeHouse(){
  }
  // Небольшие каменные торцевые завершения аккуратно закрывают конёк с обеих сторон.
  for(const z of [-4.08,4.08]){
-   cylinder(g,.205,.205,.12,-.25,6.84,z,M.stone2,12).rotation.x=Math.PI/2;
+   cylinder(g,.205,.205,.12,-.25,6.84,z,houseStoneTrim,12).rotation.x=Math.PI/2;
    sphere(g,.09,-.25,6.99,z,M.gold,.8);
  }
  // Tower corner stones, cornices and narrow upper lights.
  for(const x of [-4.35,4.35]){
    for(const z of [-3.34,-1.16]){
      for(const y of [1.0,2.0,3.0,4.0,5.0]){
-       box(g,.24,.28,.24,x+(x<0?-.96:.96),y,z,M.stone2);
+       box(g,.24,.28,.24,x+(x<0?-.96:.96),y,z,houseStoneTrim);
      }
    }
    box(g,2.28,.16,2.28,x,5.94,-2.25,M.gold);
    box(g,.78,1.32,.14,x,4.55,-1.13,M.glass);
-   box(g,.96,.14,.2,x,5.24,-1.13,M.stone2);
+   box(g,.96,.14,.2,x,5.24,-1.13,houseStoneTrim);
  }
  // Rear elevation: matching framed windows and stone beltwork complete the manor from every view.
  for(const x of [-3.25,0,3.25]){
@@ -618,35 +640,35 @@ function makeHouse(){
    box(g,.94,1.12,.12,x,2.72,-4.26,M.glass);
    box(g,.12,1.18,.14,x,2.72,-4.34,M.gold,false);
    box(g,1.02,.1,.14,x,2.72,-4.34,M.gold,false);
-   box(g,1.48,.16,.3,x,3.52,-4.22,M.stone2);
-   box(g,1.48,.16,.3,x,1.9,-4.22,M.stone2);
+   box(g,1.48,.16,.3,x,3.52,-4.22,houseStoneTrim);
+   box(g,1.48,.16,.3,x,1.9,-4.22,houseStoneTrim);
  }
  for(const x of [-4.72,4.72]){
-   box(g,.28,4.05,.3,x,2.22,-4.13,M.stone2);
+   box(g,.28,4.05,.3,x,2.22,-4.13,houseStoneTrim);
    box(g,.38,.18,.36,x,4.2,-4.13,M.gold);
  }
- box(g,9.7,.12,.2,0,.62,-4.14,M.stone2);
+ box(g,9.7,.12,.2,0,.62,-4.14,houseStoneTrim);
  // Subtle tower masonry bands and small inset upper lights sharpen the silhouette.
  for(const x of [-4.35,4.35]){
-   for(const y of [1.05,2.15,4.35,5.45])box(g,2.2,.075,2.2,x,y,-2.25,M.stone2,false);
+   for(const y of [1.05,2.15,4.35,5.45])box(g,2.2,.075,2.2,x,y,-2.25,houseStoneTrim,false);
    box(g,.48,.78,.1,x,4.85,-3.36,M.glass,false);
-   box(g,.58,.1,.12,x,5.27,-3.38,M.stone2,false);
+   box(g,.58,.1,.12,x,5.27,-3.38,houseStoneTrim,false);
  }
  // Side elevations: paired recessed windows echo the front facade and break up the broad stone walls.
  for(const side of [-1,1]){
    for(const z of [-1.35,1.35]){
      // Deep timber reveal and inset glazing sit flush with the existing side wall.
      box(g,.18,1.28,1.08,side*5.075,2.62,z,M.wood,false);
-     box(g,.055,1.08,.88,side*5.18,2.62,z,M.stone2,false);
+     box(g,.055,1.08,.88,side*5.18,2.62,z,houseStoneTrim,false);
      box(g,.045,.96,.76,side*5.215,2.62,z,M.glass,false);
      // Brass mullions and a central crossbar give each narrow side window a clear rhythm.
      box(g,.055,.98,.055,side*5.255,2.62,z,M.gold,false);
      box(g,.055,.055,.78,side*5.255,2.62,z,M.gold,false);
-     box(g,.24,.14,1.34,side*5.19,3.34,z,M.stone2,false);
-     box(g,.24,.12,1.34,side*5.19,1.9,z,M.stone2,false);
+     box(g,.24,.14,1.34,side*5.19,3.34,z,houseStoneTrim,false);
+     box(g,.24,.12,1.34,side*5.19,1.9,z,houseStoneTrim,false);
      for(const dz of [-.49,.49]){
-       box(g,.2,.18,.12,side*5.2,3.2,z+dz,M.stone2,false);
-       box(g,.2,.18,.12,side*5.2,2.04,z+dz,M.stone2,false);
+       box(g,.2,.18,.12,side*5.2,3.2,z+dz,houseStoneTrim,false);
+       box(g,.2,.18,.12,side*5.2,2.04,z+dz,houseStoneTrim,false);
      }
      // Small centered keystone detail keeps the window treatment consistent on both sides.
      box(g,.24,.12,.18,side*5.22,3.48,z,M.gold,false);
@@ -655,20 +677,20 @@ function makeHouse(){
  // Side elevation corner caps and window crowns continue the same architectural language.
  for(const side of [-1,1]){
    for(const z of [-2.55,0,2.55]){
-     box(g,.3,.16,1.2,side*5.22,3.34,z,M.stone2);
-     box(g,.3,.16,1.2,side*5.22,1.76,z,M.stone2);
+     box(g,.3,.16,1.2,side*5.22,3.34,z,houseStoneTrim);
+     box(g,.3,.16,1.2,side*5.22,1.76,z,houseStoneTrim);
    }
  }
  // Discreet stone-coloured gutters and paired downpipes finish the manor roofline.
  for(const side of [-1,1]){
-   box(g,.2,.18,8.72,side*5.12,4.56,0,M.stone2,false);
+   box(g,.2,.18,8.72,side*5.12,4.56,0,houseStoneTrim,false);
    box(g,.24,.1,8.78,side*5.12,4.68,0,M.gold,false);
    for(const z of [-3.82,3.82]){
-     cylinder(g,.075,.075,3.92,side*5.12,2.55,z,M.stone2,10);
+     cylinder(g,.075,.075,3.92,side*5.12,2.55,z,houseStoneTrim,10);
      for(const y of [1.15,2.35,3.55]){
        box(g,.2,.08,.1,side*5.12,y,z,M.gold,false);
      }
-     box(g,.28,.12,.28,side*5.12,.58,z,M.stone2,false);
+     box(g,.28,.12,.28,side*5.12,.58,z,houseStoneTrim,false);
    }
  }
  // Детализация водостоков главного дома: крепёжные хомуты, верхние колена и каменные башмаки.
@@ -677,7 +699,7 @@ function makeHouse(){
    for(const z of [-3.82,3.82]){
      // Три разнесённых хомута удерживают каждую вертикальную трубу у стены.
      for(const y of [1.12,2.42,3.72]){
-       box(g,.24,.085,.16,side*5.12,y,z,M.stone2,false);
+       box(g,.24,.085,.16,side*5.12,y,z,houseStoneTrim,false);
        box(g,.12,.11,.18,side*5.12,y,z+(z>0?.1:-.1),M.gold,false);
        sphere(g,.032,side*5.12-.08,y,z+(z>0?.17:-.17),M.gold,.8);
        sphere(g,.032,side*5.12+.08,y,z+(z>0?.17:-.17),M.gold,.8);
@@ -686,7 +708,7 @@ function makeHouse(){
      cylinder(g,.085,.085,.3,side*5.12,4.43,z+(z>0?-.12:.12),manorDrainMetal,10).rotation.x=Math.PI/2;
      cylinder(g,.09,.09,.12,side*5.12,4.48,z, M.gold,10);
      // Каменный нижний башмак защищает основание трубы.
-     box(g,.3,.22,.3,side*5.12,.42,z,M.stone2,false);
+     box(g,.3,.22,.3,side*5.12,.42,z,houseStoneTrim,false);
      box(g,.2,.08,.22,side*5.12,.56,z,M.gold,false);
    }
  }
@@ -694,17 +716,17 @@ function makeHouse(){
  for(const x of [-3.25,0,3.25]){
    box(g,.07,1.12,.055,x,2.72,-4.345,M.gold,false);
    box(g,.92,.065,.055,x,2.72,-4.35,M.gold,false);
-   box(g,1.58,.12,.34,x,3.62,-4.22,M.stone2,false);
+   box(g,1.58,.12,.34,x,3.62,-4.22,houseStoneTrim,false);
    for(const dx of [-.58,.58]){
      box(g,.1,.18,.12,x+dx,3.48,-4.36,M.gold,false);
      box(g,.1,.18,.12,x+dx,1.96,-4.36,M.gold,false);
    }
  }
  // Continuous rear cornice and restrained corner quoins balance the back elevation.
- box(g,9.72,.12,.18,0,4.02,-4.13,M.stone2,false);
+ box(g,9.72,.12,.18,0,4.02,-4.13,houseStoneTrim,false);
  for(const x of [-4.72,4.72]){
    for(const y of [1.0,1.85,2.7,3.55]){
-     box(g,.34,.12,.34,x,y,-4.15,M.stone2,false);
+     box(g,.34,.12,.34,x,y,-4.15,houseStoneTrim,false);
    }
  }
  return g;
