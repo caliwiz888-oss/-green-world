@@ -87,7 +87,7 @@ function publicPlots(rawPlots) {
   });
 }
 const state = p => ({
-  coins:p.coins, apples:p.apples, fruitInventory:p.fruit_inventory||{}, seeds:p.seeds, orchardLevel:p.orchard_level,
+  coins:p.coins, apples:p.apples, fruitInventory:p.fruit_inventory||{}, seeds:p.seeds, seedInventory:p.seed_inventory||{}, orchardLevel:p.orchard_level,
   experience:Number(p.experience)||0, playerLevel:Number(p.player_level)||1,
   hasWarehouse:p.has_warehouse, warehouseLevel:Number(p.warehouse_level)||0,
   appleCapacity:p.has_warehouse?100*(Number(p.warehouse_level)||1):20,
@@ -236,10 +236,17 @@ app.post('/api/game/plant',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   if(plots.some(x=>x.index===i)) reject(409,'Plot occupied');
   if(!Object.prototype.hasOwnProperty.call(costs,type)) reject(400,'Unknown fruit tree');
   if(p.coins<costs[type]) reject(409,'Not enough Green Coin');
-  if(type==='apple'&&p.seeds<1) reject(409,'Not enough apple seeds');
+  const seedInventory=p.seed_inventory&&typeof p.seed_inventory==='object'?{...p.seed_inventory}:{};
+  const availableSeeds=type==='apple'?Number(p.seeds)||0:Number(seedInventory[type])||0;
+  if(availableSeeds<1) reject(409,'Not enough '+type+' seeds');
   const now=new Date();
   const newPlot={index:i,type,grown:false,plantedAt:now.toISOString(),readyAt:new Date(now.getTime()+GROWTH_MS).toISOString(),watered:false};
-  await c.query('UPDATE players SET coins=coins-$2,seeds=seeds-$3,plots=plots || $4::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,costs[type],type==='apple'?1:0,JSON.stringify([newPlot])]);
+  if(type==='apple'){
+    await c.query('UPDATE players SET coins=coins-$2,seeds=seeds-1,plots=plots || $3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,costs[type],JSON.stringify([newPlot])]);
+  }else{
+    seedInventory[type]=availableSeeds-1;
+    await c.query('UPDATE players SET coins=coins-$2,seed_inventory=$3::jsonb,plots=plots || $4::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,costs[type],JSON.stringify(seedInventory),JSON.stringify([newPlot])]);
+  }
   await awardExperience(c,req.playerId,p,5);
   return {player:await loadState(c,req.playerId)};
 }));
@@ -327,8 +334,17 @@ app.post('/api/game/sell',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   return {player:await loadState(c,req.playerId),earned};
 }));
 app.post('/api/game/buy-seeds',auth,(req,res)=>mutate(req,res,async(c,p)=>{
+  const type=String(req.body?.treeType||'apple');
+  const validTypes=['apple','peach','cherry','pear','orange','mango'];
+  if(!validTypes.includes(type)) reject(400,'Unknown seed type');
   if(p.coins<30) reject(409,'Not enough Green Coin');
-  await c.query('UPDATE players SET coins=coins-30,seeds=seeds+5,updated_at=NOW() WHERE telegram_id=$1',[req.playerId]);
+  if(type==='apple'){
+    await c.query('UPDATE players SET coins=coins-30,seeds=seeds+5,updated_at=NOW() WHERE telegram_id=$1',[req.playerId]);
+  }else{
+    const inventory=p.seed_inventory&&typeof p.seed_inventory==='object'?{...p.seed_inventory}:{};
+    inventory[type]=(Number(inventory[type])||0)+5;
+    await c.query('UPDATE players SET coins=coins-30,seed_inventory=$2::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify(inventory)]);
+  }
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/build',auth,(req,res)=>mutate(req,res,async(c,p)=>{
@@ -378,4 +394,4 @@ app.post('/api/game/upgrade-orchard',auth,(req,res)=>mutate(req,res,async(c,p)=>
 
 app.use((err,_req,res,_next)=>{console.error(err.message);res.status(500).json({error:'Internal server error'});});
 const port=Number(process.env.PORT||3000);
-db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS fruit_inventory JSONB NOT NULL DEFAULT '{}'::jsonb").then(()=>app.listen(port,()=>console.log('GREEN WORLD API listening on '+port))).catch(error=>{console.error('Database migration failed:',error);process.exit(1);});
+db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS fruit_inventory JSONB NOT NULL DEFAULT '{}'::jsonb").then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS seed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb")).then(()=>app.listen(port,()=>console.log('GREEN WORLD API listening on '+port))).catch(error=>{console.error('Database migration failed:',error);process.exit(1);});
