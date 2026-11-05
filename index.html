@@ -713,6 +713,23 @@ function makeMarket(level=1){
  }
  for(const x of [-1.2,-.4,.4,1.2])box(g,.055,1.18,.1,x,1.65,2.43,M.gold,false);
  for(let i=0;i<6;i++)box(g,.06,.08,4.55,-2.5+i,4.02,0,M.roof2,false);
+ // Керамические поперечные ряды на обоих скатах подчёркивают рисунок кровли лавки.
+ for(const [cx,angle] of [[-1.35,.42],[1.35,-.42]]){
+   const courses=group(g,cx,3.85,0);courses.rotation.z=angle;
+   for(const z of [-1.92,-1.28,-.64,0,.64,1.28,1.92]){
+     box(courses,2.82,.04,.055,0,.145,z,M.roof2,false);
+   }
+   // Тонкие продольные фальцы разделяют черепицу на ровные панели.
+   for(const x of [-.98,-.33,.33,.98]){
+     box(courses,.035,.035,4.72,x,.145,0,M.roof,false);
+   }
+   // Небольшие металлические фиксаторы завершают края кровельных рядов.
+   for(const z of [-2.12,2.12]){
+     for(const x of [-.92,0,.92]){
+       sphere(courses,.035,x,.19,z,M.gold,.75);
+     }
+   }
+ }
  // Carved stone storefront surround and a clear lower sill.
  box(g,4.05,.16,.22,0,.92,2.48,M.stone2);
  for(const x of [-2.05,2.05]){
