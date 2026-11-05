@@ -1065,6 +1065,24 @@ function makeFactory(level=1){
  const roofB=box(g,3.95,.3,5.85,1.48,4.72,0,metal);roofB.rotation.z=-.34;
  box(g,.2,.28,5.9,0,5.38,0,M.gold);
  for(let i=0;i<7;i++)box(g,.055,.08,5.55,-3+i,4.95,0,M.stone2,false);
+ // Individually laid industrial roof panels add scale, rhythm and realistic metal relief.
+ for(const side of [-1,1]){
+   const angle=side===-1?.34:-.34;
+   const centerX=side===-1?-1.48:1.48;
+   for(let row=0;row<7;row++){
+     for(let col=0;col<7;col++){
+       const localX=-1.62+col*.54+(row%2)*.08;
+       const z=-2.34+row*.78;
+       const y=4.72+Math.sin(angle)*localX+Math.cos(angle)*.15+.055;
+       const panel=box(g,.49,.065,.7,centerX+Math.cos(angle)*localX,y,z,(row+col)%3===0?metal:darkMetal,false);
+       panel.rotation.z=angle;
+       // Narrow raised seam and a small brass fixing point on each panel.
+       const seam=box(g,.025,.025,.64,centerX+Math.cos(angle)*localX+.21*Math.cos(angle),y+.035,z,(row+col)%3===0?M.stone2:M.gold,false);
+       seam.rotation.z=angle;
+       sphere(g,.027,centerX+Math.cos(angle)*localX-.16*Math.cos(angle),y+.047,z-.27,M.gold,.8);
+     }
+   }
+ }
  // Continuous metal eave fascias and evenly spaced support cleats finish both roof edges.
  for(const side of [-1,1]){
    box(g,.2,.2,5.82,side*3.38,4.02,0,darkMetal,false);
