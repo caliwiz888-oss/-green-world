@@ -238,6 +238,19 @@ function makeHouse(){
    const rightCourse=box(g,3.72,.035,.045,1.43,5.72+.19*Math.cos(.58)+.025,z,M.roof2,false);
    rightCourse.rotation.z=-.58;
  }
+ // Отдельные слегка приподнятые черепицы добавляют главной крыше мелкий архитектурный рельеф.
+ // Ряды смещены друг относительно друга, чтобы рисунок выглядел как настоящая кладка.
+ for(const [centerX,angle] of [[-1.93,.58],[1.43,-.58]]){
+   const roofTiles=group(g,centerX,5.72,0);roofTiles.rotation.z=angle;
+   for(let row=0;row<9;row++){
+     const z=-3.68+row*.92+(row%2)*.12;
+     for(let col=0;col<4;col++){
+       const lx=-1.35+col*.9;
+       const tile=box(roofTiles,.78,.055,.78,lx,.205,z,(row+col)%4===0?M.roof2:M.roof,false);
+       tile.rotation.y=(col%2===0?-.012:.012);
+     }
+   }
+ }
  // Карнизные балки вдоль обоих скатов закрывают торцы кровли и подчёркивают её толщину.
  for(const [x,y,angle] of [[-3.55,4.63,.58],[3.09,4.78,-.58]]){
    const fascia=box(g,.2,.24,9.02,x,y,0,M.wood2);
