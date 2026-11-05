@@ -935,6 +935,17 @@ function makeFactory(level=1){
    box(g,1.05,1.05,.14,x,2.55,-2.75,M.wood);
    box(g,.82,.78,.08,x,2.58,-2.85,windowGlow);
  }
+ // Ключевые камни оконных перемычек и латунные крепления подчёркивают симметрию фасада завода.
+ for(const x of [-2.35,2.35]){
+   box(g,.22,.2,.3,x,3.31,2.98,M.stone2,false);
+   box(g,.12,.12,.12,x,3.43,3.02,M.gold,false);
+   for(const dx of [-.57,.57]){
+     box(g,.18,.12,.22,x+dx,1.78,2.99,M.stone2,false);
+     sphere(g,.035,x+dx,1.78,3.12,M.gold,.8);
+   }
+   // Thin recessed sill line adds a crisp shadow beneath each glazed opening.
+   box(g,1.12,.045,.045,x,1.84,3.045,darkMetal,false);
+ }
  // Tall masonry chimney, metal collar and a visible dark flue.
  box(g,2.1,3.8,1.65,2.55,5.25,-1.45,brick);
  box(g,2.22,.22,1.78,2.55,7.18,-1.45,M.stone2);
