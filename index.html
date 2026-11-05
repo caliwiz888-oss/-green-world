@@ -118,6 +118,18 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
 <!-- После размещения API укажи здесь его HTTPS-адрес, например https://green-world-api.example.com -->
 <script>window.GREEN_WORLD_API_URL = 'https://green-world-api-mx3v.onrender.com';</script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+(function(){
+  var status=document.getElementById('connection-status');
+  if(!status)return;
+  status.textContent='ЗАГРУЗКА ИГРЫ…';
+  window.__greenWorldStartupTimer=setTimeout(function(){
+    if(status.textContent==='ЗАГРУЗКА ИГРЫ…'||status.textContent==='СОЗДАНИЕ 3D-МИРА…'){
+      status.textContent='ЗАПУСК ЗАДЕРЖИВАЕТСЯ · ОБНОВИ ИГРУ';
+    }
+  },30000);
+})();
+</script>
 <script type="module">
 // Загрузка 3D-движка с ограничением времени: не оставляем Mini App в вечном «Подключение…».
 async function importThreeWithTimeout(loader, timeoutMs) {
@@ -139,6 +151,9 @@ try {
     () => import('https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js?v=greenworld3d'),
     12000
   );
+  const startupStatus=document.getElementById('connection-status');
+  if(startupStatus) startupStatus.textContent='СОЗДАНИЕ 3D-МИРА…';
+  if(window.__greenWorldStartupTimer) clearTimeout(window.__greenWorldStartupTimer);
 } catch (primaryError) {
   try {
     THREE = await importThreeWithTimeout(
