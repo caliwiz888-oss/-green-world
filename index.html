@@ -43,6 +43,16 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
 #actions{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(min-width:700px){#actions{left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100% - 30px));bottom:18px}#hint{bottom:100px}.panel{font-size:14px}}
 @media(max-width:380px){.panel{padding:8px;font-size:11px}.stat{min-width:59px}#actions{gap:4px;padding:5px}#actions button{font-size:10px;padding:10px 1px}}
+/* Единая отделка интерфейса: стеклянные панели, контрастные кнопки и мягкие акценты. */
+.panel{border-color:#d7edc77a;box-shadow:0 10px 28px #102b1b55,inset 0 1px 0 #ffffff38,inset 0 -1px 0 #061b1230}
+#actions{background:linear-gradient(145deg,#102f25eF,#1d583beF);border-color:#c8e8ca55;box-shadow:0 12px 30px #061b1266,inset 0 1px 0 #ffffff22}
+#actions button{background:linear-gradient(180deg,#57a968 0%,#287747 55%,#1d6039 100%);border:1px solid #c6e8c477;box-shadow:0 4px 10px #071d1255,inset 0 1px 0 #ffffff45;text-shadow:0 1px 2px #143c25}
+#camera-tools button,#menu-button{border:1px solid #d5efd277;box-shadow:0 5px 14px #071d1255,inset 0 1px 0 #ffffff35}
+#selection{box-shadow:0 5px 16px #183c2450;border:1px solid #ffffffaa}
+#menu-card{background:linear-gradient(155deg,#153d2c 0%,#245b3c 62%,#19452f 100%);border-color:#d5efd266;box-shadow:0 20px 60px #0009,inset 0 1px 0 #ffffff20}
+#menu-card select{box-shadow:inset 0 2px 5px #061b1255}
+button:disabled{filter:grayscale(.5);opacity:.55;box-shadow:none}
+
 </style>
 </head>
 
@@ -811,6 +821,25 @@ sails.position.set(0,3.3,1.15);
 mill.add(sails);
 mill.userData.sails=sails;
 
+// Каменный фундамент, деревянная дверь, окна и обвязка корпуса мельницы.
+const millStone=material(0xaaa28e),millWood=material(0x68452e),millGlass=new THREE.MeshStandardMaterial({color:0x8dc9d6,roughness:0.2,metalness:0.12});
+const millBase=new THREE.Mesh(new THREE.CylinderGeometry(1.52,1.58,0.42,8),millStone);
+millBase.position.y=0.22;mill.add(millBase);
+addBox(mill,0.78,1.55,0.12,millWood,0,0.9,1.43);
+for(const x of [-0.55,0.55]){
+  addBox(mill,0.42,0.62,0.10,millGlass,x,2.55,1.22);
+  addBox(mill,0.5,0.08,0.14,millWood,x,2.91,1.24);
+  addBox(mill,0.07,0.68,0.14,millWood,x,2.55,1.24);
+}
+for(let i=0;i<8;i++){
+  const stoneBand=new THREE.Mesh(new THREE.BoxGeometry(0.42,0.11,0.12),millStone);
+  const a=i*Math.PI/4;stoneBand.position.set(Math.cos(a)*1.25,0.48,Math.sin(a)*1.25);stoneBand.rotation.y=-a;mill.add(stoneBand);
+}
+const millBeam=new THREE.Mesh(new THREE.BoxGeometry(2.2,0.12,0.14),millWood);
+millBeam.position.set(0,1.65,1.18);mill.add(millBeam);
+const hub=new THREE.Mesh(new THREE.CylinderGeometry(0.32,0.32,0.38,12),material(0x9c7444));
+hub.rotation.x=Math.PI/2;hub.position.set(0,3.3,1.42);mill.add(hub);
+
 mill.position.set(15,0,-9);
 scene.add(mill);
 
@@ -830,6 +859,17 @@ for (const [x,z,h] of [[-4,-2.8,7.2],[4,-2.8,7.2],[-4,2.8,6.5],[4,2.8,6.5]]) {
 addBox(castle,1.5,2.8,0.18,0x65432f,0,1.4,3.16);
 for (const x of [-2,0,2]) {
   addBox(castle,0.55,0.9,0.12,0x75c9e8,x,3.5,3.16);
+}
+// Каменные зубцы стен, карнизы башен и тёмные оконные проёмы.
+for(let x=-3.4;x<=3.41;x+=1.1){
+  addBox(castle,0.42,0.55,0.48,castleStone,x,5.52,3.0);
+  addBox(castle,0.42,0.55,0.48,castleStone,x,5.52,-3.0);
+}
+for(const [x,z,h] of [[-4,-2.8,7.2],[4,-2.8,7.2],[-4,2.8,6.5],[4,2.8,6.5]]){
+  const slit=new THREE.Mesh(new THREE.BoxGeometry(0.28,0.9,0.08),material(0x394653));
+  slit.position.set(x,h*0.57,z+(z>0?1.18:-1.18));castle.add(slit);
+  const collar=new THREE.Mesh(new THREE.CylinderGeometry(1.22,1.22,0.16,12),material(0xb9b09e));
+  collar.position.set(x,h-0.15,z);castle.add(collar);
 }
 castle.position.set(23,0,-14);
 castle.scale.setScalar(0.9);
@@ -889,6 +929,9 @@ for(let i=0;i<11;i++){
   mountain.position.set(-30+i*6,-1,-29);
   mountain.castShadow=true;
   scene.add(mountain);
+  // Светлые каменные вершины и скальные уступы на дальнем хребте.
+  const peak=new THREE.Mesh(new THREE.ConeGeometry(2.15,3.15,5),material(i%2?0xd7e2dc:0xe7e8dc));
+  peak.position.set(-30+i*6,4.05,-29);peak.scale.set(0.72,1,0.72);peak.castShadow=true;scene.add(peak);
 }
 
 // ===== ЯБЛОНИ =====
