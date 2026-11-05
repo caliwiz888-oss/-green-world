@@ -721,28 +721,12 @@ function makeHouse(){
    }
  }
  // Убраны повторные слои рёбер и черепицы: они накладывались на основной рисунок кровли и вызывали мерцание глубины.
- // Continuous dark eaves and shaped stone chimney crowns.
- for(const x of [-3.45,3.45]){
-   box(g,.22,.18,8.95,x,4.63,0,M.wood,false);
- }
- for(const x of [-3.6,3.6]){
+  // Shaped stone chimney crowns; the main roof eaves are defined once above.
+  for(const x of [-3.6,3.6]){
    box(g,.98,.16,.98,x,6.08,-2.2,houseStoneTrim);
    box(g,.62,.12,.62,x,6.2,-2.2,M.wood);
  }
- // Layered eaves: slim brass fascia lines, carved brackets and stone end returns.
- for(const x of [-3.45,3.45]){
-   box(g,.055,.075,8.72,x+(x<0?-.17:.17),4.69,0,M.gold,false);
-   for(const z of [-3.75,-2.5,-1.25,0,1.25,2.5,3.75]){
-     const bracket=box(g,.18,.34,.22,x,4.43,z,houseStoneTrim,false);
-     bracket.rotation.z=x<0?-.18:.18;
-     box(g,.2,.055,.25,x,4.24,z,M.gold,false);
-     sphere(g,.035,x,4.55,z,M.gold,.8);
-   }
-   for(const z of [-4.38,4.38]){
-     box(g,.3,.22,.24,x,4.65,z,houseStoneTrim,false);
-     box(g,.34,.055,.28,x,4.78,z,M.gold,false);
-   }
- }
+  // Повторные карнизные накладки и кронштейны удалены: основной карниз уже создан выше.
  // Decorative ridge-end finials complete the roof silhouette at both gable ends.
  for(const z of [-4.32,4.32]){
    box(g,.34,.12,.28,0,6.54,z,houseStoneTrim,false);
@@ -1645,10 +1629,10 @@ function makeFactory(level=1){
        const y=4.72+Math.sin(angle)*localX+Math.cos(angle)*.15+.055;
        const panel=box(g,.49,.065,.7,centerX+Math.cos(angle)*localX,y,z,(row+col)%3===0?metal:darkMetal,false);
        panel.rotation.z=angle;
-       // Narrow raised seam and a small brass fixing point on each panel.
-       const seam=box(g,.025,.025,.64,centerX+Math.cos(angle)*localX+.21*Math.cos(angle),y+.035,z,(row+col)%3===0?M.stone2:M.gold,false);
-       seam.rotation.z=angle;
-       sphere(g,.027,centerX+Math.cos(angle)*localX-.16*Math.cos(angle),y+.047,z-.27,M.gold,.8);
+        // Шов и крепёж подняты над панелью с зазором, чтобы исключить пересечение поверхностей.
+        const seam=box(g,.025,.025,.64,centerX+Math.cos(angle)*localX+.21*Math.cos(angle),y+.055,z,(row+col)%3===0?M.stone2:M.gold,false);
+        seam.rotation.z=angle;
+        sphere(g,.027,centerX+Math.cos(angle)*localX-.16*Math.cos(angle),y+.09,z-.27,M.gold,.8);
      }
    }
  }
