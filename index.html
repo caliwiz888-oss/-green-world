@@ -34,7 +34,7 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
 .menu-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
 .menu-actions button{min-height:46px}
 #menu-close{width:100%;margin-top:12px;background:#315d48}
-#actions{grid-template-columns:repeat(5,minmax(0,1fr))}
+#actions{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(min-width:700px){#actions{left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100% - 30px));bottom:18px}#hint{bottom:100px}.panel{font-size:14px}}
 @media(max-width:380px){.panel{padding:8px;font-size:11px}.stat{min-width:59px}#actions{gap:4px;padding:5px}#actions button{font-size:10px;padding:10px 1px}}
 </style>
@@ -100,7 +100,6 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
 <div id="actions">
   <button onclick="plant()">🌱 Посадить</button>
   <button onclick="water()">💧 Полить</button>
-  <button onclick="harvest()">🍎 Собрать</button>
   <button onclick="harvestAll()">🌳 Собрать всё</button>
   <button onclick="sell()">🛒 Продать</button>
 </div>
