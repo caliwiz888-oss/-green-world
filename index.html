@@ -790,7 +790,12 @@ scene.add(waterGlints);
 const decorativeCanopies=[];
 function decorativeTree(x,z,size=1){
   const tree=new THREE.Group();
-  const trunkMat=material(0x684027);
+  // Фактурная кора связывает декоративные деревья с реалистичными
+  // стволами фруктового сада, сохраняя общий материал для ветвей и корней.
+  const trunkMat=new THREE.MeshStandardMaterial({
+    map:barkTexture,bumpMap:barkBump,bumpScale:0.09,
+    color:0xffffff,roughness:1
+  });
   const leafMats=[material(0x26783a),material(0x318b42),material(0x3d9849)];
   const trunk=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.34,1.8,9),trunkMat);
   trunk.position.y=0.9;trunk.castShadow=true;tree.add(trunk);
