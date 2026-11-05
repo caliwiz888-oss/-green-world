@@ -2332,6 +2332,16 @@ function makeWorldLandscape(){
      snowRun.rotation.z=-side*.13;
    }
  }
+ // Small broken rock ledges catch side light on the lower alpine faces.
+ const ledgeMat=mat(0x71847b);
+ for(let i=0;i<peaks.length;i++){
+   const [x,z,h,r]=peaks[i];
+   const ledge=new THREE.Mesh(new THREE.SphereGeometry(1,14,8),ledgeMat);
+   ledge.position.set(x+(i%2?-.18:.2),h*.39,z+r*.34);
+   ledge.scale.set(r*.2,.11,r*.075);
+   ledge.rotation.y=(i%2?-.12:.12);
+   world.add(ledge);
+ }
  // A few soft snow shelves catch light along the upper ridges, rather than covering the peaks uniformly.
  for(const [x,y,z,sx,sy,sz] of [[-14,11.1,-36,2.8,.22,.72],[-3,13.2,-39,3.6,.24,.8],[9,11.5,-36,3,.2,.7],[22,8.8,-31,2.2,.18,.6]]){
    const shelf=new THREE.Mesh(new THREE.SphereGeometry(1,16,8),snowShadow);
