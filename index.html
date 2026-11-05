@@ -1844,33 +1844,8 @@ function makeFactory(level=1){
    box(g,.38,.22,.4,x,3.9,2.72,M.gold);
  }
  for(const y of [.55,3.72])box(g,7.42,.12,.2,0,y,2.73,M.stone2);
- // Additional multi-pane clerestory windows beneath the roof line.
- for(const x of [-2.55,-.85,.85,2.55]){
-   box(g,.92,.72,.16,x,3.18,2.76,darkMetal);
-   box(g,.72,.52,.08,x,3.18,2.86,windowGlow);
-   box(g,.08,.56,.08,x,3.18,2.92,M.gold,false);
-   box(g,.76,.08,.08,x,3.18,2.92,M.gold,false);
- }
- // Upper factory glazing receives individual stone surrounds, sills and brass-set keystones.
- for(const x of [-2.55,-.85,.85,2.55]){
-   box(g,1.12,.12,.24,x,3.59,2.82,M.stone2,false);
-   box(g,1.02,.045,.26,x,3.67,2.83,M.gold,false);
-   box(g,1.12,.12,.24,x,2.77,2.82,M.stone2,false);
-   for(const dx of [-.49,.49]){
-     box(g,.12,.76,.2,x+dx,3.18,2.83,M.stone2,false);
-     box(g,.14,.08,.22,x+dx,3.58,2.86,M.gold,false);
-     box(g,.14,.08,.22,x+dx,2.78,2.86,M.gold,false);
-   }
-   box(g,.18,.18,.24,x,3.72,2.9,M.stone,false);
-   sphere(g,.045,x,3.75,3.035,M.gold,.8);
-   for(const dx of [-.38,.38]){
-     box(g,.16,.18,.2,x+dx,2.66,2.84,M.stone2,false);
-   }
- }
- // A continuous dressed stone stringcourse ties the four high windows together.
- box(g,7.05,.075,.18,0,3.82,2.76,M.stone2,false);
- box(g,6.92,.035,.2,0,3.87,2.78,M.gold,false);
- // Covered loading canopy with steel brackets and ribbed metal roof.
+ // Дублирующие верхние окна и их наличники удалены: они пересекались с верхом основных окон и карнизом.
+  // Covered loading canopy with steel brackets and ribbed metal roof.
  box(g,4.35,.18,1.55,0,3.18,3.65,darkMetal);
  for(const x of [-1.9,1.9]){
    box(g,.14,1.45,.14,x,2.48,3.7,metal);
@@ -1936,14 +1911,8 @@ function makeFactory(level=1){
  factoryLeaf.rotation.z=-.38;
  const factoryStem=box(g,.035,.14,.035,0,3.86,3.17,M.gold,false);
  factoryStem.rotation.z=.32;
- // Deep stone sills and top caps give the front windows a stronger architectural frame.
- for(const x of [-2.35,2.35]){
-   box(g,1.28,.16,.32,x,1.91,2.98,M.stone2);
-   box(g,1.28,.16,.32,x,3.18,2.98,M.stone2);
-   for(const dx of [-.62,.62])box(g,.12,1.34,.28,x+dx,2.55,2.94,M.stone2);
-   box(g,.08,1.08,.1,x,2.55,3.0,M.gold,false);
- }
- // Raised vertical brick joints and a continuous cornice sharpen the upper facade.
+ // Повторный комплект рам и подоконников основных окон удалён; сохранён первый цельный комплект.
+  // Raised vertical brick joints and a continuous cornice sharpen the upper facade.
  for(const x of [-3.1,-1.55,1.55,3.1]){
    box(g,.1,2.95,.12,x,2.05,2.79,brickLight,false);
  }
