@@ -966,6 +966,46 @@ millBeam.position.set(0,1.65,1.18);mill.add(millBeam);
 const hub=new THREE.Mesh(new THREE.CylinderGeometry(0.32,0.32,0.38,12),material(0x9c7444));
 hub.rotation.x=Math.PI/2;hub.position.set(0,3.3,1.42);mill.add(hub);
 
+// Деревянные вертикальные планки корпуса с тонкими светлыми кромками.
+const millPlankMat=material(0x8b6240),millPlankEdge=material(0xc49a68);
+for(let i=0;i<12;i++){
+  const a=i*Math.PI/6;
+  const plank=new THREE.Mesh(new THREE.BoxGeometry(0.105,3.05,0.075),millPlankMat);
+  plank.position.set(Math.sin(a)*1.12,2.02,Math.cos(a)*1.12);
+  plank.rotation.y=a;plank.castShadow=true;mill.add(plank);
+  const edge=new THREE.Mesh(new THREE.BoxGeometry(0.025,2.92,0.025),millPlankEdge);
+  edge.position.set(Math.sin(a)*1.17,2.02,Math.cos(a)*1.17);
+  edge.rotation.y=a;mill.add(edge);
+}
+// Кольцевые ряды черепицы подчёркивают форму конической крыши.
+const millRoofRings=material(0x713b30);
+for(let i=1;i<=4;i++){
+  const t=i/5;
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(1.5*(1-t),0.035,5,8),millRoofRings);
+  ring.rotation.x=Math.PI/2;
+  ring.position.y=3.95+t*1.5;
+  mill.add(ring);
+}
+// Разделение окон на небольшие стеклянные секции.
+for(const x of [-0.55,0.55]){
+  addBox(mill,0.055,0.62,0.13,millWood,x,2.55,1.29);
+  addBox(mill,0.42,0.055,0.13,millWood,x,2.55,1.29);
+}
+// Дверные доски, поперечная перекладина и металлическая ручка.
+for(let i=0;i<4;i++){
+  const board=new THREE.Mesh(new THREE.BoxGeometry(0.13,1.42,0.035),millPlankMat);
+  board.position.set(-0.24+i*0.16,0.9,1.505);mill.add(board);
+}
+addBox(mill,0.72,0.10,0.055,millWood,0,1.45,1.51);
+const millHandle=new THREE.Mesh(new THREE.SphereGeometry(0.065,10,8),material(0xd5b46b));
+millHandle.position.set(0.25,0.92,1.56);mill.add(millHandle);
+// Небольшие каменные ступени перед входом.
+for(let i=0;i<2;i++){
+  const step=new THREE.Mesh(new THREE.BoxGeometry(1.05-i*0.12,0.16,0.42),millStone);
+  step.position.set(0,0.12+i*0.13,1.72+i*0.28);
+  step.castShadow=true;step.receiveShadow=true;mill.add(step);
+}
+
 mill.position.set(15,0,-9);
 scene.add(mill);
 
