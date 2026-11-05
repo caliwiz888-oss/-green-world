@@ -1384,6 +1384,20 @@ function makeMarket(level=1){
    box(g,.12,.1,.22,px,.2,pz+.22,M.stone2,false);
  }
 
+ // Alternating dressed-stone corner quoins give the manor's four wall corners a crafted masonry finish.
+ for(const xSide of [-1,1]){
+   for(const zSide of [-1,1]){
+     const x=xSide*4.91,z=zSide*3.94;
+     for(let row=0;row<4;row++){
+       const y=.62+row*.94;
+       const width=row%2===0?.34:.27;
+       box(g,width,.58,.22,x,y,zSide>0?z+.075:z-.075,row%2===0?houseStoneTrim:houseStone,false);
+       box(g,.045,.045,.235,x,y+.31,zSide>0?z+.075:z-.075,M.stone2,false);
+     }
+     // A compact capstone ties each quoin stack into the upper wall band.
+     box(g,.42,.13,.28,x,4.12,zSide>0?z+.075:z-.075,houseStoneTrim,false);
+   }
+ }
  // Задний фронтон главного дома: круглое слуховое окно с глубокой каменной оправой.
  // Оно уравновешивает парадную эмблему и завершает силуэт крыши со стороны двора.
  const rearOculus=new THREE.Mesh(new THREE.CircleGeometry(.29,32),windowInterior);
