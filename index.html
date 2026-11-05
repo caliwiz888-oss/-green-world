@@ -521,6 +521,72 @@ for(let i=0;i<3;i++){
 }
 mansion.add(mansionDetails);
 
+// ===== РАСШИРЕННАЯ АРХИТЕКТУРА ГЛАВНОГО ЗАМКА =====
+// Дополнительные объёмы, башенные пояса, балконы и верхний этаж.
+// Все элементы остаются частью существующей модели и не меняют игровые координаты.
+const mansionStoneLight=material(0xe8d7b8);
+const mansionRoofDark=material(0x71352f);
+const mansionRoofLight=material(0xa84a3b);
+const mansionMetal=material(0x443c35,0.55);
+const mansionBalcony=new THREE.Group();
+// Центральный верхний объём с отдельным высоким фронтоном.
+addBox(mansion,4.25,1.55,3.25,0xf1dcb9,0,4.15,-0.15);
+addBox(mansion,4.48,0.2,3.42,mansionStoneLight,0,4.92,-0.15);
+const upperRoof=new THREE.Mesh(new THREE.ConeGeometry(3.35,2.05,4),mansionRoofDark);
+upperRoof.position.set(0,5.95,-0.15);upperRoof.rotation.y=Math.PI/4;upperRoof.castShadow=true;mansion.add(upperRoof);
+// Выступающий фронтон над главным входом.
+const pedimentShape=new THREE.Shape();
+pedimentShape.moveTo(-1.45,0);pedimentShape.lineTo(1.45,0);pedimentShape.lineTo(0,1.28);pedimentShape.closePath();
+const pediment=new THREE.Mesh(new THREE.ExtrudeGeometry(pedimentShape,{depth:0.16,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:0.035,bevelThickness:0.035}),mansionStoneLight);
+pediment.position.set(0,3.0,2.82);pediment.castShadow=true;mansion.add(pediment);
+const pedimentInset=new THREE.Mesh(new THREE.ShapeGeometry(pedimentShape),material(0x9b4938));
+pedimentInset.position.set(0,3.12,3.005);mansion.add(pedimentInset);
+// Высокие угловые башни получают каменные пояса, балконные площадки и шпили.
+for(const x of [-4.5,4.5]){
+  const balconyRing=new THREE.Mesh(new THREE.CylinderGeometry(1.02,1.02,0.18,16),mansionStoneLight);
+  balconyRing.position.set(x,4.72,0);balconyRing.castShadow=true;mansion.add(balconyRing);
+  const upperBand=new THREE.Mesh(new THREE.CylinderGeometry(0.91,0.91,0.14,16),mansionStoneLight);
+  upperBand.position.set(x,5.05,0);mansion.add(upperBand);
+  for(let a=0;a<12;a++){
+    const angle=a*Math.PI/6;
+    const baluster=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.06,0.48,6),facadeTrimMaterial);
+    baluster.position.set(x+Math.cos(angle)*0.88,4.98,Math.sin(angle)*0.88);mansion.add(baluster);
+  }
+  const spire=new THREE.Mesh(new THREE.ConeGeometry(0.22,1.15,8),mansionMetal);
+  spire.position.set(x,7.58,0);mansion.add(spire);
+  const finial=new THREE.Mesh(new THREE.SphereGeometry(0.12,10,8),mansionRoofLight);
+  finial.position.set(x,8.18,0);mansion.add(finial);
+}
+// Второй ярус окон, каменные наличники и вертикальные пилястры.
+for(const x of [-1.35,1.35]){
+  addBox(mansion,0.92,1.12,0.14,mansionStoneLight,x,4.12,1.53);
+  addBox(mansion,0.68,0.88,0.08,facadeGlassMaterial,x,4.12,1.63);
+  addBox(mansion,0.1,0.94,0.1,facadeTrimMaterial,x,4.12,1.69);
+  addBox(mansion,0.76,0.09,0.1,facadeTrimMaterial,x,4.12,1.69);
+  addBox(mansion,1.08,0.12,0.2,mansionStoneLight,x,3.51,1.58);
+}
+for(const x of [-3.25,3.25]){
+  addBox(mansion,0.28,3.15,0.3,mansionStoneLight,x,1.72,2.57);
+  addBox(mansion,0.38,0.18,0.38,facadeTrimMaterial,x,3.35,2.57);
+}
+// Декоративные горизонтальные ряды черепицы на переднем скате крыши.
+for(let row=0;row<4;row++){
+  const y=5.65-row*0.43;
+  const halfWidth=2.35-row*0.56;
+  for(let col=-2;col<=2;col++){
+    const tile=new THREE.Mesh(new THREE.BoxGeometry(0.82,0.075,0.16),row%2?mansionRoofDark:mansionRoofLight);
+    tile.position.set(col*0.9,y,2.08+row*0.18);tile.rotation.x=-0.12;tile.castShadow=true;mansion.add(tile);
+  }
+}
+// Балкон над парадным входом с колоннами и перилами.
+const balconyDeck=new THREE.Mesh(new THREE.BoxGeometry(3.15,0.18,0.92),mansionStoneLight);
+balconyDeck.position.set(0,3.12,2.95);balconyDeck.castShadow=true;mansion.add(balconyDeck);
+for(const x of [-1.38,-0.92,-0.46,0,0.46,0.92,1.38]){
+  const post=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.075,0.62,8),facadeTrimMaterial);
+  post.position.set(x,3.5,3.31);mansion.add(post);
+}
+addBox(mansion,3.12,0.12,0.12,mansionStoneLight,0,3.83,3.31);
+
 // ===== ЛАНДШАФТ ВОКРУГ ДОМА =====
 const gardenStone=material(0xc9bda5);
 const hedgeMat=material(0x286b38);
