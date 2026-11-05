@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS players (
   greenhouse_level INTEGER NOT NULL DEFAULT 0 CHECK (greenhouse_level >= 0),
   last_daily_claim DATE,
   daily_streak INTEGER NOT NULL DEFAULT 0 CHECK (daily_streak >= 0),
-  plots JSONB NOT NULL DEFAULT '[{"index":147,"type":"apple","grown":false},{"index":150,"type":"apple","grown":false},{"index":153,"type":"apple","grown":false},{"index":207,"type":"apple","grown":false},{"index":210,"type":"apple","grown":false}]'::jsonb,
+  plots JSONB NOT NULL DEFAULT '[{"index":147,"type":"apple","grown":false},{"index":150,"type":"apple","grown":false},{"index":152,"type":"apple","grown":false},{"index":207,"type":"apple","grown":false},{"index":210,"type":"apple","grown":false}]'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
