@@ -93,6 +93,7 @@ const state = p => ({
   appleCapacity:p.has_warehouse?100*(Number(p.warehouse_level)||1):20,
   hasMarket:p.has_market, marketLevel:Number(p.market_level)||0,
   hasGreenhouse:p.has_greenhouse, greenhouseLevel:Number(p.greenhouse_level)||0,
+  hasFactory:Boolean(p.has_factory),
   plots:publicPlots(p.plots)
 });
 function xpForLevel(level){
@@ -337,6 +338,7 @@ app.post('/api/game/sell',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   return {player:await loadState(c,req.playerId),earned};
 }));
 app.post('/api/game/process',auth,(req,res)=>mutate(req,res,async(c,p)=>{
+  if(!p.has_factory) reject(403,'Build the factory before processing fruit');
   const type=String(req.body?.fruitType||''),kind=String(req.body?.kind||'');
   if(!['apple','peach','cherry','pear','orange','mango'].includes(type)) reject(400,'Unknown fruit type');
   if(!['juice','jam'].includes(kind)) reject(400,'Unknown processing recipe');
@@ -361,13 +363,14 @@ app.post('/api/game/expand-land',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   return {player:await loadState(c,req.playerId),unlockedPlots:[0,36,100,196,324,400][level+1]};
 }));
 app.post('/api/game/build',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const options={warehouse:['has_warehouse',100],market:['has_market',1500],greenhouse:['has_greenhouse',2500]};
+  const options={warehouse:['has_warehouse',100],market:['has_market',1500],greenhouse:['has_greenhouse',2500],factory:['has_factory',5000]};
   const option=options[req.body?.kind];if(!option) reject(400,'Unknown building');
   if(p[option[0]]) reject(409,'Building already exists');
   if(p.coins<option[1]) reject(409,'Not enough Green Coin');
   if(req.body?.kind==='warehouse') await c.query('UPDATE players SET coins=coins-$2,has_warehouse=TRUE,warehouse_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
   else if(req.body?.kind==='market') await c.query('UPDATE players SET coins=coins-$2,has_market=TRUE,market_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
-  else await c.query('UPDATE players SET coins=coins-$2,has_greenhouse=TRUE,greenhouse_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
+  else if(req.body?.kind==='greenhouse') await c.query('UPDATE players SET coins=coins-$2,has_greenhouse=TRUE,greenhouse_level=1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
+  else await c.query('UPDATE players SET coins=coins-$2,has_factory=TRUE,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,option[1]]);
   return {player:await loadState(c,req.playerId)};
 }));
 app.post('/api/game/upgrade-warehouse',auth,(req,res)=>mutate(req,res,async(c,p)=>{
@@ -408,7 +411,8 @@ app.post('/api/game/upgrade-orchard',auth,(req,res)=>mutate(req,res,async(c,p)=>
 app.use((err,_req,res,_next)=>{console.error(err.message);res.status(500).json({error:'Internal server error'});});
 const port=Number(process.env.PORT||3000);
 db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS fruit_inventory JSONB NOT NULL DEFAULT '{}'::jsonb")
-.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS processed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb"))
+.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS processed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb")
+.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS has_factory BOOLEAN NOT NULL DEFAULT FALSE")))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS land_level INTEGER NOT NULL DEFAULT 1"))
 .then(()=>db.query("UPDATE players SET land_level=CASE WHEN jsonb_array_length(COALESCE(plots,'[]'::jsonb))>0 THEN 5 ELSE GREATEST(COALESCE(land_level,1),1) END"))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS seed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb"))
