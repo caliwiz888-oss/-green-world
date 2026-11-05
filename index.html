@@ -198,9 +198,9 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(28,32,34);
 camera.lookAt(0,0,0);
 
+const isTouchDevice=window.matchMedia?.('(pointer: coarse)').matches||false;
 let renderer;
 try {
-  const isTouchDevice=window.matchMedia?.('(pointer: coarse)').matches||false;
   renderer = new THREE.WebGLRenderer({antialias:!isTouchDevice, powerPreference:'high-performance'});
 } catch (webglError) {
   const status = document.getElementById('connection-status');
