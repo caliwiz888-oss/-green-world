@@ -159,7 +159,7 @@ function makeTree(x,z,kind='apple'){
  return g;
 }
 function makeMarket(level=1){
- const g=group(world,9.8,0,8.8);g.rotation.y=0;g.scale.setScalar(.56);
+ const g=group(world,11.15,0,10.65);g.rotation.y=0;g.scale.setScalar(.56);
  box(g,5.4,2.8,4.4,0,1.4,0,M.stone);
  box(g,5.65,.24,4.65,0,2.86,0,M.gold);
  // Timber-framed storefront and broad display windows.
@@ -194,8 +194,7 @@ function makeMarket(level=1){
      fruit.position.set(x-.22+i*.22,1.02,2.72);g.add(fruit);
    }
  }
- // A short paved apron makes the shop feel connected to the courtyard.
- for(let i=0;i<3;i++)box(g,1.35,.12,.9,0,.06,3.75+i*1.02,M.stone2,false);
+ // Убраны три отдельные белые плиты перед лавкой по просьбе пользователя.
  return g;
 }
 function makeGreenhouse(level=1){
