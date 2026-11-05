@@ -886,6 +886,33 @@ function makeHouse(){
      box(g,.025,2.36,.025,x+dx,2.05,-4.39,M.stone2,false);
    }
  }
+  // Круглое слуховое окно в центре фронтона: каменный обод, латунное кольцо и тонкие переплёты.
+  const atticGlass=new THREE.Mesh(new THREE.CircleGeometry(.255,24),windowInterior);
+  atticGlass.position.set(-.25,6.34,4.34);g.add(atticGlass);
+  const atticRing=new THREE.Mesh(new THREE.TorusGeometry(.31,.055,8,32),M.stone2);
+  atticRing.position.set(-.25,6.34,4.35);g.add(atticRing);
+  const atticBrass=new THREE.Mesh(new THREE.TorusGeometry(.235,.018,6,32),M.gold);
+  atticBrass.position.set(-.25,6.34,4.365);g.add(atticBrass);
+  box(g,.045,.46,.045,-.25,6.34,4.38,M.gold,false);
+  box(g,.44,.045,.045,-.25,6.34,4.38,M.gold,false);
+  // Веер из отдельных каменных клиньев обрамляет круглое слуховое окно фронтона.
+  for(let i=0;i<8;i++){
+    const angle=i*Math.PI/4;
+    const x=-.25+Math.cos(angle)*.405;
+    const y=6.34+Math.sin(angle)*.405;
+    const voussoir=box(g,.14,.085,.09,x,y,4.385,M.stone2,false);
+    voussoir.rotation.z=angle;
+    sphere(g,.026,x,y,4.445,M.gold,.8);
+  }
+  // Верхний замковый камень связывает оконный обод с линией фронтона.
+  box(g,.16,.12,.1,-.25,6.79,4.34,M.stone2,false);
+  sphere(g,.035,-.25,6.86,4.39,M.gold,.8);
+ 
+ // Небольшая мощёная площадка перед главным входом, не заходящая на грядки.
+ box(g,5.25,.12,1.45,0,.035,4.92,M.stone2,false);
+ for(let ix=0;ix<5;ix++)for(let iz=0;iz<2;iz++){
+   box(g,.96,.035,.62,-1.92+ix*.96,.112,4.58+iz*.66,ix%2?M.stone:M.stone2,false);
+ }
  return g;
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
@@ -908,27 +935,6 @@ function makeTree(x,z,kind='apple',mature=false){
   const f=sphere(g,mature?.12:.065,Math.cos(a)*rad,y,Math.sin(a)*rad,mat(fruit),1);
   if(mature&&kind==='cherry'){const stem=cylinder(g,.018,.018,.12,Math.cos(a)*rad,y+.1,Math.sin(a)*rad,M.trunk,5);stem.rotation.z=.25}
  }
- // Круглое слуховое окно в центре фронтона: каменный обод, латунное кольцо и тонкие переплёты.
- const atticGlass=new THREE.Mesh(new THREE.CircleGeometry(.255,24),windowInterior);
- atticGlass.position.set(-.25,6.34,4.34);g.add(atticGlass);
- const atticRing=new THREE.Mesh(new THREE.TorusGeometry(.31,.055,8,32),M.stone2);
- atticRing.position.set(-.25,6.34,4.35);g.add(atticRing);
- const atticBrass=new THREE.Mesh(new THREE.TorusGeometry(.235,.018,6,32),M.gold);
- atticBrass.position.set(-.25,6.34,4.365);g.add(atticBrass);
- box(g,.045,.46,.045,-.25,6.34,4.38,M.gold,false);
- box(g,.44,.045,.045,-.25,6.34,4.38,M.gold,false);
- // Веер из отдельных каменных клиньев обрамляет круглое слуховое окно фронтона.
- for(let i=0;i<8;i++){
-   const angle=i*Math.PI/4;
-   const x=-.25+Math.cos(angle)*.405;
-   const y=6.34+Math.sin(angle)*.405;
-   const voussoir=box(g,.14,.085,.09,x,y,4.385,M.stone2,false);
-   voussoir.rotation.z=angle;
-   sphere(g,.026,x,y,4.445,M.gold,.8);
- }
- // Верхний замковый камень связывает оконный обод с линией фронтона.
- box(g,.16,.12,.1,-.25,6.79,4.34,M.stone2,false);
- sphere(g,.035,-.25,6.86,4.39,M.gold,.8);
  return g;
 }
 function makeMarket(level=1){
@@ -1007,6 +1013,9 @@ function makeMarket(level=1){
    lamp.position.set(x,3.48,2.82);g.add(lamp);
    warmLight(g,x,3.42,3.05,.72,6.5);
  }
+ // Каменная площадка перед витриной подчёркивает вход, не занимая игровые грядки.
+ box(g,6.3,.12,1.45,0,.035,3.55,M.stone2,false);
+ for(let ix=0;ix<6;ix++)box(g,.94,.035,.62,-2.35+ix*.94,.112,3.55,ix%2?M.stone:M.stone2,false);
  // Produce baskets and stacked delivery crates beside the entrance.
  for(const x of [-3.25,3.25]){
    box(g,.92,.58,.78,x,.52,2.7,M.wood);
@@ -1382,6 +1391,9 @@ function makeFactory(level=1){
  brick.map=brickTexture;brick.bumpMap=brickBump;brick.bumpScale=.045;brick.needsUpdate=true;
  // Gentle warm interior lighting gives the factory glazing a believable evening glow.
  warmLight(g,-1.8,2.65,1.35,.8,8);warmLight(g,1.8,2.65,1.35,.8,8);
+ // Каменная площадка перед промышленным входом связывает фасад с территорией.
+ box(g,5.5,.12,1.45,0,.035,3.55,M.stone2,false);
+ for(let ix=0;ix<5;ix++)for(let iz=0;iz<2;iz++)box(g,1.02,.035,.62,-2.04+ix*1.02,.112,3.22+iz*.66,ix%2?M.stone:M.stone2,false);
  // Stone foundation and a broad paved loading yard.
  box(g,9.2,.22,8.1,0,.1,.15,M.stone2,false);
  box(g,7.6,.48,5.7,0,.34,0,M.stone2);
