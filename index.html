@@ -681,6 +681,23 @@ function makeFactory(level=1){
  box(g,.035,.12,.045,-2.7,4.82,-2.405,M.roof2,false);
  cylinder(g,.12,.12,.32,-2.15,4.15,-1.65,metal,12);
  cylinder(g,.17,.17,.08,-2.15,3.98,-1.65,M.gold,12);
+ // Tank service assembly: reinforced feet, inspection flange and readable valve wheel.
+ for(const x of [-3.12,-2.28]){
+   box(g,.12,.42,.16,x,4.15,-1.65,darkMetal,false);
+   box(g,.2,.08,.22,x,3.94,-1.65,M.gold,false);
+ }
+ cylinder(g,.34,.34,.12,-2.7,5.31,-1.65,M.stone2,20);
+ cylinder(g,.25,.25,.08,-2.7,5.39,-1.65,M.gold,20);
+ cylinder(g,.075,.075,.48,-2.7,5.62,-1.65,metal,10);
+ for(let a=0;a<8;a++){
+   const ang=a*Math.PI/4;
+   box(g,.055,.32,.055,-2.7+Math.cos(ang)*.2,5.62+Math.sin(ang)*.2,-1.65,M.gold,false);
+ }
+ // Safety label and small inspection bolts on the tank face.
+ box(g,.42,.28,.045,-2.7,4.35,-2.29,M.stone,false);
+ for(const x of [-2.86,-2.54]){
+   for(const y of [4.25,4.45])sphere(g,.028,x,y,-2.33,M.gold,.8);
+ }
 
  // Loading platform, crates and two barrels make the factory feel active.
  box(g,3.9,.24,1.05,0,.24,3.55,M.stone);
