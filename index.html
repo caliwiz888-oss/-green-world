@@ -660,6 +660,25 @@ function makeMarket(level=1){
  // Warm timber sign, small hanging lamps and a welcoming stone forecourt.
  box(g,2.05,.62,.16,0,4.05,2.62,M.wood);
  box(g,1.78,.34,.08,0,4.05,2.73,M.gold,false);
+ // Эмалированная лицевая табличка торговой лавки с чёткой фирменной надписью.
+ const marketSignCanvas=document.createElement('canvas');
+ marketSignCanvas.width=640;marketSignCanvas.height=160;
+ const marketSignCtx=marketSignCanvas.getContext('2d');
+ const marketSignGradient=marketSignCtx.createLinearGradient(0,0,0,160);
+ marketSignGradient.addColorStop(0,'#526c4c');marketSignGradient.addColorStop(.52,'#304c38');marketSignGradient.addColorStop(1,'#203a2d');
+ marketSignCtx.fillStyle=marketSignGradient;marketSignCtx.fillRect(0,0,640,160);
+ marketSignCtx.strokeStyle='#e0c17b';marketSignCtx.lineWidth=7;marketSignCtx.strokeRect(8,8,624,144);
+ marketSignCtx.strokeStyle='#9a8050';marketSignCtx.lineWidth=2;marketSignCtx.strokeRect(18,18,604,124);
+ marketSignCtx.textAlign='center';marketSignCtx.textBaseline='middle';
+ marketSignCtx.fillStyle='#f6e7bd';marketSignCtx.font='bold 48px Georgia,serif';
+ marketSignCtx.fillText('GREEN WORLD',320,62);
+ marketSignCtx.fillStyle='#e5d3a7';marketSignCtx.font='bold 24px Arial,sans-serif';
+ marketSignCtx.fillText('ТОРГОВАЯ ЛАВКА',320,111);
+ const marketSignTexture=new THREE.CanvasTexture(marketSignCanvas);
+ marketSignTexture.colorSpace=THREE.SRGBColorSpace;
+ marketSignTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const marketSignMaterial=new THREE.MeshStandardMaterial({map:marketSignTexture,roughness:.4,metalness:.2});
+ box(g,1.7,.29,.025,0,4.05,2.785,marketSignMaterial,false);
  // Signboard craftsmanship: raised border, corner studs and a pair of forged hangers.
  for(const x of [-.94,.94]){
    box(g,.075,.48,.06,x,4.05,2.79,M.stone2,false);
