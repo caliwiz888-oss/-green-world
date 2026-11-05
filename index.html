@@ -153,6 +153,8 @@ for(const [material,texture,scale] of surfaceBumps){
  bump.needsUpdate=true;
  material.bumpMap=bump;
  material.bumpScale=scale;
+ // Та же карта задаёт небольшие вариации шероховатости без создания новых текстур.
+ material.roughnessMap=bump;
  material.needsUpdate=true;
 }
 // Sharper distant roof and masonry detail on mobile screens without increasing draw calls.
