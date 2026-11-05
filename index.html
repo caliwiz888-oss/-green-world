@@ -1999,6 +1999,25 @@ function makeFactory(level=1){
      box(g,.24,.2,.3,side*3.77,3.28,z,M.stone,false);
    }
  }
+
+ // Задние водостоки отводят воду с кровли и визуально завершают оба угла кирпичного корпуса.
+ const rearDrain=mat(0x59676a,.5);
+ for(const side of [-1,1]){
+   const x=side*3.34,z=-3.02;
+   cylinder(g,.062,.062,3.18,x,2.18,z,rearDrain,12);
+   // Верхний выпуск соединяет трубу с желобом под задним карнизом.
+   cylinder(g,.062,.062,.34,x,3.82,z+.15,rearDrain,12).rotation.x=Math.PI/2;
+   cylinder(g,.078,.078,.12,x,3.72,z,rearDrain,12);
+   // Три крепёжных хомута с парными латунными заклёпками.
+   for(const y of [.92,2.05,3.18]){
+     box(g,.2,.075,.12,x,y,z+.055,M.stone2,false);
+     box(g,.16,.045,.14,x,y,z+.12,M.gold,false);
+     for(const dx of [-.065,.065])sphere(g,.022,x+dx,y,z+.205,M.gold,.8);
+   }
+   // Нижний башмак и короткий отвод отделены от каменного цоколя.
+   cylinder(g,.068,.068,.28,x,.52,z+.12,rearDrain,12).rotation.x=Math.PI/2;
+   box(g,.18,.12,.2,x,.36,z+.24,M.stone2,false);
+ }
 return g;
 }
 function makeGardenBed(x,z){
