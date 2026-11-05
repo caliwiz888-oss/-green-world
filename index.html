@@ -431,6 +431,25 @@ function makeHouse(){
    box(g,.72,.1,.16,x,5.38,4.32,M.gold,false);
    box(g,1.12,.14,.3,x,4.78,4.18,houseStoneTrim);
  }
+ // Центральная эмблема фронтона: каменно-латунный медальон с зелёным листом.
+ const gableCrest=cylinder(g,.36,.36,.075,0,5.55,4.22,houseStoneTrim,32);
+ gableCrest.rotation.x=Math.PI/2;
+ const crestFace=cylinder(g,.285,.285,.085,0,5.55,4.275,mat(0x315b3d,.48),32);
+ crestFace.rotation.x=Math.PI/2;
+ const crestLeaf=box(g,.13,.3,.045,0,5.57,4.34,mat(0x9ab86a,.52),false);
+ crestLeaf.rotation.z=-.42;
+ const crestStem=box(g,.045,.22,.045,0,5.49,4.37,M.gold,false);
+ crestStem.rotation.z=.35;
+ for(const x of [-.22,.22]){
+   sphere(g,.035,x,5.55,4.34,M.gold,.8);
+ }
+ // Небольшой замковый камень и боковые накладки объединяют оконную группу фронтона.
+ for(const x of [-1.35,1.35]){
+   box(g,1.02,.09,.22,x,5.99,4.2,houseStoneTrim,false);
+   box(g,.14,.82,.18,x-.55,5.35,4.2,houseStoneTrim,false);
+   box(g,.14,.82,.18,x+.55,5.35,4.2,houseStoneTrim,false);
+   box(g,1.08,.075,.24,x,4.76,4.22,M.gold,false);
+ }
  // Small projecting balconies on the two front towers.
  for(const x of [-4.35,4.35]){
    box(g,1.75,.18,.9,x,3.05,1.0,houseStoneTrim);
