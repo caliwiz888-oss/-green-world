@@ -16,8 +16,7 @@
 #status{position:fixed;z-index:3;top:76px;left:50%;transform:translateX(-50%);padding:7px 12px;font-size:10px;font-weight:900;white-space:nowrap;color:#46734a}
 #selection{position:fixed;z-index:3;top:110px;left:50%;transform:translateX(-50%);padding:8px 13px;font-size:11px;font-weight:800;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
 #tools{position:fixed;z-index:4;right:10px;top:78px;display:grid;gap:7px}
-.tool,.menu{width:42px;height:42px;border-radius:13px;background:linear-gradient(150deg,#fffdf0,#dbe9d0);color:#386c42;font-size:19px;font-weight:900;box-shadow:0 4px 12px #244a3850;border:1px solid #fff}
-.menu{position:fixed;z-index:5;left:10px;top:78px}
+.menu{position:fixed;z-index:5;left:10px;top:78px;width:42px;height:42px;border-radius:13px;background:linear-gradient(150deg,#fffdf0,#dbe9d0);color:#386c42;font-size:19px;font-weight:900;box-shadow:0 4px 12px #244a3850;border:1px solid #fff}
 #dock{position:fixed;z-index:5;bottom:calc(10px + env(safe-area-inset-bottom,0px));left:9px;right:9px;padding:8px;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;border-radius:20px;background:linear-gradient(145deg,#6b442b,#3c2b21);border:2px solid #e7c58b;box-shadow:0 7px 0 #38271d,0 12px 28px #18352377}
 .action{min-height:53px;border-radius:13px;color:#fff8df;font-size:11px;font-weight:950;line-height:1.15;background:linear-gradient(180deg,#8fd276,#4eaa52 60%,#267441);border:1px solid #d5f0b7;box-shadow:0 4px 0 #225c37,inset 0 1px #fff8;text-shadow:0 1px 2px #225c37}
 button:active{transform:translateY(2px)}button:disabled{opacity:.45;filter:grayscale(.6)}
@@ -52,7 +51,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 <div id="status" class="pill">ПОДКЛЮЧЕНИЕ…</div>
 <div id="selection" class="pill">Коснись свободного участка</div>
 <button class="menu" id="menu-open" aria-label="Меню">☰</button>
-<div id="tools"><button class="tool" id="zoom-in">＋</button><button class="tool" id="zoom-out">−</button><button class="tool" id="reset-camera">⌖</button></div>
+
 <nav id="dock">
  <button class="action" id="plant">ПОСАДИТЬ</button>
  <button class="action" id="water">ПОЛИТЬ</button>
@@ -87,10 +86,10 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.m
 const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
 let token='',busy=false,player=null,daily=null,selected=null;
-let cameraRadius=38,cameraHeight=24,pointer=null,dragged=false;
+let cameraRadius=78,cameraHeight=49,pointer=null,dragged=false;
 let plots=[],treeObjects=[],buildingObjects=[];
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,65,145);
-const camera=new THREE.PerspectiveCamera(39,innerWidth/innerHeight,.1,260);
+const camera=new THREE.PerspectiveCamera(43,innerWidth/innerHeight,.1,300);
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;
 scene.add(new THREE.HemisphereLight(0xe8f8ff,0x687d43,2));
@@ -157,7 +156,7 @@ function makeTree(x,z,kind='apple'){
  return g;
 }
 function makeMarket(level=1){
- const g=group(world,11,0,-7);
+ const g=group(world,10,0,5);
  box(g,5.4,2.8,4.4,0,1.4,0,M.stone);
  box(g,5.65,.24,4.65,0,2.86,0,M.gold);
  // Timber-framed storefront and broad display windows.
@@ -203,7 +202,7 @@ function makeGreenhouse(level=1){
  return g;
 }
 function makeFactory(level=1){
- const g=group(world,11,0,13);
+ const g=group(world,10,0,-10);
  box(g,7.2,3.6,5.2,0,1.8,0,M.stone2);
  box(g,7.45,.28,5.45,0,3.72,0,M.gold);
  // Industrial roof, front gable and reinforced corner columns.
@@ -222,6 +221,16 @@ function makeFactory(level=1){
  for(const x of [-2.25,2.25])for(const z of [-2.68,2.68])box(g,.75,.72,.12,x,2.65,z,M.glass);
  for(let i=0;i<4;i++)box(g,.28,.18,.5,-1.5+i,4.65,-1.6,M.wood);
  return g;
+}
+function makeGardenBed(x,z){
+ const b=group(world,x,0,z);
+ box(b,2.8,.28,2.1,0,.14,0,M.wood,false);
+ box(b,2.48,.14,1.78,0,.34,0,M.soil,false);
+ for(let row=0;row<3;row++)for(let col=0;col<4;col++){
+   const px=-.88+col*.58,pz=-.55+row*.55;
+   cylinder(b,.045,.045,.32,px,.55,pz,M.leaf,6);
+   sphere(b,.18,px,.78,pz,mat((row+col)%3===0?0x73a94b:0x4f923f),.85);
+ }
 }
 function makeLamp(x,z){
  const l=group(world,x,0,z);
@@ -268,6 +277,12 @@ function makeWorldDecor(){
  cylinder(f,1.1,1.1,.24,0,.55,0,mat(0x69b6c4),16);
  cylinder(f,.25,.35,1,0,1,0,M.stone,10);
  sphere(f,.22,0,1.6,0,mat(0x76d2dc));
+ // Left side: a dedicated orchard in neat rows, with planting beds in front.
+ for(const [x,z] of [[-12,-8],[-9,-8],[-6,-8],[-12,-4],[-9,-4],[-6,-4]]) {
+   const orchardTree=makeTree(x,z,'apple');orchardTree.scale.setScalar(1.22);
+ }
+ // Raised crop beds create a clear plantation/garden zone on the left.
+ for(const [x,z] of [[-11,1],[-7.5,1],[-11,4.2],[-7.5,4.2],[-11,7.4],[-7.5,7.4]]) makeGardenBed(x,z);
  // The well and greenhouse are intentionally omitted from this stage.
  for(const [x,z] of [[-15,-12],[16,-13],[-15,14],[17,17]]){
    const tree=makeTree(x,z,'apple');tree.scale.setScalar(1.25);
@@ -307,14 +322,12 @@ $('daily-claim').onclick=async()=>{await action('/api/game/daily-reward/claim',{
 $('process-fruit').onclick=()=>action('/api/game/process',{fruitType:$('process-fruit-type').value,kind:$('process-kind').value},'Продукция изготовлена');
 $('menu-open').onclick=()=>$('shade').classList.add('open');$('menu-close').onclick=()=>$('shade').classList.remove('open');$('shade').addEventListener('click',e=>{if(e.target===$('shade'))$('shade').classList.remove('open')});
 function cameraPosition(){camera.position.set(0,cameraHeight,cameraRadius);camera.lookAt(0,1,-2)}
-function zoom(f){cameraRadius=Math.max(20,Math.min(70,cameraRadius*f));cameraHeight=Math.max(13,Math.min(42,cameraHeight*f));cameraPosition()}
-$('zoom-in').onclick=()=>zoom(.88);$('zoom-out').onclick=()=>zoom(1.13);$('reset-camera').onclick=()=>{cameraRadius=38;cameraHeight=24;cameraPosition()};
 const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
 renderer.domElement.addEventListener('pointerdown',e=>{pointer={x:e.clientX,y:e.clientY,id:e.pointerId};dragged=false});
 renderer.domElement.addEventListener('pointermove',e=>{if(!pointer||pointer.id!==e.pointerId)return;const dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;if(Math.abs(dx)+Math.abs(dy)>5)dragged=true});
 renderer.domElement.addEventListener('pointerup',e=>{if(!pointer||pointer.id!==e.pointerId)return;if(!dragged){const r=renderer.domElement.getBoundingClientRect();mouse.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height*2-1));ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects(tiles,false);if(hits.length){const i=hits[0].object.userData.plotIndex;setSelected(i);if(!unlocked(i))toast('Участок закрыт — расширь территорию')}}pointer=null});
 renderer.domElement.addEventListener('pointercancel',()=>pointer=null);
-renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY>0?1.08:.92)},{passive:false});
+
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
 cameraPosition();function animate(){requestAnimationFrame(animate);renderer.render(scene,camera)}animate();
 $('retry-login').onclick=login;login();
