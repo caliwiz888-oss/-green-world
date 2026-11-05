@@ -293,6 +293,12 @@ function makeHouse(){
    box(g,.38,.18,.36,x,4.2,-4.13,M.gold);
  }
  box(g,9.7,.12,.2,0,.62,-4.14,M.stone2);
+ // Subtle tower masonry bands and small inset upper lights sharpen the silhouette.
+ for(const x of [-4.35,4.35]){
+   for(const y of [1.05,2.15,4.35,5.45])box(g,2.2,.075,2.2,x,y,-2.25,M.stone2,false);
+   box(g,.48,.78,.1,x,4.85,-3.36,M.glass,false);
+   box(g,.58,.1,.12,x,5.27,-3.38,M.stone2,false);
+ }
  // Side elevation corner caps and window crowns continue the same architectural language.
  for(const side of [-1,1]){
    for(const z of [-2.55,0,2.55]){
@@ -423,6 +429,13 @@ function makeMarket(level=1){
  // Roof underside fascia and evenly spaced exposed rafter ends.
  for(const z of [-2.15,-1.1,0,1.1,2.15]){
    for(const x of [-2.55,2.55])box(g,.24,.12,.16,x,3.36,z,M.wood2,false);
+ }
+ // Door hardware, transom divisions and small awning braces finish the shopfront.
+ sphere(g,.075,.48,1.28,2.72,M.gold,.85);
+ box(g,1.02,.12,.1,0,2.35,2.5,M.gold,false);
+ for(const x of [-1.7,1.7]){
+   const brace=box(g,.09,.72,.1,x,2.94,2.92,M.wood2,false);brace.rotation.z=x<0?-.42:.42;
+   box(g,.16,.12,.16,x,2.62,2.96,M.gold,false);
  }
  // Убраны три отдельные белые плиты перед лавкой по просьбе пользователя.
  return g;
@@ -632,6 +645,15 @@ function makeFactory(level=1){
  box(g,.82,1.05,.12,3.72,1.35,2.15,darkMetal);
  box(g,.62,.84,.08,3.8,1.35,2.23,metal);
  for(const y of [1.0,1.7])box(g,.72,.06,.1,3.8,y,2.28,M.gold,false);
+ // Fine pipe collars and restrained service fittings make the industrial details feel assembled.
+ for(const z of [-1.6,-.25,1.1]){
+   cylinder(g,.19,.19,.12,4.42,3.15,z,metal,12).rotation.z=Math.PI/2;
+   cylinder(g,.19,.19,.12,3.82,3.15,z,metal,12).rotation.z=Math.PI/2;
+ }
+ for(const x of [-2.75,2.75]){
+   box(g,.5,.12,.12,x,3.68,2.76,M.gold,false);
+   box(g,.34,.055,.08,x,3.77,2.84,metal,false);
+ }
  return g;
 }
 function makeGardenBed(x,z){
