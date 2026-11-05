@@ -103,7 +103,7 @@ function xpForLevel(level){
 }
 async function awardExperience(c,playerId,player,amount){
   const current=await c.query(
-    'UPDATE players SET experience=experience+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING experience,player_level',
+    'UPDATE players SET experience=COALESCE(experience,0)+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING experience,player_level',
     [playerId,amount]
   );
   if(!current.rowCount) reject(404,'Player not found');
@@ -394,4 +394,11 @@ app.post('/api/game/upgrade-orchard',auth,(req,res)=>mutate(req,res,async(c,p)=>
 
 app.use((err,_req,res,_next)=>{console.error(err.message);res.status(500).json({error:'Internal server error'});});
 const port=Number(process.env.PORT||3000);
-db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS fruit_inventory JSONB NOT NULL DEFAULT '{}'::jsonb").then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS seed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb")).then(()=>app.listen(port,()=>console.log('GREEN WORLD API listening on '+port))).catch(error=>{console.error('Database migration failed:',error);process.exit(1);});
+db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS fruit_inventory JSONB NOT NULL DEFAULT '{}'::jsonb")
+.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS seed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb"))
+.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS experience INTEGER NOT NULL DEFAULT 0"))
+.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS player_level INTEGER NOT NULL DEFAULT 1"))
+.then(()=>db.query("UPDATE players SET experience=COALESCE(experience,0),player_level=COALESCE(player_level,1)"))
+.then(()=>db.query("ALTER TABLE players ALTER COLUMN experience SET DEFAULT 0, ALTER COLUMN experience SET NOT NULL, ALTER COLUMN player_level SET DEFAULT 1, ALTER COLUMN player_level SET NOT NULL"))
+.then(()=>app.listen(port,()=>console.log('GREEN WORLD API listening on '+port)))
+.catch(error=>{console.error('Database migration failed:',error);process.exit(1);});
