@@ -175,6 +175,25 @@ function makeHouse(){
  for(const z of [-3.4,-2.3,-1.2,0,1.2,2.3,3.4]){
    box(g,.16,.12,.72,0,6.48,z,M.gold,false);
  }
+ // Fine transverse tile courses follow both roof slopes for a more realistic finish.
+ for(const [cx,angle] of [[-1.93,.58],[1.43,-.58]]){
+   const tiles=group(g,cx,5.72,0);tiles.rotation.z=angle;
+   for(const z of [-3.65,-2.75,-1.85,-.95,-.05,.85,1.75,2.65,3.55]){
+     box(tiles,3.68,.045,.055,0,.205,z,M.roof2,false);
+   }
+   // Subtle raised slate joints divide the roof into smaller panels.
+   for(const x of [-1.25,-.42,.42,1.25]){
+     box(tiles,.035,.035,8.35,x,.205,0,M.roof,false);
+   }
+ }
+ // Continuous dark eaves and shaped stone chimney crowns.
+ for(const x of [-3.45,3.45]){
+   box(g,.22,.18,8.95,x,4.63,0,M.wood,false);
+ }
+ for(const x of [-3.6,3.6]){
+   box(g,.98,.16,.98,x,6.08,-2.2,M.stone2);
+   box(g,.62,.12,.62,x,6.2,-2.2,M.wood);
+ }
  // Sculpted stone lintels and sills make the main facade read as a finished manor.
  for(const x of [-3.25,3.25]){
    box(g,1.62,.16,.3,x,3.52,4.2,M.stone2);
