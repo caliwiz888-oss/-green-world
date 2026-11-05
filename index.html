@@ -92,7 +92,7 @@ let plots=[],treeObjects=[],buildingObjects=[];
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,78,175);
 const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,.1,320);
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.21;renderer.useLegacyLights=false;renderer.setClearColor(0x9acbe8,1);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;renderer.useLegacyLights=false;renderer.setClearColor(0x9acbe8,1);
 scene.add(new THREE.HemisphereLight(0xeaf7ff,0x526b3d,2.15));
 scene.add(new THREE.AmbientLight(0xffffff,.28));
 const sun=new THREE.DirectionalLight(0xfff1d9,3.35);sun.position.set(-28,42,24);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-30;sun.shadow.camera.right=30;sun.shadow.camera.top=30;sun.shadow.camera.bottom=-30;sun.shadow.bias=-0.00012;sun.shadow.normalBias=.018;sun.shadow.radius=3;scene.add(sun);
