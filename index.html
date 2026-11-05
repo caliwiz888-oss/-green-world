@@ -119,13 +119,32 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
 <script>window.GREEN_WORLD_API_URL = 'https://green-world-api-mx3v.onrender.com';</script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script type="module">
-// Надёжная загрузка 3D-движка: резервный CDN для Telegram WebView.
+// Загрузка 3D-движка с ограничением времени: не оставляем Mini App в вечном «Подключение…».
+async function importThreeWithTimeout(loader, timeoutMs) {
+  let timer;
+  try {
+    return await Promise.race([
+      loader(),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error('Тайм-аут загрузки 3D-движка')), timeoutMs);
+      })
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
 let THREE;
 try {
-  THREE = await import('https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js?v=greenworld3d');
+  THREE = await importThreeWithTimeout(
+    () => import('https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js?v=greenworld3d'),
+    12000
+  );
 } catch (primaryError) {
   try {
-    THREE = await import('https://unpkg.com/three@0.170.0/build/three.module.js');
+    THREE = await importThreeWithTimeout(
+      () => import('https://unpkg.com/three@0.170.0/build/three.module.js'),
+      12000
+    );
   } catch (backupError) {
     const status = document.getElementById('connection-status');
     if (status) status.textContent = 'ОШИБКА ЗАГРУЗКИ 3D';
