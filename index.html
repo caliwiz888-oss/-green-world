@@ -1255,12 +1255,12 @@ scene.add(mill);
 // ===== ДЕКОРАТИВНЫЙ ЗАМОК И ВОДОПАД =====
 // Дальний сказочный замок завершает панораму фермы и не занимает игровые участки.
 const castle = new THREE.Group();
-const mainCastleStone = material(0xd9d1bd);
+const distantCastleStone = material(0xd9d1bd);
 const castleRoofMat = material(0x684a72);
 addBox(castle, 8.5, 5.2, 6.2, 0xc9bea8, 0, 2.6, 0);
 addBox(castle, 9.2, 0.35, 6.8, 0xeee3cc, 0, 5.15, 0);
 for (const [x,z,h] of [[-4,-2.8,7.2],[4,-2.8,7.2],[-4,2.8,6.5],[4,2.8,6.5]]) {
-  const tower = new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.2,h,12), mainCastleStone);
+  const tower = new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.2,h,12), distantCastleStone);
   tower.position.set(x,h/2,z); tower.castShadow=true; castle.add(tower);
   const cap = new THREE.Mesh(new THREE.ConeGeometry(1.35,2.5,12), castleRoofMat);
   cap.position.set(x,h+1.2,z); cap.castShadow=true; castle.add(cap);
@@ -1271,8 +1271,8 @@ for (const x of [-2,0,2]) {
 }
 // Каменные зубцы стен, карнизы башен и тёмные оконные проёмы.
 for(let x=-3.4;x<=3.41;x+=1.1){
-  addBox(castle,0.42,0.55,0.48,mainCastleStone,x,5.52,3.0);
-  addBox(castle,0.42,0.55,0.48,mainCastleStone,x,5.52,-3.0);
+  addBox(castle,0.42,0.55,0.48,distantCastleStone,x,5.52,3.0);
+  addBox(castle,0.42,0.55,0.48,distantCastleStone,x,5.52,-3.0);
 }
 for(const [x,z,h] of [[-4,-2.8,7.2],[4,-2.8,7.2],[-4,2.8,6.5],[4,2.8,6.5]]){
   const slit=new THREE.Mesh(new THREE.BoxGeometry(0.28,0.9,0.08),material(0x394653));
