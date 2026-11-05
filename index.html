@@ -223,10 +223,26 @@ function makeHouse(){
    const t=group(g,x,0,-2.25);
    box(t,2.15,5.8,2.15,0,2.9,0,M.stone);
    box(t,2.35,.22,2.35,0,5.82,0,M.stone2);
+   // Tower roof base: layered eaves and a narrow brass weatherproofing band.
+   cylinder(t,1.76,1.76,.12,0,5.98,0,M.stone2,4);
+   cylinder(t,1.79,1.79,.055,0,6.055,0,M.gold,4);
    cone(t,1.72,2.55,0,7.18,0,M.roof2,4);
+   // Fine vertical roof ribs emphasize the four-sided tower silhouette.
+   for(let a=0;a<4;a++){
+     const ang=Math.PI/4+a*Math.PI/2;
+     const rib=box(t,.055,1.82,.07,Math.cos(ang)*.91,6.88,Math.sin(ang)*.91,M.roof,false);
+     rib.rotation.y=-ang;
+   }
    cylinder(t,.1,.1,.85,0,8.82,0,M.gold,8);
    for(const z of [-1.09,1.09])box(t,.65,1.15,.12,0,3.35,z,M.wood);
    // Stone window surrounds and a crisp sill on each tower face.
+   // Corner stone dressings and a continuous upper cornice sharpen each tower.
+   for(const sx of [-1,1]){
+     for(const sz of [-1,1]){
+       box(t,.16,5.35,.16,sx*1.0,2.92,sz*1.0,M.stone2,false);
+       box(t,.24,.16,.24,sx*1.0,5.68,sz*1.0,M.gold,false);
+     }
+   }
    for(const z of [-1.09,1.09]){
      box(t,.82,.12,.2,0,3.98,z*1.035,M.stone2);
      box(t,.82,.12,.2,0,2.72,z*1.035,M.stone2);
