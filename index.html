@@ -361,11 +361,24 @@ function makeHouse(){
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
 function makeTree(x,z,kind='apple',mature=false){
- const g=group(world,x,0,z);cylinder(g,.17,.25,1.5,0,.75,0,M.trunk,8);
+ const g=group(world,x,0,z);cylinder(g,.13,.25,1.65,0,.82,0,M.trunk,10);
  const colors={apple:0x438b42,peach:0x6e9c45,cherry:0x367b4a,pear:0x679947,orange:0x4b8a3d,mango:0x398044};
- sphere(g,.9,0,1.8,0,mat(colors[kind]||0x438b42),1.05);sphere(g,.65,.55,2.05,.12,M.leaf2);sphere(g,.62,-.55,2.03,-.1,M.leaf);
+ // Natural branching gives each fruit tree a fuller, more convincing silhouette.
+ for(const side of [-1,1]){
+  const branch=cylinder(g,.055,.105,.9,side*.31,1.38,0,M.trunk,7);
+  branch.rotation.z=side*.62;branch.rotation.x=side*.18;
+ }
+ sphere(g,.82,0,1.82,0,mat(colors[kind]||0x438b42),1.08);
+ sphere(g,.58,.53,2.03,.1,M.leaf2);sphere(g,.58,-.53,2.02,-.1,M.leaf);
+ sphere(g,.43,.08,2.42,.04,M.leaf2,.92);
+ sphere(g,.4,.78,1.78,-.05,M.leaf,.95);
+ sphere(g,.4,-.76,1.8,.08,M.leaf2,.95);
  const fruit=mature?(kind==='apple'?0xd94335:kind==='peach'?0xf0a06a:kind==='cherry'?0xb32239:kind==='pear'?0xb3c84b:kind==='orange'?0xe88c27:0xe8b23c):0x79a94a;
- for(let i=0;i<5;i++){const a=i*Math.PI*2/5;sphere(g,mature?.13:.075,Math.cos(a)*.68,1.8+(i%2)*.35,Math.sin(a)*.68,mat(fruit),1)}
+ for(let i=0;i<8;i++){
+  const a=i*Math.PI/4,rad=i%2?.72:.58,y=1.78+(i%3)*.27;
+  const f=sphere(g,mature?.12:.065,Math.cos(a)*rad,y,Math.sin(a)*rad,mat(fruit),1);
+  if(mature&&kind==='cherry'){const stem=cylinder(g,.018,.018,.12,Math.cos(a)*rad,y+.1,Math.sin(a)*rad,M.trunk,5);stem.rotation.z=.25}
+ }
  return g;
 }
 function makeMarket(level=1){
