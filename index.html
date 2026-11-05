@@ -1729,7 +1729,30 @@ function makeFactory(level=1){
    }
    box(g,.12,1.08,.84,-3.73,2.28,z,M.stone2,false);
  }
- return g;
+  // Боковые каменные пояса связывают окна и кирпичные простенки в цельную архитектурную композицию.
+ for(const side of [-1,1]){
+   for(const y of [1.68,3.28]){
+     box(g,.16,.12,5.12,side*3.76,y,0,M.stone2,false);
+     box(g,.18,.035,5.16,side*3.79,y+.075,0,M.gold,false);
+   }
+   // Каменные замковые акценты над боковыми окнами и небольшие опорные консоли под ними.
+   for(const z of [-1.38,1.38]){
+     box(g,.2,.18,.24,side*3.79,3.18,z,M.stone2,false);
+     box(g,.12,.1,.14,side*3.91,3.24,z,M.gold,false);
+     for(const dz of [-.38,.38]){
+       box(g,.18,.12,.16,side*3.79,1.78,z+dz,M.stone2,false);
+       sphere(g,.03,side*3.9,1.79,z+dz,M.gold,.8);
+     }
+   }
+ }
+ // Небольшие угловые камни завершают боковые пояса у торцов здания.
+ for(const side of [-1,1]){
+   for(const z of [-2.48,2.48]){
+     box(g,.24,.2,.3,side*3.77,1.68,z,M.stone,false);
+     box(g,.24,.2,.3,side*3.77,3.28,z,M.stone,false);
+   }
+ }
+return g;
 }
 function makeGardenBed(x,z){
  const b=group(world,x,0,z);
