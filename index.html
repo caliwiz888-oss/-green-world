@@ -1301,6 +1301,24 @@ function makeFactory(level=1){
      sphere(g,.035,x,7.15,z,M.gold,.8);
    }
  }
+ // Водосборный желоб по передней кромке погрузочного навеса и два водостока.
+ const canopyGutter=mat(0x59676a,.48);
+ cylinder(g,.075,.075,4.38,0,3.02,4.43,canopyGutter,12).rotation.z=Math.PI/2;
+ box(g,4.42,.09,.12,0,2.99,4.48,metal,false);
+ for(const x of [-2.12,2.12]){
+   cylinder(g,.065,.065,2.35,x,1.78,4.48,canopyGutter,12);
+   cylinder(g,.09,.09,.12,x,2.88,4.48,M.gold,12);
+   cylinder(g,.09,.09,.12,x,1.12,4.48,M.gold,12);
+   // Крепёжные скобы фиксируют трубу к опорам навеса.
+   for(const y of [1.42,2.18]){
+     box(g,.2,.075,.14,x,y,4.53,darkMetal,false);
+     sphere(g,.03,x-.075,y,4.61,M.gold,.8);
+     sphere(g,.03,x+.075,y,4.61,M.gold,.8);
+   }
+   // Нижний отвод направляет воду от погрузочной площадки.
+   cylinder(g,.065,.065,.28,x,.58,4.34,canopyGutter,12).rotation.x=Math.PI/2;
+   box(g,.16,.12,.2,x,.43,4.23,M.stone2,false);
+ }
  // Three recessed service vents on the quieter left wall, with fine metal grilles.
  for(const z of [-1.55,0,1.55]){
    box(g,.1,.92,.72,-3.7,2.28,z,darkMetal,false);
