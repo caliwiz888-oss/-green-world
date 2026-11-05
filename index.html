@@ -2311,6 +2311,16 @@ function makeWorldLandscape(){
      out.rotation.z=side*.09;
    }
  }
+ // Fine diagonal strata on the forward faces give the exposed stone a layered, carved appearance.
+ const stratumDark=mat(0x526a63),stratumLight=mat(0x91a096);
+ for(let i=0;i<peaks.length;i++){
+   const [x,z,h,r]=peaks[i];
+   for(const side of [-1,1]){
+     const band=cone(world,r*.075,h*.19,x+side*r*.22,h*.31,z+r*.39,side<0?stratumDark:stratumLight,5);
+     band.rotation.z=side*.24;
+     band.rotation.x=.08;
+   }
+ }
  // Narrow exposed-rock ribs and snow gullies break up the main summits with natural alpine variation.
  const rockRib=mat(0x596f69),snowShadow=mat(0xc5d8d1);
  for(let i=0;i<peaks.length;i++){
