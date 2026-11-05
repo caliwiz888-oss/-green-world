@@ -242,40 +242,7 @@ function makeFlowerBed(x,z){
  }
 }
 function makeWorldDecor(){
- // Connected stone avenues, formal garden borders and courtyard details.
- for(let i=0;i<13;i++){
-   const z=-4.1+i*1.45;
-   box(world,1.35,.14,1.35,-3,.04,z,M.path,false);
-   box(world,1.35,.14,1.35,-1.5,.04,z,M.path,false);
- }
- for(let i=0;i<8;i++){
-   const x=-10+i*1.4;
-   box(world,1.2,.14,1.2,x,.03,1,M.path,false);
-   box(world,1.2,.14,1.2,x,.03,2.4,M.path,false);
- }
- // Low stone perimeter markers define the main garden courtyard.
- for(let i=0;i<17;i++){
-   const p=-14+i*1.75;
-   box(world,1.25,.55,.42,p,.27,-14,M.stone2,false);
-   box(world,1.25,.55,.42,p,.27,14,M.stone2,false);
-   box(world,.42,.55,1.25,-14,.27,p,M.stone2,false);
-   box(world,.42,.55,1.25,14,.27,p,M.stone2,false);
- }
- // Decorative gate aligned with the main avenue.
- for(const x of [-5.2,-.8])box(world,.32,3.2,.32,x,1.6,13.6,M.wood);
- box(world,4.9,.32,.38,-3,3.15,13.6,M.wood);
- for(let i=0;i<5;i++)cone(world,.22,.65,-5+i*1,3.55,13.6,M.gold,4);
- const f=group(world,5,0,4);
- cylinder(f,1.5,1.65,.5,0,.25,0,M.stone2,16);
- cylinder(f,1.1,1.1,.24,0,.55,0,mat(0x69b6c4),16);
- cylinder(f,.25,.35,1,0,1,0,M.stone,10);
- sphere(f,.22,0,1.6,0,mat(0x76d2dc));
- makeWell(-12,8);
- for(const [x,z] of [[-15,-12],[16,-13],[-15,14],[17,17]]){
-   const tree=makeTree(x,z,'apple');tree.scale.setScalar(1.25);
- }
- for(const [x,z] of [[-8,-1],[2,-1],[-8,7],[2,7]])makeLamp(x,z);
- makeFlowerBed(-8,4);makeFlowerBed(0,4);makeFlowerBed(8,-3);makeFlowerBed(-10,-5);
+ // Пока оставляем только основной замок и игровые здания; декоративные объекты добавим позже.
 }
 makeHouse();makeWorldDecor();
 const tileGeo=new THREE.BoxGeometry(1.28,.16,1.28);
@@ -286,7 +253,7 @@ for(let x=0;x<20;x++)for(let z=0;z<20;z++){
 function clearDynamic(){for(const t of treeObjects)world.remove(t);treeObjects=[];for(const b of buildingObjects)world.remove(b);buildingObjects=[]}
 function unlocked(i){const level=Math.max(1,Number(player?.landLevel)||1),side=[0,6,10,14,18,20][level],start=Math.floor((20-side)/2),x=Math.floor(i/20),z=i%20;return x>=start&&x<start+side&&z>=start&&z<start+side}
 function drawPlayer(){if(!player)return;clearDynamic();const map=new Map((player.plots||[]).map(p=>[p.index,p]));for(let i=0;i<400;i++){const p=map.get(i);if(p){const x=(Math.floor(i/20)-9.5)*1.45,z=((i%20)-9.5)*1.45;const tree=makeTree(x,z,p.type||'apple');treeObjects.push(tree);tree.userData.plotIndex=i;tree.userData.plot=p}}
- if(player.hasMarket)buildingObjects.push(makeMarket(player.marketLevel));if(player.hasGreenhouse)buildingObjects.push(makeGreenhouse(player.greenhouseLevel));if(player.hasFactory)buildingObjects.push(makeFactory(player.factoryLevel));
+ if(player.hasMarket)buildingObjects.push(makeMarket(player.marketLevel));if(player.hasFactory)buildingObjects.push(makeFactory(player.factoryLevel));
  for(let i=0;i<400;i++){const p=map.get(i);tiles[i].material=p?(p.grown?mat(0x8fbd55):mat(0x719a49)):((Math.floor(i/20)+i%20)%2?M.grass:M.grass2);tiles[i].material.needsUpdate=true}
  updateHud();
 }
