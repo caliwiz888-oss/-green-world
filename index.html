@@ -484,6 +484,18 @@ function makeMarket(level=1){
  // Warm timber sign, small hanging lamps and a welcoming stone forecourt.
  box(g,2.05,.62,.16,0,4.05,2.62,M.wood);
  box(g,1.78,.34,.08,0,4.05,2.73,M.gold,false);
+ // Signboard craftsmanship: raised border, corner studs and a pair of forged hangers.
+ for(const x of [-.94,.94]){
+   box(g,.075,.48,.06,x,4.05,2.79,M.stone2,false);
+   for(const y of [3.84,4.26])sphere(g,.035,x,y,2.83,M.gold,.8);
+   box(g,.1,.22,.1,x,4.48,2.62,M.gold,false);
+ }
+ box(g,2.22,.07,.07,0,4.38,2.76,M.stone2,false);
+ box(g,2.22,.07,.07,0,3.72,2.76,M.stone2,false);
+ for(const x of [-.72,.72]){
+   const hanger=box(g,.07,.38,.07,x,4.58,2.62,M.wood2,false);
+   hanger.rotation.z=x<0?-.16:.16;
+ }
  for(const x of [-2.35,2.35]){
    box(g,.16,.72,.16,x,3.15,2.82,M.wood);
    const lamp=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),new THREE.MeshStandardMaterial({color:0xffe6a3,emissive:0x9b6b22,emissiveIntensity:.45}));
