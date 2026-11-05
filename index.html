@@ -1790,6 +1790,18 @@ function makeFactory(level=1){
      box(g,.12,.16,.12,x+dx,1.86,-2.93,M.stone2,false);
    }
  }
+ // Rear brick piers between the three windows add depth without narrowing any openings.
+ for(const x of [-1.225,1.225]){
+   box(g,.22,2.62,.2,x,2.28,-2.79,M.stone2,false);
+   box(g,.3,2.36,.08,x,2.28,-2.91,M.stone,false);
+   box(g,.42,.16,.28,x,.96,-2.82,M.stone2,false);
+   box(g,.48,.07,.3,x,1.08,-2.84,M.gold,false);
+   box(g,.42,.16,.28,x,3.58,-2.82,M.stone2,false);
+   box(g,.48,.07,.3,x,3.7,-2.84,M.gold,false);
+   for(const dx of [-.07,.07]){
+     box(g,.025,2.12,.025,x+dx,2.28,-2.97,M.stone,false);
+   }
+ }
  for(const x of [-3.52,3.52]){
    box(g,.3,3.42,.3,x,2.12,-2.72,M.stone2);
    box(g,.38,.18,.36,x,3.88,-2.72,M.gold);
