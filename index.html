@@ -809,6 +809,7 @@ scene.add(waterGlints);
 
 // ===== ОБЪЁМНЫЕ ДЕКОРАТИВНЫЕ ДЕРЕВЬЯ =====
 const decorativeCanopies=[];
+const decorativeLeafMatrices=[];
 function decorativeTree(x,z,size=1){
   const tree=new THREE.Group();
   // Фактурная кора связывает декоративные деревья с реалистичными
@@ -863,6 +864,15 @@ function decorativeTree(x,z,size=1){
     leaf.scale.set(1.15,0.85,0.95);leaf.castShadow=true;canopy.add(leaf);
   }
   tree.add(canopy);
+  // Небольшие отдельные листовые пластины дают кроне живой силуэт
+  // и собираются позже в один общий InstancedMesh для всей сцены.
+  for(let i=0;i<12;i++){
+    const angle=i*2.399;
+    const radius=0.72+(i%4)*0.11;
+    const px=Math.cos(angle)*radius,py=2.05+(i%5)*0.19,pz=Math.sin(angle)*radius;
+    const rotation=angle+(i%3-1)*0.42;
+    decorativeLeafMatrices.push({x:x+px*size,y:py*size,z:z+pz*size,rotation,scale:size*(0.72+(i%3)*0.18),tone:i%3});
+  }
   tree.position.set(x,0,z);
   tree.scale.setScalar(size);
   tree.userData.canopy=canopy;
@@ -876,6 +886,28 @@ function decorativeTree(x,z,size=1){
   [-15,17],[15,17],
   [-20,14],[20,14]
 ].forEach(p=>decorativeTree(p[0],p[1],1.3));
+
+// Единый слой небольших листьев: добавляет естественную фактуру крон,
+// но использует всего один дополнительный draw call.
+const decorativeLeafGeometry=new THREE.SphereGeometry(0.16,8,6);
+const decorativeLeafMaterials=[
+  new THREE.MeshStandardMaterial({color:0x4d9b4a,roughness:0.92}),
+  new THREE.MeshStandardMaterial({color:0x72ad50,roughness:0.92}),
+  new THREE.MeshStandardMaterial({color:0x347e3d,roughness:0.92})
+];
+const decorativeLeafMeshes=decorativeLeafMaterials.map((mat,tone)=>{
+  const entries=decorativeLeafMatrices.filter(item=>item.tone===tone);
+  const mesh=new THREE.InstancedMesh(decorativeLeafGeometry,mat,entries.length);
+  const dummy=new THREE.Object3D();
+  entries.forEach((item,i)=>{
+    dummy.position.set(item.x,item.y,item.z);
+    dummy.rotation.set(0,item.rotation,0);
+    dummy.scale.set(item.scale*1.25,item.scale*0.42,item.scale*0.72);
+    dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);
+  });
+  mesh.instanceMatrix.needsUpdate=true;mesh.castShadow=true;mesh.receiveShadow=true;
+  scene.add(mesh);return mesh;
+});
 
 // ===== МЕЛЬНИЦА =====
 const mill=new THREE.Group();
