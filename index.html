@@ -78,6 +78,15 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
     <div class="menu-row"><span>🎁 Ежедневный подарок</span><strong id="daily-reward-status">Загрузка…</strong></div>
     <div style="font-size:12px;color:#d7f5d9;padding:8px 0" id="daily-reward-info">Заходи каждый день и получай Green Coin. Награда 7-го дня — 100 GC.</div>
     <button id="claim-daily-reward" style="width:100%;margin:8px 0">🎁 Забрать ежедневную награду</button>
+    <div class="menu-row"><span>🏞️ Открытая территория</span><strong id="land-status">40 / 400 мест</strong></div>
+    <button id="expand-land" style="width:100%;margin:8px 0">🏞️ Открыть ещё 40 мест · 500 GC</button>
+    <div style="border-top:1px solid #ffffff30;margin-top:10px;padding-top:10px">
+      <strong>🏭 Переработка фруктов</strong>
+      <div class="menu-row"><span>Готовая продукция</span><strong id="processed-inventory">Пока нет</strong></div>
+      <select id="process-fruit-type" style="width:100%;padding:10px;margin:6px 0;border-radius:9px;background:#234b32;color:white"><option value="apple">🍎 Яблоки</option><option value="peach">🍑 Персики</option><option value="cherry">🍒 Черешня</option><option value="pear">🍐 Груши</option><option value="orange">🍊 Апельсины</option><option value="mango">🥭 Манго</option></select>
+      <select id="process-kind" style="width:100%;padding:10px;margin:4px 0;border-radius:9px;background:#234b32;color:white"><option value="juice">🧃 Сок — 5 фруктов</option><option value="jam">🍯 Варенье — 8 фруктов</option></select>
+      <button id="process-fruit" style="width:100%;margin:6px 0">Переработать фрукты</button>
+    </div>
     <div class="menu-actions">
       <button id="build-warehouse">🏚️ Построить амбар · 80 GC</button>
       <button id="upgrade-warehouse">📦 Улучшить амбар · 300 GC</button>
@@ -693,6 +702,9 @@ const savedFarm=(()=>{try{return JSON.parse(localStorage.getItem('greenWorldFarm
 let coins=Number(savedFarm?.coins ?? localStorage.getItem('coins') ?? 100);
 let apples=Number(savedFarm?.apples ?? localStorage.getItem('apples') ?? 0);
 let fruitInventory={...(savedFarm?.fruitInventory||{})};
+let processedInventory={...(savedFarm?.processedInventory||{})};
+let landLevel=Math.max(1,Number(savedFarm?.landLevel)||1);
+let unlockedPlots=Math.min(400,40+(landLevel-1)*40);
 let selectedTreeType='apple';
 let seeds=Number(savedFarm?.seeds ?? 5);
 let seedInventory={...(savedFarm?.seedInventory||{})};
@@ -716,6 +728,9 @@ let dailyReward={claimedToday:false,day:1,reward:10};
 const appleCapacity=()=>hasWarehouse?100*Math.max(1,warehouseLevel):20;
 const fruitStored=()=>Object.values(fruitInventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
 const totalStoredFruit=()=>apples+fruitStored();
+const processedStored=()=>Object.values(processedInventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
+const landExpansionCost=level=>[0,500,1000,2000,3500,6000,9000,13000,18000,24000][level]??null;
+const fruitBasePrice=type=>({apple:1+orchardLevel,peach:7,cherry:12,pear:18,orange:25,mango:35}[type]||1);
 const seedCount=type=>type==='apple'?seeds:Math.max(0,Number(seedInventory[type])||0);
 const fruitCatalog={apple:{label:'Яблоня',fruit:'🍎',cost:100,color:0xd92720,leaf:0x258b39},peach:{label:'Персик',fruit:'🍑',cost:300,color:0xffa45b,leaf:0x398b45},cherry:{label:'Черешня',fruit:'🍒',cost:700,color:0xb91f48,leaf:0x287c3c},pear:{label:'Груша',fruit:'🍐',cost:1200,color:0xa6bd38,leaf:0x438c42},orange:{label:'Апельсин',fruit:'🍊',cost:2000,color:0xf28b18,leaf:0x287a37},mango:{label:'Манго',fruit:'🥭',cost:3500,color:0xe8a52b,leaf:0x367b37}};
 const applePrice=()=>1+orchardLevel+(hasMarket?1:0);
@@ -733,6 +748,13 @@ function update(){
   document.getElementById('fruit-count').textContent=fruitStored()+' шт.';
   const fruitRows=Object.entries(fruitInventory).filter(([,n])=>Number(n)>0).map(([type,n])=>(fruitCatalog[type]?.fruit||'🍇')+' '+(fruitCatalog[type]?.label||type)+': '+n);
   document.getElementById('fruit-inventory').textContent=fruitRows.length?fruitRows.join(' · '):'Других фруктов пока нет';
+  const processedRows=Object.entries(processedInventory).filter(([,n])=>Number(n)>0).map(([key,n])=>(key.endsWith('_juice')?'🧃 ':'🍯 ')+(fruitCatalog[key.replace(/_(juice|jam)$/,'')]?.label||key)+': '+n);
+  document.getElementById('processed-inventory').textContent=processedRows.length?processedRows.join(' · '):'Пока нет';
+  document.getElementById('land-status').textContent=unlockedPlots+' / 400 мест · уровень '+landLevel;
+  const expandButton=document.getElementById('expand-land');
+  const expandCost=landExpansionCost(landLevel);
+  expandButton.textContent=unlockedPlots>=400?'🏞️ Вся территория открыта':'🏞️ Открыть ещё '+Math.min(40,400-unlockedPlots)+' мест · '+expandCost+' GC';
+  expandButton.disabled=unlockedPlots>=400;
   document.getElementById('warehouse-capacity').textContent=totalStoredFruit()+' / '+appleCapacity()+' фруктов';
   document.getElementById('warehouse-status').textContent=hasWarehouse?'Построен · уровень '+warehouseLevel:'Не построен';
 
@@ -758,7 +780,7 @@ function update(){
   localStorage.setItem('coins',coins);
   localStorage.setItem('apples',apples);
   localStorage.setItem('greenWorldFarm',JSON.stringify({
-    coins,apples,fruitInventory,seeds,seedInventory,hasWarehouse,warehouseLevel,hasMarket,marketLevel,hasGreenhouse,greenhouseLevel,orchardLevel,experience,playerLevel,
+    coins,apples,fruitInventory,processedInventory,landLevel,seeds,seedInventory,hasWarehouse,warehouseLevel,hasMarket,marketLevel,hasGreenhouse,greenhouseLevel,orchardLevel,experience,playerLevel,
     plots:plots.map((p,i)=>p.tree?{index:i,type:p.tree.userData.type||'apple',grown:Boolean(p.tree.userData.grown),plantedAt:p.tree.userData.plantedAt,readyAt:p.tree.userData.readyAt,watered:Boolean(p.tree.userData.watered)}:null).filter(Boolean)
   }));
 }
@@ -789,6 +811,9 @@ function applyServerPlayer(player){
   coins=Number(player.coins)||0;
   apples=Number(player.apples)||0;
   fruitInventory={...(player.fruitInventory||{})};
+  processedInventory={...(player.processedInventory||{})};
+  landLevel=Math.max(1,Number(player.landLevel)||1);
+  unlockedPlots=Math.min(400,Number(player.unlockedPlots)||40+(landLevel-1)*40);
   seeds=Number(player.seeds)||0;
   seedInventory={...(player.seedInventory||{})};
   orchardLevel=Math.max(1,Number(player.orchardLevel)||1);
@@ -1019,7 +1044,7 @@ update();
 // ===== ПОСАДКА =====
 window.plant=async function(){
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
-  const plot=(selectedPlot && !selectedPlot.tree) ? selectedPlot : plots.find(p=>!p.tree);
+  const plot=(selectedPlot && !selectedPlot.tree && plots.indexOf(selectedPlot)<unlockedPlots) ? selectedPlot : plots.find((p,i)=>!p.tree&&i<unlockedPlots);
   if(!plot){hint('Свободной земли нет!');return;}
   const spec=fruitCatalog[selectedTreeType]||fruitCatalog.apple;
   if(coins<spec.cost){hint('Для саженца '+spec.label+' нужно '+spec.cost+' Green Coin.');return;}
@@ -1114,19 +1139,25 @@ window.harvestAll=async function(){
 // ===== ПРОДАЖА =====
 window.sell=async function(){
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
-  if(totalStoredFruit()===0){hint('На складе пока нет фруктов!');return;}
+  if(totalStoredFruit()===0&&processedStored()===0){hint('На складе пока нет фруктов или готовой продукции!');return;}
   if(serverMode){await serverAction('/api/game/sell',{},'Весь урожай продан. Green Coin зачислены на серверный счёт.');return;}
   const market=marketBonus();
-  const earned=apples*(1+orchardLevel+market)
+  let earned=apples*(1+orchardLevel+market)
     +(Number(fruitInventory.peach)||0)*(7+market)
     +(Number(fruitInventory.cherry)||0)*(12+market)
-    +(Number(fruitInventory.pear)||0)*(9+market)
-    +(Number(fruitInventory.orange)||0)*(15+market)
-    +(Number(fruitInventory.mango)||0)*(22+market);
-  const sold=totalStoredFruit();
-  coins+=earned;apples=0;fruitInventory={};
+    +(Number(fruitInventory.pear)||0)*(18+market)
+    +(Number(fruitInventory.orange)||0)*(25+market)
+    +(Number(fruitInventory.mango)||0)*(35+market);
+  for(const [key,count] of Object.entries(processedInventory)){
+    const match=key.match(/^(apple|peach|cherry|pear|orange|mango)_(juice|jam)$/);
+    if(!match) continue;
+    const base=fruitBasePrice(match[1])+market;
+    earned+=Number(count||0)*base*(match[2]==='juice'?6.5:12);
+  }
+  const sold=totalStoredFruit()+processedStored();
+  coins+=Math.floor(earned);apples=0;fruitInventory={};processedInventory={};
   addLocalExperience(5);update();
-  hint('Продано '+sold+' фруктов! Получено '+earned+' Green Coin.');
+  hint('Продано '+sold+' единиц урожая и продукции! Получено '+Math.floor(earned)+' Green Coin.');
 };
 
 // ===== АНИМАЦИЯ =====
@@ -1231,6 +1262,7 @@ renderer.domElement.addEventListener('pointerup',e=>{
       const tile=hits[0].object;
       const plot=plots.find(p=>p.tile===tile);
       if(plot){
+        if(plots.indexOf(plot)>=unlockedPlots){hint('Этот участок закрыт. Открой территорию в меню фермы.');return;}
         setSelection(plot);
         hint(plot.tree ? 'Участок с яблоней выбран. Можно полить или собрать урожай.' : 'Свободный участок выбран. Можно посадить яблоню.');
       }
@@ -1294,6 +1326,28 @@ document.getElementById('claim-daily-reward').addEventListener('click',async()=>
   }
 });
 document.getElementById('sell-in-menu').addEventListener('click',async()=>{await window.sell();update()});
+document.getElementById('expand-land').addEventListener('click',async()=>{
+  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером.');return;}
+  if(unlockedPlots>=400){hint('Вся территория уже открыта.');return;}
+  const cost=landExpansionCost(landLevel);
+  if(serverMode){await serverAction('/api/game/expand-land',{},'Территория расширена!');return;}
+  if(coins<cost){hint('Для расширения территории нужно '+cost+' GC.');return;}
+  coins-=cost;landLevel++;unlockedPlots=Math.min(400,40+(landLevel-1)*40);update();
+  hint('🏞️ Территория расширена! Теперь открыто '+unlockedPlots+' мест.');
+});
+document.getElementById('process-fruit').addEventListener('click',async()=>{
+  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером.');return;}
+  const fruitType=document.getElementById('process-fruit-type').value;
+  const kind=document.getElementById('process-kind').value;
+  const need=kind==='juice'?5:8;
+  const available=fruitType==='apple'?apples:Number(fruitInventory[fruitType]||0);
+  if(available<need){hint('Для переработки нужно '+need+' фруктов.');return;}
+  if(serverMode){await serverAction('/api/game/process',{fruitType,kind},kind==='juice'?'Сок изготовлен!':'Варенье изготовлено!');return;}
+  if(fruitType==='apple') apples-=need; else fruitInventory[fruitType]-=need;
+  const key=fruitType+'_'+kind;processedInventory[key]=(Number(processedInventory[key])||0)+1;
+  update();hint(kind==='juice'?'🧃 Сок готов! Его можно продать дороже фруктов.':'🍯 Варенье готово! Его можно продать дороже фруктов.');
+});
+
 document.getElementById('build-market').addEventListener('click',async()=>{
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
   if(!hasMarket){
