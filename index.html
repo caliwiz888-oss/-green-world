@@ -156,7 +156,7 @@ function makeTree(x,z,kind='apple'){
  return g;
 }
 function makeMarket(level=1){
- const g=group(world,10.1,0,6.4);
+ const g=group(world,10.1,0,9.4);g.rotation.y=-Math.PI/2;
  box(g,5.4,2.8,4.4,0,1.4,0,M.stone);
  box(g,5.65,.24,4.65,0,2.86,0,M.gold);
  // Timber-framed storefront and broad display windows.
@@ -336,17 +336,8 @@ function makeWorldDecor(){
    box(world,.42,.55,1.25,14,.27,p,M.stone2,false);
  }
  // Fountain and entrance arch removed for a cleaner open courtyard.
- // Left side: a dedicated orchard in neat rows, with planting beds in front.
- for(const [x,z] of [[-12,-8],[-9,-8],[-6,-8],[-12,-4],[-9,-4],[-6,-4]]) {
-   const orchardTree=makeTree(x,z,'apple');orchardTree.scale.setScalar(1.22);
- }
- // Raised crop beds create a clear plantation/garden zone on the left.
- for(const [x,z] of [[-11,1],[-7.5,1],[-11,4.2],[-7.5,4.2],[-11,7.4],[-7.5,7.4]]) makeGardenBed(x,z);
- // The well and greenhouse are intentionally omitted from this stage.
- for(const [x,z] of [[16,-13],[-15,14],[17,17]]){
-   const tree=makeTree(x,z,'apple');tree.scale.setScalar(1.25);
- }
- // Decorative lamps and flower beds removed as requested.
+ // Decorative orchard trees and planting beds removed; keep the land open.
+ // The well, greenhouse, flower beds and decorative lamps remain omitted.
 
 }
 makeHouse();makeWorldDecor();
