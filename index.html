@@ -898,6 +898,22 @@ function makeMarket(level=1){
    box(g,.14,.22,.18,x,.11,2.93,M.stone2,false);
    box(g,.18,.055,.22,x,.245,2.93,M.gold,false);
  }
+ // Компактные водостоки на задних углах лавки завершают кровлю и защищают фасад.
+ const shopMetal=mat(0x596866,.58);
+ for(const side of [-1,1]){
+   const px=side*2.72,pz=-2.22;
+   cylinder(g,.065,.065,2.72,px,1.82,pz,shopMetal,10);
+   // Верхний переход от карниза к вертикальной трубе.
+   cylinder(g,.075,.075,.34,px,3.22,pz+.12,shopMetal,10).rotation.x=Math.PI/2;
+   cylinder(g,.075,.075,.2,px,3.08,pz,shopMetal,10);
+   // Крепёжные хомуты и аккуратный нижний отвод.
+   for(const y of [.72,1.72,2.72]){
+     box(g,.18,.075,.12,px,y,pz+.055,M.gold,false);
+     sphere(g,.028,px+side*.09,y,pz+.06,M.stone2,.8);
+   }
+   cylinder(g,.075,.075,.32,px, .38,pz+.12,shopMetal,10).rotation.x=Math.PI/2;
+   box(g,.12,.1,.22,px,.2,pz+.22,M.stone2,false);
+ }
  return g;
 }
 function makeFactory(level=1){
