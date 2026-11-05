@@ -142,6 +142,15 @@ function makeHouse(){
    cone(t,1.72,2.55,0,7.18,0,M.roof2,4);
    cylinder(t,.1,.1,.85,0,8.82,0,M.gold,8);
    for(const z of [-1.09,1.09])box(t,.65,1.15,.12,0,3.35,z,M.wood);
+   // Stone window surrounds and a crisp sill on each tower face.
+   for(const z of [-1.09,1.09]){
+     box(t,.82,.12,.2,0,3.98,z*1.035,M.stone2);
+     box(t,.82,.12,.2,0,2.72,z*1.035,M.stone2);
+     box(t,.1,1.28,.18,-.39,3.35,z*1.035,M.gold,false);
+     box(t,.1,1.28,.18,.39,3.35,z*1.035,M.gold,false);
+     box(t,.08,.92,.12,0,3.35,z*1.09,M.gold,false);
+   }
+
  }
  // Entry terrace and three broad stone steps.
  box(g,3.5,.3,1.65,0,.18,5,M.stone2);
@@ -167,6 +176,11 @@ function makeHouse(){
    box(g,1.75,.18,.9,x,3.05,1.0,M.stone2);
    for(const dx of [-.78,-.26,.26,.78])box(g,.09,.62,.09,x+dx,3.42,1.36,M.gold);
    box(g,1.72,.1,.1,x,3.72,1.36,M.gold);
+   for(const dx of [-.52,0,.52]){
+     box(g,.07,.5,.07,x+dx,3.39,1.78,M.gold,false);
+   }
+   box(g,1.68,.08,.08,x,3.65,1.78,M.gold,false);
+
  }
  // Fine masonry joints on the manor facade add scale without visual clutter.
  for(const y of [1.02,1.52,3.98]){
@@ -547,6 +561,13 @@ function makeFactory(level=1){
  }
  cylinder(g,.62,.62,1.2,-2.7,4.65,-1.65,metal,16);
  cylinder(g,.68,.68,.16,-2.7,5.3,-1.65,M.gold,16);
+ // Small pressure gauge and pipe outlet on the factory service tank.
+ cylinder(g,.2,.2,.09,-2.7,4.78,-2.31,M.stone2,20).rotation.x=Math.PI/2;
+ cylinder(g,.145,.145,.045,-2.7,4.78,-2.37,M.gold,20).rotation.x=Math.PI/2;
+ box(g,.035,.12,.045,-2.7,4.82,-2.405,M.roof2,false);
+ cylinder(g,.12,.12,.32,-2.15,4.15,-1.65,metal,12);
+ cylinder(g,.17,.17,.08,-2.15,3.98,-1.65,M.gold,12);
+
  // Loading platform, crates and two barrels make the factory feel active.
  box(g,3.9,.24,1.05,0,.24,3.55,M.stone);
  for(const x of [-2.7,2.7]){
@@ -673,7 +694,12 @@ function makeFactory(level=1){
      sphere(g,.045,x+dx,.39,2.85,M.gold,.8);
    }
  }
+ // Hinged service hatch with a visible latch and compact warning plate.
  box(g,.82,1.05,.12,3.72,1.35,2.15,darkMetal);
+ box(g,.12,.12,.12,4.0,1.35,2.31,M.gold,false);
+ box(g,.32,.18,.08,3.8,2.08,2.3,M.stone2,false);
+ for(const x of [3.68,3.92])sphere(g,.035,x,2.08,2.36,M.gold,.8);
+
  box(g,.62,.84,.08,3.8,1.35,2.23,metal);
  for(const y of [1.0,1.7])box(g,.72,.06,.1,3.8,y,2.28,M.gold,false);
  // Fine pipe collars and restrained service fittings make the industrial details feel assembled.
