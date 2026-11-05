@@ -884,6 +884,17 @@ async function connectGameServer(){
   }
   try{
     tg.ready();tg.expand();
+    status.textContent='ПРОВЕРКА ИГРОВОГО СЕРВЕРА…';
+    let healthResponse;
+    try {
+      healthResponse=await fetch(apiBase+'/health',{method:'GET',mode:'cors',cache:'no-store'});
+      if(!healthResponse.ok) throw new Error('HTTP '+healthResponse.status);
+      const healthData=await healthResponse.json();
+      if(!healthData.ok) throw new Error('сервер не подтвердил готовность');
+    } catch(healthError) {
+      throw new Error('Проверка доступности API не прошла: '+(healthError?.message||'ошибка сети'));
+    }
+    status.textContent='СЕРВЕР ДОСТУПЕН · ПРОВЕРКА TELEGRAM…';
     const data=await apiRequest('/api/auth/telegram',{initData:tg.initData},false);
     accessToken=data.accessToken;
     serverMode=true;
