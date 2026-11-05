@@ -1109,6 +1109,26 @@ function makeMarket(level=1){
 function makeFactory(level=1){
  const g=group(world,9.8,0,-11);
  const brick=mat(0x9b5943),brickLight=mat(0xb96c50),darkMetal=mat(0x39474a),metal=mat(0x657477),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
+ // Subtle repeating masonry relief gives the factory brickwork individual courses and mortar joints.
+ const brickCanvas=document.createElement('canvas');brickCanvas.width=brickCanvas.height=256;
+ const brickCtx=brickCanvas.getContext('2d');
+ brickCtx.fillStyle='#b8b8b8';brickCtx.fillRect(0,0,256,256);
+ brickCtx.strokeStyle='#555555';brickCtx.lineWidth=5;
+ for(let row=0;row<8;row++){
+   const y=row*32;
+   brickCtx.beginPath();brickCtx.moveTo(0,y);brickCtx.lineTo(256,y);brickCtx.stroke();
+   const offset=row%2?16:0;
+   for(let x=offset;x<256;x+=64){
+     brickCtx.beginPath();brickCtx.moveTo(x,y);brickCtx.lineTo(x,y+32);brickCtx.stroke();
+   }
+ }
+ const brickTexture=new THREE.CanvasTexture(brickCanvas);
+ brickTexture.colorSpace=THREE.SRGBColorSpace;
+ brickTexture.wrapS=brickTexture.wrapT=THREE.RepeatWrapping;
+ brickTexture.repeat.set(2,1.5);
+ brickTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const brickBump=brickTexture.clone();brickBump.colorSpace=THREE.NoColorSpace;brickBump.needsUpdate=true;
+ brick.map=brickTexture;brick.bumpMap=brickBump;brick.bumpScale=.045;brick.needsUpdate=true;
  // Gentle warm interior lighting gives the factory glazing a believable evening glow.
  warmLight(g,-1.8,2.65,1.35,.8,8);warmLight(g,1.8,2.65,1.35,.8,8);
  // Stone foundation and a broad paved loading yard.
