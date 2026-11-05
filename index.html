@@ -524,11 +524,11 @@ mansion.add(mansionDetails);
 // ===== РАСШИРЕННАЯ АРХИТЕКТУРА ГЛАВНОГО ЗАМКА =====
 // Дополнительные объёмы, башенные пояса, балконы и верхний этаж.
 // Все элементы остаются частью существующей модели и не меняют игровые координаты.
+mansion.remove(mansionRoof); // Убираем прежнюю простую крышу, чтобы новый верхний этаж не пересекался с ней.
 const mansionStoneLight=material(0xe8d7b8);
 const mansionRoofDark=material(0x71352f);
 const mansionRoofLight=material(0xa84a3b);
 const mansionMetal=material(0x443c35,0.55);
-const mansionBalcony=new THREE.Group();
 // Центральный верхний объём с отдельным высоким фронтоном.
 addBox(mansion,4.25,1.55,3.25,0xf1dcb9,0,4.15,-0.15);
 addBox(mansion,4.48,0.2,3.42,mansionStoneLight,0,4.92,-0.15);
@@ -572,7 +572,6 @@ for(const x of [-3.25,3.25]){
 // Декоративные горизонтальные ряды черепицы на переднем скате крыши.
 for(let row=0;row<4;row++){
   const y=5.65-row*0.43;
-  const halfWidth=2.35-row*0.56;
   for(let col=-2;col<=2;col++){
     const tile=new THREE.Mesh(new THREE.BoxGeometry(0.82,0.075,0.16),row%2?mansionRoofDark:mansionRoofLight);
     tile.position.set(col*0.9,y,2.08+row*0.18);tile.rotation.x=-0.12;tile.castShadow=true;mansion.add(tile);
@@ -1710,6 +1709,30 @@ function createMarket(level=marketLevel){
     const fruit=new THREE.Mesh(new THREE.SphereGeometry(0.14,9,8),fruitMats[i%3]);
     fruit.scale.set(1,0.9,1);fruit.position.set(-1.45+(i%5)*0.7,1.28+Math.floor(i/5)*0.13,1.72);booth.add(fruit);
   }
+  // Резные фронтоны, декоративные стойки и вывеска придают рынку вид полноценного павильона.
+  const marketTrim=material(0xf0d9ae),marketDark=material(0x563a2a);
+  for(const x of [-width/2+0.18,width/2-0.18]){
+    const brace=new THREE.Mesh(new THREE.BoxGeometry(0.12,1.05,0.14),marketTrim);
+    brace.position.set(x,2.0,1.28);booth.add(brace);
+    const cap=new THREE.Mesh(new THREE.SphereGeometry(0.13,8,7),material(0xc99a55));
+    cap.position.set(x,2.85,1.28);booth.add(cap);
+  }
+  for(let i=0;i<5;i++){
+    const panel=new THREE.Mesh(new THREE.BoxGeometry(0.62,0.055,0.12),marketDark);
+    panel.position.set(-1.24+i*0.62,2.88,1.36);booth.add(panel);
+  }
+  const signBoard=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.48,0.14),marketTrim);
+  signBoard.position.set(0,3.62,1.34);booth.add(signBoard);
+  addBox(booth,1.45,0.08,0.08,marketDark,0,3.62,1.43);
+  // Боковые ящики и большие корзины с урожаем.
+  for(const x of [-width/2+0.58,width/2-0.58]){
+    const basket=new THREE.Mesh(new THREE.CylinderGeometry(0.32,0.25,0.48,10),material(0x9b6337));
+    basket.position.set(x,0.35,1.9);booth.add(basket);
+    for(let j=0;j<3;j++){
+      const produce=new THREE.Mesh(new THREE.SphereGeometry(0.13,8,7),fruitMats[(j+1)%3]);
+      produce.position.set(x+(j-1)*0.15,0.66,1.9);booth.add(produce);
+    }
+  }
   booth.position.set(8,0,-2);scene.add(booth);
 }
 function createGreenhouse(level=greenhouseLevel){
@@ -1870,6 +1893,28 @@ function createFactory(){
     const foot=new THREE.Mesh(new THREE.BoxGeometry(0.48,0.22,0.48),darkMetal);
     foot.position.set(x,0.2,-1.7);factory.add(foot);
   }
+  // Архитектурное оформление: каменные угловые пилястры, карниз, окна и входная площадка.
+  const factoryStone=material(0xd5c4a5),factoryDark=material(0x34464b);
+  for(const x of [-3.02,3.02]){
+    addBox(factory,0.28,3.35,0.22,factoryStone,x,1.72,2.43);
+    addBox(factory,0.42,0.18,0.28,trim,x,3.42,2.43);
+  }
+  addBox(factory,6.45,0.2,0.22,factoryStone,0,3.52,2.43);
+  // Верхние арочные по форме окна с тёмными рамами и разделителями.
+  for(const x of [-2.12,2.12]){
+    const arch=new THREE.Mesh(new THREE.TorusGeometry(0.47,0.075,8,16,Math.PI),trim);
+    arch.position.set(x,2.85,2.47);factory.add(arch);
+    addBox(factory,0.1,0.95,0.12,factoryDark,x,2.36,2.46);
+    addBox(factory,0.82,0.09,0.12,trim,x,2.36,2.48);
+  }
+  // Декоративные металлические фонари по бокам главных ворот.
+  for(const x of [-1.42,1.42]){
+    const lampBase=new THREE.Mesh(new THREE.BoxGeometry(0.2,0.28,0.2),darkMetal);
+    lampBase.position.set(x,2.35,2.65);factory.add(lampBase);
+    const glow=new THREE.Mesh(new THREE.SphereGeometry(0.13,10,8),new THREE.MeshStandardMaterial({color:0xffd58a,emissive:0xffa12c,emissiveIntensity:0.65}));
+    glow.position.set(x,2.58,2.65);factory.add(glow);
+  }
+  addBox(factory,2.6,0.16,1.0,factoryStone,0,0.18,3.05);
   factory.position.set(-15,0,7);scene.add(factory);
 }
 
