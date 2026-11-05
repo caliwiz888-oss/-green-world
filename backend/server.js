@@ -284,6 +284,36 @@ app.post('/api/game/harvest',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   await awardExperience(c,req.playerId,p,10);
   return {player:await loadState(c,req.playerId)};
 }));
+app.post('/api/game/harvest-all',auth,(req,res)=>mutate(req,res,async(c,p)=>{
+  const plots=(Array.isArray(p.plots)?p.plots:[]).map(x=>({...x}));
+  const capacity=p.has_warehouse?100*(Number(p.warehouse_level)||1):20;
+  const inventory=p.fruit_inventory&&typeof p.fruit_inventory==='object'?{...p.fruit_inventory}:{};
+  let stored=Number(p.apples||0)+Object.values(inventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
+  const greenhouseLevel=p.has_greenhouse?(Number(p.greenhouse_level)||1):0;
+  const perTree=greenhouseLevel?5+greenhouseLevel*3:5;
+  const now=Date.now();
+  let harvested=0,totalFruits=0;
+  for(const plot of plots){
+    const ready=(plot.grown&&!plot.readyAt)||(plot.readyAt&&new Date(plot.readyAt).getTime()<=now);
+    if(!ready) continue;
+    const amount=Math.min(perTree,Math.max(0,capacity-stored));
+    if(amount<1) break;
+    const type=({apple:'apple',peach:'peach',cherry:'cherry',pear:'pear',orange:'orange',mango:'mango'})[plot.type||'apple'];
+    if(type==='apple'){
+      await c.query('UPDATE players SET apples=apples+$2 WHERE telegram_id=$1',[req.playerId,amount]);
+    }else{
+      inventory[type]=(Number(inventory[type])||0)+amount;
+    }
+    stored+=amount;totalFruits+=amount;harvested++;
+    plot.plantedAt=new Date(now).toISOString();
+    plot.readyAt=new Date(now+GROWTH_MS).toISOString();
+    plot.watered=false;plot.grown=false;
+  }
+  if(!harvested) reject(409,stored>=capacity?'Warehouse is full. Sell fruit or upgrade the warehouse.':'No ripe fruit to harvest');
+  await c.query('UPDATE players SET fruit_inventory=$2::jsonb,plots=$3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify(inventory),JSON.stringify(plots)]);
+  for(let n=0;n<harvested;n++) await awardExperience(c,req.playerId,p,10);
+  return {player:await loadState(c,req.playerId),harvested,totalFruits};
+}));
 app.post('/api/game/sell',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const inventory=p.fruit_inventory&&typeof p.fruit_inventory==='object'?p.fruit_inventory:{};
   const salePrices={peach:7,cherry:12,pear:9,orange:15,mango:22};
