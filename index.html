@@ -192,8 +192,21 @@ try {
 
 // ===== ОСНОВА МИРА =====
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x9bd5ed);
-scene.fog = new THREE.Fog(0x9bd5ed,45,100);
+scene.background = null;
+scene.fog = new THREE.Fog(0x9bd5ed,52,118);
+// Градиентное небо вместо плоской заливки — мягкий переход к горизонту.
+const skyGeometry=new THREE.SphereGeometry(150,32,18);
+const skyColors=[];
+const skyTop=new THREE.Color(0x347fb5),skyHorizon=new THREE.Color(0xb9e3f0);
+const skyPosition=skyGeometry.attributes.position;
+for(let i=0;i<skyPosition.count;i++){
+  const t=THREE.MathUtils.smoothstep(skyPosition.getY(i)/150,-0.12,0.72);
+  const c=skyHorizon.clone().lerp(skyTop,t);
+  skyColors.push(c.r,c.g,c.b);
+}
+skyGeometry.setAttribute('color',new THREE.Float32BufferAttribute(skyColors,3));
+const skyDome=new THREE.Mesh(skyGeometry,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,fog:false}));
+skyDome.frustumCulled=false;scene.add(skyDome);
 
 const camera = new THREE.PerspectiveCamera(
   42,innerWidth/innerHeight,0.1,220
@@ -241,6 +254,16 @@ scene.add(sun);
 // Единая система материалов: поверхности получают подходящую микрофактуру
 // без внешних загрузок и тяжёлых моделей.
 const detailMaps={stone:null,wood:null,roof:null,leaf:null,water:null};
+const detailBumps={stone:null,wood:null,roof:null,leaf:null};
+function makeBumpTexture(seed=1){
+  const canvas=document.createElement('canvas');canvas.width=canvas.height=128;
+  const ctx=canvas.getContext('2d');let state=seed>>>0;
+  const rand=()=>{state=(state*1664525+1013904223)>>>0;return state/4294967296;};
+  for(let y=0;y<128;y+=2)for(let x=0;x<128;x+=2){
+    const v=Math.round(112+rand()*32);ctx.fillStyle=`rgb(${v},${v},${v})`;ctx.fillRect(x,y,2,2);
+  }
+  const tex=new THREE.CanvasTexture(canvas);tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(2,2);tex.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());return tex;
+}
 function material(color,roughness=0.85){
   const c=new THREE.Color(color);
   let map=null;
@@ -248,7 +271,9 @@ function material(color,roughness=0.85){
   else if(c.r>c.g*1.16 && c.g>c.b*1.12 && c.r<0.78) map=detailMaps.wood;
   else if(c.r>c.g*1.24 && c.r>c.b*1.22) map=detailMaps.roof;
   else if(Math.abs(c.r-c.g)<0.13 && Math.abs(c.g-c.b)<0.16) map=detailMaps.stone;
-  return new THREE.MeshStandardMaterial({color,roughness,map});
+  const bumpMap=map===detailMaps.wood?detailBumps.wood:map===detailMaps.roof?detailBumps.roof:map===detailMaps.leaf?detailBumps.leaf:map===detailMaps.stone?detailBumps.stone:null;
+  const bumpScale=map===detailMaps.wood?0.075:map===detailMaps.roof?0.035:map===detailMaps.leaf?0.018:0.045;
+  return new THREE.MeshStandardMaterial({color,roughness,map,bumpMap,bumpScale});
 }
 
 // Процедурные бесшовные текстуры: трава, влажная почва и древесная кора.
@@ -280,8 +305,10 @@ const soilTexture=makeSurfaceTexture('#8a6742',['#b18a5b','#684b32','#d0a36b','#
 soilTexture.repeat.set(1,1);
 const barkTexture=makeSurfaceTexture('#704326',['#a4774b','#432b20','#8b5b36'],700,53);
 barkTexture.repeat.set(1,2);
-const grassMaterial=new THREE.MeshStandardMaterial({map:grassTexture,roughness:1});
-const soilMaterial=new THREE.MeshStandardMaterial({map:soilTexture,roughness:1});
+const grassBump=makeBumpTexture(131),soilBump=makeBumpTexture(137),barkBump=makeBumpTexture(139);
+grassBump.repeat.set(9,9);soilBump.repeat.set(1,1);barkBump.repeat.set(1,2);
+const grassMaterial=new THREE.MeshStandardMaterial({map:grassTexture,bumpMap:grassBump,bumpScale:0.025,roughness:1});
+const soilMaterial=new THREE.MeshStandardMaterial({map:soilTexture,bumpMap:soilBump,bumpScale:0.065,roughness:1});
 
 // Нейтральные процедурные карты сохраняют исходные цвета построек,
 // но добавляют камню зерно, дереву волокна, крышам черепицу, листве вариации.
@@ -290,6 +317,7 @@ detailMaps.wood=makeSurfaceTexture('#b8b8b8',['#858585','#d2d2d2','#999999'],110
 detailMaps.roof=makeSurfaceTexture('#b8b8b8',['#777777','#d0d0d0','#a0a0a0'],900,97);
 detailMaps.leaf=makeSurfaceTexture('#b8b8b8',['#858585','#d0d0d0','#a0a0a0'],1300,109);
 detailMaps.water=makeSurfaceTexture('#b8d8df',['#e8f5f5','#7faebd','#c5e6eb'],650,127);
+detailBumps.stone=makeBumpTexture(211);detailBumps.wood=makeBumpTexture(223);detailBumps.roof=makeBumpTexture(227);detailBumps.leaf=makeBumpTexture(229);
 for(const map of Object.values(detailMaps)){map.repeat.set(2,2);}
 
 function addBox(parent,w,h,d,color,x,y,z){
@@ -336,7 +364,7 @@ groundGeometry.setAttribute('color',new THREE.Float32BufferAttribute(groundColor
 groundGeometry.computeVertexNormals();
 const ground=new THREE.Mesh(
   groundGeometry,
-  new THREE.MeshStandardMaterial({vertexColors:true,map:grassTexture,roughness:1})
+  new THREE.MeshStandardMaterial({vertexColors:true,map:grassTexture,bumpMap:grassBump,bumpScale:0.025,roughness:1})
 );
 ground.rotation.x=-Math.PI/2;
 ground.position.y=-0.13;
@@ -350,7 +378,7 @@ for(let x=0;x<20;x++){
   for(let z=0;z<20;z++){
     const tile=new THREE.Mesh(
       new THREE.BoxGeometry(1.72,0.12,1.72),
-      new THREE.MeshStandardMaterial({map:soilTexture,color:(x+z)%2?0xd0b18a:0xffffff,roughness:1})
+      new THREE.MeshStandardMaterial({map:soilTexture,bumpMap:soilBump,bumpScale:0.065,color:(x+z)%2?0xd0b18a:0xffffff,roughness:1})
     );
     tile.position.set(x-9.5,0,z-9.5);
     tile.receiveShadow=true;
@@ -510,11 +538,9 @@ fountain.add(basin);
 
 const pool=new THREE.Mesh(
   new THREE.CylinderGeometry(1.9,1.9,0.08,32),
-  new THREE.MeshStandardMaterial({
-    color:0x39bde5,
-    map:detailMaps.water,
-    metalness:0.22,
-    roughness:0.2
+  new THREE.MeshPhysicalMaterial({
+    color:0x39bde5,map:detailMaps.water,metalness:0.12,roughness:0.14,
+    clearcoat:0.9,clearcoatRoughness:0.12,reflectivity:0.72
   })
 );
 pool.position.y=0.42;
@@ -538,14 +564,11 @@ fountain.position.set(-5,0,-7);
 scene.add(fountain);
 
 // ===== РЕКА =====
+const riverGeometry=new THREE.PlaneGeometry(42,4.5,32,8);
+const riverBasePositions=riverGeometry.attributes.position.array.slice();
 const river=new THREE.Mesh(
-  new THREE.PlaneGeometry(42,4.5),
-  new THREE.MeshStandardMaterial({
-    color:0x36aee0,
-    map:detailMaps.water,
-    metalness:0.18,
-    roughness:0.25
-  })
+  riverGeometry,
+  new THREE.MeshPhysicalMaterial({color:0x36aee0,map:detailMaps.water,metalness:0.1,roughness:0.13,clearcoat:1,clearcoatRoughness:0.1,reflectivity:0.78})
 );
 river.rotation.x=-Math.PI/2;
 river.position.set(0,0.025,21);
@@ -819,14 +842,14 @@ function makeTree(x,z,type='apple'){
   const profile=profiles[type]||profiles.apple;
   const trunk=new THREE.Mesh(
     new THREE.CylinderGeometry(0.18,0.25,profile.height,8),
-    new THREE.MeshStandardMaterial({map:barkTexture,color:0xffffff,roughness:1})
+    new THREE.MeshStandardMaterial({map:barkTexture,bumpMap:barkBump,bumpScale:0.08,color:0xffffff,roughness:1})
   );
   trunk.position.y=profile.height/2;
   trunk.castShadow=true;
   tree.add(trunk);
 
   // Ветви видны между ярусами листвы и делают ствол частью объёмной кроны.
-  const branchMat=new THREE.MeshStandardMaterial({map:barkTexture,color:0xd4b18a,roughness:1});
+  const branchMat=new THREE.MeshStandardMaterial({map:barkTexture,bumpMap:barkBump,bumpScale:0.08,color:0xd4b18a,roughness:1});
   for(let i=0;i<5;i++){
     const angle=i*Math.PI*2/5;
     const branch=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.09,0.95,7),branchMat);
@@ -1451,6 +1474,13 @@ function animate(){
   // Вращение лопастей мельницы
   sails.rotation.z=time*0.8;
 
+  // Мягкая рябь на реке: небольшие смещения сетки создают живую поверхность воды.
+  const riverPositions=riverGeometry.attributes.position;
+  for(let i=0;i<riverPositions.count;i++){
+    const x=riverBasePositions[i*3],z=riverBasePositions[i*3+1];
+    riverPositions.setZ(i,riverBasePositions[i*3+2]+Math.sin(x*0.62+time*1.25)*0.035+Math.cos(z*1.7-time*0.9)*0.018);
+  }
+  riverPositions.needsUpdate=true;riverGeometry.computeVertexNormals();
   // Лёгкое движение воды и мерцание солнечных бликов
   pool.material.opacity=0.85+Math.sin(time*2)*0.1;
   waterGlints.children.forEach((glint,i)=>{glint.material.opacity=0.18+((Math.sin(time*1.7+i*0.8)+1)*0.18);glint.position.x=-18+((i*19+time*1.8)%36);});
