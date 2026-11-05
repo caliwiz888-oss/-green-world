@@ -248,7 +248,13 @@ sun.shadow.camera.left=-35;
 sun.shadow.camera.right=35;
 sun.shadow.camera.top=35;
 sun.shadow.camera.bottom=-35;
+sun.shadow.camera.near=0.5;sun.shadow.camera.far=90;
+sun.shadow.bias=-0.00018;sun.shadow.normalBias=0.025;
+sun.shadow.radius=window.isTouchDevice?3:5;
 scene.add(sun);
+// Мягкий заполняющий свет со стороны неба сохраняет детали в тенях.
+const fillLight=new THREE.DirectionalLight(0xc7e4ff,0.42);
+fillLight.position.set(-24,18,-16);scene.add(fillLight);
 
 // ===== МАТЕРИАЛЫ =====
 // Единая система материалов: поверхности получают подходящую микрофактуру
@@ -787,8 +793,10 @@ const cliffMat = material(0x777f70);
 const cliff = new THREE.Mesh(new THREE.BoxGeometry(5.5,5.8,3.2),cliffMat);
 cliff.position.set(0,2.9,0); cliff.castShadow=true; cliff.receiveShadow=true;
 waterfallCliff.add(cliff);
+const waterfallGeometry=new THREE.PlaneGeometry(2.5,5.4,8,24);
+const waterfallBasePositions=waterfallGeometry.attributes.position.array.slice();
 const waterSheet = new THREE.Mesh(
-  new THREE.PlaneGeometry(2.5,5.4),
+  waterfallGeometry,
   new THREE.MeshStandardMaterial({color:0x48c5ed,map:detailMaps.water,metalness:0.18,roughness:0.2,transparent:true,opacity:0.82,side:THREE.DoubleSide,emissive:0x0b536c,emissiveIntensity:0.18})
 );
 waterSheet.position.set(0,2.75,1.64);
@@ -799,6 +807,14 @@ const splash = new THREE.Mesh(
 );
 splash.position.set(0,0.16,2.1);
 waterfallCliff.add(splash);
+// Капли и брызги у подножия водопада.
+const waterfallDroplets=[];
+const dropletMaterial=new THREE.MeshBasicMaterial({color:0xb9f1ff,transparent:true,opacity:0.72});
+for(let i=0;i<8;i++){
+  const drop=new THREE.Mesh(new THREE.SphereGeometry(0.075+(i%3)*0.025,8,7),dropletMaterial);
+  drop.position.set(Math.sin(i*2.4)*1.25,0.35+(i%4)*0.16,2.05+Math.cos(i*1.7)*0.48);
+  waterfallCliff.add(drop);waterfallDroplets.push(drop);
+}
 for(let i=0;i<9;i++){
   const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(0.48,0),cliffMat);
   rock.scale.set(1.4,0.8,1.0);
@@ -893,7 +909,8 @@ function makeTree(x,z,type='apple'){
     const a=i*Math.PI*2/12;
     const leaf=new THREE.Mesh(new THREE.SphereGeometry(0.22,9,8),i%3===0?leafMatB:leafMatA);
     leaf.position.set(Math.cos(a)*0.92*profile.crown[0],crown.position.y-0.12+(i%4)*0.16,Math.sin(a)*0.92*profile.crown[2]);
-    leaf.scale.set(1.18,0.72,0.9);
+    leaf.scale.set(1.08+(i%3)*0.12,0.62+(i%2)*0.13,0.82+(i%4)*0.05);
+    leaf.rotation.set((i%3-1)*0.16,a+0.35,(i%4-1.5)*0.12);
     leaf.castShadow=true;
     tree.add(leaf);
   }
@@ -1481,6 +1498,19 @@ function animate(){
     riverPositions.setZ(i,riverBasePositions[i*3+2]+Math.sin(x*0.62+time*1.25)*0.035+Math.cos(z*1.7-time*0.9)*0.018);
   }
   riverPositions.needsUpdate=true;riverGeometry.computeVertexNormals();
+  // Струи водопада переливаются и слегка колышутся по всей высоте.
+  const fallPositions=waterfallGeometry.attributes.position;
+  for(let i=0;i<fallPositions.count;i++){
+    const x=waterfallBasePositions[i*3],y=waterfallBasePositions[i*3+1];
+    fallPositions.setZ(i,waterfallBasePositions[i*3+2]+Math.sin(y*3.2-time*5+x*2.1)*0.045);
+  }
+  fallPositions.needsUpdate=true;waterfallGeometry.computeVertexNormals();
+  waterfallDroplets.forEach((drop,i)=>{
+    drop.position.y=0.28+((time*0.85+i*0.19)%1.05);
+    drop.position.x=Math.sin(time*2.2+i*2.4)*(0.75+(i%3)*0.2);
+    drop.material.opacity=0.3+Math.abs(Math.sin(time*3+i))*0.55;
+  });
+  splash.scale.set(1+Math.sin(time*2.4)*0.05,1,1+Math.cos(time*2.4)*0.05);
   // Лёгкое движение воды и мерцание солнечных бликов
   pool.material.opacity=0.85+Math.sin(time*2)*0.1;
   waterGlints.children.forEach((glint,i)=>{glint.material.opacity=0.18+((Math.sin(time*1.7+i*0.8)+1)*0.18);glint.position.x=-18+((i*19+time*1.8)%36);});
