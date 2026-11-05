@@ -669,6 +669,27 @@ function makeMarket(level=1){
  }
  box(g,5.82,.1,.12,0,2.65,3.14,M.gold,false);
  // Убраны три отдельные белые плиты перед лавкой по просьбе пользователя.
+ // Rear storefront entrance receives matching timber panels and forged hardware.
+ box(g,1.42,2.08,.12,0,1.25,-2.34,M.wood);
+ box(g,1.18,1.78,.055,0,1.25,-2.42,displayWood,false);
+ for(const y of [.72,1.22,1.72]){
+   box(g,1.12,.075,.07,0,y,-2.47,M.gold,false);
+ }
+ box(g,.1,1.9,.08,-.48,1.25,-2.49,M.gold,false);
+ box(g,.1,1.9,.08,.48,1.25,-2.49,M.gold,false);
+ sphere(g,.065,.42,1.22,-2.53,M.gold,.85);
+ for(const x of [-.64,.64]){
+   box(g,.12,.22,.1,x,2.36,-2.42,M.stone2,false);
+   sphere(g,.035,x,2.36,-2.49,M.gold,.8);
+ }
+ // Matching stone lintels and corner blocks frame the rear windows.
+ for(const x of [-1.55,1.55]){
+   box(g,1.34,.12,.28,x,2.42,-2.28,M.stone2,false);
+   box(g,1.34,.12,.28,x,.82,-2.28,M.stone2,false);
+   for(const dx of [-.54,.54]){
+     box(g,.12,1.22,.12,x+dx,1.62,-2.4,M.stone2,false);
+   }
+ }
  // Gable-edge timber trims follow the existing roof pitch on both ends.
  for(const z of [-2.48,2.48]){
    for(const [x,angle] of [[-1.34,.42],[1.34,-.42]]){
