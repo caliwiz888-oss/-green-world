@@ -122,10 +122,27 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
 (function(){
   var status=document.getElementById('connection-status');
   if(!status)return;
+  function showStartupError(message){
+    status.textContent='ОШИБКА ЗАПУСКА 3D';
+    var hint=document.getElementById('hint');
+    if(hint) hint.textContent='Не удалось создать 3D-мир: '+String(message||'ошибка графики').slice(0,120);
+  }
+  window.addEventListener('error',function(event){
+    if(status.textContent==='СОЗДАНИЕ 3D-МИРА…'||status.textContent==='ЗАГРУЗКА ИГРЫ…'){
+      showStartupError(event.message||'ошибка JavaScript');
+    }
+  });
+  window.addEventListener('unhandledrejection',function(event){
+    if(status.textContent==='СОЗДАНИЕ 3D-МИРА…'||status.textContent==='ЗАГРУЗКА ИГРЫ…'){
+      showStartupError(event.reason?.message||event.reason||'ошибка загрузки');
+    }
+  });
   status.textContent='ЗАГРУЗКА ИГРЫ…';
   window.__greenWorldStartupTimer=setTimeout(function(){
     if(status.textContent==='ЗАГРУЗКА ИГРЫ…'||status.textContent==='СОЗДАНИЕ 3D-МИРА…'){
-      status.textContent='ЗАПУСК ЗАДЕРЖИВАЕТСЯ · ОБНОВИ ИГРУ';
+      status.textContent='3D-МИР НЕ ЗАПУСТИЛСЯ';
+      var hint=document.getElementById('hint');
+      if(hint) hint.textContent='Создание мира занимает слишком много времени. Перезапусти игру; сохранённый прогресс не сбрасывается.';
     }
   },30000);
 })();
@@ -153,7 +170,6 @@ try {
   );
   const startupStatus=document.getElementById('connection-status');
   if(startupStatus) startupStatus.textContent='СОЗДАНИЕ 3D-МИРА…';
-  if(window.__greenWorldStartupTimer) clearTimeout(window.__greenWorldStartupTimer);
 } catch (primaryError) {
   try {
     THREE = await importThreeWithTimeout(
@@ -184,7 +200,7 @@ camera.lookAt(0,0,0);
 
 let renderer;
 try {
-  renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
+  const isTouchDevice=window.matchMedia?.('(pointer: coarse)').matches||false;\n  renderer = new THREE.WebGLRenderer({antialias:!isTouchDevice, powerPreference:'high-performance'});
 } catch (webglError) {
   const status = document.getElementById('connection-status');
   if (status) status.textContent = 'WEBGL НЕДОСТУПЕН';
@@ -195,7 +211,7 @@ try {
   throw webglError;
 }
 renderer.setSize(innerWidth,innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setPixelRatio(Math.min(devicePixelRatio,isTouchDevice?1.35:1.75));
 renderer.shadowMap.enabled=true;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -210,7 +226,7 @@ scene.add(new THREE.HemisphereLight(0xeaf7ff,0x45633a,1.35));
 const sun = new THREE.DirectionalLight(0xfff2d8,3.0);
 sun.position.set(18,34,12);
 sun.castShadow=true;
-sun.shadow.mapSize.set(2048,2048);
+sun.shadow.mapSize.set(isTouchDevice?1024:2048,isTouchDevice?1024:2048);
 sun.shadow.camera.left=-35;
 sun.shadow.camera.right=35;
 sun.shadow.camera.top=35;
