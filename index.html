@@ -168,6 +168,12 @@ function makeHouse(){
    for(const dx of [-.78,-.26,.26,.78])box(g,.09,.62,.09,x+dx,3.42,1.36,M.gold);
    box(g,1.72,.1,.1,x,3.72,1.36,M.gold);
  }
+ // Fine masonry joints on the manor facade add scale without visual clutter.
+ for(const y of [1.02,1.52,3.98]){
+   for(const x of [-4.05,-2.15,2.15,4.05]){
+     box(g,.72,.035,.045,x,y,4.145,M.stone2,false);
+   }
+ }
  // Fine roof ribs and ridge caps add scale and definition to the roof.
  for(const x of [-3.35,-2.65,-1.95,-1.25,-.55,.15,.85,1.55,2.25,2.95,3.65]){
    const rib=box(g,.055,.09,8.65,x,5.83,0,M.roof2,false);rib.rotation.z=x<-.25?.58:-.58;
@@ -404,6 +410,10 @@ function makeMarket(level=1){
  for(const z of [-2.1,-1.05,0,1.05,2.1]){
    box(g,.24,.12,.2,0,4.49,z,M.stone2,false);
  }
+ // Fine end-grain caps and restrained fascia highlights on the shop roof.
+ for(const x of [-2.62,2.62]){
+   box(g,.16,.12,.2,x,3.42,2.38,M.gold,false);
+ }
  // Roof tile seams and shaped end caps add depth without changing the shop footprint.
  for(const [cx,angle] of [[-1.35,.42],[1.35,-.42]]){
    const panel=group(g,cx,3.85,0);panel.rotation.z=angle;
@@ -495,6 +505,16 @@ function makeFactory(level=1){
  box(g,2.55,2.9,.22,0,1.75,2.78,M.stone2);
  box(g,2.12,2.55,.12,0,1.52,2.94,darkMetal);
  for(const y of [.48,.98,1.48,1.98,2.48])box(g,1.98,.075,.08,0,y,3.03,metal,false);
+ // Recessed loading-door threshold, paired hinge plates and visible fasteners.
+ box(g,2.34,.16,.34,0,.24,3.08,M.stone2,false);
+ for(const x of [-.94,.94]){
+   for(const y of [.62,2.38]){
+     box(g,.16,.42,.1,x,y,3.12,metal,false);
+     for(const dy of [-.13,.13])sphere(g,.045,x,y+dy,3.19,M.gold,.85);
+   }
+ }
+ box(g,.28,.12,.1,0,1.48,3.13,M.gold,false);
+
  box(g,.12,2.55,.1,-1.02,1.52,3.04,M.gold,false);
  box(g,.12,2.55,.1,1.02,1.52,3.04,M.gold,false);
  // Lit multi-pane factory windows on both long walls.
