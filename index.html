@@ -34,9 +34,9 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
 .menu-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
 .menu-actions button{min-height:46px}
 #menu-close{width:100%;margin-top:12px;background:#315d48}
-#actions{grid-template-columns:repeat(4,minmax(0,1fr))}
+#actions{grid-template-columns:repeat(5,minmax(0,1fr))}
 @media(min-width:700px){#actions{left:50%;right:auto;transform:translateX(-50%);width:min(520px,calc(100% - 30px));bottom:18px}#hint{bottom:100px}.panel{font-size:14px}}
-@media(max-width:380px){.panel{padding:8px;font-size:11px}.stat{min-width:59px}#actions{gap:5px;padding:6px}button{font-size:11px;padding:11px 2px}}
+@media(max-width:380px){.panel{padding:8px;font-size:11px}.stat{min-width:59px}#actions{gap:4px;padding:5px}#actions button{font-size:10px;padding:10px 1px}}
 </style>
 </head>
 
@@ -101,6 +101,7 @@ button:active{transform:scale(.96);filter:brightness(1.15)}
   <button onclick="plant()">🌱 Посадить</button>
   <button onclick="water()">💧 Полить</button>
   <button onclick="harvest()">🍎 Собрать</button>
+  <button onclick="harvestAll()">🌳 Собрать всё</button>
   <button onclick="sell()">🛒 Продать</button>
 </div>
 
@@ -1067,6 +1068,44 @@ window.harvest=async function(){
   addLocalExperience(10);
   update();
   hint('Собрано '+collected+' '+(fruitCatalog[fruitType]?.label||'фруктов')+'! Следующий урожай будет через 8 часов.');
+};
+
+// ===== СБОР ВСЕГО УРОЖАЯ =====
+
+window.harvestAll=async function(){
+  if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
+  if(serverMode){
+    if(apiBusy) return;
+    apiBusy=true;
+    try{
+      const data=await apiRequest('/api/game/harvest-all',{});
+      if(data.player) applyServerPlayer(data.player);
+      hint(data.harvested
+        ? '🌳 Собрано деревьев: '+data.harvested+'. Получено фруктов: '+data.totalFruits+'. Прогресс сохранён.'
+        : 'Нет созревших деревьев для сбора.');
+    }catch(error){
+      hint(error.message||'Не удалось собрать урожай.');
+    }finally{apiBusy=false;}
+    return;
+  }
+  const readyTrees=trees.filter(tree=>tree.userData.grown);
+  if(!readyTrees.length){hint('Пока нет созревших деревьев.');return;}
+  let total=0,count=0;
+  for(const tree of readyTrees){
+    const amount=Math.min(harvestAmount(),Math.max(0,appleCapacity()-totalStoredFruit()));
+    if(amount<1) break;
+    const type=tree.userData.type||'apple';
+    if(type==='apple') apples+=amount;
+    else fruitInventory[type]=(Number(fruitInventory[type])||0)+amount;
+    tree.userData.plantedAt=new Date().toISOString();
+    tree.userData.readyAt=new Date(Date.now()+GROWTH_MS).toISOString();
+    tree.userData.watered=false;
+    setTreeGrown(tree,false);
+    addLocalExperience(10);
+    total+=amount;count++;
+  }
+  update();
+  hint(count?'🌳 Собрано деревьев: '+count+'. Получено фруктов: '+total+'.':'Амбар заполнен! Продай фрукты или улучши амбар.');
 };
 
 // ===== ПРОДАЖА =====
