@@ -703,8 +703,11 @@ let coins=Number(savedFarm?.coins ?? localStorage.getItem('coins') ?? 100);
 let apples=Number(savedFarm?.apples ?? localStorage.getItem('apples') ?? 0);
 let fruitInventory={...(savedFarm?.fruitInventory||{})};
 let processedInventory={...(savedFarm?.processedInventory||{})};
-let landLevel=Math.max(1,Number(savedFarm?.landLevel)||1);
-let unlockedPlots=Math.min(400,40+(landLevel-1)*40);
+let landLevel=Math.min(5,Math.max(1,Number(savedFarm?.landLevel)||1));
+const landSide=level=>[0,6,10,14,18,20][Math.min(5,Math.max(1,level))];
+const landPlotCount=level=>landSide(level)**2;
+const isPlotUnlocked=(index,level=landLevel)=>{const x=Math.floor(index/20),z=index%20,side=landSide(level),start=Math.floor((20-side)/2);return x>=start&&x<start+side&&z>=start&&z<start+side;};
+let unlockedPlots=landPlotCount(landLevel);
 let selectedTreeType='apple';
 let seeds=Number(savedFarm?.seeds ?? 5);
 let seedInventory={...(savedFarm?.seedInventory||{})};
@@ -729,7 +732,7 @@ const appleCapacity=()=>hasWarehouse?100*Math.max(1,warehouseLevel):20;
 const fruitStored=()=>Object.values(fruitInventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
 const totalStoredFruit=()=>apples+fruitStored();
 const processedStored=()=>Object.values(processedInventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
-const landExpansionCost=level=>[0,500,1000,2000,3500,6000,9000,13000,18000,24000][level]??null;
+const landExpansionCost=level=>[0,500,1500,3500,7000][level]??null;
 const fruitBasePrice=type=>({apple:1+orchardLevel,peach:7,cherry:12,pear:18,orange:25,mango:35}[type]||1);
 const seedCount=type=>type==='apple'?seeds:Math.max(0,Number(seedInventory[type])||0);
 const fruitCatalog={apple:{label:'Яблоня',fruit:'🍎',cost:100,color:0xd92720,leaf:0x258b39},peach:{label:'Персик',fruit:'🍑',cost:300,color:0xffa45b,leaf:0x398b45},cherry:{label:'Черешня',fruit:'🍒',cost:700,color:0xb91f48,leaf:0x287c3c},pear:{label:'Груша',fruit:'🍐',cost:1200,color:0xa6bd38,leaf:0x438c42},orange:{label:'Апельсин',fruit:'🍊',cost:2000,color:0xf28b18,leaf:0x287a37},mango:{label:'Манго',fruit:'🥭',cost:3500,color:0xe8a52b,leaf:0x367b37}};
@@ -812,8 +815,8 @@ function applyServerPlayer(player){
   apples=Number(player.apples)||0;
   fruitInventory={...(player.fruitInventory||{})};
   processedInventory={...(player.processedInventory||{})};
-  landLevel=Math.max(1,Number(player.landLevel)||1);
-  unlockedPlots=Math.min(400,Number(player.unlockedPlots)||40+(landLevel-1)*40);
+  landLevel=Math.min(5,Math.max(1,Number(player.landLevel)||1));
+  unlockedPlots=landPlotCount(landLevel);
   seeds=Number(player.seeds)||0;
   seedInventory={...(player.seedInventory||{})};
   orchardLevel=Math.max(1,Number(player.orchardLevel)||1);
@@ -1044,7 +1047,7 @@ update();
 // ===== ПОСАДКА =====
 window.plant=async function(){
   if(serverRequired&&!serverMode){hint('Нет соединения с игровым сервером. Действия временно недоступны.');return;}
-  const plot=(selectedPlot && !selectedPlot.tree && plots.indexOf(selectedPlot)<unlockedPlots) ? selectedPlot : plots.find((p,i)=>!p.tree&&i<unlockedPlots);
+  const plot=(selectedPlot && !selectedPlot.tree && isPlotUnlocked(plots.indexOf(selectedPlot))) ? selectedPlot : plots.find((p,i)=>!p.tree&&isPlotUnlocked(i));
   if(!plot){hint('Свободной земли нет!');return;}
   const spec=fruitCatalog[selectedTreeType]||fruitCatalog.apple;
   if(coins<spec.cost){hint('Для саженца '+spec.label+' нужно '+spec.cost+' Green Coin.');return;}
@@ -1262,7 +1265,7 @@ renderer.domElement.addEventListener('pointerup',e=>{
       const tile=hits[0].object;
       const plot=plots.find(p=>p.tile===tile);
       if(plot){
-        if(plots.indexOf(plot)>=unlockedPlots){hint('Этот участок закрыт. Открой территорию в меню фермы.');return;}
+        if(!isPlotUnlocked(plots.indexOf(plot))){hint('Этот участок закрыт. Открой территорию в меню фермы.');return;}
         setSelection(plot);
         hint(plot.tree ? 'Участок с яблоней выбран. Можно полить или собрать урожай.' : 'Свободный участок выбран. Можно посадить яблоню.');
       }
@@ -1332,7 +1335,7 @@ document.getElementById('expand-land').addEventListener('click',async()=>{
   const cost=landExpansionCost(landLevel);
   if(serverMode){await serverAction('/api/game/expand-land',{},'Территория расширена!');return;}
   if(coins<cost){hint('Для расширения территории нужно '+cost+' GC.');return;}
-  coins-=cost;landLevel++;unlockedPlots=Math.min(400,40+(landLevel-1)*40);update();
+  coins-=cost;landLevel=Math.min(5,landLevel+1);unlockedPlots=landPlotCount(landLevel);update();
   hint('🏞️ Территория расширена! Теперь открыто '+unlockedPlots+' мест.');
 });
 document.getElementById('process-fruit').addEventListener('click',async()=>{
