@@ -140,7 +140,7 @@ scene.background = new THREE.Color(0x9bd5ed);
 scene.fog = new THREE.Fog(0x9bd5ed,45,100);
 
 const camera = new THREE.PerspectiveCamera(
-  45,innerWidth/innerHeight,0.1,180
+  42,innerWidth/innerHeight,0.1,220
 );
 camera.position.set(28,32,34);
 camera.lookAt(0,0,0);
@@ -162,13 +162,16 @@ renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.shadowMap.enabled=true;
 renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.12;
+renderer.setClearColor(0x9bd5ed,1);
 document.body.appendChild(renderer.domElement);
 
 // ===== ОСВЕЩЕНИЕ =====
-scene.add(new THREE.HemisphereLight(0xffffff,0x557744,2));
+scene.add(new THREE.HemisphereLight(0xeaf7ff,0x45633a,1.35));
 
-const sun = new THREE.DirectionalLight(0xffffff,2.2);
-sun.position.set(15,30,15);
+const sun = new THREE.DirectionalLight(0xfff2d8,3.0);
+sun.position.set(18,34,12);
 sun.castShadow=true;
 sun.shadow.mapSize.set(2048,2048);
 sun.shadow.camera.left=-35;
@@ -211,9 +214,22 @@ for(let i=0;i<7;i++){
 }
 
 // ===== ЗЕМЛЯ =====
+// Неровная поверхность с мягкой вариацией оттенков травы вместо плоского однотонного поля.
+const groundGeometry=new THREE.PlaneGeometry(60,60,48,48);
+const groundPositions=groundGeometry.attributes.position;
+const groundColors=[];
+for(let i=0;i<groundPositions.count;i++){
+  const x=groundPositions.getX(i),z=groundPositions.getY(i);
+  const wave=(Math.sin(x*0.31)*Math.cos(z*0.27)+Math.sin((x+z)*0.17))*0.018;
+  groundPositions.setZ(i,wave);
+  const shade=0.94+0.045*Math.sin(x*0.42+z*0.19)+0.025*Math.cos(z*0.51);
+  groundColors.push(0.40*shade,0.66*shade,0.29*shade);
+}
+groundGeometry.setAttribute('color',new THREE.Float32BufferAttribute(groundColors,3));
+groundGeometry.computeVertexNormals();
 const ground=new THREE.Mesh(
-  new THREE.PlaneGeometry(60,60),
-  material(0x65a94e)
+  groundGeometry,
+  new THREE.MeshStandardMaterial({vertexColors:true,roughness:1})
 );
 ground.rotation.x=-Math.PI/2;
 ground.position.y=-0.13;
@@ -683,6 +699,18 @@ function makeTree(x,z,type='apple'){
   trunk.castShadow=true;
   tree.add(trunk);
 
+  // Ветви видны между ярусами листвы и делают ствол частью объёмной кроны.
+  const branchMat=material(0x684027);
+  for(let i=0;i<5;i++){
+    const angle=i*Math.PI*2/5;
+    const branch=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.09,0.95,7),branchMat);
+    branch.position.set(Math.cos(angle)*0.34,profile.height+0.08,Math.sin(angle)*0.34);
+    branch.rotation.z=-Math.cos(angle)*0.55;
+    branch.rotation.x=Math.sin(angle)*0.55;
+    branch.castShadow=true;
+    tree.add(branch);
+  }
+
   // Несколько перекрывающихся ярусов создают более естественный силуэт кроны.
   const crown=new THREE.Mesh(
     new THREE.SphereGeometry(1,14,12),
@@ -700,14 +728,26 @@ function makeTree(x,z,type='apple'){
   ];
   crownOffsets.forEach((p,i)=>{
     const puff=new THREE.Mesh(
-      new THREE.SphereGeometry(i===4?0.62:0.68,10,9),
+      new THREE.SphereGeometry(i===4?0.62:0.68,14,12),
       material(fruitSpec.leaf)
     );
     puff.position.set(p[0]*profile.crown[0],crown.position.y+p[1],p[2]*profile.crown[2]);
     puff.scale.set(1,0.9,1);
     puff.castShadow=true;
+    puff.receiveShadow=true;
     tree.add(puff);
   });
+  // Небольшие отдельные листовые группы дают кроне фактуру и глубину.
+  const leafMatA=material(fruitSpec.leaf);
+  const leafMatB=material(new THREE.Color(fruitSpec.leaf).multiplyScalar(0.82));
+  for(let i=0;i<12;i++){
+    const a=i*Math.PI*2/12;
+    const leaf=new THREE.Mesh(new THREE.SphereGeometry(0.22,9,8),i%3===0?leafMatB:leafMatA);
+    leaf.position.set(Math.cos(a)*0.92*profile.crown[0],crown.position.y-0.12+(i%4)*0.16,Math.sin(a)*0.92*profile.crown[2]);
+    leaf.scale.set(1.18,0.72,0.9);
+    leaf.castShadow=true;
+    tree.add(leaf);
+  }
 
   const fruitPositions=type==='cherry'
     ? [[-0.55,0.05,0.25],[-0.38,-0.12,0.32],[0.48,0.12,-0.18],[0.62,-0.04,-0.08],[-0.08,0.28,-0.58],[0.08,0.12,-0.68]]
@@ -1284,9 +1324,10 @@ window.addEventListener('resize',()=>{
 });
 
 // ===== УПРАВЛЕНИЕ КАМЕРОЙ И ВЫБОР УЧАСТКА =====
-let cameraRadius=55;
+// Более низкая и близкая перспектива подчёркивает объём зданий и рельеф.
+let cameraRadius=46;
 let cameraAngle=Math.PI/4;
-let cameraHeight=32;
+let cameraHeight=25;
 let pointerStart=null;
 let pointerMoved=false;
 const raycaster=new THREE.Raycaster();
@@ -1298,7 +1339,7 @@ function positionCamera(){
     cameraHeight,
     Math.cos(cameraAngle)*cameraRadius
   );
-  camera.lookAt(0,0,0);
+  camera.lookAt(0,0.8,0);
 }
 function setSelection(plot){
   if(selectedPlot?.tile) selectedPlot.tile.material.emissive?.setHex(0x000000);
@@ -1310,14 +1351,14 @@ function setSelection(plot){
     : 'Участок не выбран · коснись земли';
 }
 function zoom(factor){
-  cameraRadius=Math.max(24,Math.min(78,cameraRadius*factor));
-  cameraHeight=Math.max(15,Math.min(48,cameraHeight*factor));
+  cameraRadius=Math.max(20,Math.min(72,cameraRadius*factor));
+  cameraHeight=Math.max(13,Math.min(42,cameraHeight*factor));
   positionCamera();
 }
 document.getElementById('zoom-in').addEventListener('click',()=>zoom(.88));
 document.getElementById('zoom-out').addEventListener('click',()=>zoom(1.14));
 document.getElementById('camera-reset').addEventListener('click',()=>{
-  cameraRadius=55;cameraHeight=32;cameraAngle=Math.PI/4;positionCamera();
+  cameraRadius=46;cameraHeight=25;cameraAngle=Math.PI/4;positionCamera();
 });
 renderer.domElement.addEventListener('pointerdown',e=>{
   pointerStart={x:e.clientX,y:e.clientY,id:e.pointerId};
