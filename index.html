@@ -514,219 +514,136 @@ for(let x=0;x<20;x++){
   }
 }
 
-// ===== ОСОБНЯК =====
+// ===== НОВЫЙ ГЛАВНЫЙ ЗАМОК GREEN WORLD =====
+/* Полностью новая архитектурная сборка: центральный корпус, боковые крылья,
+   две башни, высокий двускатный кровельный силуэт и парадный вход. */
 const mansion=new THREE.Group();
-
-addBox(mansion,7,3.5,5,0xf0d4a0,0,1.75,0);
-addBox(mansion,2.5,2.7,4,0xe8c99a,-4.5,1.35,0);
-addBox(mansion,2.5,2.7,4,0xe8c99a,4.5,1.35,0);
-
-const mansionRoof=new THREE.Mesh(
-  new THREE.ConeGeometry(5.5,3,4),
-  material(0x963c32)
-);
-mansionRoof.position.set(0,4.8,0);
-mansionRoof.rotation.y=Math.PI/4;
-mansion.add(mansionRoof);
-
-// Общие материалы фасада создаются до первого использования в мансардных окнах.
-const facadeTrimMaterial=material(0xf8e5c2);
-const facadeGlassMaterial=new THREE.MeshStandardMaterial({color:0x75c9e8,metalness:0.18,roughness:0.18,emissive:0x163747});
-
-// Небольшие мансардные окна и декоративные фронтонные детали.
-for(const x of [-1.9,1.9]){
-  const dormer=new THREE.Group();
-  addBox(dormer,1.0,0.9,0.18,facadeTrimMaterial,x,3.85,2.48);
-  const pane=new THREE.Mesh(new THREE.BoxGeometry(0.66,0.58,0.08),facadeGlassMaterial);
-  pane.position.set(x,3.88,2.60);dormer.add(pane);
-  const hood=new THREE.Mesh(new THREE.ConeGeometry(0.72,0.65,4),material(0x963c32));
-  hood.position.set(x,4.55,2.55);hood.rotation.y=Math.PI/4;dormer.add(hood);
-  mansion.add(dormer);
+const castleStone=material(0xe7d8bd);
+const castleStoneShade=material(0xc9b99a);
+const castleTrim=material(0xf5e8ce);
+const castleRoof=material(0x853a32);
+const castleRoofLight=material(0xa94b3d);
+const castleWood=material(0x563522);
+const castleGold=material(0xd4a64f);
+const facadeGlassMaterial=new THREE.MeshPhysicalMaterial({color:0x83cde3,metalness:0.12,roughness:0.16,clearcoat:0.8,emissive:0x123342});
+const castleDarkGlass=new THREE.MeshStandardMaterial({color:0x294d5b,roughness:0.2,metalness:0.15});
+function castleRoofPanel(w,d,x,y,z,rot){
+  const p=new THREE.Mesh(new THREE.BoxGeometry(w,0.22,d),castleRoof);
+  p.position.set(x,y,z);p.rotation.x=rot;p.castShadow=true;p.receiveShadow=true;mansion.add(p);
+  const edge=new THREE.Mesh(new THREE.BoxGeometry(w+0.12,0.12,0.16),castleRoofLight);
+  edge.position.set(x,y-0.12,z+Math.sign(rot)*d*0.48);edge.rotation.x=rot;mansion.add(edge);
+  return p;
 }
-for(const x of [-4.5,4.5]){
-  const tower=new THREE.Mesh(
-    new THREE.CylinderGeometry(0.8,0.9,4,12),
-    material(0xf0d9b4)
-  );
-  tower.position.set(x,3,0);
-  mansion.add(tower);
-
-  const top=new THREE.Mesh(
-    new THREE.ConeGeometry(1.1,2,12),
-    material(0x74352e)
-  );
-  top.position.set(x,6,0);
-  mansion.add(top);
+function castleWindow(x,y,z,scale=1){
+  const g=new THREE.Group();
+  const frame=new THREE.Mesh(new THREE.BoxGeometry(0.98*scale,1.42*scale,0.2),castleTrim);
+  frame.position.y=0.68*scale;g.add(frame);
+  const pane=new THREE.Mesh(new THREE.BoxGeometry(0.72*scale,1.14*scale,0.09),facadeGlassMaterial);
+  pane.position.set(0,0.7*scale,0.12);g.add(pane);
+  const mullion=new THREE.Mesh(new THREE.BoxGeometry(0.07*scale,1.1*scale,0.08),castleStoneShade);
+  mullion.position.set(0,0.7*scale,0.18);g.add(mullion);
+  const cross=new THREE.Mesh(new THREE.BoxGeometry(0.68*scale,0.065*scale,0.08),castleStoneShade);
+  cross.position.set(0,0.72*scale,0.18);g.add(cross);
+  const sill=new THREE.Mesh(new THREE.BoxGeometry(1.12*scale,0.14*scale,0.32),castleStoneShade);
+  sill.position.set(0,0.02*scale,0.08);g.add(sill);
+  const arch=new THREE.Mesh(new THREE.TorusGeometry(0.39*scale,0.085*scale,8,20,Math.PI),castleTrim);
+  arch.position.set(0,1.38*scale,0.09);arch.rotation.z=Math.PI;g.add(arch);
+  g.position.set(x,y,z);mansion.add(g);
 }
-
-// Окна
-for(const x of [-2,0,2]){
-  addBox(mansion,0.8,1.1,0.12,0x6bb7d8,x,2.1,2.56);
-}
-
-// Дверь
-addBox(mansion,1.1,2,0.15,0x70452b,0,1,2.6);
-
-mansion.position.set(0,0,-14);
-mansion.rotation.y=0.28;
-scene.add(mansion);
-
-// ===== ДЕТАЛИ УТВЕРЖДЁННОГО ГЛАВНОГО ДОМА =====
-// Сохраняем прежние габариты и положение дома, добавляя архитектурную глубину.
-const mansionDetails=new THREE.Group();
-const stoneMat=material(0xd8c7a8);
-const darkWood=material(0x68402b);
-for(const x of [-2,0,2]){
-  // Рамы и переплёты окон на фасаде
-  addBox(mansionDetails,1.02,1.32,0.16,facadeTrimMaterial,x,2.1,2.63);
-  addBox(mansionDetails,0.78,1.08,0.08,facadeGlassMaterial,x,2.1,2.72);
-  addBox(mansionDetails,0.09,1.12,0.1,facadeTrimMaterial,x,2.1,2.78);
-  addBox(mansionDetails,0.82,0.08,0.1,facadeTrimMaterial,x,2.1,2.78);
-  for(const side of [-1,1]){
-    addBox(mansionDetails,0.16,1.12,0.12,darkWood,x+side*0.58,2.1,2.68);
+function castleTower(x){
+  const t=new THREE.Group();
+  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(0.92,1.08,4.65,16),castleStone);
+  shaft.position.y=2.45;shaft.castShadow=true;shaft.receiveShadow=true;t.add(shaft);
+  const foot=new THREE.Mesh(new THREE.CylinderGeometry(1.18,1.2,0.34,16),castleStoneShade);foot.position.y=0.34;t.add(foot);
+  for(const yy of [1.05,3.85,4.55]){
+    const band=new THREE.Mesh(new THREE.CylinderGeometry(1.0,1.0,0.16,16),castleTrim);band.position.y=yy;t.add(band);
   }
-  addBox(mansionDetails,1.12,0.12,0.22,stoneMat,x,1.42,2.67);
+  const upper=new THREE.Mesh(new THREE.CylinderGeometry(0.98,0.98,0.58,16),castleStoneShade);upper.position.y=4.95;t.add(upper);
+  for(let i=0;i<12;i++){
+    const a=i*Math.PI/6;
+    const merlon=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.55,0.34),castleTrim);
+    merlon.position.set(Math.cos(a)*0.91,5.34,Math.sin(a)*0.91);merlon.rotation.y=-a;t.add(merlon);
+  }
+  const roof=new THREE.Mesh(new THREE.ConeGeometry(1.22,2.35,12),castleRoof);roof.position.y=6.65;roof.castShadow=true;t.add(roof);
+  const roofRim=new THREE.Mesh(new THREE.CylinderGeometry(1.0,1.08,0.18,12),castleGold);roofRim.position.y=5.55;t.add(roofRim);
+  const finial=new THREE.Mesh(new THREE.ConeGeometry(0.13,0.8,8),castleGold);finial.position.y=8.2;t.add(finial);
+  const slit=new THREE.Mesh(new THREE.BoxGeometry(0.34,0.82,0.07),castleDarkGlass);slit.position.set(0,3.0,0.91);t.add(slit);
+  const slitFrame=new THREE.Mesh(new THREE.BoxGeometry(0.52,1.02,0.08),castleTrim);slitFrame.position.set(0,3.0,0.88);t.add(slitFrame);t.add(slit);
+  // Знамя на тонком древке.
+  const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.045,1.65,7),castleWood);pole.position.set(0,8.95,0);t.add(pole);
+  const flagShape=new THREE.Shape();flagShape.moveTo(0,0.72);flagShape.lineTo(0.92,0.48);flagShape.lineTo(0.72,-0.05);flagShape.lineTo(0,-0.18);flagShape.closePath();
+  const flag=new THREE.Mesh(new THREE.ShapeGeometry(flagShape),new THREE.MeshStandardMaterial({color:0x9b302b,side:THREE.DoubleSide,roughness:0.85}));
+  flag.position.set(0,9.15,0.02);t.add(flag);
+  t.position.set(x,0,0);mansion.add(t);
 }
-// Парадное крыльцо, ступени и колонны
-addBox(mansionDetails,2.25,0.28,1.45,stoneMat,0,0.18,3.15);
-addBox(mansionDetails,1.9,0.18,0.55,facadeTrimMaterial,0,0.42,3.72);
-for(const x of [-0.88,0.88]){
-  const pillar=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.17,2.15,12),facadeTrimMaterial);
-  pillar.position.set(x,1.48,3.55);pillar.castShadow=true;mansionDetails.add(pillar);
-  const cap=new THREE.Mesh(new THREE.CylinderGeometry(0.23,0.23,0.14,12),stoneMat);
-  cap.position.set(x,2.62,3.55);mansionDetails.add(cap);
-}
-addBox(mansionDetails,2.35,0.18,0.2,facadeTrimMaterial,0,2.72,3.55);
-// Декоративные пояса фасада и угловые каменные элементы
-addBox(mansionDetails,7.08,0.18,5.08,facadeTrimMaterial,0,3.48,0);
-for(const x of [-3.35,3.35]){
-  for(const z of [-2.35,2.35]){
-    addBox(mansionDetails,0.22,3.2,0.22,stoneMat,x,1.65,z);
+const mainBody=new THREE.Mesh(new THREE.BoxGeometry(8.2,4.25,5.0),castleStone);
+mainBody.position.set(0,2.18,0);mainBody.castShadow=true;mainBody.receiveShadow=true;mansion.add(mainBody);
+const lowerPlinth=new THREE.Mesh(new THREE.BoxGeometry(8.55,0.48,5.28),castleStoneShade);lowerPlinth.position.set(0,0.36,0);mansion.add(lowerPlinth);
+const cornice=new THREE.Mesh(new THREE.BoxGeometry(8.55,0.26,5.3),castleTrim);cornice.position.set(0,4.28,0);mansion.add(cornice);
+// Боковые крылья формируют ступенчатый силуэт вместо одного прямоугольного блока.
+for(const side of [-1,1]){
+  const wing=new THREE.Mesh(new THREE.BoxGeometry(2.5,3.2,4.55),castleStone);
+  wing.position.set(side*4.55,1.7,-0.12);wing.castShadow=true;wing.receiveShadow=true;mansion.add(wing);
+  const wingBase=new THREE.Mesh(new THREE.BoxGeometry(2.72,0.38,4.78),castleStoneShade);wingBase.position.set(side*4.55,0.28,-0.12);mansion.add(wingBase);
+  const wingRoof=new THREE.Mesh(new THREE.BoxGeometry(2.85,0.32,4.95),castleRoof);wingRoof.position.set(side*4.55,3.42,-0.12);mansion.add(wingRoof);
+  for(const z of [-1.35,0.35]){
+    const w=new THREE.Mesh(new THREE.BoxGeometry(0.72,1.25,0.12),facadeGlassMaterial);w.position.set(side*4.55,1.85,z+2.23);mansion.add(w);
+    const frame=new THREE.Mesh(new THREE.BoxGeometry(0.94,1.48,0.13),castleTrim);frame.position.set(side*4.55,1.85,z+2.19);mansion.add(frame);mansion.add(w);
   }
 }
-// Фонари по обе стороны входа
-for(const x of [-1.65,1.65]){
-  const lamp=new THREE.Group();
-  addBox(lamp,0.16,0.55,0.16,darkWood,0,0,0);
-  const glow=new THREE.Mesh(new THREE.SphereGeometry(0.19,12,10),new THREE.MeshStandardMaterial({color:0xffdf91,emissive:0xffa52d,emissiveIntensity:0.8}));
-  glow.position.y=0.38;lamp.add(glow);lamp.position.set(x,2.0,2.9);mansionDetails.add(lamp);
+castleTower(-5.45);castleTower(5.45);
+// Центральная двускатная крыша из двух больших скатов и конька.
+const roofAngle=0.58;
+castleRoofPanel(8.85,3.35,0,5.05,1.22,-roofAngle);
+castleRoofPanel(8.85,3.35,0,5.05,-1.22,roofAngle);
+const ridge=new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.16,9.0,10),castleGold);ridge.rotation.z=Math.PI/2;ridge.position.set(0,6.05,0);mansion.add(ridge);
+// Треугольные фронтоны на торцах крыши.
+for(const z of [-2.48,2.48]){
+  const sh=new THREE.Shape();sh.moveTo(-4.25,0);sh.lineTo(4.25,0);sh.lineTo(0,2.45);sh.closePath();
+  const face=new THREE.Mesh(new THREE.ShapeGeometry(sh),castleStone);face.position.set(0,4.15,z);mansion.add(face);
+  const inset=new THREE.Mesh(new THREE.ShapeGeometry(sh),castleStoneShade);inset.scale.set(0.72,0.7,1);inset.position.set(0.0,4.45,z+(z>0?0.025:-0.025));mansion.add(inset);
 }
-// Дополнительная архитектурная глубина: цоколь, карниз и деревянные элементы фасада.
-for(const x of [-3.15,-2.1,-1.05,0,1.05,2.1,3.15]){
-  addBox(mansionDetails,0.72,0.16,0.12,stoneMat,x,0.32,2.57);
+for(const x of [-3.05,-1.55,0,1.55,3.05]) castleWindow(x,1.45,2.53,0.78);
+for(const x of [-2.05,2.05]) castleWindow(x,3.15,2.54,0.78);
+// Парадный вход с глубоким порталом, двойными створками и арочным навесом.
+const portal=new THREE.Mesh(new THREE.BoxGeometry(1.8,2.45,0.3),castleStoneShade);portal.position.set(0,1.25,2.62);mansion.add(portal);
+const door=new THREE.Mesh(new THREE.BoxGeometry(1.28,2.08,0.12),castleWood);door.position.set(0,1.08,2.81);mansion.add(door);
+for(const x of [-0.33,0.33]){
+  const panel=new THREE.Mesh(new THREE.BoxGeometry(0.48,1.45,0.035),material(0x795033));panel.position.set(x,1.13,2.89);mansion.add(panel);
+  const stud=new THREE.Mesh(new THREE.SphereGeometry(0.055,8,8),castleGold);stud.position.set(x>0?-0.12:0.12,1.1,2.94);mansion.add(stud);
 }
-addBox(mansionDetails,7.18,0.22,0.18,facadeTrimMaterial,0,3.58,2.55);
-addBox(mansionDetails,7.18,0.12,0.16,darkWood,0,3.42,2.58);
-for(const x of [-3.0,3.0]){
-  addBox(mansionDetails,0.12,2.65,0.12,darkWood,x,1.55,2.64);
+const archFrame=new THREE.Mesh(new THREE.TorusGeometry(0.9,0.16,10,24,Math.PI),castleTrim);archFrame.position.set(0,2.45,2.79);archFrame.rotation.z=Math.PI;mansion.add(archFrame);
+const porchRoof=new THREE.Mesh(new THREE.BoxGeometry(2.7,0.22,1.35),castleRoof);porchRoof.position.set(0,3.05,3.15);mansion.add(porchRoof);
+for(const x of [-1.12,1.12]){
+  const col=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.18,2.35,12),castleTrim);col.position.set(x,1.45,3.65);col.castShadow=true;mansion.add(col);
+  const base=new THREE.Mesh(new THREE.BoxGeometry(0.48,0.18,0.48),castleStoneShade);base.position.set(x,0.3,3.65);mansion.add(base);
+  const cap=new THREE.Mesh(new THREE.BoxGeometry(0.48,0.18,0.48),castleGold);cap.position.set(x,2.65,3.65);mansion.add(cap);
 }
-// Каменные ступени с чуть разной шириной создают более естественный вход.
-for(let i=0;i<3;i++){
-  const step=new THREE.Mesh(new THREE.BoxGeometry(2.35+i*0.34,0.12,0.34),stoneMat);
-  step.position.set(0,0.08+i*0.11,3.95+i*0.32);
-  step.receiveShadow=true;mansionDetails.add(step);
+const balcony=new THREE.Mesh(new THREE.BoxGeometry(3.25,0.2,0.82),castleStoneShade);balcony.position.set(0,3.42,2.88);mansion.add(balcony);
+for(let i=0;i<13;i++){
+  const x=-1.48+i*0.247;
+  const bal=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.06,0.52,8),castleTrim);bal.position.set(x,3.76,3.22);mansion.add(bal);
 }
-
- // Каменные русты по углам и декоративные горизонтальные карнизы.
- for(const x of [-3.42,3.42]){
-   for(let y=0.55;y<3.25;y+=0.62) addBox(mansionDetails,0.42,0.22,0.2,stoneMat,x,y,2.62);
- }
- // Арочные оконные акценты и подоконные полки.
- for(const x of [-2,0,2]){
-   const arch=new THREE.Mesh(new THREE.TorusGeometry(0.43,0.075,6,16,Math.PI),facadeTrimMaterial);
-   arch.position.set(x,2.72,2.78);arch.rotation.z=Math.PI;mansionDetails.add(arch);
-   addBox(mansionDetails,1.18,0.12,0.26,stoneMat,x,1.38,2.72);
- }
- // Резной герб над главным входом.
- const crestBase=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.12,12),facadeTrimMaterial);
- crestBase.rotation.x=Math.PI/2;crestBase.position.set(0,3.42,2.94);mansionDetails.add(crestBase);
- const crest=new THREE.Mesh(new THREE.SphereGeometry(0.24,12,10),material(0xd8ad4e));
- crest.scale.set(0.82,1.2,0.38);crest.position.set(0,3.45,3.04);mansionDetails.add(crest);
- // Балюстрада крыльца с точёными стойками и поручнями.
- for(const z of [3.08,3.72]){
-   for(let i=0;i<9;i++){
-     const x=-1.18+i*0.295;
-     const baluster=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.055,0.48,7),facadeTrimMaterial);
-     baluster.position.set(x,0.88,z);mansionDetails.add(baluster);
-   }
-   addBox(mansionDetails,2.55,0.09,0.1,stoneMat,0,1.13,z);
- }
- // Дополнительные слуховые окна на красной крыше.
- for(const x of [-2.65,2.65]){
-   const dormerFrame=new THREE.Mesh(new THREE.BoxGeometry(0.82,0.76,0.16),facadeTrimMaterial);
-   dormerFrame.position.set(x,4.18,1.88);dormerFrame.rotation.z=x<0?-0.12:0.12;mansionDetails.add(dormerFrame);
-   const dormerGlass=new THREE.Mesh(new THREE.BoxGeometry(0.55,0.5,0.08),facadeGlassMaterial);
-   dormerGlass.position.set(x,4.18,1.99);dormerGlass.rotation.z=x<0?-0.12:0.12;mansionDetails.add(dormerGlass);
-   const dormerRoof=new THREE.Mesh(new THREE.ConeGeometry(0.62,0.55,4),material(0x9d4034));
-   dormerRoof.position.set(x,4.72,1.9);dormerRoof.rotation.y=Math.PI/4;mansionDetails.add(dormerRoof);
- }
-
-mansion.add(mansionDetails);
-
-// ===== РАСШИРЕННАЯ АРХИТЕКТУРА ГЛАВНОГО ЗАМКА =====
-// Дополнительные объёмы, башенные пояса, балконы и верхний этаж.
-// Все элементы остаются частью существующей модели и не меняют игровые координаты.
-mansion.remove(mansionRoof); // Убираем прежнюю простую крышу, чтобы новый верхний этаж не пересекался с ней.
-const mansionStoneLight=material(0xe8d7b8);
-const mansionRoofDark=material(0x71352f);
-const mansionRoofLight=material(0xa84a3b);
-const mansionMetal=material(0x443c35,0.55);
-// Центральный верхний объём с отдельным высоким фронтоном.
-addBox(mansion,4.25,1.55,3.25,0xf1dcb9,0,4.15,-0.15);
-addBox(mansion,4.48,0.2,3.42,mansionStoneLight,0,4.92,-0.15);
-const upperRoof=new THREE.Mesh(new THREE.ConeGeometry(3.35,2.05,4),mansionRoofDark);
-upperRoof.position.set(0,5.95,-0.15);upperRoof.rotation.y=Math.PI/4;upperRoof.castShadow=true;mansion.add(upperRoof);
-// Выступающий фронтон над главным входом.
-const pedimentShape=new THREE.Shape();
-pedimentShape.moveTo(-1.45,0);pedimentShape.lineTo(1.45,0);pedimentShape.lineTo(0,1.28);pedimentShape.closePath();
-const pediment=new THREE.Mesh(new THREE.ExtrudeGeometry(pedimentShape,{depth:0.16,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:0.035,bevelThickness:0.035}),mansionStoneLight);
-pediment.position.set(0,3.0,2.82);pediment.castShadow=true;mansion.add(pediment);
-const pedimentInset=new THREE.Mesh(new THREE.ShapeGeometry(pedimentShape),material(0x9b4938));
-pedimentInset.position.set(0,3.12,3.005);mansion.add(pedimentInset);
-// Высокие угловые башни получают каменные пояса, балконные площадки и шпили.
-for(const x of [-4.5,4.5]){
-  const balconyRing=new THREE.Mesh(new THREE.CylinderGeometry(1.02,1.02,0.18,16),mansionStoneLight);
-  balconyRing.position.set(x,4.72,0);balconyRing.castShadow=true;mansion.add(balconyRing);
-  const upperBand=new THREE.Mesh(new THREE.CylinderGeometry(0.91,0.91,0.14,16),mansionStoneLight);
-  upperBand.position.set(x,5.05,0);mansion.add(upperBand);
-  for(let a=0;a<12;a++){
-    const angle=a*Math.PI/6;
-    const baluster=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.06,0.48,6),facadeTrimMaterial);
-    baluster.position.set(x+Math.cos(angle)*0.88,4.98,Math.sin(angle)*0.88);mansion.add(baluster);
-  }
-  const spire=new THREE.Mesh(new THREE.ConeGeometry(0.22,1.15,8),mansionMetal);
-  spire.position.set(x,7.58,0);mansion.add(spire);
-  const finial=new THREE.Mesh(new THREE.SphereGeometry(0.12,10,8),mansionRoofLight);
-  finial.position.set(x,8.18,0);mansion.add(finial);
+const rail=new THREE.Mesh(new THREE.BoxGeometry(3.25,0.12,0.13),castleGold);rail.position.set(0,4.04,3.22);mansion.add(rail);
+// Широкая парадная лестница с каменными боковыми щеками.
+for(let i=0;i<5;i++){
+  const step=new THREE.Mesh(new THREE.BoxGeometry(2.45+i*0.38,0.18,0.42),i%2?castleStone:castleTrim);
+  step.position.set(0,0.12+i*0.16,3.95+i*0.38);step.receiveShadow=true;mansion.add(step);
 }
-// Второй ярус окон, каменные наличники и вертикальные пилястры.
-for(const x of [-1.35,1.35]){
-  addBox(mansion,0.92,1.12,0.14,mansionStoneLight,x,4.12,1.53);
-  addBox(mansion,0.68,0.88,0.08,facadeGlassMaterial,x,4.12,1.63);
-  addBox(mansion,0.1,0.94,0.1,facadeTrimMaterial,x,4.12,1.69);
-  addBox(mansion,0.76,0.09,0.1,facadeTrimMaterial,x,4.12,1.69);
-  addBox(mansion,1.08,0.12,0.2,mansionStoneLight,x,3.51,1.58);
+for(const x of [-1.75,1.75]){
+  const cheek=new THREE.Mesh(new THREE.BoxGeometry(0.24,0.72,2.1),castleStoneShade);cheek.position.set(x,0.43,4.55);mansion.add(cheek);
+  const post=new THREE.Mesh(new THREE.BoxGeometry(0.38,0.85,0.38),castleTrim);post.position.set(x,0.48,5.45);mansion.add(post);
+  const orb=new THREE.Mesh(new THREE.SphereGeometry(0.18,10,8),castleGold);orb.position.set(x,0.98,5.45);mansion.add(orb);
 }
-for(const x of [-3.25,3.25]){
-  addBox(mansion,0.28,3.15,0.3,mansionStoneLight,x,1.72,2.57);
-  addBox(mansion,0.38,0.18,0.38,facadeTrimMaterial,x,3.35,2.57);
-}
-// Декоративные горизонтальные ряды черепицы на переднем скате крыши.
-for(let row=0;row<4;row++){
-  const y=5.65-row*0.43;
-  for(let col=-2;col<=2;col++){
-    const tile=new THREE.Mesh(new THREE.BoxGeometry(0.82,0.075,0.16),row%2?mansionRoofDark:mansionRoofLight);
-    tile.position.set(col*0.9,y,2.08+row*0.18);tile.rotation.x=-0.12;tile.castShadow=true;mansion.add(tile);
+// Рустованные углы, горизонтальные пояса и декоративные щиты.
+for(const x of [-3.95,3.95]){
+  for(let y=0.55;y<4.0;y+=0.55){
+    const block=new THREE.Mesh(new THREE.BoxGeometry(0.34,0.22,0.18),castleTrim);block.position.set(x,y,2.56);mansion.add(block);
   }
 }
-// Балкон над парадным входом с колоннами и перилами.
-const balconyDeck=new THREE.Mesh(new THREE.BoxGeometry(3.15,0.18,0.92),mansionStoneLight);
-balconyDeck.position.set(0,3.12,2.95);balconyDeck.castShadow=true;mansion.add(balconyDeck);
-for(const x of [-1.38,-0.92,-0.46,0,0.46,0.92,1.38]){
-  const post=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.075,0.62,8),facadeTrimMaterial);
-  post.position.set(x,3.5,3.31);mansion.add(post);
-}
-addBox(mansion,3.12,0.12,0.12,mansionStoneLight,0,3.83,3.31);
+const crestShield=new THREE.Mesh(new THREE.SphereGeometry(0.46,16,12),castleGold);crestShield.scale.set(0.78,1.12,0.28);crestShield.position.set(0,4.35,2.8);mansion.add(crestShield);
+const crestGem=new THREE.Mesh(new THREE.OctahedronGeometry(0.22,0),material(0x4b9b68));crestGem.position.set(0,4.37,2.91);mansion.add(crestGem);
+mansion.position.set(0,0,-14);mansion.rotation.y=0.12;scene.add(mansion);
 
 // ===== ЛАНДШАФТ ВОКРУГ ДОМА =====
 const gardenStone=material(0xc9bda5);
