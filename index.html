@@ -377,14 +377,14 @@ mansionRoof.rotation.y=Math.PI/4;
 mansion.add(mansionRoof);
 
 // Общие материалы фасада создаются до первого использования в мансардных окнах.
-const trimMat=material(0xf8e5c2);
-const glassMat=new THREE.MeshStandardMaterial({color:0x75c9e8,metalness:0.18,roughness:0.18,emissive:0x163747});
+const facadeTrimMaterial=material(0xf8e5c2);
+const facadeGlassMaterial=new THREE.MeshStandardMaterial({color:0x75c9e8,metalness:0.18,roughness:0.18,emissive:0x163747});
 
 // Небольшие мансардные окна и декоративные фронтонные детали.
 for(const x of [-1.9,1.9]){
   const dormer=new THREE.Group();
-  addBox(dormer,1.0,0.9,0.18,trimMat,x,3.85,2.48);
-  const pane=new THREE.Mesh(new THREE.BoxGeometry(0.66,0.58,0.08),glassMat);
+  addBox(dormer,1.0,0.9,0.18,facadeTrimMaterial,x,3.85,2.48);
+  const pane=new THREE.Mesh(new THREE.BoxGeometry(0.66,0.58,0.08),facadeGlassMaterial);
   pane.position.set(x,3.88,2.60);dormer.add(pane);
   const hood=new THREE.Mesh(new THREE.ConeGeometry(0.72,0.65,4),material(0x963c32));
   hood.position.set(x,4.55,2.55);hood.rotation.y=Math.PI/4;dormer.add(hood);
@@ -424,10 +424,10 @@ const stoneMat=material(0xd8c7a8);
 const darkWood=material(0x68402b);
 for(const x of [-2,0,2]){
   // Рамы и переплёты окон на фасаде
-  addBox(mansionDetails,1.02,1.32,0.16,trimMat,x,2.1,2.63);
-  addBox(mansionDetails,0.78,1.08,0.08,glassMat,x,2.1,2.72);
-  addBox(mansionDetails,0.09,1.12,0.1,trimMat,x,2.1,2.78);
-  addBox(mansionDetails,0.82,0.08,0.1,trimMat,x,2.1,2.78);
+  addBox(mansionDetails,1.02,1.32,0.16,facadeTrimMaterial,x,2.1,2.63);
+  addBox(mansionDetails,0.78,1.08,0.08,facadeGlassMaterial,x,2.1,2.72);
+  addBox(mansionDetails,0.09,1.12,0.1,facadeTrimMaterial,x,2.1,2.78);
+  addBox(mansionDetails,0.82,0.08,0.1,facadeTrimMaterial,x,2.1,2.78);
   for(const side of [-1,1]){
     addBox(mansionDetails,0.16,1.12,0.12,darkWood,x+side*0.58,2.1,2.68);
   }
@@ -435,16 +435,16 @@ for(const x of [-2,0,2]){
 }
 // Парадное крыльцо, ступени и колонны
 addBox(mansionDetails,2.25,0.28,1.45,stoneMat,0,0.18,3.15);
-addBox(mansionDetails,1.9,0.18,0.55,trimMat,0,0.42,3.72);
+addBox(mansionDetails,1.9,0.18,0.55,facadeTrimMaterial,0,0.42,3.72);
 for(const x of [-0.88,0.88]){
-  const pillar=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.17,2.15,12),trimMat);
+  const pillar=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.17,2.15,12),facadeTrimMaterial);
   pillar.position.set(x,1.48,3.55);pillar.castShadow=true;mansionDetails.add(pillar);
   const cap=new THREE.Mesh(new THREE.CylinderGeometry(0.23,0.23,0.14,12),stoneMat);
   cap.position.set(x,2.62,3.55);mansionDetails.add(cap);
 }
-addBox(mansionDetails,2.35,0.18,0.2,trimMat,0,2.72,3.55);
+addBox(mansionDetails,2.35,0.18,0.2,facadeTrimMaterial,0,2.72,3.55);
 // Декоративные пояса фасада и угловые каменные элементы
-addBox(mansionDetails,7.08,0.18,5.08,trimMat,0,3.48,0);
+addBox(mansionDetails,7.08,0.18,5.08,facadeTrimMaterial,0,3.48,0);
 for(const x of [-3.35,3.35]){
   for(const z of [-2.35,2.35]){
     addBox(mansionDetails,0.22,3.2,0.22,stoneMat,x,1.65,z);
