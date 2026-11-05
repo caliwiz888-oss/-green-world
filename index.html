@@ -583,6 +583,15 @@ function makeTree(x,z,kind='apple',mature=false){
   const f=sphere(g,mature?.12:.065,Math.cos(a)*rad,y,Math.sin(a)*rad,mat(fruit),1);
   if(mature&&kind==='cherry'){const stem=cylinder(g,.018,.018,.12,Math.cos(a)*rad,y+.1,Math.sin(a)*rad,M.trunk,5);stem.rotation.z=.25}
  }
+ // Круглое слуховое окно в центре фронтона: каменный обод, латунное кольцо и тонкие переплёты.
+ const atticGlass=new THREE.Mesh(new THREE.CircleGeometry(.255,24),windowInterior);
+ atticGlass.position.set(-.25,6.34,4.34);g.add(atticGlass);
+ const atticRing=new THREE.Mesh(new THREE.TorusGeometry(.31,.055,8,32),M.stone2);
+ atticRing.position.set(-.25,6.34,4.35);g.add(atticRing);
+ const atticBrass=new THREE.Mesh(new THREE.TorusGeometry(.235,.018,6,32),M.gold);
+ atticBrass.position.set(-.25,6.34,4.365);g.add(atticBrass);
+ box(g,.045,.46,.045,-.25,6.34,4.38,M.gold,false);
+ box(g,.44,.045,.045,-.25,6.34,4.38,M.gold,false);
  return g;
 }
 function makeMarket(level=1){
