@@ -156,9 +156,73 @@ function makeTree(x,z,kind='apple'){
  for(let i=0;i<5;i++){const a=i*Math.PI*2/5;sphere(g,.12,Math.cos(a)*.68,1.8+(i%2)*.35,Math.sin(a)*.68,mat(fruit),1)}
  return g;
 }
-function makeMarket(level=1){const g=group(world,11,0,-7);box(g,5,2.6,4,0,1.3,0,M.wood);box(g,5.5,.25,4.5,0,2.7,0,M.gold);for(let i=0;i<5;i++){const aw=box(g,1.15,.22,4.7,-2.3+i*1.15,3.1,0,i%2?M.roof2:M.roof);aw.rotation.z=0}box(g,4.8,.18,.2,0,1.7,2.05,M.gold);return g}
-function makeGreenhouse(level=1){const g=group(world,12,0,5);box(g,7,.18,5,0,.1,0,M.stone2);const roof=new THREE.Mesh(new THREE.BoxGeometry(7,.18,5),M.glass);roof.position.set(0,2.8,0);roof.rotation.x=.18;roof.castShadow=true;g.add(roof);for(const x of [-3.3,3.3])for(const z of [-2.3,2.3])box(g,.14,2.7,.14,x,1.35,z,M.wood);box(g,6.7,.15,.15,0,1.4,0,M.wood);return g}
-function makeFactory(level=1){const g=group(world,11,0,13);box(g,7,3.5,5,0,1.75,0,M.stone2);box(g,7.5,.25,5.5,0,3.55,0,M.roof);box(g,1.2,3,1.2,2.3,5,-1.5,M.stone);cylinder(g,.65,.8,.6,2.3,6.8,-1.5,M.stone2,12);return g}
+function makeMarket(level=1){
+ const g=group(world,11,0,-7);
+ box(g,5.4,2.8,4.4,0,1.4,0,M.stone);
+ box(g,5.65,.24,4.65,0,2.86,0,M.gold);
+ // Timber-framed storefront and broad display windows.
+ box(g,5.1,2.45,.18,0,1.42,2.22,M.wood);
+ box(g,3.65,1.25,.12,0,1.65,2.34,M.glass);
+ for(const x of [-2.35,-1.25,0,1.25,2.35])box(g,.13,2.5,.22,x,1.42,2.4,M.gold);
+ box(g,1.1,2.25,.22,0,1.35,2.48,M.wood);
+ box(g,.12,2.0,.24,-.38,1.35,2.62,M.gold,false);
+ box(g,.12,2.0,.24,.38,1.35,2.62,M.gold,false);
+ // Twin pitched roof panels and decorative ridge.
+ const a=box(g,3.05,.25,4.9,-1.35,3.85,0,M.roof);a.rotation.z=.42;
+ const b=box(g,3.05,.25,4.9,1.35,3.85,0,M.roof2);b.rotation.z=-.42;
+ box(g,.22,.28,4.9,0,4.48,0,M.gold);
+ // Striped awning above the shop front.
+ for(let i=0;i<7;i++)box(g,.72,.18,.85,-2.52+i*.84,2.75,2.72,i%2?M.roof:M.roof2);
+ box(g,5.9,.22,.18,0,2.55,3.05,M.wood);
+ for(const x of [-2.2,2.2])box(g,.18,1.2,.18,x,.6,2.7,M.wood);
+ return g;
+}
+function makeGreenhouse(level=1){
+ const g=group(world,12,0,5);
+ box(g,7.4,.28,5.4,0,.14,0,M.stone2);
+ const frame=M.wood,glass=M.glass;
+ for(const x of [-3.45,3.45])for(const z of [-2.45,2.45])box(g,.18,2.9,.18,x,1.55,z,frame);
+ for(const x of [-1.75,0,1.75])for(const z of [-2.45,2.45])box(g,.1,2.8,.1,x,1.55,z,frame);
+ for(const z of [-2.45,2.45])box(g,7,.12,.12,0,2.92,z,frame);
+ for(const x of [-3.45,3.45])box(g,.12,.12,5,x,2.92,0,frame);
+ // Transparent wall panes and a peaked glass roof.
+ for(const z of [-2.4,2.4]){
+   const pane=new THREE.Mesh(new THREE.BoxGeometry(6.7,2.55,.045),glass);pane.position.set(0,1.55,z);g.add(pane);
+ }
+ for(const x of [-3.4,3.4]){
+   const pane=new THREE.Mesh(new THREE.BoxGeometry(.045,2.55,4.7),glass);pane.position.set(x,1.55,0);g.add(pane);
+ }
+ const roofA=box(g,3.8,.12,5.1,-1.55,3.3,0,glass);roofA.rotation.z=.38;
+ const roofB=box(g,3.8,.12,5.1,1.55,3.3,0,glass);roofB.rotation.z=-.38;
+ box(g,.12,.16,5.1,0,4.0,0,frame);
+ // Central double door.
+ box(g,1.4,2.2,.12,0,1.1,2.49,frame);
+ box(g,.55,1.95,.06,-.34,1.1,2.57,glass);
+ box(g,.55,1.95,.06,.34,1.1,2.57,glass);
+ for(let i=0;i<4;i++)box(g,.06,2.35,.06,-3+i*2,1.45,2.52,M.gold,false);
+ return g;
+}
+function makeFactory(level=1){
+ const g=group(world,11,0,13);
+ box(g,7.2,3.6,5.2,0,1.8,0,M.stone2);
+ box(g,7.45,.28,5.45,0,3.72,0,M.gold);
+ // Industrial roof, front gable and reinforced corner columns.
+ const r1=box(g,4.1,.28,5.65,-1.45,4.35,0,M.roof);r1.rotation.z=.34;
+ const r2=box(g,4.1,.28,5.65,1.45,4.35,0,M.roof2);r2.rotation.z=-.34;
+ for(const x of [-3.35,3.35])box(g,.42,3.8,.42,x,1.9,2.48,M.wood);
+ // Large loading door and gold framing.
+ box(g,2.3,2.65,.18,0,1.45,2.68,M.wood);
+ for(const y of [.35,.85,1.35,1.85,2.35])box(g,2.05,.07,.08,0,y,2.8,M.gold,false);
+ for(const x of [-1.25,1.25])box(g,.12,2.8,.18,x,1.45,2.78,M.gold,false);
+ // Tall brick chimney with flared cap.
+ box(g,1.05,4.2,1.05,2.5,5.1,-1.45,M.stone);
+ box(g,1.3,.25,1.3,2.5,7.25,-1.45,M.stone2);
+ cylinder(g,.34,.45,.3,2.5,7.55,-1.45,M.roof2,10);
+ // Small windows and roof vents.
+ for(const x of [-2.25,2.25])for(const z of [-2.68,2.68])box(g,.75,.72,.12,x,2.65,z,M.glass);
+ for(let i=0;i<4;i++)box(g,.28,.18,.5,-1.5+i,4.65,-1.6,M.wood);
+ return g;
+}
 function makeLamp(x,z){
  const l=group(world,x,0,z);
  cylinder(l,.13,.18,2.1,0,1.05,0,M.wood,8);
