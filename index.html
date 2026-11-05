@@ -127,6 +127,11 @@ body{font-family:system-ui,Arial,sans-serif;background:#73b9dc}
  #actions{padding:7px;gap:4px}#actions button{font-size:10px;line-height:1.2}
 }
 
+/* Камера и мобильная компоновка: больше пространства по краям, интерфейс с учётом вырезов экрана. */
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+#hud{top:max(9px,env(safe-area-inset-top));}
+#actions{bottom:max(12px,env(safe-area-inset-bottom));}
+@media(max-width:430px){#hud{left:7px;right:7px;gap:5px}#hud .panel{font-size:11px}#stats{padding:7px 7px}#stats .stat{min-width:48px}#stats .stat strong{font-size:15px}#stats .stat small{font-size:8px}#selection{max-width:calc(100% - 104px);white-space:normal;text-align:center;line-height:1.25}#actions button{min-height:48px}}
 </style>
 </head>
 
@@ -2445,9 +2450,9 @@ window.addEventListener('resize',()=>{
 // ===== УПРАВЛЕНИЕ КАМЕРОЙ И ВЫБОР УЧАСТКА =====
 // Более низкая и близкая перспектива подчёркивает объём зданий и рельеф.
 // Более близкая перспективная камера: видны фасады, боковые стены и рельеф, а не только план сверху.
-let cameraRadius=37;
+let cameraRadius=41;
 let cameraAngle=0;
-let cameraHeight=23;
+let cameraHeight=25;
 let pointerStart=null;
 let pointerMoved=false;
 const raycaster=new THREE.Raycaster();
@@ -2459,7 +2464,7 @@ function positionCamera(){
     cameraHeight,
     Math.cos(cameraAngle)*cameraRadius
   );
-  camera.lookAt(0,1.0,-3.5);
+  camera.lookAt(3.2,1.1,-3.5);
 }
 function setSelection(plot){
   if(selectedPlot?.tile) selectedPlot.tile.material.emissive?.setHex(0x000000);
@@ -2478,7 +2483,7 @@ function zoom(factor){
 document.getElementById('zoom-in').addEventListener('click',()=>zoom(.88));
 document.getElementById('zoom-out').addEventListener('click',()=>zoom(1.14));
 document.getElementById('camera-reset').addEventListener('click',()=>{
-  cameraRadius=37;cameraHeight=23;cameraAngle=0;positionCamera();
+  cameraRadius=41;cameraHeight=25;cameraAngle=0;positionCamera();
 });
 renderer.domElement.addEventListener('pointerdown',e=>{
   pointerStart={x:e.clientX,y:e.clientY,id:e.pointerId};
