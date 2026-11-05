@@ -300,6 +300,27 @@ function makeHouse(){
    box(g,1.68,.08,.08,x,3.65,1.78,M.gold,false);
 
  }
+ // Тонкие каменные консоли под главными окнами поддерживают глубокие подоконники.
+ for(const x of [-3.25,3.25]){
+   for(const dx of [-.48,0,.48]){
+     box(g,.18,.22,.2,x+dx,1.72,4.31,M.stone2,false);
+     const corbel=box(g,.16,.16,.18,x+dx,1.84,4.34,M.gold,false);
+     corbel.rotation.z=dx===0?0:(dx<0?-.12:.12);
+   }
+ }
+ // Каменные замковые акценты и узкие боковые накладки завершают верхние окна фронтона.
+ for(const x of [-1.35,1.35]){
+   box(g,.16,.22,.2,x,6.18,4.31,M.stone2,false);
+   box(g,.12,.42,.12,x-.49,5.43,4.28,M.stone2,false);
+   box(g,.12,.42,.12,x+.49,5.43,4.28,M.stone2,false);
+ }
+ // Небольшие латунные накладки подчёркивают углы каменного карниза башен.
+ for(const x of [-4.35,4.35]){
+   for(const z of [-1.12,1.12]){
+     box(g,.28,.09,.09,x,5.92,z,M.gold,false);
+     sphere(g,.035,x,5.98,z,M.gold,.8);
+   }
+ }
  // Fine masonry joints on the manor facade add scale without visual clutter.
  for(const y of [1.02,1.52,3.98]){
    for(const x of [-4.05,-2.15,2.15,4.05]){
