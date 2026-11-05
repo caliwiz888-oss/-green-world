@@ -899,6 +899,32 @@ fountain.add(fountainBall);
 fountain.position.set(0,0,-7.5);
 scene.add(fountain);
 
+// Восемь фонарей вокруг центрального фонтана: инстансированные детали
+// сохраняют выразительность площади и не перегружают мобильный WebGL.
+const plazaLampBaseGeo=new THREE.CylinderGeometry(0.22,0.3,0.24,8);
+const plazaLampPostGeo=new THREE.CylinderGeometry(0.075,0.11,1.75,8);
+const plazaLampCapGeo=new THREE.ConeGeometry(0.34,0.28,8);
+const plazaLampGlowGeo=new THREE.SphereGeometry(0.2,10,8);
+const plazaLampStone=material(0xbdb39f);
+const plazaLampMetal=material(0x394b43);
+const plazaLampGold=material(0xc99b4e);
+const plazaLampGlow=new THREE.MeshStandardMaterial({color:0xffe3a0,emissive:0xffb84c,emissiveIntensity:1.15,roughness:0.28});
+const plazaLampBase=new THREE.InstancedMesh(plazaLampBaseGeo,plazaLampStone,8);
+const plazaLampPosts=new THREE.InstancedMesh(plazaLampPostGeo,plazaLampMetal,8);
+const plazaLampCaps=new THREE.InstancedMesh(plazaLampCapGeo,plazaLampGold,8);
+const plazaLampGlows=new THREE.InstancedMesh(plazaLampGlowGeo,plazaLampGlow,8);
+const plazaLampDummy=new THREE.Object3D();
+for(let i=0;i<8;i++){
+  const a=(i/8)*Math.PI*2+Math.PI/8;
+  const x=Math.cos(a)*5.15,z=-7.5+Math.sin(a)*5.15;
+  plazaLampDummy.position.set(x,0.16,z);plazaLampDummy.scale.set(1,1,1);plazaLampDummy.updateMatrix();plazaLampBase.setMatrixAt(i,plazaLampDummy.matrix);
+  plazaLampDummy.position.set(x,1.12,z);plazaLampDummy.updateMatrix();plazaLampPosts.setMatrixAt(i,plazaLampDummy.matrix);
+  plazaLampDummy.position.set(x,2.08,z);plazaLampDummy.updateMatrix();plazaLampCaps.setMatrixAt(i,plazaLampDummy.matrix);
+  plazaLampDummy.position.set(x,1.83,z);plazaLampDummy.scale.set(1,1,1);plazaLampDummy.updateMatrix();plazaLampGlows.setMatrixAt(i,plazaLampDummy.matrix);
+}
+plazaLampBase.castShadow=true;plazaLampPosts.castShadow=true;
+scene.add(plazaLampBase,plazaLampPosts,plazaLampCaps,plazaLampGlows);
+
 // ===== РЕКА =====
 const riverGeometry=new THREE.PlaneGeometry(42,4.5,32,8);
 const riverBasePositions=riverGeometry.attributes.position.array.slice();
