@@ -319,7 +319,7 @@ app.post('/api/game/harvest-all',auth,(req,res)=>mutate(req,res,async(c,p)=>{
 app.post('/api/game/sell',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const inventory=p.fruit_inventory&&typeof p.fruit_inventory==='object'?p.fruit_inventory:{};
   const processed=p.processed_inventory&&typeof p.processed_inventory==='object'?p.processed_inventory:{};
-  const salePrices={peach:7,cherry:12,pear:18,orange:25,mango:35};
+  const salePrices={peach:7,cherry:12,pear:9,orange:15,mango:22};
   const marketBonus=p.has_market?(Number(p.market_level)||1):0;
   let earned=Number(p.apples||0)*(1+p.orchard_level+marketBonus);
   for(const [type,price] of Object.entries(salePrices)) earned+=(Math.max(0,Number(inventory[type])||0))*(price+marketBonus);
