@@ -68,11 +68,9 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
  <div class="section"><h3>Твоя территория</h3><div class="line"><span id="land-status">Загрузка…</span><button class="smallbtn" id="expand">РАСШИРИТЬ</button></div>
   <div class="actions">
    <button class="smallbtn" id="build-market">Торговая лавка · 1 500 GC</button>
-   <button class="smallbtn" id="build-greenhouse">Теплица · 2 500 GC</button>
    <button class="smallbtn" id="build-factory">Завод · 5 000 GC</button>
    <button class="smallbtn" id="upgrade-orchard">Улучшить сад</button>
    <button class="smallbtn" id="upgrade-market">Улучшить лавку</button>
-   <button class="smallbtn" id="upgrade-greenhouse">Улучшить теплицу</button>
    <button class="smallbtn" id="upgrade-factory">Улучшить завод</button>
   </div>
  </div>
@@ -893,11 +891,10 @@ function drawPlayer(){if(!player)return;clearDynamic();const map=new Map((player
  // Render every planted fruit tree on its matching plot; ripe trees show full-colour fruit.
  for(const p of player.plots||[]){const x=(Math.floor(p.index/20)-9.5)*1.45,z=(p.index%20-9.5)*1.45;const tree=makeTree(x,z,p.type||'apple',!!p.grown);tree.scale.setScalar(.72);treeObjects.push(tree)}
  buildingObjects.push(makeMarket(player.marketLevel||1));buildingObjects.push(makeFactory(player.factoryLevel||1));
- if(player.hasGreenhouse)buildingObjects.push(makeGreenhouse(player.greenhouseLevel||1));
  for(let i=0;i<400;i++){const p=map.get(i);tiles[i].material=p?(p.grown?mat(0x8fbd55):mat(0x719a49)):((Math.floor(i/20)+i%20)%2?M.grass:M.grass2);tiles[i].material.needsUpdate=true}
  updateHud();
 }
-function updateHud(){if(!player)return;$('coins').textContent=Number(player.coins||0).toLocaleString('ru-RU');$('apples').textContent=Number(player.apples||0).toLocaleString('ru-RU');$('level').textContent=player.playerLevel||1;$('land-status').textContent=(player.unlockedPlots||36)+' / 400 открытых участков';$('inventory-apples').textContent=player.apples||0;$('inventory-fruit').textContent=Object.entries(player.fruitInventory||{}).filter(([,v])=>v>0).map(([k,v])=>k+': '+v).join(' · ')||'Пока пусто';$('inventory-processed').textContent=Object.entries(player.processedInventory||{}).filter(([,v])=>v>0).map(([k,v])=>k+': '+v).join(' · ')||'Пока пусто';$('expand').disabled=(player.landLevel||1)>=5;$('build-market').disabled=!!player.hasMarket;$('build-greenhouse').disabled=!!player.hasGreenhouse;$('build-factory').disabled=!!player.hasFactory;$('upgrade-market').disabled=!player.hasMarket||player.marketLevel>=5;$('upgrade-greenhouse').disabled=!player.hasGreenhouse||player.greenhouseLevel>=5;$('upgrade-factory').disabled=!player.hasFactory||player.factoryLevel>=5;$('upgrade-orchard').textContent='Улучшить сад · '+(150*(player.orchardLevel||1))+' GC'}
+function updateHud(){if(!player)return;$('coins').textContent=Number(player.coins||0).toLocaleString('ru-RU');$('apples').textContent=Number(player.apples||0).toLocaleString('ru-RU');$('level').textContent=player.playerLevel||1;$('land-status').textContent=(player.unlockedPlots||36)+' / 400 открытых участков';$('inventory-apples').textContent=player.apples||0;$('inventory-fruit').textContent=Object.entries(player.fruitInventory||{}).filter(([,v])=>v>0).map(([k,v])=>k+': '+v).join(' · ')||'Пока пусто';$('inventory-processed').textContent=Object.entries(player.processedInventory||{}).filter(([,v])=>v>0).map(([k,v])=>k+': '+v).join(' · ')||'Пока пусто';$('expand').disabled=(player.landLevel||1)>=5;$('build-market').disabled=!!player.hasMarket;$('build-factory').disabled=!!player.hasFactory;$('upgrade-market').disabled=!player.hasMarket||player.marketLevel>=5;$('upgrade-factory').disabled=!player.hasFactory||player.factoryLevel>=5;$('upgrade-orchard').textContent='Улучшить сад · '+(150*(player.orchardLevel||1))+' GC'}
 function applyPlayer(p){player=p;drawPlayer();$('status').textContent='МИР СОХРАНЁН · СЕРВЕР ПОДКЛЮЧЁН';$('login').style.display='none'}
 async function request(path,body=null,retry=true){const opts={method:body===null?'GET':'POST',credentials:'include',headers:{'Content-Type':'application/json'}};if(token)opts.headers.Authorization='Bearer '+token;if(body!==null)opts.body=JSON.stringify(body);let res=await fetch(API+path,opts);if(res.status===401&&retry&&!['/api/auth/telegram','/api/auth/refresh'].includes(path)){const rr=await fetch(API+'/api/auth/refresh',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'}});if(rr.ok){token=(await rr.json()).accessToken;return request(path,body,false)}}const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Ошибка сервера '+res.status);return data}
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2600)}
@@ -910,8 +907,8 @@ function water(){if(selected===null){toast('Выбери дерево на ка�
 $('plant').onclick=plant;$('plant-menu').onclick=plant;$('water').onclick=()=>{if(selected===null){toast('Выбери дерево на карте');return}action('/api/game/water',{plotIndex:selected},'Дерево полито')};
 $('harvest').onclick=()=>action('/api/game/harvest-all',{},'Урожай собран');$('sell').onclick=()=>action('/api/game/sell',{},'Урожай продан');
 $('expand').onclick=()=>action('/api/game/expand-land',{},'Территория расширена');
-$('build-market').onclick=()=>action('/api/game/build',{kind:'market'},'Торговая лавка построена');$('build-greenhouse').onclick=()=>action('/api/game/build',{kind:'greenhouse'},'Теплица построена');$('build-factory').onclick=()=>action('/api/game/build',{kind:'factory'},'Завод построен');
-$('upgrade-orchard').onclick=()=>action('/api/game/upgrade-orchard',{},'Сад улучшен');$('upgrade-market').onclick=()=>action('/api/game/upgrade-market',{},'Лавка улучшена');$('upgrade-greenhouse').onclick=()=>action('/api/game/upgrade-greenhouse',{},'Теплица улучшена');$('upgrade-factory').onclick=()=>action('/api/game/upgrade-factory',{},'Завод улучшен');
+$('build-market').onclick=()=>action('/api/game/build',{kind:'market'},'Торговая лавка построена');$('build-factory').onclick=()=>action('/api/game/build',{kind:'factory'},'Завод построен');
+$('upgrade-orchard').onclick=()=>action('/api/game/upgrade-orchard',{},'Сад улучшен');$('upgrade-market').onclick=()=>action('/api/game/upgrade-market',{},'Лавка улучшена');$('upgrade-factory').onclick=()=>action('/api/game/upgrade-factory',{},'Завод улучшен');
 $('daily-claim').onclick=async()=>{await action('/api/game/daily-reward/claim',{},'Ежедневный подарок получен');await loadDaily()};
 $('process-fruit').onclick=()=>action('/api/game/process',{fruitType:$('process-fruit-type').value,kind:$('process-kind').value},'Продукция изготовлена');
 $('menu-open').onclick=()=>$('shade').classList.add('open');$('menu-close').onclick=()=>$('shade').classList.remove('open');$('shade').addEventListener('click',e=>{if(e.target===$('shade'))$('shade').classList.remove('open')});
