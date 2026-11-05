@@ -432,6 +432,14 @@ function makeHouse(){
      }
      box(g,.22,.16,1.34,x+side*.07,2.02,z,houseStoneTrim,false);
      box(g,.26,.055,1.38,x+side*.09,2.11,z,M.gold,false);
+     // Верхний водоотводящий карниз бокового окна: каменная кромка и тонкая теневая фаска.
+     box(g,.28,.14,1.42,x+side*.09,3.53,z,houseStoneTrim,false);
+     box(g,.3,.045,1.46,x+side*.11,3.62,z,M.gold,false);
+     // Короткие каменные консоли удерживают карниз и подчёркивают его объём.
+     for(const dz of [-.57,.57]){
+       box(g,.24,.18,.2,x+side*.1,3.39,z+dz,houseStoneTrim,false);
+       sphere(g,.028,x+side*.17,3.31,z+dz,M.gold,.8);
+     }
      // Узкие каменные откосы создают реальную глубину проёма.
      box(g,.12,1.32,.09,x+side*.1,2.72,z-.48,houseStoneTrim,false);
      box(g,.12,1.32,.09,x+side*.1,2.72,z+.48,houseStoneTrim,false);
