@@ -478,6 +478,16 @@ function makeHouse(){
    box(g,.18,.14,.22,-3.3,4.72,z,M.gold,false);
    box(g,.18,.14,.22,2.8,4.72,z,M.gold,false);
  }
+ // Сегментированные керамические коньковые элементы закрывают стык скатов и завершают силуэт крыши.
+ for(let i=0;i<9;i++){
+   const cap=cylinder(g,.17,.17,.98,-.25,6.84,-3.56+i*.89,M.roof2,12);
+   cap.rotation.x=Math.PI/2;
+ }
+ // Небольшие каменные торцевые завершения аккуратно закрывают конёк с обеих сторон.
+ for(const z of [-4.08,4.08]){
+   cylinder(g,.205,.205,.12,-.25,6.84,z,M.stone2,12).rotation.x=Math.PI/2;
+   sphere(g,.09,-.25,6.99,z,M.gold,.8);
+ }
  // Tower corner stones, cornices and narrow upper lights.
  for(const x of [-4.35,4.35]){
    for(const z of [-3.34,-1.16]){
