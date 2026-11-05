@@ -288,6 +288,14 @@ function makeHouse(){
      box(g,.22,1.5,.14,side*5.18,2.55,z+.58,M.stone2);
      box(g,.12,1.18,.08,side*5.25,2.57,z,M.gold,false);
      box(g,.12,.08,.84,side*5.25,2.57,z,M.gold,false);
+     // Narrow timber shutters with brass straps add scale to the manor's side elevations.
+     for(const dz of [-.76,.76]){
+       box(g,.13,1.08,.28,side*5.24,2.57,z+dz,M.wood2);
+       for(const y of [2.16,2.57,2.98]){
+         box(g,.16,.075,.32,side*5.32,y,z+dz,M.gold,false);
+       }
+       box(g,.08,.12,.08,side*5.34,3.02,z+dz,M.gold,false);
+     }
    }
  }
  // Главный вход: выразительный каменный портик с колоннами и отдельной кровлей.
