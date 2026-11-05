@@ -335,6 +335,26 @@ function makeHouse(){
   box(g,.42,.08,.32,x,2.48,4.43,M.wood,false);
   warmLight(g,x,2.2,4.62,.48,5.5);
  }
+ // Боковые окна главного дома: глубокие откосы, стекло, переплёты и каменные подоконники.
+ for(const side of [-1,1]){
+   for(const z of [-1.35,1.35]){
+     const x=side*5.075;
+     box(g,.055,1.22,1.08,x,2.72,z,windowInterior,false);
+     box(g,.075,1.12,.98,x+side*.045,2.72,z,M.glass,false);
+     // Четыре отдельных стеклянных секции в каждом окне.
+     box(g,.09,1.16,.065,x+side*.09,2.72,z,houseStoneTrim,false);
+     box(g,.09,.065,1.02,x+side*.09,2.72,z,houseStoneTrim,false);
+     for(const dz of [-.55,.55]){
+       box(g,.22,1.42,.13,x+side*.035,2.72,z+dz,houseStoneTrim,false);
+       box(g,.26,.12,.17,x+side*.06,3.46,z+dz,houseStoneTrim,false);
+     }
+     box(g,.22,.16,1.34,x+side*.07,2.02,z,houseStoneTrim,false);
+     box(g,.26,.055,1.38,x+side*.09,2.11,z,M.gold,false);
+     // Узкие каменные откосы создают реальную глубину проёма.
+     box(g,.12,1.32,.09,x+side*.1,2.72,z-.48,houseStoneTrim,false);
+     box(g,.12,1.32,.09,x+side*.1,2.72,z+.48,houseStoneTrim,false);
+   }
+ }
  // Two corner towers with separate steep roofs and golden finials.
  for(const x of [-4.35,4.35]){
    const t=group(g,x,0,-2.25);
