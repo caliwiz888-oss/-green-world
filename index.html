@@ -1711,6 +1711,36 @@ function createGreenhouse(level=greenhouseLevel){
       slat.position.set(0,height-0.48+k*0.1,z+0.045);house.add(slat);
     }
   }
+  // Водосточные желоба и трубы по углам стеклянного павильона.
+  const gutterMat=material(0x82958c),pipeMat=material(0x71877d);
+  for(const side of [-1,1]){
+    const gutter=new THREE.Mesh(new THREE.CylinderGeometry(0.075,0.075,depth+0.22,8),gutterMat);
+    gutter.rotation.x=Math.PI/2;
+    gutter.position.set(side*(width/2+0.06),height+0.13,0);house.add(gutter);
+    for(const end of [-1,1]){
+      const down=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.045,height+0.25,8),pipeMat);
+      down.position.set(side*(width/2+0.06),height/2+0.02,end*(depth/2+0.08));house.add(down);
+      const shoe=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,0.34,8),gutterMat);
+      shoe.rotation.x=Math.PI/2;
+      shoe.position.set(side*(width/2+0.06),0.18,end*(depth/2+0.22));house.add(shoe);
+    }
+  }
+  // Внутренний полив: тонкая магистраль и капельные линии над грядками.
+  const irrigationMat=material(0x527d66);
+  const mainPipe=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.035,depth*0.72,8),irrigationMat);
+  mainPipe.rotation.x=Math.PI/2;mainPipe.position.set(-width*0.39,0.48,0);house.add(mainPipe);
+  for(let row=0;row<level;row++){
+    const x=-width*.32+row*(width*.64/Math.max(1,level-1));
+    const line=new THREE.Mesh(new THREE.CylinderGeometry(0.022,0.022,depth*.58,7),irrigationMat);
+    line.rotation.x=Math.PI/2;line.position.set(x,0.72,0);house.add(line);
+    for(let j=0;j<3;j++){
+      const nozzle=new THREE.Mesh(new THREE.SphereGeometry(0.045,6,5),material(0x9ac7a5));
+      nozzle.position.set(x,0.65,-depth*.22+j*depth*.22);house.add(nozzle);
+    }
+  }
+  // Плиточный порог и небольшая площадка перед дверью.
+  const threshold=new THREE.Mesh(new THREE.BoxGeometry(1.35,0.12,0.52),material(0xb6b5a0));
+  threshold.position.set(0,0.08,depth/2+0.3);house.add(threshold);
   house.position.set(14,0,7);scene.add(house);
 }
 function createFactory(){
