@@ -2357,6 +2357,12 @@ function makeWorldLandscape(){
    const shelf=new THREE.Mesh(new THREE.SphereGeometry(1,16,8),snowShadow);
    shelf.position.set(x,y,z);shelf.scale.set(sx,sy,sz);world.add(shelf);
  }
+ // Cool shaded lips beneath the snow shelves make the summit layers read more clearly.
+ const snowLipMat=mat(0xaebfba);
+ for(const [x,y,z,sx,sz] of [[-14,10.88,-35.82,2.35,.58],[-3,12.96,-38.82,3.05,.66],[9,11.3,-35.82,2.5,.57],[22,8.63,-30.82,1.8,.48]]){
+   const lip=new THREE.Mesh(new THREE.SphereGeometry(1,14,8),snowLipMat);
+   lip.position.set(x,y,z);lip.scale.set(sx,.085,sz);world.add(lip);
+ }
  // A low, blue-green ridge in front of the peaks gives the mountain range atmospheric depth.
  for(const [x,z,sx,sy,sz] of [[-19,-25,8,5,4],[0,-27,11,6,4.8],[19,-24,8,4.8,4]]){
    const ridge=sphere(world,1,x,sy*.36,z,mat(0x78977f),1);
