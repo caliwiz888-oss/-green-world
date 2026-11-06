@@ -1407,6 +1407,29 @@ function makeHouse(){
    box(g,.54,.19,.018,x,.85,z-.22,houseStoneTrim,false);
  }
 
+  // Парадная каменная лестница связывает портик с передней площадкой; ступени понижаются к двору.
+  const manorStepStone=mat(0x89877d,.88);
+  const manorStepEdge=mat(0xb0aa98,.82);
+  for(const step of [
+    {z:5.43,y:.24,h:.24,d:.42},
+    {z:5.88,y:.16,h:.16,d:.42},
+    {z:6.33,y:.08,h:.08,d:.42}
+  ]){
+    box(g,3.42,step.h,step.d,0,step.y,step.z,manorStepStone,false);
+    box(g,3.46,.045,step.d+.035,0,step.y+step.h/2+.012,step.z,manorStepEdge,false);
+    box(g,3.18,.025,.045,0,step.y+step.h/2+.038,step.z+step.d/2-.025,M.stone2,false);
+  }
+  // Низкие боковые щёки лестницы и массивные торцевые блоки завершают вход.
+  for(const x of [-1.82,1.82]){
+    box(g,.28,.42,1.38,x,.22,5.91,houseStoneTrim,false);
+    box(g,.36,.12,.5,x,.46,5.34,manorStepEdge,false);
+    box(g,.36,.12,.5,x,.12,6.47,manorStepEdge,false);
+    for(const z of [5.48,6.34]){
+      sphere(g,.045,x,.49,z,M.gold,.8);
+    }
+  }
+  // Тонкая центральная полоса на верхней площадке подчёркивает ось парадного входа.
+  box(g,.055,.018,.34,0,.14,5.22,M.gold,false);
   return disableCastShadows(g);
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
