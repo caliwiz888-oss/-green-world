@@ -215,6 +215,14 @@ function makeSurfaceTexture(kind,seed){
    ctx.strokeStyle='rgba('+tone+','+tone+','+tone+','+(.12+rand()*.16)+')';
    ctx.lineWidth=.6+rand()*.65;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+(rand()-.5)*2,y-len);ctx.stroke();
   }
+  // Редкие изогнутые травинки добавляют направленность и глубину микрофактуре газона.
+  for(let i=0;i<320;i++){
+   const x=rand()*size,y=rand()*size,len=4+rand()*11,lean=(rand()-.5)*5;
+   const tone=rand()>.52?168:78,alpha=.055+rand()*.065;
+   ctx.strokeStyle='rgba('+tone+','+tone+','+tone+','+alpha+')';
+   ctx.lineWidth=.45+rand()*.55;ctx.beginPath();ctx.moveTo(x,y);
+   ctx.quadraticCurveTo(x+lean*.35,y-len*.55,x+lean,y-len);ctx.stroke();
+  }
   // Мягкая неоднородность дернины: широкие полупрозрачные пятна без отдельных объектов.
   for(let i=0;i<34;i++){
    const x=rand()*size,y=rand()*size,rx=12+rand()*30,ry=7+rand()*18;
@@ -228,6 +236,13 @@ function makeSurfaceTexture(kind,seed){
   }
  }
  if(kind==='soil'){
+  // Тонкие вытянутые песчинки и следы грунта делают дорожки менее плоскими.
+  for(let i=0;i<240;i++){
+   const x=rand()*size,y=rand()*size,len=1.5+rand()*5,tone=rand()>.5?142:66;
+   ctx.strokeStyle='rgba('+tone+','+tone+','+tone+','+(.07+rand()*.11)+')';
+   ctx.lineWidth=.45+rand()*.65;ctx.beginPath();ctx.moveTo(x,y);
+   ctx.lineTo(x+(rand()-.5)*len,y+(rand()-.5)*len*.45);ctx.stroke();
+  }
   for(let i=0;i<620;i++){
    const x=rand()*size,y=rand()*size,r=.5+rand()*1.8,tone=rand()>.5?125:75;
    ctx.fillStyle='rgba('+tone+','+tone+','+tone+','+(.12+rand()*.18)+')';
