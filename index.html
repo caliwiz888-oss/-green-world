@@ -655,8 +655,8 @@ function makeHouse(){
  manorRoofTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const manorRoofBump=manorRoofTexture.clone();manorRoofBump.colorSpace=THREE.NoColorSpace;manorRoofBump.needsUpdate=true;
  const manorRoofMaterial=M.roof.clone();
- // Тёплый золотисто-песочный оттенок основной кровли главного дома.
-  manorRoofMaterial.color.setHex(0xb58a4a);
+ // Светлый благородный серо-голубой оттенок кровли для контраста с тёплым фасадом.
+  manorRoofMaterial.color.setHex(0x718b9a);
  manorRoofMaterial.roughness=.82;manorRoofMaterial.metalness=.035;
  manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.009;manorRoofMaterial.roughness=.82;manorRoofMaterial.metalness=.035;manorRoofMaterial.needsUpdate=true;
  // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
@@ -904,9 +904,9 @@ function makeHouse(){
  towerStoneMaterial.color.setHex(0xdedbd2);towerStoneMaterial.roughness=.92;towerStoneMaterial.bumpScale=.026;towerStoneMaterial.needsUpdate=true;
  const towerTrimMaterial=houseStoneTrim.clone();
  towerTrimMaterial.color.setHex(0xeee9df);towerTrimMaterial.roughness=.9;towerTrimMaterial.needsUpdate=true;
- // Купола в тёплом бронзово-песочном тоне сочетаются с новой золотистой кровлей.
- const towerRoofMaterial=new THREE.MeshStandardMaterial({color:0x8c7549,roughness:.84,metalness:.045});
- const towerRoofLine=new THREE.MeshStandardMaterial({color:0x59472f,roughness:.88,metalness:.02});
+ // Купола в приглушённом серо-голубом тоне с более тёмной синевато-графитовой окантовкой.
+ const towerRoofMaterial=new THREE.MeshStandardMaterial({color:0x879ba4,roughness:.84,metalness:.045});
+ const towerRoofLine=new THREE.MeshStandardMaterial({color:0x43545d,roughness:.88,metalness:.02});
  const towerMetal=new THREE.MeshStandardMaterial({color:0xb99a61,roughness:.48,metalness:.48});
  const towerWindow=mat(0x263b40,.34);
  // Две башни остаются на прежних углах главного дома.
