@@ -655,6 +655,8 @@ function makeHouse(){
  manorRoofTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const manorRoofBump=manorRoofTexture.clone();manorRoofBump.colorSpace=THREE.NoColorSpace;manorRoofBump.needsUpdate=true;
  const manorRoofMaterial=M.roof.clone();
+ // Холодный тёмный сланцево-серый оттенок вместо красной кровли главного дома.
+ manorRoofMaterial.color.setHex(0x46545a);
  manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.009;manorRoofMaterial.roughness=.7;manorRoofMaterial.metalness=.2;manorRoofMaterial.needsUpdate=true;
  // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
  const roofL=box(g,3.95,.34,8.9,-1.93,5.72,0,manorRoofMaterial);roofL.rotation.z=.58;
@@ -672,7 +674,10 @@ function makeHouse(){
    }
  }
  // Коньковая накладка закрывает стык скатов и завершает силуэт крыши.
- const ridge=cylinder(g,.13,.13,9.02,-.25,6.82,0,M.roof2,12);
+ const manorRidgeMaterial=M.roof2.clone();
+ manorRidgeMaterial.color.setHex(0x303c42);
+ manorRidgeMaterial.roughness=.82;manorRidgeMaterial.metalness=.08;manorRidgeMaterial.needsUpdate=true;
+ const ridge=cylinder(g,.13,.13,9.02,-.25,6.82,0,manorRidgeMaterial,12);
  ridge.rotation.x=Math.PI/2;
  // Небольшие латунные стяжки на коньке визуально соединяют секции кровельного покрытия.
  for(const z of [-3.55,-2.15,-.72,.72,2.15,3.55]){
