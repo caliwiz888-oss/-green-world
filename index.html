@@ -1766,6 +1766,32 @@ function makeMarket(){
    box(g,.17,.075,4.88,x,.425,0,marketPlinthCap,false);
  }
 
+ // Деревянные диагональные подкосы связывают передние колонны с широким свесом.
+ for(const side of [-1,1]){
+   const brace=box(g,.13,.62,.16,side*2.38,3.02,2.48,timber,false);
+   brace.rotation.x=-.62;
+   const braceCap=box(g,.22,.075,.2,side*2.38,3.29,2.28,roofEdge,false);
+   braceCap.rotation.x=-.62;
+   // Небольшие каменные пятки завершают соединение подкоса с колонной.
+   box(g,.2,.12,.2,side*2.38,2.72,2.68,M.stone2,false);
+ }
+ // На боковых пилястрах добавлены утопленные панели с тонкой рамкой.
+ for(const side of [-1,1]){
+   const x=side*2.91;
+   for(const z of [-1.12,1.12]){
+     box(g,.045,.72,.62,x,1.58,z,roofEdge,false);
+     box(g,.055,.59,.48,x+side*.025,1.58,z,timberLight,false);
+     box(g,.06,.47,.36,x+side*.055,1.58,z,timber,false);
+     for(const y of [1.2,1.96]){
+       box(g,.08,.035,.54,x+side*.07,y,z,roofAccent,false);
+     }
+   }
+ }
+ // Латунные розетки на фасадной балке дают сдержанный ритм между подкосами.
+ for(const x of [-1.65,1.65]){
+   sphere(g,.055,x,3.245,3.225,M.gold,.8);
+   sphere(g,.025,x,3.245,3.275,M.stone,.8);
+ }
   return disableCastShadows(g);
 }
 function makeFactory(){
