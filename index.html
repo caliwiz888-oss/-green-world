@@ -3343,7 +3343,16 @@ function makeWorldLandscape(){
    const trimCurve=new THREE.CatmullRomCurve3(trimPoints);
    const archivolt=new THREE.Mesh(new THREE.TubeGeometry(trimCurve,72,.052,8,false),bridgeStoneLight);
    archivolt.castShadow=false;archivolt.receiveShadow=false;world.add(archivolt);
-   for(const z of [bridgeStartZ+.12,bridgeEndZ-.12]){const pier=box(world,.58,.78,.58,x,.52,z,bridgeStoneMid);pier.castShadow=false;pier.receiveShadow=false;}
+   for(const z of [bridgeStartZ+.12,bridgeEndZ-.12]){
+     const pier=box(world,.58,.78,.58,x,.52,z,bridgeStoneMid);pier.castShadow=false;pier.receiveShadow=false;
+     // Fine recessed-looking mortar courses articulate the large granite pier blocks.
+     for(const y of [.34,.59]){
+       for(const face of [-1,1]){
+         const frontJoint=box(world,.49,.012,.009,x,y,z+face*.292,bridgeStoneDark);frontJoint.castShadow=false;frontJoint.receiveShadow=false;
+         const sideJoint=box(world,.009,.012,.49,x+face*.292,y,z,bridgeStoneDark);sideJoint.castShadow=false;sideJoint.receiveShadow=false;
+       }
+     }
+   }
  }
  // Repeated stone balusters and continuous curved handrails.
  for(const x of [-2.18,2.18]){
