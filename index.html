@@ -1654,10 +1654,10 @@ function makeMarket(){
  // Непрерывный белый каменный цоколь по наружным вертикальным граням основания лавки.
  // Накладки перекрывают торец существующей площадки, поэтому белая облицовка остаётся видимой снаружи.
  const marketPlinthBase=M.stone2.clone();
- marketPlinthBase.color.setHex(0xe8e8e2);
+ marketPlinthBase.color.setHex(0x626663);
  marketPlinthBase.roughness=.88;
  const marketPlinthCap=M.stone.clone();
- marketPlinthCap.color.setHex(0xfffdf2);
+ marketPlinthCap.color.setHex(0x858982);
  marketPlinthCap.roughness=.82;
  // Передняя и задняя стороны — белая фасадная полоса почти от земли.
  for(const z of [-2.455,2.455]){
@@ -2291,19 +2291,25 @@ function makeFactory(){
    }
    box(g,.12,1.08,.84,-3.73,2.28,z,M.stone2,false);
  }
-  // Нижний цоколь боковых фасадов: отдельные тесаные плиты защищают кирпичную кладку от брызг.
+  // Нижний цоколь боковых фасадов: отдельные тёмные тесаные плиты защищают кирпичную кладку.
+ const factoryPlinthStone=M.stone2.clone();
+ factoryPlinthStone.color.setHex(0x555956);
+ factoryPlinthStone.roughness=.9;
+ const factoryPlinthCap=M.stone.clone();
+ factoryPlinthCap.color.setHex(0x747a73);
+ factoryPlinthCap.roughness=.86;
  for(const side of [-1,1]){
    for(let n=0;n<7;n++){
      const z=-2.16+n*.72;
      const width=n%2===0?.66:.58;
-     box(g,.22,.42,width,side*3.78,.43,z,M.stone2,false);
-     box(g,.24,.055,width+.035,side*3.795,.66,z,M.stone,false);
+     box(g,.22,.42,width,side*3.78,.43,z,factoryPlinthStone,false);
+     box(g,.24,.055,width+.035,side*3.795,.66,z,factoryPlinthCap,false);
      // Small recessed joints make each plinth stone read as a separate block.
      box(g,.035,.3,.025,side*3.925,.43,z+width/2-.025,darkMetal,false);
      if(n%2===0)sphere(g,.025,side*3.93,.43,z,M.gold,.7);
    }
    // A continuous narrow cap sheds water and visually closes the base course.
-   box(g,.25,.07,5.16,side*3.8,.69,0,M.stone2,false);
+   box(g,.25,.07,5.16,side*3.8,.69,0,factoryPlinthStone,false);
  }
  // Боковые каменные пояса связывают окна и кирпичные простенки в цельную архитектурную композицию.
  for(const side of [-1,1]){
