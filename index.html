@@ -2300,6 +2300,33 @@ function makeWorldDecor(){
   for(const x of [-10.1,-1.0,1.5,11.6]){
     for(const z of [-5.62,-3.48])box(world,.12,.08,.12,x,.15,z,sidePathJoint,false);
   }
+  // Единая выровненная дорожная система: одинаковая высота плит, ровные края и непрерывные стыки.
+  // Центральная дорога имеет постоянную ширину и точно совпадает с осью главного дома и моста.
+  for(let row=0;row<28;row++){
+    const z=-10.02+row*.88;
+    for(let col=0;col<4;col++){
+      const x=-1.425+col*.95;
+      box(world,.93,.06,.86,x,.15,z,(row+col)%3===0?sidePathTile:M.stone,false);
+    }
+  }
+  // Плавный прямой спуск от уровня каменного моста к ровной дороге участка.
+  for(let row=0;row<6;row++){
+    const z=14.3+row*.6;
+    const rampY=.12+(z-14)/3.6*.9;
+    box(world,4.8,.16,.62,0,rampY-.08,z,sidePathBase,false);
+    for(let col=0;col<4;col++){
+      const x=-1.815+col*1.21;
+      box(world,1.18,.06,.56,x,rampY+.03,z,(row+col)%3===0?sidePathTile:M.stone,false);
+    }
+  }
+  // Поперечная дорога к лавке и заводу проходит строго по одной горизонтали.
+  for(let col=0;col<24;col++){
+    const x=-10.325+col*.95;
+    for(let row=0;row<2;row++){
+      const z=-5.00+row*.90;
+      box(world,.93,.06,.88,x,.15,z,(col+row)%3===0?sidePathTile:M.stone,false);
+    }
+  }
   // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проём оставлен для дороги с моста.
   const fenceMat=mat(0xbeb294),fenceCap=mat(0xe0d4b8),fenceJoint=mat(0x9f9276);
   for(let p=-14;p<=14;p+=1.75){
