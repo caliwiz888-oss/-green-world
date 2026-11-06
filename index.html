@@ -3399,6 +3399,17 @@ function makeWorldLandscape(){
       const beltSide=box(world,.012,.018,.215,x+(x<0?-.139:.139),y+.535,z,bridgeStoneDark);beltSide.castShadow=false;beltSide.receiveShadow=false;
       const beltHighlight=box(world,.22,.012,.014,x,y+.552,z+.14,bridgeStoneLight);beltHighlight.castShadow=false;beltHighlight.receiveShadow=false;
       const beltSideHighlight=box(world,.014,.012,.22,x+(x<0?-.14:.14),y+.552,z,bridgeStoneLight);beltSideHighlight.castShadow=false;beltSideHighlight.receiveShadow=false;
+      // Shallow vertical flutes refine the column faces without crowding the central medallion.
+      for(const yy of [y+.255,y+.485]){
+        for(const dx of [-.067,.067]){
+          const groove=box(world,.012,.105,.009,x+dx,yy,z+.139,bridgeStoneDark);groove.castShadow=false;groove.receiveShadow=false;
+          const glint=box(world,.008,.105,.008,x+dx+.009,yy,z+.14,bridgeStoneLight);glint.castShadow=false;glint.receiveShadow=false;
+        }
+        for(const dz of [-.067,.067]){
+          const groove=box(world,.009,.105,.012,x+(x<0?-.139:.139),yy,z+dz,bridgeStoneDark);groove.castShadow=false;groove.receiveShadow=false;
+          const glint=box(world,.008,.105,.008,x+(x<0?-.14:.14),yy,z+dz+.009,bridgeStoneLight);glint.castShadow=false;glint.receiveShadow=false;
+        }
+      }
       // Larger carved granite medallions give the balusters a stronger, monumental profile.
       const boss=box(world,.145,.145,.034,x,y+.37,z+.145,bridgeStoneDark);boss.rotation.z=Math.PI/4;boss.castShadow=false;boss.receiveShadow=false;
       const bossCore=box(world,.06,.06,.038,x,y+.37,z+.173,bridgeStoneLight);bossCore.rotation.z=Math.PI/4;bossCore.castShadow=false;bossCore.receiveShadow=false;
