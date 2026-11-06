@@ -1651,19 +1651,23 @@ function makeMarket(){
  for(const x of [-2.78,2.78]){
    box(g,.075,.055,4.95,x,3.34,0,timber,false);
  }
- // Выразительный белый цоколь вокруг лавки, по образцу каменного основания фабрики.
- // Нижний пояс начинается от земли; боковые секции вынесены за край плиты, чтобы не перекрываться основанием.
+ // Непрерывный белый каменный цоколь по наружным вертикальным граням основания лавки.
+ // Накладки перекрывают торец существующей площадки, поэтому белая облицовка остаётся видимой снаружи.
  const marketPlinthBase=M.stone2.clone();
- marketPlinthBase.color.setHex(0xe0e0d9);
+ marketPlinthBase.color.setHex(0xe8e8e2);
+ marketPlinthBase.roughness=.88;
  const marketPlinthCap=M.stone.clone();
- marketPlinthCap.color.setHex(0xf8f5eb);
- for(const z of [-2.62,2.62]){
-   box(g,6.28,.46,.42,0,.23,z,marketPlinthBase,false);
-   box(g,6.38,.12,.48,0,.52,z,marketPlinthCap,false);
+ marketPlinthCap.color.setHex(0xfffdf2);
+ marketPlinthCap.roughness=.82;
+ // Передняя и задняя стороны — белая фасадная полоса почти от земли.
+ for(const z of [-2.455,2.455]){
+   box(g,5.92,.34,.12,0,.225,z,marketPlinthBase,false);
+   box(g,5.98,.075,.17,0,.425,z,marketPlinthCap,false);
  }
- for(const x of [-3.14,3.14]){
-   box(g,.42,.46,5.24,x,.23,0,marketPlinthBase,false);
-   box(g,.48,.12,5.34,x,.52,0,marketPlinthCap,false);
+ // Боковые стороны соединяют пояс в единый замкнутый периметр.
+ for(const x of [-2.955,2.955]){
+   box(g,.12,.34,4.82,x,.225,0,marketPlinthBase,false);
+   box(g,.17,.075,4.88,x,.425,0,marketPlinthCap,false);
  }
 
   return disableCastShadows(g);
