@@ -2323,6 +2323,55 @@ function makeWorldDecor(){
     box(world,.38,.045,.38,16.5,.99,z,fenceJoint,false);
   }
 
+  // Декоративная каменная отделка ограждения: цоколь, карниз и рельефные панели.
+  const fenceBaseTrim=mat(0x98896f),fenceLightTrim=mat(0xe8dcc1),fenceRelief=mat(0xcbbd9e),fenceShadow=mat(0x887b65);
+  // Непрерывный нижний цоколь и верхний каменный карниз по четырём сторонам.
+  for(const z of [-14,14]){
+    box(world,28.4,.18,.56,1.25,.10,z,fenceBaseTrim,false);
+    box(world,28.4,.12,.58,1.25,.69,z,fenceLightTrim,false);
+    box(world,28.4,.07,.62,1.25,.78,z,fenceBaseTrim,false);
+  }
+  for(const x of [-14,16.5]){
+    box(world,.56,.18,28.4,x,.10,0,fenceBaseTrim,false);
+    box(world,.58,.12,28.4,x,.69,0,fenceLightTrim,false);
+    box(world,.62,.07,28.4,x,.78,0,fenceBaseTrim,false);
+  }
+  // Рельефные вставки на фасадах стен, с небольшим отступом от поверхности.
+  for(let p=-12.25;p<=12.25;p+=3.5){
+    for(const z of [-14.24,14.24]){
+      if(z===14.24 && Math.abs(p)<3.6) continue;
+      box(world,1.48,.24,.055,p,.43,z,fenceRelief,false);
+      box(world,1.12,.055,.075,p,.43,z+(z<0?-.035:.035),fenceLightTrim,false);
+      box(world,.10,.34,.075,p-.68,.43,z+(z<0?-.035:.035),fenceShadow,false);
+      box(world,.10,.34,.075,p+.68,.43,z+(z<0?-.035:.035),fenceShadow,false);
+    }
+    for(const x of [-14.24,16.74]){
+      box(world,.055,.24,1.48,x,.43,p,fenceRelief,false);
+      box(world,.075,.055,1.12,x+(x<0?-.035:.035),.43,p,fenceLightTrim,false);
+      box(world,.075,.34,.10,x+(x<0?-.035:.035),.43,p-.68,fenceShadow,false);
+      box(world,.075,.34,.10,x+(x<0?-.035:.035),.43,p+.68,fenceShadow,false);
+    }
+  }
+  // Многослойные основания и широкие капители квадратных столбов.
+  for(const x of [-14,16.5])for(const z of [-14,14]){
+    box(world,.84,.14,.84,x,.12,z,fenceBaseTrim,false);
+    box(world,.92,.12,.92,x,.98,z,fenceLightTrim,false);
+    box(world,.78,.10,.78,x,1.09,z,fenceBaseTrim,false);
+    box(world,.48,.08,.48,x,1.18,z,fenceRelief,false);
+  }
+  for(let p=-14;p<=14;p+=3.5){
+    for(const z of [-14,14]){
+      if(z===14 && Math.abs(p)<3.6) continue;
+      box(world,.84,.12,.84,p,.12,z,fenceBaseTrim,false);
+      box(world,.92,.12,.92,p,.98,z,fenceLightTrim,false);
+      box(world,.78,.10,.78,p,1.09,z,fenceBaseTrim,false);
+    }
+    for(const x of [-14,16.5]){
+      box(world,.84,.12,.84,x,.12,p,fenceBaseTrim,false);
+      box(world,.92,.12,.92,x,.98,p,fenceLightTrim,false);
+      box(world,.78,.10,.78,x,1.09,p,fenceBaseTrim,false);
+    }
+  }
   // Входные столбы по краям центральной дорожки.
   for(const x of [-3.5,3.5]){
     box(world,.72,1.05,.72,x,.525,14,fenceMat,false);
