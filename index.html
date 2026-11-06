@@ -4261,6 +4261,17 @@ function drawPlayer(){
     const fallback=group(world,-10.8,0,-8.5);
     fallback.scale.setScalar(1.2);
     const shopWall=mat(0xd6c7a8),shopTimber=mat(0x70472d),shopRoof=new THREE.MeshStandardMaterial({color:0x477a4b,roughness:.76,metalness:.035}),shopTrim=mat(0xc8b898);
+    // Matching stone plinth for the fallback storefront, visible around the full building perimeter.
+    const fallbackPlinthBase=M.stone2.clone();fallbackPlinthBase.color.setHex(0x626663);fallbackPlinthBase.roughness=.88;
+    const fallbackPlinthCap=M.stone.clone();fallbackPlinthCap.color.setHex(0x858982);fallbackPlinthCap.roughness=.82;
+    for(const z of [-2.34,2.34]){
+      box(fallback,5.92,.34,.12,0,.225,z,fallbackPlinthBase,false);
+      box(fallback,5.98,.075,.17,0,.425,z,fallbackPlinthCap,false);
+    }
+    for(const x of [-2.96,2.96]){
+      box(fallback,.12,.34,4.58,x,.225,0,fallbackPlinthBase,false);
+      box(fallback,.17,.075,4.64,x,.425,0,fallbackPlinthCap,false);
+    }
     box(fallback,5.4,2.8,4.4,0,1.4,0,shopWall);
     box(fallback,5.65,.24,4.65,0,2.86,0,M.gold);
     box(fallback,5.1,2.45,.18,0,1.42,2.22,shopTimber);
