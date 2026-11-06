@@ -3348,6 +3348,13 @@ function makeWorldLandscape(){
    archivolt.castShadow=false;archivolt.receiveShadow=false;world.add(archivolt);
    for(const z of [bridgeStartZ+.12,bridgeEndZ-.12]){
      const pier=box(world,.58,.78,.58,x,.52,z,bridgeStoneMid);pier.castShadow=false;pier.receiveShadow=false;
+     // A restrained raised granite panel gives each massive pier a finished, hand-cut face.
+     const pierPanel=box(world,.31,.43,.018,x,.52,z+.302,bridgeStoneDark);pierPanel.castShadow=false;pierPanel.receiveShadow=false;
+     const pierPanelInset=box(world,.255,.365,.022,x,.52,z+.316,bridgeStoneLight);pierPanelInset.castShadow=false;pierPanelInset.receiveShadow=false;
+     // Slim corner quoins articulate the pier edges without adding visual clutter.
+     for(const side of [-1,1]){
+       const quoin=box(world,.045,.7,.035,x+side*.255,.52,z+.305,bridgeStoneLight);quoin.castShadow=false;quoin.receiveShadow=false;
+     }
      // Fine recessed-looking mortar courses articulate the large granite pier blocks.
      for(const y of [.34,.59]){
        for(const face of [-1,1]){
