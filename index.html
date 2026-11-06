@@ -767,6 +767,12 @@ function makeHouse(){
    // Tower roof base: layered eaves and a narrow brass weatherproofing band.
    cylinder(t,1.76,1.76,.12,0,5.98,0,houseStoneTrim,4);
    cylinder(t,1.79,1.79,.055,0,6.055,0,towerGoldMaterial,4);
+   // Четыре небольших латунных заклёпки уточняют крепление пояса у основания шатра.
+   for(const sx of [-1,1]){
+     for(const sz of [-1,1]){
+       sphere(t,.035,sx*1.265,6.09,sz*1.265,towerGoldMaterial,.85);
+     }
+   }
    cone(t,1.72,2.55,0,7.18,0,towerRoofMaterial,4);
    // Три тонких горизонтальных фальца подчёркивают ярусность металлического шатра.
    const towerRoofSeam=towerRoofMaterial.clone();
