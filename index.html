@@ -2663,6 +2663,37 @@ function makeWorldDecor(){
   for(const x of [-14,16.5]){
     box(world,.035,.028,28.25,x+(x<0?-.405:.405),.235,0,fenceLightTrim,false);
   }
+  // Неглубокие декоративные картуши между опорными столбами ограды.
+  // Каждая панель имеет тёмную внутреннюю грань и тонкую светлую каменную рамку.
+  const fencePanel=(cx,cz,side)=>{
+    const w=2.22,h=.48,y=.72,t=.035,d=.026;
+    if(side==="front"||side==="back"){
+      const z=cz+(side==="front"?.205:-.205);
+      box(world,w-.10,h-.10,d,cx,y,z,fenceShadow,false);
+      box(world,w,t,d*1.5,cx,y+h/2,z+(side==="front"?.018:-.018),fenceLightTrim,false);
+      box(world,w,t,d*1.5,cx,y-h/2,z+(side==="front"?.018:-.018),fenceLightTrim,false);
+      for(const dx of [-w/2,w/2])box(world,t,h,d*1.5,cx+dx,y,z+(side==="front"?.018:-.018),fenceLightTrim,false);
+      box(world,.11,.11,d*2,cx,y,z+(side==="front"?.035:-.035),fenceBaseTrim,false);
+    }else{
+      const x=cx+(side==="right"?.205:-.205);
+      box(world,d,h-.10,w-.10,x,y,cz,fenceShadow,false);
+      box(world,d*1.5,h,t,x+(side==="right"?.018:-.018),y,cz+w/2,fenceLightTrim,false);
+      box(world,d*1.5,h,t,x+(side==="right"?.018:-.018),y,cz-w/2,fenceLightTrim,false);
+      for(const dz of [-w/2,w/2])box(world,d*1.5,h,t,x+(side==="right"?.018:-.018),y,cz+dz,fenceLightTrim,false);
+      box(world,d*2,.11,.11,x+(side==="right"?.035:-.035),y,cz,fenceBaseTrim,false);
+    }
+  };
+  for(const side of ["front","back"]){
+    const z=side==="front"?14:-14;
+    for(let x=-12.25;x<=15.75;x+=3.5){
+      if(side==="front"&&Math.abs(x)<4.1)continue;
+      fencePanel(x,z,side);
+    }
+  }
+  for(const side of ["left","right"]){
+    const x=side==="left"?-14:16.5;
+    for(let z=-10.5;z<=10.5;z+=3.5)fencePanel(x,z,side);
+  }
   // Тонкие фаски на торцах верхнего карниза усиливают глубину каменного профиля.
   for(const z of [-14,14]){
     const spans=z===14?[[-14,-3.8],[3.8,16.5]]:[[-14,16.5]];
