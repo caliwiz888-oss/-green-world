@@ -1578,7 +1578,7 @@ function makeFactory(level=1){
  factoryGlassTexture.colorSpace=THREE.SRGBColorSpace;
  factoryGlassTexture.wrapS=factoryGlassTexture.wrapT=THREE.ClampToEdgeWrapping;
  factoryGlassTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- const factoryGlass=factoryGlass.clone();factoryGlass.map=factoryGlassTexture;factoryGlass.roughness=.28;factoryGlass.metalness=.1;factoryGlass.needsUpdate=true;
+ const factoryGlass=M.glass.clone();factoryGlass.map=factoryGlassTexture;factoryGlass.roughness=.28;factoryGlass.metalness=.1;factoryGlass.needsUpdate=true;
  // Subtle repeating masonry relief gives the factory brickwork individual courses and mortar joints.
  const brickCanvas=document.createElement('canvas');brickCanvas.width=brickCanvas.height=256;
  const brickCtx=brickCanvas.getContext('2d');
