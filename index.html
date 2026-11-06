@@ -3284,11 +3284,43 @@ function makeWorldLandscape(){
    const edgeCurve=new THREE.CatmullRomCurve3(edgePoints);
    const edge=new THREE.Mesh(new THREE.TubeGeometry(edgeCurve,48,.105,8,false),bridgeEdgeMaterial);edge.castShadow=false;edge.receiveShadow=false;world.add(edge);
  }
- // Fine transverse joints follow the arch instead of forming a flat striped surface.
- const bridgeJointPoints=[];
- for(let i=1;i<18;i++){const z=bridgeStartZ+bridgeLength*i/18,y=bridgeDeckY(z)+.009;bridgeJointPoints.push(new THREE.Vector3(-2.28,y,z),new THREE.Vector3(2.28,y,z));}
- const bridgeJointGeometry=new THREE.BufferGeometry().setFromPoints(bridgeJointPoints);
- const bridgeJoints=new THREE.LineSegments(bridgeJointGeometry,new THREE.LineBasicMaterial({color:0x41494c,transparent:true,opacity:.38}));bridgeJoints.frustumCulled=false;world.add(bridgeJoints);
+ // Individual staggered granite setts replace the old transverse stripe lines.
+ // The dark bed remains visible only in the narrow joints, like real cobblestone paving.
+ bridgeDeckMaterial.color.setHex(0x50595d);
+ const settPositions=[],settColors=[],settUvs=[],settIndices=[];
+ const settOutline=[[ -.5,-.34],[-.34,-.5],[.34,-.5],[.5,-.34],[.5,.34],[.34,.5],[-.34,.5],[-.5,.34]];
+ const settColumns=10,settRows=16,settPitchX=.45,settPitchZ=.565;
+ for(let row=0;row<settRows;row++){
+   const centerZ=bridgeStartZ+.29+row*settPitchZ;
+   const stagger=row%2?.225:0;
+   for(let col=0;col<settColumns;col++){
+     const centerX=-2.025+col*settPitchX+stagger;
+     if(centerX< -2.2||centerX>2.2)continue;
+     const width=.415+(((row*7+col*3)%5)-2)*.006;
+     const depth=.515+(((row*5+col*11)%5)-2)*.007;
+     const base=settPositions.length/3;
+     const shade=.56+((row*13+col*17)%9)*.014;
+     const variation=((row*3+col*7)%5)*.012;
+     for(let k=0;k<8;k++){
+       const [ox,oz]=settOutline[k];
+       const x=centerX+ox*width,z=centerZ+oz*depth;
+       const y=bridgeDeckY(z)+.035;
+       settPositions.push(x,y,z);
+       const tone=shade+(k%3===0?variation*.35:0);
+       settColors.push(tone,tone*1.025,tone*1.035);
+       settUvs.push((x+2.4)/4.8,(z-bridgeStartZ)/bridgeLength);
+     }
+     for(let k=1;k<7;k++)settIndices.push(base,base+k,base+k+1);
+   }
+ }
+ const settGeometry=new THREE.BufferGeometry();
+ settGeometry.setAttribute('position',new THREE.Float32BufferAttribute(settPositions,3));
+ settGeometry.setAttribute('color',new THREE.Float32BufferAttribute(settColors,3));
+ settGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(settUvs,2));
+ settGeometry.setIndex(settIndices);settGeometry.computeVertexNormals();
+ const settMaterial=new THREE.MeshStandardMaterial({color:0xffffff,map:surfaceMaps.stone,roughness:.97,metalness:0,vertexColors:true});
+ const bridgeSetts=new THREE.Mesh(settGeometry,settMaterial);
+ bridgeSetts.castShadow=false;bridgeSetts.receiveShadow=false;world.add(bridgeSetts);
  // Two substantial masonry arch ribs beneath the deck.
  const bridgeRibMaterial=bridgeStoneDark;
  for(const x of [-1.72,1.72]){
