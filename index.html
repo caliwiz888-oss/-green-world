@@ -566,6 +566,25 @@ function makeHouse(){
  box(g,10,4.5,8,0,2.25,0,houseStone);
  box(g,10.5,.38,8.5,0,4.55,0,houseStoneTrim);
  box(g,10.25,.16,8.25,0,.18,0,houseStoneTrim);
+ // Декоративные угловые блоки цоколя главного дома.
+ const plinthCornerDark=houseStoneTrim.clone();
+ plinthCornerDark.color.setHex(0x747a73);
+ plinthCornerDark.roughness=.94;
+ plinthCornerDark.needsUpdate=true;
+ const plinthCornerLight=houseStone.clone();
+ plinthCornerLight.color.setHex(0x99998f);
+ plinthCornerLight.roughness=.92;
+ plinthCornerLight.needsUpdate=true;
+ for(const sx of [-1,1]) for(const sz of [-1,1]){
+   const x=sx*5.04,z=sz*4.04;
+   for(let i=0;i<3;i++){
+     const y=.28+i*.22;
+     box(g,.34,.19,.22,x-sx*.13,y,z,plinthCornerDark,false);
+     box(g,.22,.19,.34,x,y,z-sz*.13,plinthCornerDark,false);
+   }
+   box(g,.38,.09,.38,x,.88,z,plinthCornerLight,false);
+ }
+
  // Ненавязчивая фактура матовой кровли: тонкие горизонтальные полосы и лёгкая неоднородность тона.
  const manorRoofCanvas=document.createElement('canvas');manorRoofCanvas.width=256;manorRoofCanvas.height=256;
  const manorRoofCtx=manorRoofCanvas.getContext('2d');
