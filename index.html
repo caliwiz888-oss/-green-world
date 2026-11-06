@@ -2033,7 +2033,8 @@ function makeFactory(){
  // Keep the factory in its approved back-right position and inside the camera frame.
  // Отодвинут немного назад, чтобы фасадная линия совпадала с главным домом.
  const g=group(world,11.8,0,-9.61);
- const brick=mat(0x9b5943),brickLight=mat(0xb96c50),darkMetal=mat(0x39474a),metal=mat(0x657477),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
+ // Новая палитра завода: тёплая песочная кладка, глубокий хвойный металл и мягкая латунь.
+ const brick=mat(0x927b65),brickLight=mat(0xb29a7e),darkMetal=mat(0x26372f),metal=mat(0x52665b),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
  // Отдельное заводское остекление: спокойные отражения не затрагивают окна главного дома.
  const factoryGlassCanvas=document.createElement('canvas');factoryGlassCanvas.width=128;factoryGlassCanvas.height=128;
  const factoryGlassCtx=factoryGlassCanvas.getContext('2d');
@@ -2164,7 +2165,8 @@ function makeFactory(){
  roofTexture.repeat.set(2,1);
  roofTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const roofBump=roofTexture.clone();roofBump.colorSpace=THREE.NoColorSpace;roofBump.needsUpdate=true;
- const roofMetal=new THREE.MeshStandardMaterial({color:0xffffff,map:roofTexture,bumpMap:roofBump,bumpScale:.015,roughness:.59,metalness:.43});
+ // Матовая хвойно-зелёная фальцевая кровля связывает завод с архитектурой главного дома и лавки.
+ const roofMetal=new THREE.MeshStandardMaterial({color:0x34483a,map:roofTexture,bumpMap:roofBump,bumpScale:.015,roughness:.72,metalness:.22});
  // Tall pitched roof with a crisp ridge, dark eaves and metal seams.
  const roofA=box(g,3.95,.3,5.85,-1.48,4.72,0,roofMetal);roofA.rotation.z=.34;
  const roofB=box(g,3.95,.3,5.85,1.48,4.72,0,roofMetal);roofB.rotation.z=-.34;
