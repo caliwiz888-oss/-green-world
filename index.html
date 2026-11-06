@@ -2955,12 +2955,33 @@ function makeFactory(){
  factoryVentTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const factoryVentBump=factoryVentTexture.clone();factoryVentBump.colorSpace=THREE.NoColorSpace;factoryVentBump.needsUpdate=true;
  factoryVentMetal.map=factoryVentTexture;factoryVentMetal.bumpMap=factoryVentBump;factoryVentMetal.bumpScale=.006;factoryVentMetal.needsUpdate=true;
+ // Тёплая шлифованная бронза для уже существующих горизонтальных ламелей решёток.
+ const factoryVentTrimMaterial=M.gold.clone();
+ const factoryVentTrimCanvas=document.createElement('canvas');factoryVentTrimCanvas.width=128;factoryVentTrimCanvas.height=128;
+ const factoryVentTrimCtx=factoryVentTrimCanvas.getContext('2d');
+ const ventBronzeGradient=factoryVentTrimCtx.createLinearGradient(0,0,0,128);
+ ventBronzeGradient.addColorStop(0,'#d0bd91');ventBronzeGradient.addColorStop(.48,'#a88e60');ventBronzeGradient.addColorStop(1,'#d7c69d');
+ factoryVentTrimCtx.fillStyle=ventBronzeGradient;factoryVentTrimCtx.fillRect(0,0,128,128);
+ for(let i=0;i<240;i++){
+   const y=(i*37+5)%128,x=(i*53+9)%128,len=8+(i*19)%112;
+   factoryVentTrimCtx.strokeStyle=i%3===0?'rgba(54,43,27,.13)':'rgba(255,255,255,.17)';
+   factoryVentTrimCtx.lineWidth=.4+(i%3)*.22;
+   factoryVentTrimCtx.beginPath();factoryVentTrimCtx.moveTo(x,y);factoryVentTrimCtx.lineTo(Math.min(127,x+len),y+.12);factoryVentTrimCtx.stroke();
+ }
+ const factoryVentTrimTexture=new THREE.CanvasTexture(factoryVentTrimCanvas);
+ factoryVentTrimTexture.colorSpace=THREE.SRGBColorSpace;
+ factoryVentTrimTexture.wrapS=factoryVentTrimTexture.wrapT=THREE.RepeatWrapping;
+ factoryVentTrimTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const factoryVentTrimBump=factoryVentTrimTexture.clone();factoryVentTrimBump.colorSpace=THREE.NoColorSpace;factoryVentTrimBump.needsUpdate=true;
+ factoryVentTrimMaterial.map=factoryVentTrimTexture;factoryVentTrimMaterial.bumpMap=factoryVentTrimBump;
+ factoryVentTrimMaterial.bumpScale=.004;factoryVentTrimMaterial.roughness=.52;factoryVentTrimMaterial.metalness=.48;
+ factoryVentTrimMaterial.needsUpdate=true;
  // Three recessed service vents on the quieter left wall, with fine metal grilles.
  for(const z of [-1.55,0,1.55]){
    box(g,.1,.92,.72,-3.7,2.28,z,darkMetal,false);
    box(g,.055,.72,.54,-3.77,2.28,z,factoryVentMetal,false);
    for(const y of [2.02,2.15,2.28,2.41,2.54]){
-     box(g,.035,.045,.5,-3.81,y,z,M.gold,false);
+     box(g,.035,.045,.5,-3.81,y,z,factoryVentTrimMaterial,false);
    }
    box(g,.12,1.08,.84,-3.73,2.28,z,M.stone2,false);
  }
