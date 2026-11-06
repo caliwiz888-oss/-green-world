@@ -3270,7 +3270,16 @@ function makeWorldLandscape(){
  for(let iz=0;iz<bridgeSegments;iz++){const l=iz*(bridgeAcross+1),r=l+bridgeAcross+1,lb=bridgeTopCount+l,rb=lb+bridgeAcross+1;bridgeIndices.push(l,lb,r,l,lb,lb+bridgeAcross+1);bridgeIndices.push(r,r+bridgeAcross+1,lb,r+bridgeAcross+1,rb,lb); }
  for(let ix=0;ix<bridgeAcross;ix++){const p=ix,q=p+1,lb=bridgeTopCount+p;bridgeIndices.push(p,q,lb,q,lb+1,lb);const e=bridgeSegments*(bridgeAcross+1)+ix,eb=bridgeTopCount+e;bridgeIndices.push(e,eb,e+1,e+1,eb,eb+1);}
  bridgeDeckGeometry.setAttribute('position',new THREE.Float32BufferAttribute(bridgeVerts,3));bridgeDeckGeometry.setIndex(bridgeIndices);bridgeDeckGeometry.computeVertexNormals();
- const bridgeDeck=new THREE.Mesh(bridgeDeckGeometry,new THREE.MeshStandardMaterial({color:0xc8bda5,roughness:.9,metalness:0}));bridgeDeck.castShadow=false;bridgeDeck.receiveShadow=false;world.add(bridgeDeck);
+ const bridgeDeckMaterial=new THREE.MeshStandardMaterial({color:0xd0c5ae,map:surfaceMaps.stone,roughness:.92,metalness:0});
+ const bridgeDeckBump=surfaceMaps.stone.clone();bridgeDeckBump.colorSpace=THREE.NoColorSpace;bridgeDeckBump.repeat.set(1.4,2.2);bridgeDeckBump.needsUpdate=true;bridgeDeckMaterial.bumpMap=bridgeDeckBump;bridgeDeckMaterial.bumpScale=.055;
+ const bridgeDeck=new THREE.Mesh(bridgeDeckGeometry,bridgeDeckMaterial);bridgeDeck.castShadow=false;bridgeDeck.receiveShadow=false;world.add(bridgeDeck);
+ // Subtle stone edge courses give the deck a finished, hand-built silhouette.
+ const bridgeEdgeMaterial=new THREE.MeshStandardMaterial({color:0xb5a88f,map:surfaceMaps.stone,roughness:.94});
+ for(const x of [-2.43,2.43]){
+   const edgePoints=[];for(let i=0;i<=24;i++){const z=bridgeStartZ+bridgeLength*i/24;edgePoints.push(new THREE.Vector3(x,bridgeDeckY(z)+.035,z));}
+   const edgeCurve=new THREE.CatmullRomCurve3(edgePoints);
+   const edge=new THREE.Mesh(new THREE.TubeGeometry(edgeCurve,48,.105,8,false),bridgeEdgeMaterial);edge.castShadow=false;edge.receiveShadow=false;world.add(edge);
+ }
  // Fine transverse joints follow the arch instead of forming a flat striped surface.
  const bridgeJointPoints=[];
  for(let i=1;i<18;i++){const z=bridgeStartZ+bridgeLength*i/18,y=bridgeDeckY(z)+.009;bridgeJointPoints.push(new THREE.Vector3(-2.28,y,z),new THREE.Vector3(2.28,y,z));}
@@ -3282,6 +3291,13 @@ function makeWorldLandscape(){
    const ribPoints=[];for(let i=0;i<=36;i++){const t=i/36,z=bridgeStartZ+.18+(bridgeLength-.36)*t,archY=.31+.57*Math.pow(2*t-1,2);ribPoints.push(new THREE.Vector3(x,archY,z));}
    const ribCurve=new THREE.CatmullRomCurve3(ribPoints);
    const rib=new THREE.Mesh(new THREE.TubeGeometry(ribCurve,72,.19,8,false),bridgeRibMaterial);rib.castShadow=false;rib.receiveShadow=false;world.add(rib);
+   // Individual voussoir stones trace the arch and make its masonry readable at game scale.
+   for(let i=0;i<=14;i++){
+     const t=.035+i*.93/14,z=bridgeStartZ+.18+(bridgeLength-.36)*t;
+     const y=.31+.57*Math.pow(2*t-1,2),slope=2.28*(2*t-1)/(bridgeLength-.36);
+     const voussoir=box(world,.16,.28,.57,x+(x<0?-.18:.18),y,z,M.stone2);
+     voussoir.rotation.x=-Math.atan(slope);voussoir.castShadow=false;voussoir.receiveShadow=false;
+   }
    for(const z of [bridgeStartZ+.12,bridgeEndZ-.12]){const pier=box(world,.58,.78,.58,x,.52,z,M.stone2);pier.castShadow=false;pier.receiveShadow=false;}
  }
  // Repeated stone balusters and continuous curved handrails.
