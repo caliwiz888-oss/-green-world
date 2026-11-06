@@ -4626,56 +4626,60 @@ function makeWorldLandscape(){
  const rockPalette=[new THREE.Color(0x4c4a45),new THREE.Color(0x666158),new THREE.Color(0x81796d),new THREE.Color(0x5a5b57),new THREE.Color(0x918879)];
  const snowPalette=[new THREE.Color(0xdce7e3),new THREE.Color(0xf3f5ef),new THREE.Color(0xc5d4d1)];
  function buildMountainMassif(x,z,h,r,index){
-   const positions=[],colors=[];
-   const rings=[1,.79,.53,.27,0];
-   const levels=[0,.29,.58,.82,1];
-   const sectors=9;
-   const ringPoints=[];
+   // Плавный альпийский массив: единая сглаженная поверхность без повторяющихся цветных полос.
+   const positions=[],colors=[],indices=[];
+   const sectors=24;
+   const rings=[1,.91,.79,.65,.49,.33,.17];
+   const levels=[0,.14,.31,.49,.66,.81,.93];
+   const baseRock=new THREE.Color(0x625e56);
+   const sunRock=new THREE.Color(0x82796b);
+   const shadowRock=new THREE.Color(0x4c4d4a);
+   const snowColor=new THREE.Color(0xe8efeb);
+   const summit=[];
    for(let ring=0;ring<rings.length;ring++){
      const points=[];
      for(let j=0;j<sectors;j++){
-       const a=(j/sectors)*Math.PI*2+(index%2)*.17;
-       const irregular=1+.13*Math.sin(j*2.17+index*1.7)+.055*Math.cos(j*3.1+index);
-       const radius=r*rings[ring]*irregular;
-       const ridgeNoise=ring===4?0:(Math.sin(j*1.83+index*2.1)*.075+Math.cos(j*2.7-index)*.035);
-       const px=Math.cos(a)*radius+(ring===4?(index%3-1)*r*.09:0);
-       const pz=Math.sin(a)*radius+(ring===4?-.12*r:0);
-       const py=h*(levels[ring]+ridgeNoise*(ring===0?.18:1));
+       const a=j/sectors*Math.PI*2+(index%2)*.11;
+       const ridge=Math.sin(j*1.71+index*1.9)*.105+Math.cos(j*.83-index*.7)*.055;
+       const shoulder=Math.sin(j*2.37+index)*.035;
+       const radius=r*rings[ring]*(1+ridge*.48+shoulder);
+       const peakShape=1+ridge*.72;
+       const px=Math.cos(a)*radius;
+       const pz=Math.sin(a)*radius;
+       const py=h*(levels[ring]*peakShape+Math.sin(j*1.31+index)*.012*(1-levels[ring]));
        points.push([px,py,pz]);
+       positions.push(px,py,pz);
+       const elevation=THREE.MathUtils.clamp(py/h,0,1);
+       const light=THREE.MathUtils.clamp(.48+.18*Math.sin(a+index*.8)+.09*Math.cos(a*2-index),.2,.78);
+       const rock=shadowRock.clone().lerp(baseRock,light+.18).lerp(sunRock,light*.28);
+       const snowBlend=THREE.MathUtils.smoothstep(elevation,.79,.94);
+       const color=rock.lerp(snowColor,snowBlend);
+       colors.push(color.r,color.g,color.b);
      }
-     ringPoints.push(points);
+     summit.push(points);
    }
-   function triangle(a,b,c,color){
-     for(const p of [a,b,c]){positions.push(p[0],p[1],p[2]);colors.push(color.r,color.g,color.b);}
-   }
-   for(let ring=0;ring<3;ring++){
+   const apexIndex=positions.length/3;
+   positions.push(0,h,0);
+   colors.push(snowColor.r,snowColor.g,snowColor.b);
+   for(let ring=0;ring<rings.length-1;ring++){
      for(let j=0;j<sectors;j++){
-       const next=(j+1)%sectors;
-       const a=ringPoints[ring][j],b=ringPoints[ring][next];
-       const c=ringPoints[ring+1][j],d=ringPoints[ring+1][next];
-       const shade=(j+index*3+ring*2)%rockPalette.length;
-       const col=rockPalette[shade];
-       triangle(a,c,b,col);triangle(b,c,d,rockPalette[(shade+1)%rockPalette.length]);
+       const a=ring*sectors+j,b=ring*sectors+(j+1)%sectors;
+       const c=(ring+1)*sectors+j,d=(ring+1)*sectors+(j+1)%sectors;
+       indices.push(a,c,b,b,c,d);
      }
    }
-   const top=ringPoints[4][0];
-   for(let j=0;j<sectors;j++){
-     const next=(j+1)%sectors;
-     const a=ringPoints[3][j],b=ringPoints[3][next];
-     const snowSide=((j+index*2)%sectors);
-     const cap=snowSide===1||snowSide===2||snowSide===6;
-     const c=cap?snowPalette[(j+index)%snowPalette.length]:rockPalette[(j+index)%rockPalette.length];
-     triangle(a,top,b,c);
-   }
+   const last=(rings.length-1)*sectors;
+   for(let j=0;j<sectors;j++)indices.push(last+j,apexIndex,last+(j+1)%sectors);
    const geometry=new THREE.BufferGeometry();
    geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
    geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+   geometry.setIndex(indices);
    geometry.computeVertexNormals();
-   const massif=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.98,flatShading:true}));
-   massif.position.set(x,0,z);massif.castShadow=false;massif.receiveShadow=false;world.add(massif);
-   // Отдельный скальный контрфорс формирует характерный массивный профиль у подножия.
-   const spur=cone(world,r*.38,h*.46,x+(index%2?-.48:.52),h*.22,z+r*.22,rockPalette[(index+2)%rockPalette.length],5);
-   spur.rotation.z=index%2?.18:-.16;spur.rotation.x=.12;spur.castShadow=false;spur.receiveShadow=false;
+   const material=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.96,metalness:0,flatShading:false});
+   const massif=new THREE.Mesh(geometry,material);
+   massif.position.set(x,0,z);
+   massif.castShadow=false;massif.receiveShadow=false;
+   world.add(massif);
  }
  for(let i=0;i<peaks.length;i++)buildMountainMassif(peaks[i][0],peaks[i][1],peaks[i][2],peaks[i][3],i);
  // Три округлых зелёных холма перед горами удалены; лес остаётся единственным переходом к скальному хребту.
