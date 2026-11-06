@@ -2570,6 +2570,9 @@ function makeWorldLandscape(){
  }
  // Far blue-grey peaks sit behind the main range, giving the horizon a true layered-distance effect.
  const farRockBack=mat(0x849b9c),farSnowBack=mat(0xcbd9d6);
+ // Дальние вершины используют те же минеральные и снежные карты, что и основной хребет.
+ farRockBack.map=alpineRockTexture;farRockBack.bumpMap=alpineRockBump;farRockBack.bumpScale=.032;farRockBack.roughness=.98;farRockBack.needsUpdate=true;
+ farSnowBack.map=snowTexture;farSnowBack.bumpMap=snowBump;farSnowBack.bumpScale=.008;farSnowBack.roughness=.99;farSnowBack.needsUpdate=true;
  for(const [x,z,h,r] of [[-29,-49,9,7],[-18,-54,12,8],[-5,-57,10,7],[9,-55,13,8],[23,-51,10,7],[32,-47,8,6]]){
    cone(world,r,h,x,h*.46,z,farRockBack,8);
    cone(world,r*.38,h*.31,x-.35,h*.79,z+.12,farSnowBack,7);
