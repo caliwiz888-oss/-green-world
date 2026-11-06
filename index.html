@@ -819,6 +819,12 @@ function makeHouse(){
      // Внешние тонкие каменные стойки формируют второй, более спокойный контур окна.
      box(t,.035,.92,.035,-.5,3.35,z*1.145,towerStoneMaterial,false);
      box(t,.035,.92,.035,.5,3.35,z*1.145,towerStoneMaterial,false);
+     // Миниатюрные латунные крепёжные точки подчёркивают наружные каменные стойки.
+     for(const px of [-.5,.5]){
+       for(const py of [3.08,3.62]){
+         sphere(t,.022,px,py,z*1.18,towerGoldMaterial,.8);
+       }
+     }
      box(t,.82,.12,.2,0,2.72,z*1.035,towerDetailStone);
      box(t,.1,1.28,.18,-.39,3.35,z*1.035,towerGoldMaterial,false);
      box(t,.1,1.28,.18,.39,3.35,z*1.035,towerGoldMaterial,false);
