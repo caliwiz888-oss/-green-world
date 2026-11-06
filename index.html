@@ -2856,8 +2856,6 @@ function makeWorldDecor(){
   // Тёплая кирпичная кладка: светлый песочно-терракотовый кирпич чередуется с глубоким обожжённым.
   const roadBrickLight=mat(0xc98b62,.94);
   const roadBrickDark=mat(0x754633,.96);
-  const roadBrickWarm=mat(0xa96849,.95);
-  const roadMortar=mat(0x59483d,.98);
   // Единая дорожная система: тёмный раствор подчёркивает швы между отдельными кирпичами.
   // Центральная дорога: ровная ось от крыльца главного дома к мосту, одинаковая ширина по всей длине.
   const roadBase=mat(0x59483d,.98);
@@ -2866,7 +2864,7 @@ function makeWorldDecor(){
     const z=-9.35+row*.94;
     for(let col=0;col<4;col++){
       const x=-1.44+col*.96;
-      box(world,.935,.07,.915,x,.13,z,(row+col)%2===0?roadBrickLight:((row+col)%4===1?roadBrickDark:roadBrickWarm),false);
+      box(world,.935,.07,.915,x,.13,z,(row+col)%2===0?roadBrickLight:roadBrickDark,false);
     }
   }
   // Поперечная дорога проходит ровно от внутренней грани левого забора до внутренней грани правого.
@@ -2876,7 +2874,7 @@ function makeWorldDecor(){
     const x=-13.27+col*.968;
     for(let row=0;row<2;row++){
       const z=-5.025+row*.95;
-      box(world,.958,.07,.94,x,.13,z,(col+row)%2===0?roadBrickLight:((col+row)%4===1?roadBrickDark:roadBrickWarm),false);
+      box(world,.958,.07,.94,x,.13,z,(col+row)%2===0?roadBrickLight:roadBrickDark,false);
     }
   }
   // Тёмный контур и каменные бордюры подчёркивают геометрию всех основных дорожек.
@@ -2933,7 +2931,7 @@ function makeWorldDecor(){
     box(world,4.0,.12,.48,0,deckY-.06,z,roadBase,false);
     for(let col=0;col<4;col++){
       const x=-1.44+col*.96;
-      box(world,.935,.065,.46,x,deckY-.0325,z,(row+col)%2===0?roadBrickLight:((row+col)%4===1?roadBrickDark:roadBrickWarm),false);
+      box(world,.935,.065,.46,x,deckY-.0325,z,(row+col)%2===0?roadBrickLight:roadBrickDark,false);
     }
   }
   // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проём оставлен для дороги с моста.
