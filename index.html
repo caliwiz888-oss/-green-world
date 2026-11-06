@@ -2577,6 +2577,16 @@ function makeWorldLandscape(){
    alpineRockCtx.fillStyle=g;alpineRockCtx.beginPath();
    alpineRockCtx.ellipse(x,y,rx,ry,(i%6-3)*.13,0,Math.PI*2);alpineRockCtx.fill();
  }
+ // Короткие уступчатые тени усиливают ощущение естественных скальных пластов, не меняя форму гор.
+ for(let i=0;i<9;i++){
+   const x=(i*37+15)%128,y=(i*47+21)%128,len=12+(i*7)%19,drop=2+(i%4);
+   alpineRockCtx.strokeStyle=i%3===0?'rgba(25,39,38,.105)':'rgba(235,238,225,.085)';
+   alpineRockCtx.lineWidth=.55+(i%2)*.25;alpineRockCtx.beginPath();
+   alpineRockCtx.moveTo(x,y);
+   alpineRockCtx.lineTo(x+len*.38,y+drop*.35);
+   alpineRockCtx.lineTo(x+len,y+drop);
+   alpineRockCtx.stroke();
+ }
  const alpineRockTexture=new THREE.CanvasTexture(alpineRockCanvas);
  alpineRockTexture.colorSpace=THREE.SRGBColorSpace;
  alpineRockTexture.wrapS=alpineRockTexture.wrapT=THREE.RepeatWrapping;
