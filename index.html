@@ -495,7 +495,8 @@ function makeHouse(){
  const manorDoorTrim=M.wood2.clone();manorDoorTrim.map=doorTexture;manorDoorTrim.bumpMap=doorBump;manorDoorTrim.bumpScale=.012;manorDoorTrim.roughness=.72;manorDoorTrim.needsUpdate=true;
  // Отдельная отделка входных ступеней: плотный матовый известняк с мягким микрорельефом.
  const entranceStepMaterial=houseStone.clone();entranceStepMaterial.color.setHex(0xd8d2c7);entranceStepMaterial.roughness=.94;entranceStepMaterial.bumpScale=.032;entranceStepMaterial.needsUpdate=true;
- const entranceCarvedStone=houseStoneTrim.clone();entranceCarvedStone.color.setHex(0xe5dfd3);entranceCarvedStone.roughness=.9;entranceCarvedStone.bumpScale=.028;entranceCarvedStone.needsUpdate=true;
+ // Тонкая настройка матового рельефа резного камня вокруг входа: мягче блики, чуть выразительнее микрофактура.
+ const entranceCarvedStone=houseStoneTrim.clone();entranceCarvedStone.color.setHex(0xe5dfd3);entranceCarvedStone.roughness=.94;entranceCarvedStone.bumpScale=.034;entranceCarvedStone.needsUpdate=true;
  const manorFacadeTrim=houseStoneTrim.clone();manorFacadeTrim.color.setHex(0xded8cc);manorFacadeTrim.roughness=.93;manorFacadeTrim.bumpScale=.035;manorFacadeTrim.needsUpdate=true;
  // Холодные отражения на стекле добавляют глубину окнам, не меняя их рам и размеров.
  const glassCanvas=document.createElement('canvas');glassCanvas.width=128;glassCanvas.height=128;
