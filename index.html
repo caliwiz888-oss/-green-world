@@ -4724,16 +4724,7 @@ function makeWorldLandscape(){
    peaks:[[-39,3.2,8],[-25,4.6,7],[-9,3.5,8],[8,4.8,9],[27,3.7,7],[41,2.8,6]],
    snowMin:30,snowMax:35,opacity:.56
  });
- // Убираем отбрасывание и приём теней на всех снежных поверхностях гор.
- const mountainSnowMaterials=[snow,farSnowBack,farSnowShade];
- for(const object of world.children){
-   if(!object.isMesh) continue;
-   const materials=Array.isArray(object.material)?object.material:[object.material];
-   if(materials.some(material=>mountainSnowMaterials.includes(material))){
-     object.castShadow=false;
-     object.receiveShadow=false;
-   }
- }
+ // Все новые горные сетки уже настроены без теней для стабильной производительности.
  // Soft, translucent mountain mist settles in the valleys without obscuring the playable area.
  const mistMat=new THREE.MeshBasicMaterial({color:0xe3eee9,transparent:true,opacity:.16,depthWrite:false,fog:false});
  for(const [x,y,z,sx,sy,sz] of [[-17,3.2,-39,10,.7,2.1],[3,3.8,-41,13,.8,2.4],[23,3.1,-37,9,.65,2]]){
