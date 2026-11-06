@@ -941,7 +941,11 @@ function makeHouse(){
      }
    }
      // Резные каменные наличники и замковый камень подчёркивают арочную форму окон.
-     if(front){
+     for(const axis of ["front","back","left","right"]){
+       const front=axis==="front"||axis==="back";
+       const sign=(axis==="back"||axis==="left")?-1:1;
+       const face=sign*1.205;
+       if(front){
        box(t,.12,1.38,.16,-.48,3.22,face+sign*.055,towerTrimMaterial,false);
        box(t,.12,1.38,.16,.48,3.22,face+sign*.055,towerTrimMaterial,false);
        box(t,.78,.13,.18,0,4.16,face+sign*.06,towerTrimMaterial,false);
@@ -963,6 +967,7 @@ function makeHouse(){
          box(t,.18,.12,.2,face+sign*.06,2.42,sz,towerTrimMaterial,false);
          sphere(t,.1,face+sign*.1,2.34,sz,towerMetal,.8);
        }
+
      }
    // Восьмигранный шатёр с широким каменным карнизом и тонким металлическим кантом.
    cylinder(t,1.48,1.48,.18,0,5.94,0,towerTrimMaterial,8);
