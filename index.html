@@ -178,7 +178,7 @@ const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
 let token='',busy=false,player=null,daily=null,selected=null;
 let cameraRadius=55,cameraHeight=31,pointer=null,dragged=false;
-let plots=[],treeObjects=[],buildingObjects=[];
+let plots=[],treeObjects=[],buildingObjects=[],lastDrawSignature='';
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,78,175);
 const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,.1,320);
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});
@@ -3551,7 +3551,7 @@ function makeWorldLandscape(){
  box(world,3.8,.18,5.4,25.4,-2.25,22.2,water,false);
 }
 window.GREEN_WORLD_STARTUP_STAGE='building-world';
-buildingObjects.push(makeHouse());makeWorldDecor();makeWorldLandscape();
+makeWorldDecor();makeWorldLandscape();
 window.GREEN_WORLD_STARTUP_STAGE='world-built';
 const tileGeo=new THREE.BoxGeometry(1.28,.16,1.28);
 const tiles=[];
@@ -3562,6 +3562,15 @@ function clearDynamic(){for(const t of treeObjects)world.remove(t);treeObjects=[
 function unlocked(i){const level=Math.max(1,Number(player?.landLevel)||1),side=[0,6,10,14,18,20][level],start=Math.floor((20-side)/2),x=Math.floor(i/20),z=i%20;return x>=start&&x<start+side&&z>=start&&z<start+side}
 function drawPlayer(){
   if(!player)return;
+  // Экономические ответы сервера часто меняют только монеты и склад.
+  // Не пересоздаём 3D-модели при таких обновлениях: это исключает краткие вспышки геометрии.
+  const sceneSignature=JSON.stringify({
+    plots:(player.plots||[]).map(p=>[p.index,p.type||'apple',!!p.grown]).sort((a,b)=>a[0]-b[0]),
+    factoryLevel:player.factoryLevel||1,
+    marketLevel:player.marketLevel||1,
+    landLevel:player.landLevel||1
+  });
+  if(sceneSignature===lastDrawSignature){updateHud();return;}
   clearDynamic();
   const map=new Map((player.plots||[]).map(p=>[p.index,p]));
   // Завод создаётся первым и независимо от остальных объектов мира.
@@ -3637,6 +3646,7 @@ function drawPlayer(){
       tiles[i].material.needsUpdate=true;
     }catch(tileError){console.error('[render] Plot tile update failed:',tileError)}
   }
+  lastDrawSignature=sceneSignature;
   try{updateHud()}catch(hudError){console.error('[render] HUD update failed:',hudError)}
 }
 function updateHud(){if(!player)return;$('coins').textContent=Number(player.coins||0).toLocaleString('ru-RU');$('apples').textContent=Number(player.apples||0).toLocaleString('ru-RU');$('level').textContent=player.playerLevel||1;$('land-status').textContent=(player.unlockedPlots||36)+' / 400 открытых участков';$('inventory-apples').textContent=player.apples||0;$('inventory-fruit').textContent=Object.entries(player.fruitInventory||{}).filter(([,v])=>v>0).map(([k,v])=>k+': '+v).join(' · ')||'Пока пусто';$('inventory-processed').textContent=Object.entries(player.processedInventory||{}).filter(([,v])=>v>0).map(([k,v])=>k+': '+v).join(' · ')||'Пока пусто';$('expand').disabled=(player.landLevel||1)>=5;$('build-market').disabled=!!player.hasMarket;$('build-factory').disabled=!!player.hasFactory;$('upgrade-market').disabled=!player.hasMarket||player.marketLevel>=5;$('upgrade-factory').disabled=!player.hasFactory||player.factoryLevel>=5;$('upgrade-orchard').textContent='Улучшить сад · '+(150*(player.orchardLevel||1))+' GC'}
