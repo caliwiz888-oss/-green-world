@@ -414,6 +414,7 @@ function makeHouse(){
  const manorDoorTrim=M.wood2.clone();manorDoorTrim.map=doorTexture;manorDoorTrim.bumpMap=doorBump;manorDoorTrim.bumpScale=.012;manorDoorTrim.roughness=.72;manorDoorTrim.needsUpdate=true;
  // Отдельная отделка входных ступеней: плотный матовый известняк с мягким микрорельефом.
  const entranceStepMaterial=houseStone.clone();entranceStepMaterial.color.setHex(0xd8d2c7);entranceStepMaterial.roughness=.94;entranceStepMaterial.bumpScale=.032;entranceStepMaterial.needsUpdate=true;
+ const entranceCarvedStone=houseStoneTrim.clone();entranceCarvedStone.color.setHex(0xe5dfd3);entranceCarvedStone.roughness=.9;entranceCarvedStone.bumpScale=.028;entranceCarvedStone.needsUpdate=true;
  // Холодные отражения на стекле добавляют глубину окнам, не меняя их рам и размеров.
  const glassCanvas=document.createElement('canvas');glassCanvas.width=128;glassCanvas.height=128;
  const glassCtx=glassCanvas.getContext('2d');
@@ -548,7 +549,7 @@ function makeHouse(){
  // Raised timber door panels, a stone lintel and a small brass handle finish the main entrance.
  box(g,1.16,.88,.055,0,1.92,4.255,manorDoorTrim,false);
  box(g,1.16,.48,.055,0,.58,4.255,manorDoorTrim,false);
- box(g,1.42,.12,.32,0,2.78,4.18,houseStoneTrim);
+ box(g,1.42,.12,.32,0,2.78,4.18,entranceCarvedStone);
  sphere(g,.085, .48,1.32,4.34,M.gold,.9);
  // Entrance door craftsmanship: inset panel mouldings, brass hinge straps and a knocker.
  for(const y of [.62,1.12,1.62,2.12]){
@@ -580,7 +581,7 @@ function makeHouse(){
    sphere(g,.03,x,.55,4.39,M.gold,.8);
  }
  // Каменный верхний фриз с центральным замковым акцентом завершает дверное обрамление.
- box(g,1.82,.13,.22,0,2.91,4.28,houseStoneTrim,false);
+ box(g,1.82,.13,.22,0,2.91,4.28,entranceCarvedStone,false);
  box(g,.34,.2,.12,0,2.98,4.39,M.gold,false);
  // Fine brass door knocker and a pair of crisp stone step nosings.
  box(g,.16,.22,.06,0,1.38,4.34,M.gold,false);
