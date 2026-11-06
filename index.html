@@ -3356,6 +3356,16 @@ function makeWorldLandscape(){
      const y=.31+.57*Math.pow(2*t-1,2),slope=2.28*(2*t-1)/(bridgeLength-.36);
      const voussoir=box(world,.16,.28,.57,x+(x<0?-.18:.18),y,z,bridgeStoneMid);
      voussoir.rotation.x=-Math.atan(slope);voussoir.castShadow=false;voussoir.receiveShadow=false;
+     // Small carved bosses on alternating voussoirs add scale and depth to the arch masonry.
+     if(i%2===0&&i!==14){
+       const bossX=x+(x<0?-.278:.278);
+       const boss=sphere(world,.052,bossX,y,z,bridgeStoneLight,false);
+       boss.scale.set(.28,.78,1.05);
+       boss.castShadow=false;boss.receiveShadow=false;
+       const bossCore=sphere(world,.022,bossX+(x<0?-.012:.012),y,z,bridgeStoneDark,false);
+       bossCore.scale.set(.3,.8,1.05);
+       bossCore.castShadow=false;bossCore.receiveShadow=false;
+     }
      // Narrow recessed joints separate each arch stone without turning the rib into stripes.
      const voussoirJoint=box(world,.012,.014,.445,x+(x<0?-.266:.266),y,z,bridgeStoneDark);
      voussoirJoint.rotation.x=-Math.atan(slope);voussoirJoint.castShadow=false;voussoirJoint.receiveShadow=false;
