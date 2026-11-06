@@ -167,8 +167,10 @@ let plots=[],treeObjects=[],buildingObjects=[],lastBuildingSignature='',lastPlot
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,78,175);
 const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,3.5,130);
 // Более близкая near-плоскость и ограниченный far-диапазон повышают точность depth buffer и уменьшают z-fighting на мобильных GPU.
-const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance',reverseDepthBuffer:true});
+const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance',reversedDepthBuffer:true});
 window.GREEN_WORLD_STARTUP_STAGE='webgl-ready';
+window.GREEN_WORLD_RENDER_DIAGNOSTICS={reversedDepthBuffer:!!renderer.capabilities.reversedDepthBuffer,webgl2:renderer.capabilities.isWebGL2,pixelRatio:renderer.getPixelRatio(),threeRevision:THREE.REVISION};
+console.info('[GREEN WORLD] Render diagnostics',window.GREEN_WORLD_RENDER_DIAGNOSTICS);
 // Используем обратный буфер глубины, если мобильный GPU поддерживает EXT_clip_control: он точнее различает близкие поверхности и уменьшает z-fighting.
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;renderer.useLegacyLights=false;renderer.setClearColor(0x9acbe8,1);
 // Мягкое небесное заполнение сохраняет детали в тенях на фасадах, листве и горном рельефе.
@@ -329,8 +331,7 @@ for(const [material,texture,scale] of surfaceBumps){
  material.roughnessMap=bump;
  material.needsUpdate=true;
 }
-// Sharper distant roof and masonry detail on mobile screens without increasing draw calls.
-renderer.setPixelRatio(Math.min(devicePixelRatio,2.15));
+// Keep the mobile render scale consistent; do not override the renderer's 1.5x cap.
 
 function box(parent,w,h,d,x,y,z,material,cast=true){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=cast;o.receiveShadow=true;parent.add(o);return o}
 function cone(parent,r,h,x,y,z,material,n=4){const o=new THREE.Mesh(new THREE.ConeGeometry(r,h,n),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
