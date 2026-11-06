@@ -2307,7 +2307,7 @@ function makeWorldDecor(){
     }
   }
   // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проём оставлен для дороги с моста.
-  const fenceMat=mat(0xbeb294),fenceCap=mat(0xe0d4b8),fenceJoint=mat(0x9f9276);
+  const fenceMat=mat(0x817967),fenceCap=mat(0xb0a38a),fenceJoint=mat(0x6b6252);
   for(let p=-14;p<=14;p+=1.75){
     for(const z of [-14,14]){
       if(z===14 && Math.abs(p)<3.6) continue;
@@ -2339,7 +2339,7 @@ function makeWorldDecor(){
   }
 
   // Декоративная каменная отделка ограждения: цоколь, карниз и рельефные панели.
-  const fenceBaseTrim=mat(0x98896f),fenceLightTrim=mat(0xe8dcc1),fenceRelief=mat(0xcbbd9e),fenceShadow=mat(0x887b65);
+  const fenceBaseTrim=mat(0x625847),fenceLightTrim=mat(0xc8bda5),fenceRelief=mat(0x9b8d73),fenceShadow=mat(0x514939);
   // Парадная арка центрального въезда: массивная классическая каменная кладка с полукруглым сводом.
   const gateCenterY=2.45,gateOuterR=2.95,gateInnerR=2.12,gateFrontZ=14.285;
   const entranceGateShape=new THREE.Shape();
