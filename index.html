@@ -756,6 +756,11 @@ function makeHouse(){
  for(const x of [-4.35,4.35]){
    const t=group(g,x,0,-2.25);
    box(t,2.15,5.8,2.15,0,2.9,0,towerStoneMaterial);
+   // Низкий каменный цокольный пояс завершает основание башни у уровня земли.
+   box(t,2.24,.12,.075,0,.13,1.09,towerDetailStone,false);
+   box(t,2.24,.12,.075,0,.13,-1.09,towerDetailStone,false);
+   box(t,.075,.12,2.24,1.09,.13,0,towerDetailStone,false);
+   box(t,.075,.12,2.24,-1.09,.13,0,towerDetailStone,false);
    box(t,2.35,.22,2.35,0,5.82,0,houseStoneTrim);
    // Два тонких каменных пояса под верхним карнизом подчёркивают переход к шатру.
    for(const y of [5.66,5.76]){
