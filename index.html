@@ -416,6 +416,15 @@ function makeHouse(){
    masonryCtx.fillStyle=i%5===0?'rgba(153,126,94,.085)':'rgba(73,70,64,.045)';
    masonryCtx.beginPath();masonryCtx.ellipse(px,py,.7+(i%3)*.35,.55+(i%2)*.3,(i%6)*.2,0,Math.PI*2);masonryCtx.fill();
  }
+ // Едва заметные следы естественного истирания на отдельных кромках каменных блоков.
+ for(let i=0;i<26;i++){
+   const row=(i*5+1)%8,offset=row%2?32:0;
+   const x=(i*71+offset+9)%250,y=row*32+4+(i*11)%19,len=3+(i*7)%7;
+   masonryCtx.strokeStyle=i%4===0?'rgba(255,255,255,.10)':'rgba(116,99,78,.055)';
+   masonryCtx.lineWidth=.55+(i%2)*.25;
+   masonryCtx.beginPath();masonryCtx.moveTo(x,y);
+   masonryCtx.quadraticCurveTo(x+len*.45,y-0.6,x+len,y+0.25);masonryCtx.stroke();
+ }
  masonryCtx.strokeStyle='#777777';masonryCtx.lineWidth=3;
  for(let row=0;row<8;row++){
    const y=row*32,offset=row%2?32:0;
