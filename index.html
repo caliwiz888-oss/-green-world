@@ -1579,6 +1579,50 @@ function makeMarket(){
  box(g,.88,1.55,.045,0,1.45,-2.29,displayWood,false);
  box(g,.08,.3,.06,.34,1.45,-2.34,M.gold,false);
  sphere(g,.045,.34,1.45,-2.39,M.gold,.8);
+ // Дополнительная архитектурная отделка: ступенчатый цоколь и выразительные базы колонн.
+ box(g,5.78,.10,4.72,0,.585,0,timberLight,false);
+ box(g,5.96,.055,4.9,0,.655,0,M.gold,false);
+ for(const x of [-2.62,2.62]){
+   for(const z of [-2.02,2.02]){
+     box(g,.42,.12,.42,x,.72,z,M.stone2,false);
+     box(g,.34,.08,.34,x,.82,z,M.gold,false);
+     box(g,.38,.10,.38,x,3.30,z,M.stone2,false);
+     box(g,.44,.055,.44,x,3.39,z,M.gold,false);
+     // Неглубокие вертикальные каннелюры подчёркивают деревянные опоры.
+     for(const dx of [-.075,.075]){
+       box(g,.025,1.72,.018,x+dx,1.92,z+.178,timberLight,false);
+     }
+   }
+ }
+ // Профилированный пояс по периметру плоской кровли подчёркивает её толщину.
+ box(g,6.42,.055,.055,0,3.53,3.285,roofAccent,false);
+ box(g,6.42,.055,.055,0,3.53,-3.285,roofAccent,false);
+ for(const x of [-3.285,3.285])box(g,.055,.055,6.42,x,3.53,0,roofAccent,false);
+ // Каменные замковые накладки на четырёх углах кровли.
+ for(const x of [-3.02,3.02])for(const z of [-3.02,3.02]){
+   box(g,.38,.075,.38,x,3.86,z,roofEdge,false);
+   box(g,.25,.045,.25,x,3.915,z,M.gold,false);
+ }
+ // Тонкие рамки и стойки придают торговым витринам более аккуратную сборку.
+ for(const x of [-2.32,-1.12,1.12,2.32]){
+   box(g,.045,1.02,.035,x,1.66,2.285,timberLight,false);
+ }
+ box(g,4.72,.045,.035,0,2.42,2.285,M.gold,false);
+ box(g,4.72,.045,.035,0,.84,2.285,timberLight,false);
+ // Декоративные филёнки на глухих боковых деревянных участках.
+ for(const side of [-1,1]){
+   const x=side*2.83;
+   for(const z of [-1.48,1.48]){
+     box(g,.035,.82,.055,x,1.55,z,timberLight,false);
+     box(g,.045,.68,.035,x+side*.025,1.55,z,timber,false);
+   }
+ }
+ // Небольшие металлические кронштейны поддерживают широкий козырёк.
+ for(const x of [-2.18,2.18]){
+   const brace=box(g,.09,.48,.12,x,3.12,2.82,M.gold,false);
+   brace.rotation.x=-.42;
+   box(g,.18,.07,.16,x,2.88,2.82,roofEdge,false);
+ }
  return disableCastShadows(g);
 }
 function makeFactory(){
