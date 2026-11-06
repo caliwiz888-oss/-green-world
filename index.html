@@ -230,6 +230,20 @@ function makeSurfaceTexture(kind,seed){
    ctx.fillStyle=shade;ctx.beginPath();
    ctx.ellipse(x,y,rx,ry,rand()*Math.PI,0,Math.PI*2);ctx.fill();
   }
+  // Низкоконтрастные полосы роста травы смягчают повторяемость газона на больших плоскостях.
+  for(let i=0;i<28;i++){
+   const x=rand()*size,y=rand()*size,len=18+rand()*38,bend=(rand()-.5)*9;
+   ctx.strokeStyle=rand()>.5?'rgba(225,232,170,.035)':'rgba(43,76,39,.03)';
+   ctx.lineWidth=1+rand()*2.2;ctx.beginPath();ctx.moveTo(x,y);
+   ctx.quadraticCurveTo(x+len*.48,y+bend,x+len,y+bend*.35);ctx.stroke();
+  }
+  // Редкие микроволокна травы видны только вблизи и не превращаются в отдельный мусор.
+  for(let i=0;i<110;i++){
+   const x=rand()*size,y=rand()*size,len=2+rand()*4,lean=(rand()-.5)*2.8;
+   ctx.strokeStyle=rand()>.5?'rgba(236,239,185,.10)':'rgba(38,68,35,.09)';
+   ctx.lineWidth=.35+rand()*.35;ctx.beginPath();ctx.moveTo(x,y);
+   ctx.quadraticCurveTo(x+lean*.5,y-len*.55,x+lean,y-len);ctx.stroke();
+  }
   for(let i=0;i<42;i++){
    const x=rand()*size,y=rand()*size,r=2+rand()*5;
    ctx.fillStyle='rgba(125,125,125,.12)';ctx.beginPath();ctx.ellipse(x,y,r,r*.55,rand()*Math.PI,0,Math.PI*2);ctx.fill();
