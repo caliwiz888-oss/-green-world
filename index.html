@@ -1673,37 +1673,44 @@ function makeMarket(){
  box(g,4.95,.1,.48,0,.18,3.48,M.stone,false);
  for(let i=0;i<6;i++)box(g,.88,.035,.48,-2.2+i*.88,.245,3.15,i%2?M.stone:M.stone2,false);
  // Минимальный металлический декор крыши — без скатов и конька.
- for(const z of [-2.55,2.55])box(g,6.25,.07,.08,0,3.82,z,M.gold,false);
- for(const x of [-2.95,2.95])box(g,.08,.07,5.1,x,3.82,0,M.gold,false);
+ for(const z of [-2.55,2.55])box(g,6.25,.07,.08,0,3.82,z,roofAccent,false);
+ for(const x of [-2.95,2.95])box(g,.08,.07,5.1,x,3.82,0,roofAccent,false);
  // Многоуровневый карниз подчёркивает толщину плоской кровли по всему периметру.
  for(const z of [-3.285,3.285]){
    box(g,6.42,.09,.13,0,3.43,z,roofEdge,false);
    box(g,6.34,.045,.16,0,3.365,z,roofAccent,false);
-   box(g,6.18,.035,.17,0,3.305,z,M.gold,false);
+   box(g,6.18,.035,.17,0,3.305,z,roofAccent,false);
  }
  for(const x of [-3.285,3.285]){
    box(g,.13,.09,6.42,x,3.43,0,roofEdge,false);
    box(g,.16,.045,6.34,x,3.365,0,roofAccent,false);
-   box(g,.17,.035,6.18,x,3.305,0,M.gold,false);
+   box(g,.17,.035,6.18,x,3.305,0,roofAccent,false);
  }
  // Повторяющиеся рельефные панели формируют аккуратный ритм на фасадной кромке крыши.
  for(const x of [-2.55,-1.7,-.85,0,.85,1.7,2.55]){
    box(g,.42,.105,.035,x,3.49,3.365,roofAccent,false);
-   box(g,.22,.045,.045,x,3.49,3.39,M.gold,false);
+   box(g,.22,.045,.045,x,3.49,3.39,roofAccent,false);
    box(g,.42,.105,.035,x,3.49,-3.365,roofAccent,false);
-   box(g,.22,.045,.045,x,3.49,-3.39,M.gold,false);
+   box(g,.22,.045,.045,x,3.49,-3.39,roofAccent,false);
  }
  for(const z of [-2.55,-1.7,-.85,0,.85,1.7,2.55]){
    box(g,.035,.105,.42,3.365,3.49,z,roofAccent,false);
-   box(g,.045,.045,.22,3.39,3.49,z,M.gold,false);
+   box(g,.045,.045,.22,3.39,3.49,z,roofAccent,false);
    box(g,.035,.105,.42,-3.365,3.49,z,roofAccent,false);
-   box(g,.045,.045,.22,-3.39,3.49,z,M.gold,false);
+   box(g,.045,.045,.22,-3.39,3.49,z,roofAccent,false);
  }
  // Угловые капители связывают четыре стороны карниза в цельную архитектурную рамку.
  for(const x of [-3.12,3.12])for(const z of [-3.12,3.12]){
    box(g,.34,.16,.34,x,3.48,z,roofEdge,false);
    box(g,.25,.055,.25,x,3.59,z,roofAccent,false);
-   box(g,.13,.035,.13,x,3.635,z,M.gold,false);
+   box(g,.13,.035,.13,x,3.635,z,roofAccent,false);
+ }
+ // Тонкая наружная тёмная фасция подчёркивает край кровли и отделяет её от открытого потолка.
+ for(const z of [-3.31,3.31]){
+   box(g,6.36,.075,.055,0,3.575,z,roofEdge,false);
+ }
+ for(const x of [-3.31,3.31]){
+   box(g,.055,.075,6.36,x,3.575,0,roofEdge,false);
  }
  // Компактные консоли под свесом визуально поддерживают широкую кровлю.
  for(const x of [-2.55,-1.7,-.85,.85,1.7,2.55]){
