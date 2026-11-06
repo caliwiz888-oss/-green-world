@@ -1861,6 +1861,19 @@ function makeFactory(level=1){
    brickCtx.fillStyle=light?'rgba(255,255,255,.10)':'rgba(35,24,20,.075)';
    brickCtx.fillRect(x,y,1+(i%3),1+(i%2));
  }
+ // Тонкие поры и следы обжига добавляют кирпичу естественную неоднородность без новых деталей фасада.
+ for(let i=0;i<110;i++){
+   const x=(i*97+29)%256,y=(i*61+17)%256;
+   const warm=i%4===0;
+   brickCtx.fillStyle=warm?'rgba(255,211,170,.075)':'rgba(52,31,25,.055)';
+   brickCtx.beginPath();brickCtx.ellipse(x,y,1+(i%3)*.45,.65+(i%2)*.35,(i%7)*.12,0,Math.PI*2);brickCtx.fill();
+ }
+ // Короткие мягкие следы формовки подчёркивают поверхность отдельных кирпичей, не затрагивая швы.
+ for(let i=0;i<28;i++){
+   const x=(i*83+37)%252,y=(i*47+13)%256,len=3+(i*7)%9;
+   brickCtx.strokeStyle=i%3===0?'rgba(255,226,190,.085)':'rgba(62,37,29,.045)';
+   brickCtx.lineWidth=.55;brickCtx.beginPath();brickCtx.moveTo(x,y);brickCtx.lineTo(x+len,y+((i%3)-1)*.35);brickCtx.stroke();
+ }
  brickCtx.strokeStyle='#555555';brickCtx.lineWidth=5;
  for(let row=0;row<8;row++){
    const y=row*32;
