@@ -744,6 +744,9 @@ function makeHouse(){
  // Башенная кладка получает более выраженную микрофактуру светлого тесаного известняка.
  const towerStoneMaterial=houseStone.clone();
  towerStoneMaterial.color.setHex(0xe2ded4);towerStoneMaterial.roughness=.92;towerStoneMaterial.bumpScale=.03;towerStoneMaterial.needsUpdate=true;
+ // Тонкие швы кладки подчёркивают масштаб тесаных блоков башен.
+ const towerMortarMaterial=towerStoneMaterial.clone();
+ towerMortarMaterial.color.setHex(0xcfc9bd);towerMortarMaterial.roughness=.98;towerMortarMaterial.bumpScale=0;towerMortarMaterial.needsUpdate=true;
  const towerDetailStone=houseStoneTrim.clone();
  towerDetailStone.color.setHex(0xe6e0d5);towerDetailStone.roughness=.94;towerDetailStone.bumpScale=.032;towerDetailStone.needsUpdate=true;
  // Спокойный сатинированный металл объединяет латунные пояса, крепления и навершия башен.
@@ -770,6 +773,13 @@ function makeHouse(){
    sphere(t,.105,0,9.27,0,towerGoldMaterial,.9);
    cone(t,.105,.3,0,9.46,0,towerGoldMaterial,8);
    for(const z of [-1.09,1.09])box(t,.65,1.15,.12,0,3.35,z,M.wood);
+   // Тихие горизонтальные швы на четырёх гранях связывают башню в единую каменную кладку.
+   for(const y of [1.22,1.92,4.62,5.28]){
+     for(const side of [-1,1]){
+       box(t,1.76,.018,.012,0,y,side*1.081,towerMortarMaterial,false);
+       box(t,.012,.018,1.76,side*1.081,y,0,towerMortarMaterial,false);
+     }
+   }
    // Stone window surrounds and a crisp sill on each tower face.
    // Corner stone dressings and a continuous upper cornice sharpen each tower.
    for(const sx of [-1,1]){
