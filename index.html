@@ -409,8 +409,9 @@ function makeHouse(){
  doorTexture.colorSpace=THREE.SRGBColorSpace;
  doorTexture.wrapS=doorTexture.wrapT=THREE.RepeatWrapping;
  doorTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- const manorDoor= M.wood.clone();manorDoor.map=doorTexture;manorDoor.roughness=.72;manorDoor.needsUpdate=true;
- const manorDoorTrim=M.wood2.clone();manorDoorTrim.map=doorTexture;manorDoorTrim.roughness=.68;manorDoorTrim.needsUpdate=true;
+ const doorBump=doorTexture.clone();doorBump.colorSpace=THREE.NoColorSpace;doorBump.needsUpdate=true;
+ const manorDoor= M.wood.clone();manorDoor.map=doorTexture;manorDoor.bumpMap=doorBump;manorDoor.bumpScale=.018;manorDoor.roughness=.76;manorDoor.needsUpdate=true;
+ const manorDoorTrim=M.wood2.clone();manorDoorTrim.map=doorTexture;manorDoorTrim.bumpMap=doorBump;manorDoorTrim.bumpScale=.012;manorDoorTrim.roughness=.72;manorDoorTrim.needsUpdate=true;
  // Холодные отражения на стекле добавляют глубину окнам, не меняя их рам и размеров.
  const glassCanvas=document.createElement('canvas');glassCanvas.width=128;glassCanvas.height=128;
  const glassCtx=glassCanvas.getContext('2d');
