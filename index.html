@@ -109,7 +109,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
    tg.ready();
    tg.expand();
    const controller=new AbortController();
-   const timeout=setTimeout(()=>controller.abort(),20000);
+   const timeout=setTimeout(()=>controller.abort(),75000);
    let response;
    try {
     response=await fetch(api+'/api/auth/telegram',{
@@ -125,7 +125,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
    window.dispatchEvent(new CustomEvent('green-world-auth',{detail:data}));
    error.textContent=window.GREEN_WORLD_STARTUP_ERROR||'Аккаунт подключён. Загружаем хозяйство…';
   }catch(e){
-   error.textContent=e?.name==='AbortError'?'Сервер не ответил за 20 секунд. Попробуй ещё раз.':(e&&e.message?e.message:'Не удалось подключиться. Попробуй ещё раз.');
+   error.textContent=e?.name==='AbortError'?'Сервер запускается дольше обычного. Подожди до 75 секунд и попробуй ещё раз.':(e&&e.message?e.message:'Не удалось подключиться. Попробуй ещё раз.');
   }finally{
    connecting=false;
    button.disabled=false;
