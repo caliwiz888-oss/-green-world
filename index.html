@@ -320,6 +320,29 @@ function makeHouse(){
  for(const material of [houseStone,houseStoneTrim]){
    material.map=masonryTexture;material.bumpMap=masonryBump;material.bumpScale=.024;material.needsUpdate=true;
  }
+ // Тёплая древесная текстура парадной двери: спокойные вертикальные волокна и редкие мягкие сучки.
+ const doorCanvas=document.createElement('canvas');doorCanvas.width=256;doorCanvas.height=256;
+ const doorCtx=doorCanvas.getContext('2d');
+ doorCtx.fillStyle='#a0a0a0';doorCtx.fillRect(0,0,256,256);
+ for(let x=0;x<256;x++){
+   const wave=Math.sin(x*.13)*2+Math.sin(x*.037)*3;
+   doorCtx.fillStyle='rgba(45,28,15,'+(.08+((x*17)%9)/100)+')';
+   doorCtx.fillRect(x+wave,0,1+(x%5===0?1:0),256);
+   if(x%19===0){
+     doorCtx.fillStyle='rgba(255,220,170,.12)';doorCtx.fillRect(x+2,0,1,256);
+   }
+ }
+ for(const [x,y] of [[68,72],[188,184]]){
+   doorCtx.strokeStyle='rgba(45,25,12,.16)';doorCtx.lineWidth=2;
+   doorCtx.beginPath();doorCtx.ellipse(x,y,5,13,.1,0,Math.PI*2);doorCtx.stroke();
+   doorCtx.strokeStyle='rgba(255,220,170,.12)';doorCtx.beginPath();doorCtx.ellipse(x+1,y,2,9,.1,0,Math.PI*2);doorCtx.stroke();
+ }
+ const doorTexture=new THREE.CanvasTexture(doorCanvas);
+ doorTexture.colorSpace=THREE.SRGBColorSpace;
+ doorTexture.wrapS=doorTexture.wrapT=THREE.RepeatWrapping;
+ doorTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const manorDoor= M.wood.clone();manorDoor.map=doorTexture;manorDoor.roughness=.72;manorDoor.needsUpdate=true;
+ const manorDoorTrim=M.wood2.clone();manorDoorTrim.map=doorTexture;manorDoorTrim.roughness=.68;manorDoorTrim.needsUpdate=true;
  // Main manor: broad stone body, raised plinth and detailed gabled roof.
  box(g,10,4.5,8,0,2.25,0,houseStone);
  box(g,10.5,.38,8.5,0,4.55,0,houseStoneTrim);
@@ -398,7 +421,7 @@ function makeHouse(){
  // Старое центральное круглое окно удалено: оно накладывалось на медальон фронтона.
  // Сохранено одно верхнее слуховое окно с каменным и латунным обрамлением.
  // Central entrance, gold cross details and symmetrical windows.
- box(g,1.65,2.7,.24,0,1.35,4.12,M.wood);
+ box(g,1.65,2.7,.24,0,1.35,4.12,manorDoor);
  box(g,.16,2.3,.28,-.65,1.35,4.27,M.gold,false);
  box(g,.16,2.3,.28,.65,1.35,4.27,M.gold,false);
  for(const x of [-3.25,3.25]){
@@ -416,8 +439,8 @@ function makeHouse(){
    }
  }
  // Raised timber door panels, a stone lintel and a small brass handle finish the main entrance.
- box(g,1.16,.88,.055,0,1.92,4.255,M.wood2,false);
- box(g,1.16,.48,.055,0,.58,4.255,M.wood2,false);
+ box(g,1.16,.88,.055,0,1.92,4.255,manorDoorTrim,false);
+ box(g,1.16,.48,.055,0,.58,4.255,manorDoorTrim,false);
  box(g,1.42,.12,.32,0,2.78,4.18,houseStoneTrim);
  sphere(g,.085, .48,1.32,4.34,M.gold,.9);
  // Entrance door craftsmanship: inset panel mouldings, brass hinge straps and a knocker.
@@ -434,7 +457,7 @@ function makeHouse(){
  // Парадная дверь: рельефные филёнки, латунная нижняя накладка и точечный крепёж.
  for(const x of [-.34,.34]){
    // Внутренние рамки двух створочных панелей подчёркивают натуральную фактуру дерева.
-   box(g,.48,.72,.045,x,1.92,4.34,M.wood,false);
+   box(g,.48,.72,.045,x,1.92,4.34,manorDoor,false);
    box(g,.42,.045,.035,x,2.28,4.37,M.gold,false);
    box(g,.42,.045,.035,x,1.56,4.37,M.gold,false);
    for(const dx of [-.24,.24]){
