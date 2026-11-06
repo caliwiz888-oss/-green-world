@@ -1401,416 +1401,112 @@ function makeHouse(){
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
 function makeMarket(){
- // Витрины лавки используют собственный материал: marketGlass локален внутри makeHouse.
+ // Новая архитектура лавки: открытый торговый павильон с широкой плоской крышей.
+ // Силуэт намеренно отличается от жилого дома: нет фронтона, конька и двускатных скатов.
  const marketGlass=M.glass.clone();
  const g=group(world,-10.8,0,-8.5);g.rotation.y=0;g.scale.setScalar(1.2);
- box(g,5.4,2.8,4.4,0,1.4,0,M.stone);
- box(g,5.65,.24,4.65,0,2.86,0,M.gold);
- // Timber-framed storefront and broad display windows.
- box(g,5.1,2.45,.18,0,1.42,2.22,M.wood);
- box(g,3.65,1.25,.12,0,1.65,2.34,marketGlass);
- // A softly illuminated interior display gives the shop windows depth and a lived-in feel.
- const shopGlow=new THREE.MeshStandardMaterial({color:0xe8b96f,emissive:0x8a4b18,emissiveIntensity:.24,roughness:.72});
- const displayWood=mat(0x80502f,.78);
- box(g,3.38,.96,.035,0,1.65,2.18,shopGlow,false);
- for(const y of [1.22,1.82]){
-   box(g,3.18,.075,.24,0,y,2.29,displayWood,false);
-   box(g,3.22,.035,.25,0,y+.055,2.29,M.gold,false);
+ const timber=mat(0x765039,.78),timberLight=mat(0xa8794e,.72);
+ const roof=mat(0x405d46,.62),roofEdge=mat(0x293f34,.58);
+ const counter=mat(0xd2c2a0,.82),dark=mat(0x35443d,.72);
+ const warm=new THREE.MeshStandardMaterial({color:0xe8bd78,emissive:0x8a4b18,emissiveIntensity:.2,roughness:.7});
+ // Низкое каменное основание и широкая торговая площадка.
+ box(g,5.9,.42,4.85,0,.24,0,M.stone2);
+ box(g,5.72,.12,4.68,0,.51,0,M.stone);
+ // Четыре массивные деревянные стойки формируют открытый павильон.
+ for(const x of [-2.62,2.62])for(const z of [-2.02,2.02]){
+   box(g,.24,2.75,.24,x,1.92,z,timber);
+   box(g,.38,.18,.38,x,3.25,z,M.stone2);
+   box(g,.32,.12,.32,x,.62,z,M.gold);
  }
- const displayGoods=[
-   [-1.22,1.43,0xc94d39],[-.72,1.43,0xe6a64d],[-.22,1.43,0x78a94d],
-   [.42,2.02,0xd18b42],[.96,2.02,0xb94a38],[1.42,2.02,0x83a94c]
- ];
- for(const [x,y,color] of displayGoods){
-   cylinder(g,.105,.12,.24,x,y,2.31,mat(color,.42),10);
-   cylinder(g,.11,.11,.045,x,y+.14,2.31,M.gold,10);
-   sphere(g,.055,x,y+.18,2.31,mat(0xead9ad,.5),.55);
- }
- for(const x of [-2.35,-1.25,0,1.25,2.35])box(g,.13,2.5,.22,x,1.42,2.4,M.gold);
- box(g,1.1,2.25,.22,0,1.35,2.48,M.wood);
- box(g,.12,2.0,.24,-.38,1.35,2.62,M.gold,false);
- box(g,.12,2.0,.24,.38,1.35,2.62,M.gold,false);
- // Twin pitched roof panels and decorative ridge.
- const a=box(g,3.05,.25,4.9,-1.35,3.85,0,M.roof);a.rotation.z=.42;
- const b=box(g,3.05,.25,4.9,1.35,3.85,0,M.roof2);b.rotation.z=-.42;
- box(g,.22,.28,4.9,0,4.48,0,M.gold);
- // Striped awning above the shop front.
- for(let i=0;i<7;i++)box(g,.72,.18,.85,-2.52+i*.84,2.75,2.72,i%2?M.roof:M.roof2);
- box(g,5.9,.22,.18,0,2.55,3.05,M.wood);
- for(const x of [-2.2,2.2])box(g,.18,1.2,.18,x,.6,2.7,M.wood);
- // Warm timber sign, small hanging lamps and a welcoming stone forecourt.
- box(g,2.05,.62,.16,0,4.05,2.62,M.wood);
- box(g,1.78,.34,.08,0,4.05,2.73,M.gold,false);
- // Эмалированная лицевая табличка торговой лавки с чёткой фирменной надписью.
- const marketSignCanvas=document.createElement('canvas');
- marketSignCanvas.width=640;marketSignCanvas.height=160;
- const marketSignCtx=marketSignCanvas.getContext('2d');
- const marketSignGradient=marketSignCtx.createLinearGradient(0,0,0,160);
- marketSignGradient.addColorStop(0,'#526c4c');marketSignGradient.addColorStop(.52,'#304c38');marketSignGradient.addColorStop(1,'#203a2d');
- marketSignCtx.fillStyle=marketSignGradient;marketSignCtx.fillRect(0,0,640,160);
- marketSignCtx.strokeStyle='#e0c17b';marketSignCtx.lineWidth=7;marketSignCtx.strokeRect(8,8,624,144);
- marketSignCtx.strokeStyle='#9a8050';marketSignCtx.lineWidth=2;marketSignCtx.strokeRect(18,18,604,124);
- marketSignCtx.textAlign='center';marketSignCtx.textBaseline='middle';
- marketSignCtx.fillStyle='#f6e7bd';marketSignCtx.font='bold 48px Georgia,serif';
- marketSignCtx.fillText('GREEN WORLD',320,62);
- marketSignCtx.fillStyle='#e5d3a7';marketSignCtx.font='bold 24px Arial,sans-serif';
- marketSignCtx.fillText('ТОРГОВАЯ ЛАВКА',320,111);
- const marketSignTexture=new THREE.CanvasTexture(marketSignCanvas);
- marketSignTexture.colorSpace=THREE.SRGBColorSpace;
- marketSignTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- const marketSignMaterial=new THREE.MeshStandardMaterial({map:marketSignTexture,roughness:.4,metalness:.2});
- box(g,1.7,.29,.025,0,4.05,2.785,marketSignMaterial,false);
- // Signboard craftsmanship: raised border, corner studs and a pair of forged hangers.
- for(const x of [-.94,.94]){
-   box(g,.075,.48,.06,x,4.05,2.79,M.stone2,false);
-   for(const y of [3.84,4.26])sphere(g,.035,x,y,2.83,M.gold,.8);
-   box(g,.1,.22,.1,x,4.48,2.62,M.gold,false);
- }
- box(g,2.22,.07,.07,0,4.38,2.76,M.stone2,false);
- box(g,2.22,.07,.07,0,3.72,2.76,M.stone2,false);
- for(const x of [-.72,.72]){
-   const hanger=box(g,.07,.38,.07,x,4.58,2.62,M.wood2,false);
-   hanger.rotation.z=x<0?-.16:.16;
- }
- for(const x of [-2.35,2.35]){
-   box(g,.16,.72,.16,x,3.15,2.82,M.wood);
-   const lamp=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),new THREE.MeshStandardMaterial({color:0xffe6a3,emissive:0x9b6b22,emissiveIntensity:.45}));
-   lamp.position.set(x,3.48,2.82);g.add(lamp);
-   warmLight(g,x,3.42,3.05,.72,6.5);
- }
- // Каменная площадка перед витриной подчёркивает вход, не занимая игровые грядки.
- box(g,6.3,.12,1.45,0,.035,3.55,M.stone2,false);
- for(let ix=0;ix<6;ix++)box(g,.94,.035,.62,-2.35+ix*.94,.112,3.55,ix%2?M.stone:M.stone2,false);
- // Extra storefront detailing: timber corner posts, window divisions and roof seams.
- for(const x of [-2.48,2.48]){
-   box(g,.16,2.65,.22,x,1.42,2.48,M.gold);
-   box(g,.34,.18,.32,x,2.82,2.45,M.stone2);
- }
- for(const x of [-1.2,-.4,.4,1.2])box(g,.055,1.18,.1,x,1.65,2.43,M.gold,false);
- for(let i=0;i<6;i++)box(g,.06,.08,4.55,-2.5+i,4.02,0,M.roof2,false);
- // Керамические поперечные ряды на обоих скатах подчёркивают рисунок кровли лавки.
- for(const [cx,angle] of [[-1.35,.42],[1.35,-.42]]){
-   const courses=group(g,cx,3.85,0);courses.rotation.z=angle;
-   for(const z of [-1.92,-1.28,-.64,0,.64,1.28,1.92]){
-     // Убраны поперечные рейки: их нижняя грань совпадала с верхней плоскостью ската (точный z-fighting).
-   }
-   // Separate overlapping ceramic shingles create a finer handmade roof surface.
-   for(let row=0;row<6;row++){
-     for(let col=0;col<6;col++){
-       const x=-1.17+col*.47+(row%2)*.12;
-       const z=-1.72+row*.68;
-       const tile=box(courses,.43,.075,.58,x,.205,z,(row+col)%3===0?M.roof2:M.roof,false);
-       tile.rotation.y=(col%2===0?-.018:.018);
-       // Tiny raised lower lip catches light and makes each tile read separately.
-       box(courses,.39,.025,.045,x,.251,z-.255,M.stone2,false);
-       sphere(courses,.025,x-.15,.26,z-.22,M.gold,.7);
-     }
-   }
-   // Тонкие продольные фальцы разделяют черепицу на ровные панели.
-   for(const x of [-.98,-.33,.33,.98]){
-     // Продольные накладки удалены вместе с рейками: кровля остаётся цельной, без близких параллельных поверхностей.
-   }
-   // Небольшие металлические фиксаторы завершают края кровельных рядов.
-   for(const z of [-2.12,2.12]){
-     for(const x of [-.92,0,.92]){
-       sphere(courses,.035,x,.19,z,M.gold,.75);
-     }
-   }
- }
- // Carved stone storefront surround and a clear lower sill.
- box(g,4.05,.16,.22,0,.92,2.48,M.stone2);
- for(const x of [-2.05,2.05]){
-   box(g,.16,1.55,.18,x,1.65,2.48,M.stone2);
-   box(g,.22,.16,.24,x,2.48,2.48,M.gold);
- }
- // Carved masonry rhythm across the shop front: segmented lintel, keystones and dressed corner blocks.
- // A layered stone head visually crowns the display glazing without changing its opening.
- box(g,3.92,.12,.22,0,2.39,2.49,M.stone2,false);
- box(g,3.72,.055,.25,0,2.47,2.5,M.gold,false);
- for(const x of [-1.78,-.9,0,.9,1.78]){
-   box(g,.72,.09,.2,x,2.4,2.53,M.stone,false);
-   box(g,.12,.16,.22,x,2.48,2.55,M.stone2,false);
- }
- // Paired dressed quoins reinforce the visible front corners with alternating stone blocks.
- for(const x of [-2.58,2.58]){
-   for(const y of [.48,.94,1.4,1.86,2.32]){
-     box(g,.28,.32,.24,x,y,2.49,M.stone2,false);
-     box(g,.32,.055,.26,x,y+.18,2.5,M.gold,false);
-   }
-   box(g,.38,.12,.32,x,.22,2.5,M.stone,false);
-   box(g,.38,.12,.32,x,2.72,2.5,M.stone,false);
- }
- // Deep sill moulding and small bracket stones add a crisp shadow line below the shop window.
- box(g,3.88,.09,.3,0,.96,2.52,M.stone2,false);
- for(const x of [-1.55,-.78,0,.78,1.55]){
-   box(g,.16,.2,.22,x,.82,2.56,M.stone2,false);
-   box(g,.1,.08,.24,x,.72,2.58,M.gold,false);
- }
- // Fine brass hinge straps and a central escutcheon finish the timber entrance door.
- for(const x of [-.47,.47]){
-   for(const y of [.62,1.28,1.94]){
-     box(g,.075,.34,.055,x,y,2.91,M.gold,false);
-     sphere(g,.035,x,y-.12,2.95,M.stone,false?0.5:.8);
-     sphere(g,.035,x,y+.12,2.95,M.gold,.8);
-   }
- }
- box(g,.18,.24,.055,0,1.42,2.94,M.gold,false);
- sphere(g,.07,0,1.42,2.99,M.stone2,.8);
- // Subtle horizontal timber courses finish both visible side elevations.
- for(const side of [-1,1]){
-   for(const y of [.72,1.28,1.84,2.4]){
-     box(g,.075,.065,3.85,side*2.72,y,0,M.wood2,false);
-   }
-   box(g,.12,.12,4.18,side*2.73,2.72,0,M.stone2,false);
- }
- // Side elevations: compact recessed shop windows with stone surrounds and warm glazing.
- for(const side of [-1,1]){
-   const face=side*2.79;
-   box(g,.14,.92,1.12,face,1.55,-1.28,M.stone2,false);
-   box(g,.055,.66,.86,side*2.875,1.55,-1.28,M.wood,false);
-   box(g,.04,.54,.72,side*2.91,1.55,-1.28,marketGlass,false);
-   box(g,.045,.56,.055,side*2.945,1.55,-1.28,M.gold,false);
-   box(g,.045,.055,.74,side*2.945,1.55,-1.28,M.gold,false);
-   // Stone hood, sill and small corbels make the openings read as built-in masonry.
-   box(g,.22,.13,1.28,side*2.88,2.08,-1.28,M.stone2,false);
-   box(g,.22,.13,1.28,side*2.88,1.02,-1.28,M.stone2,false);
-   for(const dz of [-.47,.47]){
-     box(g,.18,.16,.12,side*2.88,1.91,-1.28+dz,M.gold,false);
-     box(g,.18,.16,.12,side*2.88,1.19,-1.28+dz,M.gold,false);
-   }
- }
- // Refined shop architecture: layered gable, carved signboard and framed entrance.
- box(g,2.42,.18,.24,0,4.22,2.7,M.stone2);
- box(g,2.18,.12,.12,0,4.34,2.78,M.gold,false);
- for(const x of [-1.92,1.92]){
-   box(g,.22,2.6,.26,x,1.52,2.56,M.stone2);
-   box(g,.34,.18,.32,x,2.86,2.56,M.gold);
-   box(g,.3,.14,.3,x,.22,2.56,M.stone2);
- }
- // Timber lintels and stone jambs frame the doorway as a distinct architectural feature.
- box(g,1.38,.18,.3,0,2.56,2.78,M.stone2);
- for(const x of [-.68,.68]){
-   box(g,.14,2.28,.28,x,1.35,2.76,M.stone2);
-   box(g,.1,2.12,.1,x,1.35,2.91,M.gold,false);
- }
- box(g,1.52,.16,.32,0,.22,2.78,M.stone2);
- // Decorative gable brackets and a small centered attic window.
+ // Плоская широкая кровля с выступающим козырьком — главный отличительный силуэт лавки.
+ box(g,6.65,.24,5.75,0,3.48,0,roofEdge);
+ box(g,6.48,.16,5.58,0,3.66,0,roof);
+ box(g,6.22,.08,5.3,0,3.79,0,M.gold,false);
+ // Неглубокий центральный фонарь-клересторий вместо домового фронтона.
+ box(g,2.45,.34,1.15,0,3.98,-.55,dark);
+ for(const x of [-.82,-.28,.28,.82])box(g,.07,.26,1.05,x,3.99,-.55,M.gold,false);
+ // Передняя открытая торговая стойка с голубыми витринами.
+ box(g,4.85,.88,.22,0,1.05,2.12,timber);
+ box(g,4.62,.58,.055,0,1.12,2.25,marketGlass,false);
+ box(g,4.92,.12,.42,0,1.56,2.18,counter);
+ box(g,4.95,.09,.16,0,.58,2.18,M.gold,false);
+ // Центральный проход к прилавку, по бокам — витринные секции.
  for(const x of [-1.72,1.72]){
-   const bracket=box(g,.16,.52,.18,x,3.35,2.36,M.wood);
-   bracket.rotation.z=x<0?-.28:.28;
+   box(g,1.35,1.55,.16,x,1.55,2.04,timber);
+   box(g,1.08,1.08,.055,x,1.65,2.14,marketGlass,false);
+   box(g,1.18,.1,.18,x,2.25,2.16,M.gold,false);
+   box(g,.08,1.08,.08,x,1.65,2.2,M.gold,false);
  }
- box(g,.72,.72,.14,0,3.78,2.48,M.wood);
- box(g,.5,.5,.08,0,3.78,2.58,marketGlass);
- box(g,.08,.56,.08,0,3.78,2.64,M.gold,false);
- box(g,.54,.07,.08,0,3.78,2.64,M.gold,false);
- // Layered eaves and fine roof ridge caps give the roof a finished silhouette.
- for(const x of [-2.85,2.85]){
-   box(g,.18,.16,4.95,x,3.42,0,M.wood,false);
- }
- for(const z of [-2.1,-1.05,0,1.05,2.1]){
-   box(g,.24,.12,.2,0,4.49,z,M.stone2,false);
- }
- // Fine end-grain caps and restrained fascia highlights on the shop roof.
- for(const x of [-2.62,2.62]){
-   box(g,.16,.12,.2,x,3.42,2.38,M.gold,false);
- }
- // Roof tile seams and shaped end caps add depth without changing the shop footprint.
- for(const [cx,angle] of [[-1.35,.42],[1.35,-.42]]){
-   const panel=group(g,cx,3.85,0);panel.rotation.z=angle;
-   for(const z of [-2,-1.2,-.4,.4,1.2,2]){
-     box(panel,2.82,.035,.045,0,.16,z,M.roof2,false);
-   }
- }
- for(const x of [-2.72,2.72]){
-   box(g,.18,.18,4.7,x,3.1,0,M.stone2);
- }
- // Rear and side elevations: matching framed glazing keeps the shop detailed from every angle.
- for(const x of [-1.55,1.55]){
-   box(g,1.05,1.18,.14,x,1.62,-2.24,M.wood);
-   box(g,.82,.92,.045,x,1.62,-2.195,windowInterior,false);
-   box(g,.82,.92,.08,x,1.62,-2.34,marketGlass);
-   box(g,.1,.98,.1,x,1.62,-2.4,M.gold,false);
-   box(g,.88,.08,.1,x,1.62,-2.4,M.gold,false);
-   box(g,1.22,.14,.22,x,2.3,-2.28,M.stone2);
-   box(g,1.22,.14,.22,x,.94,-2.28,M.stone2);
- }
+ // Открытая боковая конструкция: деревянные ламели, а не сплошные стены жилого дома.
  for(const side of [-1,1]){
-   box(g,.16,1.12,1.15,side*2.72,1.68,0,M.wood);
-   box(g,.1,.86,.88,side*2.68,1.68,0,windowInterior,false);
-   box(g,.1,.86,.88,side*2.82,1.68,0,marketGlass);
-   box(g,.12,1.0,.12,side*2.9,1.68,0,M.gold,false);
-   box(g,.12,.12,1.05,side*2.9,1.68,0,M.gold,false);
-   box(g,.24,.14,1.28,side*2.82,2.32,0,M.stone2);
-   box(g,.24,.14,1.28,side*2.82,1.02,0,M.stone2);
-   // restrained timber corner trim
-   for(const z of [-1.8,1.8])box(g,.14,2.45,.14,side*2.73,1.42,z,M.wood2,false);
- }
- // Roof underside fascia and evenly spaced exposed rafter ends.
- for(const z of [-2.15,-1.1,0,1.1,2.15]){
-   for(const x of [-2.55,2.55])box(g,.24,.12,.16,x,3.36,z,M.wood2,false);
- }
- // Door hardware, transom divisions and small awning braces finish the shopfront.
- sphere(g,.075,.48,1.28,2.72,M.gold,.85);
- box(g,1.02,.12,.1,0,2.35,2.5,M.gold,false);
- for(const x of [-1.7,1.7]){
-   const brace=box(g,.09,.72,.1,x,2.94,2.92,M.wood2,false);brace.rotation.z=x<0?-.42:.42;
-   box(g,.16,.12,.16,x,2.62,2.96,M.gold,false);
- }
- // Awning finish: fine fabric ribs, a continuous front hem and scalloped edge.
- for(let i=0;i<7;i++){
-   const x=-2.52+i*.84;
-   box(g,.035,.035,.82,x,2.84,3.12,M.gold,false);
-   box(g,.68,.12,.08,x,2.62,3.16,i%2?M.roof2:M.roof);
-   box(g,.08,.18,.09,x-.3,2.54,3.18,M.roof2,false);
-   box(g,.08,.18,.09,x+.3,2.54,3.18,M.roof2,false);
- }
- box(g,5.82,.1,.12,0,2.65,3.14,M.gold,false);
- // Убраны три отдельные белые плиты перед лавкой по просьбе пользователя.
- // Rear storefront entrance receives matching timber panels and forged hardware.
- box(g,1.42,2.08,.12,0,1.25,-2.34,M.wood);
- box(g,1.18,1.78,.055,0,1.25,-2.42,displayWood,false);
- for(const y of [.72,1.22,1.72]){
-   box(g,1.12,.075,.07,0,y,-2.47,M.gold,false);
- }
- box(g,.1,1.9,.08,-.48,1.25,-2.49,M.gold,false);
- box(g,.1,1.9,.08,.48,1.25,-2.49,M.gold,false);
- sphere(g,.065,.42,1.22,-2.53,M.gold,.85);
- // Задний вход получает цельное каменное обрамление с выраженными опорными пятами.
- for(const x of [-.82,.82]){
-   box(g,.18,2.18,.2,x,1.25,-2.49,M.stone2,false);
-   box(g,.24,.2,.24,x,.22,-2.5,M.stone,false);
-   box(g,.24,.16,.24,x,2.34,-2.5,M.stone,false);
-   box(g,.12,.07,.26,x,2.46,-2.52,M.gold,false);
- }
- // Составная перемычка и центральный замковый камень визуально завершают дверной проём.
- for(let i=0;i<5;i++){
-   const x=-.64+i*.32;
-   const block=box(g,.3,.16,.22,x,2.38,-2.5,i%2?M.stone:M.stone2,false);
-   block.rotation.z=(i-2)*.012;
- }
- box(g,.28,.22,.26,0,2.43,-2.53,M.stone2,false);
- sphere(g,.045,0,2.57,-2.59,M.gold,.8);
- // Двухступенчатый порог с тонкой латунной кромкой подчёркивает проход.
- box(g,1.72,.12,.42,0,.12,-2.58,M.stone2,false);
- box(g,1.58,.045,.08,0,.19,-2.78,M.gold,false);
-
- for(const x of [-.64,.64]){
-   box(g,.12,.22,.1,x,2.36,-2.42,M.stone2,false);
-   sphere(g,.035,x,2.36,-2.49,M.gold,.8);
- }
- // Matching stone lintels and corner blocks frame the rear windows.
- for(const x of [-1.55,1.55]){
-   box(g,1.34,.12,.28,x,2.42,-2.28,M.stone2,false);
-   box(g,1.34,.12,.28,x,.82,-2.28,M.stone2,false);
-   for(const dx of [-.54,.54]){
-     box(g,.12,1.22,.12,x+dx,1.62,-2.4,M.stone2,false);
+   const x=side*2.72;
+   box(g,.16,1.75,3.8,x,1.55,0,timber);
+   for(let i=0;i<9;i++){
+     const z=-1.55+i*.39;
+     box(g,.12,1.55,.075,x-side*.1,1.55,z,timberLight,false);
    }
+   // Голубые боковые окна остаются фирменной деталью лавки.
+   box(g,.06,.78,1.35,x+side*.11,1.72,-.72,marketGlass,false);
+   box(g,.08,.08,1.48,x+side*.16,2.15,-.72,M.gold,false);
+   box(g,.08,.08,1.48,x+side*.16,1.29,-.72,M.gold,false);
  }
- // Непрерывный каменный пояс над задними окнами связывает их перемычки в единую композицию.
- box(g,3.72,.14,.28,0,2.56,-2.34,M.stone2,false);
- box(g,3.82,.045,.31,0,2.655,-2.35,M.stone,false);
- box(g,3.62,.035,.32,0,2.70,-2.36,M.gold,false);
- // Пять резных консолей поддерживают пояс и подчёркивают центральную ось заднего входа.
- for(const x of [-1.82,-.92,0,.92,1.82]){
-   box(g,.26,.18,.22,x,2.39,-2.48,M.stone2,false);
-   box(g,.18,.06,.24,x,2.27,-2.5,M.gold,false);
-   sphere(g,.028,x,2.39,-2.615,M.gold,.8);
+ // Задняя стенка частично закрыта деревянными панелями, верх остаётся лёгким и открытым.
+ box(g,5.15,1.35,.16,0,1.48,-2.12,timber);
+ for(const x of [-1.65,1.65]){
+   box(g,1.18,.82,.055,x,1.66,-2.205,marketGlass,false);
+   box(g,1.28,.09,.12,x,2.12,-2.2,M.gold,false);
  }
- // Каменные накладки на концах пояса аккуратно соединяют его с угловой отделкой.
- for(const x of [-2.48,2.48]){
-   box(g,.22,.22,.24,x,2.56,-2.36,M.stone2,false);
-   box(g,.12,.08,.26,x,2.70,-2.38,M.gold,false);
+ // Тёплая подсветка прилавка и аккуратные товары за стеклом.
+ box(g,3.35,.08,.045,0,1.82,2.31,warm,false);
+ for(const [x,color] of [[-1.35,0xc94d39],[-.82,0xe6a64d],[-.28,0x78a94d],[.38,0xd18b42],[.92,0xb94a38],[1.42,0x83a94c]]){
+   cylinder(g,.105,.12,.2,x,1.82,2.33,mat(color,.45),10);
+   sphere(g,.052,x,1.94,2.33,M.gold,.7);
  }
- // Rear shop plinth: dressed stone panels protect the wall beneath both rear windows.
- for(const side of [-1,1]){
-   for(let n=0;n<3;n++){
-     const x=side*(.98+n*.52);
-     box(g,.46,.28,.18,x,.38,-2.43,n%2===0?M.stone2:M.stone,false);
-     box(g,.48,.045,.2,x,.545,-2.45,M.stone2,false);
-     sphere(g,.022,x,.38,-2.55,M.gold,.7);
-   }
-   // A slim end return ties the rear plinth into the side wall.
-   box(g,.16,.32,.34,side*2.63,.4,-2.28,M.stone2,false);
+ // Вывеска на передней балке, без декоративного домового фронтона.
+ box(g,2.45,.56,.13,0,2.88,2.25,timber);
+ const signCanvas=document.createElement('canvas');signCanvas.width=640;signCanvas.height=160;
+ const signCtx=signCanvas.getContext('2d');
+ const grad=signCtx.createLinearGradient(0,0,0,160);
+ grad.addColorStop(0,'#526c4c');grad.addColorStop(1,'#203a2d');
+ signCtx.fillStyle=grad;signCtx.fillRect(0,0,640,160);
+ signCtx.strokeStyle='#e0c17b';signCtx.lineWidth=7;signCtx.strokeRect(8,8,624,144);
+ signCtx.textAlign='center';signCtx.textBaseline='middle';
+ signCtx.fillStyle='#f6e7bd';signCtx.font='bold 48px Georgia,serif';
+ signCtx.fillText('GREEN WORLD',320,58);
+ signCtx.fillStyle='#e5d3a7';signCtx.font='bold 25px Arial,sans-serif';
+ signCtx.fillText('ТОРГОВАЯ ЛАВКА',320,111);
+ const signTexture=new THREE.CanvasTexture(signCanvas);
+ signTexture.colorSpace=THREE.SRGBColorSpace;
+ signTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const signMat=new THREE.MeshStandardMaterial({map:signTexture,roughness:.42,metalness:.12});
+ box(g,2.22,.43,.035,0,2.88,2.325,signMat,false);
+ // Подвесные фонари под козырьком и тонкие металлические подвесы.
+ for(const x of [-2.28,2.28]){
+   box(g,.08,.38,.08,x,3.02,2.38,M.gold,false);
+   const lamp=new THREE.Mesh(new THREE.SphereGeometry(.13,12,10),new THREE.MeshStandardMaterial({color:0xffe6a3,emissive:0x9b6b22,emissiveIntensity:.42}));
+   lamp.position.set(x,2.78,2.38);g.add(lamp);
+   warmLight(g,x,2.78,2.52,.62,5.5);
  }
- // Gable-edge timber trims follow the existing roof pitch on both ends.
- for(const z of [-2.48,2.48]){
-   for(const [x,angle] of [[-1.34,.42],[1.34,-.42]]){
-     const edge=box(g,3.28,.13,.16,x,3.82,z,M.wood2,false);
-     edge.rotation.z=angle;
-     const highlight=box(g,3.12,.045,.18,x,3.91,z+.025,M.gold,false);
-     highlight.rotation.z=angle;
-   }
-   box(g,.22,.16,.2,0,4.48,z,M.stone2,false);
-   sphere(g,.09,0,4.58,z+.02,M.gold,.8);
- }
- // Refined ridge caps and small forged fasteners unify the roof panels.
- box(g,.26,.12,4.82,0,4.55,0,M.stone2,false);
- for(const z of [-2.12,-1.06,0,1.06,2.12])sphere(g,.045,0,4.63,z,M.gold,.8);
- // Individually layered ceramic ridge caps protect the shop roof seam with a handcrafted finish.
+ // Полосатый тканевый навес над торговым фронтом усиливает образ рынка.
  for(let i=0;i<8;i++){
-   const z=-2.1+i*.6;
-   box(g,.34,.13,.66,0,4.65,z,i%2===0?M.roof2:M.roof,false);
-   box(g,.38,.045,.09,0,4.72,z-.27,M.stone2,false);
-   box(g,.38,.045,.09,0,4.72,z+.27,M.stone2,false);
-   for(const x of [-.11,.11])sphere(g,.022,x,4.735,z,M.gold,.8);
+   const x=-2.45+i*.7;
+   box(g,.64,.09,.78,x,2.48,2.62,i%2?M.roof:timberLight);
+   box(g,.62,.12,.08,x,2.39,3.0,i%2?M.roofEdge:M.roof);
  }
- // Shaped ceramic end pieces and small brass terminal studs finish both ends of the ridge.
- for(const z of [-2.43,2.43]){
-   box(g,.4,.15,.14,0,4.65,z,M.stone2,false);
-   box(g,.28,.07,.08,0,4.75,z,M.gold,false);
-   for(const x of [-.1,.1])sphere(g,.025,x,4.78,z,M.gold,.8);
- }
- // Slim carved fascia highlights finish the eaves without adding bulk.
- for(const x of [-2.82,2.82]){
-   box(g,.055,.055,4.62,x,3.31,0,M.gold,false);
-   for(const z of [-1.85,-.92,0,.92,1.85])box(g,.12,.12,.1,x,3.26,z,M.wood2,false);
- }
-
- // Передние водосточные трубы лавки аккуратно продолжают линию карниза по углам фасада.
- const shopFrontMetal=mat(0x596866,.58);
- for(const side of [-1,1]){
-   const px=side*2.72,pz=2.34;
-   cylinder(g,.062,.062,2.72,px,1.78,pz,shopFrontMetal,10);
-   cylinder(g,.072,.072,.28,px,3.18,pz-.12,shopFrontMetal,10).rotation.x=Math.PI/2;
-   cylinder(g,.072,.072,.18,px,3.04,pz,shopFrontMetal,10);
-   for(const y of [.72,1.62,2.52]){
-     box(g,.18,.07,.12,px,y,pz-.035,M.gold,false);
-     sphere(g,.026,px+side*.09,y,pz-.09,M.stone2,.8);
-   }
-   box(g,.24,.2,.24,px,.38,pz,M.stone2,false);
-   box(g,.18,.055,.2,px,.51,pz,M.gold,false);
- }
- // Каменное крыльцо лавки: две компактные ступени с тонкими латунными кромками.
- box(g,2.05,.12,.48,0,.12,2.92,M.stone2,false);
- box(g,1.82,.12,.42,0,.24,2.67,M.stone,false);
- box(g,2.28,.1,.18,0,.19,3.17,M.stone2,false);
- box(g,1.98,.045,.055,0,.205,3.36,M.gold,false);
- box(g,1.76,.045,.055,0,.305,2.88,M.gold,false);
- // Небольшие боковые каменные ограничители аккуратно завершают входную площадку.
- for(const x of [-1.12,1.12]){
-   box(g,.14,.22,.18,x,.11,2.93,M.stone2,false);
-   box(g,.18,.055,.22,x,.245,2.93,M.gold,false);
- }
- // Компактные водостоки на задних углах лавки завершают кровлю и защищают фасад.
- const shopMetal=mat(0x596866,.58);
- for(const side of [-1,1]){
-   const px=side*2.72,pz=-2.22;
-   cylinder(g,.065,.065,2.72,px,1.82,pz,shopMetal,10);
-   // Верхний переход от карниза к вертикальной трубе.
-   cylinder(g,.075,.075,.34,px,3.22,pz+.12,shopMetal,10).rotation.x=Math.PI/2;
-   cylinder(g,.075,.075,.2,px,3.08,pz,shopMetal,10);
-   // Крепёжные хомуты и аккуратный нижний отвод.
-   for(const y of [.72,1.72,2.72]){
-     box(g,.18,.075,.12,px,y,pz+.055,M.gold,false);
-     sphere(g,.028,px+side*.09,y,pz+.06,M.stone2,.8);
-   }
-   cylinder(g,.075,.075,.32,px, .38,pz+.12,shopMetal,10).rotation.x=Math.PI/2;
-   box(g,.12,.1,.22,px,.2,pz+.22,M.stone2,false);
- }
-
-  return disableCastShadows(g);
+ // Невысокие ступени и каменная площадка перед прилавком.
+ box(g,5.55,.12,1.05,0,.08,3.05,M.stone2,false);
+ box(g,4.95,.1,.48,0,.18,3.48,M.stone,false);
+ for(let i=0;i<6;i++)box(g,.88,.035,.48,-2.2+i*.88,.245,3.15,i%2?M.stone:M.stone2,false);
+ // Минимальный металлический декор крыши — без скатов и конька.
+ for(const z of [-2.55,2.55])box(g,6.25,.07,.08,0,3.82,z,M.gold,false);
+ for(const x of [-2.95,2.95])box(g,.08,.07,5.1,x,3.82,0,M.gold,false);
+ // Небольшая задняя дверь для хозяйственного доступа.
+ box(g,1.12,1.85,.12,0,1.45,-2.22,timber);
+ box(g,.88,1.55,.045,0,1.45,-2.29,displayWood,false);
+ box(g,.08,.3,.06,.34,1.45,-2.34,M.gold,false);
+ sphere(g,.045,.34,1.45,-2.39,M.gold,.8);
+ return disableCastShadows(g);
 }
-
 function makeFactory(){
  // Keep the factory in its approved back-right position and inside the camera frame.
  // Отодвинут немного назад, чтобы фасадная линия совпадала с главным домом.
