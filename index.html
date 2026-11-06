@@ -2875,6 +2875,50 @@ function makeWorldDecor(){
       box(world,.958,.07,.94,x,.13,z,(col+row)%4===0?sidePathTile:M.stone2,false);
     }
   }
+  // Тёмный контур и каменные бордюры подчёркивают геометрию всех основных дорожек.
+  const roadEdgeMat=mat(0x625b50,.96);
+  const roadEdgeTop=mat(0x887d69,.92);
+  const roadEdgeInlay=mat(0xaaa087,.94);
+  // Продольные бордюры центральной дорожки: непрерывная тёмная внешняя линия и светлая фаска.
+  for(const side of [-1,1]){
+    const x=side*1.965;
+    box(world,.19,.13,24.35,x,.105,2.05,roadEdgeMat,false);
+    box(world,.075,.035,24.28,x-side*.012,.184,2.05,roadEdgeTop,false);
+    box(world,.025,.018,23.9,x-side*.105,.169,2.05,roadEdgeInlay,false);
+    // Частые поперечные швы превращают край в аккуратную кладку из отдельных камней.
+    for(let i=0;i<13;i++){
+      const z=-9.15+i*1.86;
+      box(world,.195,.018,.025,x,.18,z,roadEdgeTop,false);
+    }
+  }
+  // Тёмные боковые линии поперечной дороги обрамляют плиточное мощение по всей ширине двора.
+  for(const side of [-1,1]){
+    const z=-4.55+side*.99;
+    box(world,30.15,.13,.19,1.25,.105,z,roadEdgeMat,false);
+    box(world,30.08,.035,.075,1.25,.184,z-side*.012,roadEdgeTop,false);
+    box(world,29.7,.018,.025,1.25,.169,z-side*.105,roadEdgeInlay,false);
+    for(let i=0;i<16;i++){
+      const x=-12.55+i*1.84;
+      box(world,.025,.018,.195,x,.18,z,roadEdgeTop,false);
+    }
+  }
+  // На подъёме к мосту контур повторяет уклон настила, не перекрывая его каменный торец.
+  for(let row=0;row<6;row++){
+    const z=13.75+row*.63,t=row/5,deckY=.16+.86*t;
+    for(const side of [-1,1]){
+      const x=side*1.965;
+      box(world,.18,.085,.46,x,deckY-.0325,z,roadEdgeMat,false);
+      box(world,.07,.025,.43,x-side*.012,deckY+.022,z,roadEdgeTop,false);
+    }
+  }
+  // Небольшие тёмные угловые камни связывают пересечение двух дорожек в цельный узел.
+  for(const x of [-1.91,1.91]){
+    for(const z of [-5.48,-3.62]){
+      const corner=box(world,.22,.11,.22,x,.105,z,roadEdgeMat,false);
+      corner.rotation.y=Math.PI/4;
+      box(world,.11,.025,.11,x,.17,z,roadEdgeTop,false);
+    }
+  }
   // Подход к мосту заканчивается с безопасным зазором до каменного торца и его боковой окантовки.
   // Мост начинается на Z=17.6; последняя плитка заканчивается на Z=17.16, не заходя на настил.
   // Первый ряд перекрывает только стык с центральной дорогой, а не геометрию моста.
