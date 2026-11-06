@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261106-181000';
+const GREEN_WORLD_BUILD_ID = '20261106-195600';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3059,14 +3059,14 @@ function makeWorldDecor(){
     archStone.castShadow=false;archStone.receiveShadow=false;world.add(archStone);
   }
   // Замковый камень и центральный резной знак завершают вершину парадного свода.
-  const gateKeystone=new THREE.Mesh(new THREE.OctahedronGeometry(.235,0),fenceLightTrim);
-  gateKeystone.position.set(0,gateCenterY+gateOuterR-.015,gateFrontZ+.16);
-  gateKeystone.scale.set(.88,1.18,.52);
-  gateKeystone.castShadow=false;gateKeystone.receiveShadow=false;world.add(gateKeystone);
-  const gateKeystoneInset=new THREE.Mesh(new THREE.OctahedronGeometry(.115,0),fenceJoint);
-  gateKeystoneInset.position.set(0,gateCenterY+gateOuterR+.025,gateFrontZ+.285);
-  gateKeystoneInset.scale.set(.78,1.18,.42);
-  gateKeystoneInset.castShadow=false;gateKeystoneInset.receiveShadow=false;world.add(gateKeystoneInset);
+  const gateArchKeystone=new THREE.Mesh(new THREE.OctahedronGeometry(.235,0),fenceLightTrim);
+  gateArchKeystone.position.set(0,gateCenterY+gateOuterR-.015,gateFrontZ+.16);
+  gateArchKeystone.scale.set(.88,1.18,.52);
+  gateArchKeystone.castShadow=false;gateArchKeystone.receiveShadow=false;world.add(gateArchKeystone);
+  const gateArchKeystoneInset=new THREE.Mesh(new THREE.OctahedronGeometry(.115,0),fenceJoint);
+  gateArchKeystoneInset.position.set(0,gateCenterY+gateOuterR+.025,gateFrontZ+.285);
+  gateArchKeystoneInset.scale.set(.78,1.18,.42);
+  gateArchKeystoneInset.castShadow=false;gateArchKeystoneInset.receiveShadow=false;world.add(gateArchKeystoneInset);
   // Короткие лучевые насечки связывают центральный знак с радиальной кладкой арки.
   for(const side of [-1,1]){
     const ray=box(world,.035,.24,.025,side*.22,gateCenterY+gateOuterR-.20,gateFrontZ+.285,fenceRelief,false);
