@@ -2449,6 +2449,18 @@ function makeWorldDecor(){
   box(world,.68,.11,.32,0,5.52,14.12,fenceLightTrim,false);
   const gateCrest= new THREE.Mesh(new THREE.OctahedronGeometry(.25,0),fenceCap);
   gateCrest.position.set(0,5.78,14.18);gateCrest.scale.set(.9,1.15,.42);gateCrest.castShadow=false;gateCrest.receiveShadow=false;world.add(gateCrest);
+  // Резной центральный знак на замковом камне и ступенчатая корона над ним.
+  const keystoneFrame=box(world,.34,.34,.055,0,5.02,14.475,fenceBaseTrim,false);
+  keystoneFrame.rotation.z=Math.PI/4;
+  const keystoneInset=box(world,.25,.25,.065,0,5.02,14.515,fenceLightTrim,false);
+  keystoneInset.rotation.z=Math.PI/4;
+  const keystoneMedallion=cylinder(world,.105,.105,.045,0,5.02,14.565,M.gold,16);
+  keystoneMedallion.rotation.x=Math.PI/2;
+  keystoneMedallion.castShadow=false;keystoneMedallion.receiveShadow=false;world.add(keystoneMedallion);
+  const keystoneCore=sphere(world,.052,0,5.02,14.592,fenceCap,.9);
+  keystoneCore.scale.z=.32;keystoneCore.castShadow=false;keystoneCore.receiveShadow=false;
+  box(world,.76,.055,.30,0,5.57,14.14,fenceBaseTrim,false);
+  box(world,.58,.045,.26,0,5.63,14.14,fenceLightTrim,false);
   // Латунные медальоны на пилонах и тонкий поясок соединяют арку с архитектурой ограды.
   for(const x of [-2.56,2.56]){
     box(world,.98,.09,.86,x,3.02,13.98,fenceCap,false);
