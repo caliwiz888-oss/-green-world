@@ -2853,16 +2853,20 @@ function makeWorldDecor(){
   const fenceBaseTrim=mat(0x625847),fenceLightTrim=mat(0xc8bda5),fenceRelief=mat(0x9b8d73),fenceShadow=mat(0x514939);
   // Открытая территория без забора. Каменная дорожка идёт от порога дома прямо к мосту.
   // var исключает TDZ для материалов дорожки при повторном/раннем вызове декораций.
-  var sidePathBase=mat(0xd7c49e,.9),sidePathTile=mat(0xe8ddc5,.92),sidePathJoint=mat(0xbba985,.95);
-  // Единая дорожная система без дублирующихся оснований и наложенных друг на друга плит.
+  // Тёплая кирпичная кладка: светлый песочно-терракотовый кирпич чередуется с глубоким обожжённым.
+  const roadBrickLight=mat(0xc98b62,.94);
+  const roadBrickDark=mat(0x754633,.96);
+  const roadBrickWarm=mat(0xa96849,.95);
+  const roadMortar=mat(0x59483d,.98);
+  // Единая дорожная система: тёмный раствор подчёркивает швы между отдельными кирпичами.
   // Центральная дорога: ровная ось от крыльца главного дома к мосту, одинаковая ширина по всей длине.
-  const roadBase=mat(0xcdbb98,.96);
+  const roadBase=mat(0x59483d,.98);
   box(world,3.9,.12,24.2,0,.035,2.05,roadBase,false);
   for(let row=0;row<26;row++){
     const z=-9.35+row*.94;
     for(let col=0;col<4;col++){
       const x=-1.44+col*.96;
-      box(world,.935,.07,.915,x,.13,z,(row+col)%4===0?sidePathTile:M.stone2,false);
+      box(world,.935,.07,.915,x,.13,z,(row+col)%2===0?roadBrickLight:((row+col)%4===1?roadBrickDark:roadBrickWarm),false);
     }
   }
   // Поперечная дорога проходит ровно от внутренней грани левого забора до внутренней грани правого.
@@ -2872,7 +2876,7 @@ function makeWorldDecor(){
     const x=-13.27+col*.968;
     for(let row=0;row<2;row++){
       const z=-5.025+row*.95;
-      box(world,.958,.07,.94,x,.13,z,(col+row)%4===0?sidePathTile:M.stone2,false);
+      box(world,.958,.07,.94,x,.13,z,(col+row)%2===0?roadBrickLight:((col+row)%4===1?roadBrickDark:roadBrickWarm),false);
     }
   }
   // Тёмный контур и каменные бордюры подчёркивают геометрию всех основных дорожек.
@@ -2929,7 +2933,7 @@ function makeWorldDecor(){
     box(world,4.0,.12,.48,0,deckY-.06,z,roadBase,false);
     for(let col=0;col<4;col++){
       const x=-1.44+col*.96;
-      box(world,.935,.065,.46,x,deckY-.0325,z,(row+col)%4===0?sidePathTile:M.stone2,false);
+      box(world,.935,.065,.46,x,deckY-.0325,z,(row+col)%2===0?roadBrickLight:((row+col)%4===1?roadBrickDark:roadBrickWarm),false);
     }
   }
   // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проём оставлен для дороги с моста.
