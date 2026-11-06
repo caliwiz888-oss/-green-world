@@ -899,7 +899,7 @@ function makeHouse(){
  const towerWindow=mat(0x263b40,.34);
  // Две башни остаются на прежних углах главного дома.
  for(const x of [-4.35,4.35]){
-   const t=group(g,x,0,-2.25);
+   const t=group(g,x,0,3.25);
    // Восьмигранный ствол визуально легче прежней массивной квадратной башни.
    cylinder(t,1.22,1.22,5.55,0,2.82,0,towerStoneMaterial,8);
    cylinder(t,1.29,1.29,.18,0,.16,0,towerTrimMaterial,8);
@@ -1095,13 +1095,13 @@ function makeHouse(){
  // Дублирующие наличники верхних окон фронтона удалены: основные каменные рамы и переплёты сохранены.
   // Small projecting balconies on the two front towers.
  for(const x of [-4.35,4.35]){
-   box(g,1.75,.18,.9,x,3.05,1.0,houseStoneTrim);
-   for(const dx of [-.78,-.26,.26,.78])box(g,.09,.62,.09,x+dx,3.42,1.36,M.gold);
-   box(g,1.72,.1,.1,x,3.72,1.36,M.gold);
+   box(g,1.75,.18,.9,x,3.05,4.55,houseStoneTrim);
+   for(const dx of [-.78,-.26,.26,.78])box(g,.09,.62,.09,x+dx,3.42,4.91,M.gold);
+   box(g,1.72,.1,.1,x,3.72,4.91,M.gold);
    for(const dx of [-.52,0,.52]){
-     box(g,.07,.5,.07,x+dx,3.39,1.78,M.gold,false);
+     box(g,.07,.5,.07,x+dx,3.39,5.33,M.gold,false);
    }
-   box(g,1.68,.08,.08,x,3.65,1.78,M.gold,false);
+   box(g,1.68,.08,.08,x,3.65,5.33,M.gold,false);
 
  }
  // Тонкие каменные консоли под главными окнами поддерживают глубокие подоконники.
@@ -1115,7 +1115,7 @@ function makeHouse(){
  // Повторные боковые накладки фронтонных окон удалены, чтобы исключить z-fighting.
   // Небольшие латунные накладки подчёркивают углы каменного карниза башен.
  for(const x of [-4.35,4.35]){
-   for(const z of [-1.12,1.12]){
+   for(const z of [2.13,4.37]){
      box(g,.28,.09,.09,x,5.92,z,M.gold,false);
      sphere(g,.035,x,5.98,z,M.gold,.8);
    }
@@ -1250,13 +1250,13 @@ function makeHouse(){
  }
  // Tower window surrounds and stepped cornices make both corner towers read clearly.
  for(const x of [-4.35,4.35]){
-   box(g,.92,.16,.24,x,4.12,1.23,houseStoneTrim);
-   box(g,.92,.16,.24,x,2.58,1.23,houseStoneTrim);
+   box(g,.92,.16,.24,x,4.12,4.46,houseStoneTrim);
+   box(g,.92,.16,.24,x,2.58,4.46,houseStoneTrim);
    for(const dx of [-.48,.48]){
-     box(g,.12,1.55,.2,x+dx,3.35,1.2,houseStoneTrim);
+     box(g,.12,1.55,.2,x+dx,3.35,4.46,houseStoneTrim);
    }
-   box(g,2.42,.14,2.42,x,5.78,-2.25,houseStoneTrim);
-   box(g,2.12,.1,2.12,x,5.9,-2.25,M.gold,false);
+   box(g,2.42,.14,2.42,x,5.78,3.25,houseStoneTrim);
+   box(g,2.12,.1,2.12,x,5.9,3.25,M.gold,false);
  }
  // Fine ridge crest and restrained roof-end accents.
  box(g,.22,.16,7.95,-.25,6.74,0,M.gold,false);
@@ -1276,14 +1276,14 @@ function makeHouse(){
  }
  // Tower corner stones, cornices and narrow upper lights.
  for(const x of [-4.35,4.35]){
-   for(const z of [-3.34,-1.16]){
+   for(const z of [2.16,4.34]){
      for(const y of [1.0,2.0,3.0,4.0,5.0]){
        box(g,.24,.28,.24,x+(x<0?-.96:.96),y,z,houseStoneTrim);
      }
    }
-   box(g,2.28,.16,2.28,x,5.94,-2.25,M.gold);
-   box(g,.78,1.32,.14,x,4.55,-1.13,manorGlass);
-   box(g,.96,.14,.2,x,5.24,-1.13,houseStoneTrim);
+   box(g,2.28,.16,2.28,x,5.94,3.25,M.gold);
+   box(g,.78,1.32,.14,x,4.55,4.46,manorGlass);
+   box(g,.96,.14,.2,x,5.24,4.46,houseStoneTrim);
  }
  // Rear elevation: matching framed windows and stone beltwork complete the manor from every view.
  for(const x of [-3.25,0,3.25]){
@@ -1302,9 +1302,9 @@ function makeHouse(){
  box(g,9.7,.12,.2,0,.62,-4.14,houseStoneTrim);
  // Subtle tower masonry bands and small inset upper lights sharpen the silhouette.
  for(const x of [-4.35,4.35]){
-   for(const y of [1.05,2.15,4.35,5.45])box(g,2.2,.075,2.2,x,y,-2.25,houseStoneTrim,false);
-   box(g,.48,.78,.1,x,4.85,-3.36,manorGlass,false);
-   box(g,.58,.1,.12,x,5.27,-3.38,houseStoneTrim,false);
+   for(const y of [1.05,2.15,4.35,5.45])cylinder(g,1.27,1.27,.075,x,y,3.25,houseStoneTrim,8);
+   box(g,.48,.78,.1,x,4.85,4.46,manorGlass,false);
+   box(g,.58,.1,.12,x,5.27,4.46,houseStoneTrim,false);
  }
  // Side elevations: paired recessed windows echo the front facade and break up the broad stone walls.
  for(const side of [-1,1]){
@@ -4498,7 +4498,33 @@ function drawPlayer(){
   factory.traverse(object=>{object.visible=true;if(object.isMesh)object.frustumCulled=false});
   factory.updateMatrixWorld(true);
   buildingObjects.push(factory);
-  try{buildingObjects.push(makeHouse())}catch(houseError){console.error('[render] Manor construction failed:',houseError)}
+  const manorChildrenBefore=new Set(world.children);
+  try{
+    const manor=makeHouse();
+    buildingObjects.push(manor);
+    window.GREEN_WORLD_HOUSE_MODEL='detailed';
+    window.GREEN_WORLD_HOUSE_ERROR=null;
+  }catch(houseError){
+    window.GREEN_WORLD_HOUSE_MODEL='fallback';
+    window.GREEN_WORLD_HOUSE_ERROR=String(houseError?.stack||houseError);
+    console.error('[render] Manor construction failed; restoring safe manor:',houseError);
+    for(const child of [...world.children])if(!manorChildrenBefore.has(child))world.remove(child);
+    const fallback=group(world,0,0,-14);
+    const fallbackStone=mat(0xd5d0c5),fallbackTrim=mat(0xb8b1a2),fallbackRoof=mat(0x394b42);
+    box(fallback,10,4.5,8,0,2.25,0,fallbackStone);
+    box(fallback,10.5,.38,8.5,0,4.55,0,fallbackTrim);
+    for(const x of [-4.35,4.35]){
+      const tower=group(fallback,x,0,3.25);
+      cylinder(tower,1.22,1.22,5.55,0,2.82,0,fallbackStone,8);
+      cylinder(tower,1.48,1.48,.18,0,5.72,0,fallbackTrim,8);
+      cone(tower,1.38,2.48,0,7.32,0,fallbackRoof,8);
+      for(const z of [-1.205,1.205])box(tower,.62,1.42,.045,0,3.22,z,fallbackRoof,false);
+    }
+    const roofL=box(fallback,3.95,.34,8.9,-1.93,5.72,0,fallbackRoof);roofL.rotation.z=.58;
+    const roofR=box(fallback,3.95,.34,8.9,1.43,5.72,0,fallbackRoof);roofR.rotation.z=-.58;
+    disableCastShadows(fallback);
+    buildingObjects.push(fallback);
+  }
   // Сохраняем лавку даже при сбое отдельной декоративной детали в подробной модели.
   const marketChildrenBefore=new Set(world.children);
   let market=null;
