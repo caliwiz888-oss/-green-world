@@ -4714,7 +4714,7 @@ function makeWorldLandscape(){
    shade.position.set(x,y,z);shade.scale.set(sx,.055,sz);shade.rotation.z=rz;world.add(shade);
  }
  // Убираем отбрасывание и приём теней на всех снежных поверхностях гор.
- const mountainSnowMaterials=[snow,farSnow,farSnowBack,farSnowShade];
+ const mountainSnowMaterials=[snow,farSnowBack,farSnowShade];
  for(const object of world.children){
    if(!object.isMesh) continue;
    const materials=Array.isArray(object.material)?object.material:[object.material];
