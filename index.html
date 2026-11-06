@@ -2791,13 +2791,44 @@ function makeFactory(){
  return disableCastShadows(g);
 }
 function makeFlowerBed(x,z){
- const b=group(world,x,0,z);box(b,2.2,.28,1.15,0,.14,0,M.stone2,false);
- box(b,1.9,.18,.88,0,.32,0,M.soil,false);
- const petals=[0xd95b62,0xe9c65d,0xe9e4ce,0xb76db0];
+ const b=group(world,x,0,z);
+ // Аккуратная каменная клумба с отдельной верхней кромкой и тёмным грунтом внутри.
+ box(b,2.2,.28,1.15,0,.14,0,M.stone2,false);
+ box(b,2.08,.09,1.03,0,.315,0,M.stone,false);
+ box(b,1.88,.16,.84,0,.39,0,M.soil,false);
+ const petalColors=[0xd95b62,0xe9c65d,0xe9e4ce,0xb76db0];
+ const petalMaterials=petalColors.map(color=>new THREE.MeshStandardMaterial({color,roughness:.82}));
+ const centerMaterial=new THREE.MeshStandardMaterial({color:0xe6b94d,roughness:.78});
+ const leafMaterial=new THREE.MeshStandardMaterial({color:0x56894a,roughness:.94});
+ const leafLightMaterial=new THREE.MeshStandardMaterial({color:0x79a95b,roughness:.92});
+ const flowerHead=new THREE.SphereGeometry(.075,12,9);
+ const leafGeo=new THREE.SphereGeometry(1,10,7);
  for(let i=0;i<7;i++){
-   const px=-.75+(i%4)*.5,pz=(i%2?-.2:.2);
-   cylinder(b,.035,.035,.38,px,.52,pz,M.leaf,6);
-   sphere(b,.16,px,.73,pz,mat(petals[i%petals.length]),.72);
+   const px=-.75+(i%4)*.5,pz=(i%2?-.2:.2),stemHeight=.27+(i%3)*.035;
+   const stem=new THREE.Mesh(new THREE.CylinderGeometry(.018,.024,stemHeight,6),leafMaterial);
+   stem.position.set(px,.47+stemHeight*.5,pz);stem.castShadow=false;stem.receiveShadow=false;b.add(stem);
+   // Парные листья направлены в стороны и немного приподняты над почвой.
+   for(let side of [-1,1]){
+     const leaf=new THREE.Mesh(leafGeo,i%2?leafLightMaterial:leafMaterial);
+     leaf.position.set(px+side*.105,.49+stemHeight*.34,pz+(i%2?-.025:.025));
+     leaf.scale.set(.13,.035,.055);leaf.rotation.z=side*.32;leaf.castShadow=false;leaf.receiveShadow=false;b.add(leaf);
+   }
+   const color=petalMaterials[i%petalMaterials.length];
+   for(let p=0;p<5;p++){
+     const angle=p*Math.PI*2/5;
+     const petal=new THREE.Mesh(flowerHead,color);
+     petal.position.set(px+Math.cos(angle)*.105,.47+stemHeight,pz+Math.sin(angle)*.105);
+     petal.scale.set(1,.72,1.18);petal.castShadow=false;petal.receiveShadow=false;b.add(petal);
+   }
+   const center=new THREE.Mesh(new THREE.SphereGeometry(.058,12,8),centerMaterial);
+   center.position.set(px,.47+stemHeight+.012,pz);center.castShadow=false;center.receiveShadow=false;b.add(center);
+ }
+ // Небольшие почвопокровные кустики заполняют промежутки между стеблями.
+ for(let i=0;i<10;i++){
+   const x0=-.78+(i%5)*.38,z0=(i%2?-.29:.29);
+   const tuft=new THREE.Mesh(leafGeo,i%2?leafMaterial:leafLightMaterial);
+   tuft.position.set(x0,.49,z0);tuft.scale.set(.09,.045,.075);
+   tuft.castShadow=false;tuft.receiveShadow=false;b.add(tuft);
  }
 }
 function makeWorldDecor(){
