@@ -3304,8 +3304,16 @@ function makeWorldLandscape(){
  for(const x of [-2.18,2.18]){
    for(let i=0;i<=12;i++){
      const z=bridgeStartZ+.28+(bridgeLength-.56)*i/12,y=bridgeDeckY(z);
+     const foot=box(world,.3,.12,.3,x,y+.07,z,M.stone);foot.castShadow=false;foot.receiveShadow=false;
      const post=box(world,.2,.56,.2,x,y+.31,z,M.stone2);post.castShadow=false;post.receiveShadow=false;
-     const cap=sphere(world,.14,x,y+.62,z,M.stone,false);cap.scale.set(.72,.7,.72);cap.castShadow=false;cap.receiveShadow=false;
+     const collar=box(world,.25,.1,.25,x,y+.55,z,M.stone);collar.castShadow=false;collar.receiveShadow=false;
+     const cap=sphere(world,.14,x,y+.66,z,M.stone,false);cap.scale.set(.72,.7,.72);cap.castShadow=false;cap.receiveShadow=false;
+   }
+   // Broad end piers anchor the parapets with restrained carved stone caps.
+   for(const z of [bridgeStartZ+.16,bridgeEndZ-.16]){
+     const pier=box(world,.42,.82,.46,x,bridgeDeckY(z)+.41,z,M.stone2);pier.castShadow=false;pier.receiveShadow=false;
+     const pierCap=box(world,.56,.16,.58,x,bridgeDeckY(z)+.9,z,M.stone);pierCap.castShadow=false;pierCap.receiveShadow=false;
+     const pierTop=sphere(world,.19,x,bridgeDeckY(z)+1.04,z,M.stone,false);pierTop.scale.set(.82,.72,.82);pierTop.castShadow=false;pierTop.receiveShadow=false;
    }
    const railPoints=[];for(let i=0;i<=32;i++){const z=bridgeStartZ+bridgeLength*i/32;railPoints.push(new THREE.Vector3(x,bridgeDeckY(z)+.79,z));}
    const railCurve=new THREE.CatmullRomCurve3(railPoints);
