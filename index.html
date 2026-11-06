@@ -3707,6 +3707,15 @@ function makeWorldDecor(){
         addFenceArc(archProfile(left,right,baseY,apexY,z),fenceLightTrim,.055);
         addFenceArc(archProfile(left+.17,right-.17,baseY+.035,apexY-.19,z+sign*.075),fenceBaseTrim,.027);
         addFenceArc(archProfile(left+.31,right-.31,baseY+.055,apexY-.34,z-sign*.065),fenceRelief,.018);
+        // Отдельные клиновидные камни подчёркивают наборную кладку свода и добавляют арке глубину.
+        const voussoirPoints=archProfile(left+.22,right-.22,baseY+.09,apexY-.08,z+sign*.125,'x');
+        for(let vi=1;vi<6;vi++){
+          const a=voussoirPoints[vi],b=voussoirPoints[vi+1];
+          const stone=box(world,.22,.115,.075,(a.x+b.x)/2,(a.y+b.y)/2,z+sign*.125,fenceRelief,false);
+          stone.rotation.z=Math.atan2(b.y-a.y,b.x-a.x);
+          const inset=box(world,.105,.028,.018,(a.x+b.x)/2,(a.y+b.y)/2+.012,z+sign*.17,fenceLightTrim,false);
+          inset.rotation.z=stone.rotation.z;
+        }
         const quatrefoil=new THREE.Mesh(new THREE.TorusGeometry(.145,.027,8,28),fenceCap);
         quatrefoil.position.set(cx,1.78,z+sign*.115);
         quatrefoil.scale.set(1,1.16,.62);
@@ -3735,6 +3744,14 @@ function makeWorldDecor(){
       addFenceArc(archProfile(front,back,baseY,apexY,x,'z'),fenceLightTrim,.055);
       addFenceArc(archProfile(front+.17,back-.17,baseY+.035,apexY-.19,x+sign*.035,'z'),fenceBaseTrim,.027);
       addFenceArc(archProfile(front+.31,back-.31,baseY+.055,apexY-.34,x-sign*.035,'z'),fenceRelief,.018);
+      // Замковые камни повторяют ритм передних арок на боковых секциях.
+      for(const pz of [cz-.92,cz,cz+.92]){
+        const t=(pz-cz)/1.75,py=baseY+(apexY-baseY)*(1-t*t);
+        const keystone=box(world,.13,.17,.10,x+sign*.105,py,pz,fenceRelief,false);
+        keystone.rotation.x=-t*.42;
+        const glint=box(world,.055,.07,.025,x+sign*.16,py+.015,pz,fenceLightTrim,false);
+        glint.rotation.x=keystone.rotation.x;
+      }
       const crown=new THREE.Mesh(new THREE.OctahedronGeometry(.13,0),fenceLightTrim);
       crown.position.set(x,2.62,cz);crown.scale.set(.72,1.35,1.1);
       crown.castShadow=false;crown.receiveShadow=false;world.add(crown);
