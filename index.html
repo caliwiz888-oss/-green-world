@@ -3720,6 +3720,9 @@ function makeWorldDecor(){
           box(world,.56,.14,.56,px,1.43,z,fenceLightTrim,false);
           box(world,.38,.08,.38,px,1.54,z,fenceRelief,false);
           box(world,.48,.055,.48,px,1.61,z,fenceBaseTrim,false);
+          // Двухступенчатое навершие завершает квадратный пилон и повторяет оттенки карниза.
+          box(world,.54,.045,.54,px,1.66,z,fenceLightTrim,false);
+          box(world,.34,.025,.34,px,1.695,z,fenceJoint,false);
           // Вертикальные фаски и центральная резная вставка подчёркивают архитектуру опоры.
           for(const dx of [-.125,.125]){
             box(world,.035,.82,.025,px+dx,.72,z+.239,fenceLightTrim,false);
@@ -3766,6 +3769,8 @@ function makeWorldDecor(){
         box(world,.56,.14,.56,x,1.43,pz,fenceLightTrim,false);
         box(world,.38,.08,.38,x,1.54,pz,fenceRelief,false);
         box(world,.48,.055,.48,x,1.61,pz,fenceBaseTrim,false);
+        box(world,.54,.045,.54,x,1.66,pz,fenceLightTrim,false);
+        box(world,.34,.025,.34,x,1.695,pz,fenceJoint,false);
       }
       // Каждая арка занимает собственную секцию и опирается на общие квадратные столбы.
       addFenceArc(archProfile(front,back,baseY,apexY,x,'z'),fenceLightTrim,.055);
