@@ -76,6 +76,14 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 #farmMenuPanel h2{margin:0 0 14px;font-size:20px;letter-spacing:.5px}
 #farmMenuClose{padding:10px 24px;border:1px solid #e6cf8e;border-radius:12px;background:linear-gradient(#8cc85d,#397b36);color:white;font-weight:900;font-size:14px}
 @media(max-width:360px){#farmHud{height:40px;gap:0;padding-right:6px;border-radius:13px}#farmMenuButton{width:30px;height:30px;flex-basis:30px;font-size:18px}#farmHudTitle{font-size:11px;line-height:13px}#farmHudLevel{font-size:8px;line-height:10px}}
+
+/* Bottom action buttons: separate green tiles, no shared wooden board */
+#dock{position:fixed;z-index:7;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}
+#dock .action{min-width:0;min-height:58px;padding:7px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:14px;background:linear-gradient(180deg,#8fd276,#4eaa52 60%,#267441);border:2px solid #d5f0b7;box-shadow:0 3px 0 #225c37,inset 0 1px 2px #fff9;color:#fff8df;font-size:10px;font-weight:950;line-height:1.1;text-shadow:0 1px 2px #225c37}
+#dock .action .actionIcon{font-size:24px;line-height:1.05;filter:drop-shadow(0 1px 1px #1c512d)}
+#dock .action .actionLabel{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+@media(min-width:700px){#dock{width:min(700px,calc(100vw - 32px));left:50%;right:auto;transform:translateX(-50%);bottom:18px}#dock .action{min-height:64px;font-size:12px}}
+@media(max-width:360px){#dock{left:6px;right:6px;gap:5px;bottom:calc(7px + env(safe-area-inset-bottom,0px))}#dock .action{min-height:52px;padding:5px 1px;border-radius:11px;font-size:9px}#dock .action .actionIcon{font-size:21px}}
 </style>
 </head>
 <body>
@@ -100,6 +108,15 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 (()=>{const plus=document.getElementById('walletPlus'),shade=document.getElementById('walletBuyShade'),close=document.getElementById('walletBuyClose'),buy=document.getElementById('buyCoinsButton'),donate=document.getElementById('donateButton');if(!plus||!shade||!close)return;plus.addEventListener('click',()=>shade.classList.add('open'));close.addEventListener('click',()=>shade.classList.remove('open'));shade.addEventListener('click',e=>{if(e.target===shade)shade.classList.remove('open')});document.addEventListener('keydown',e=>{if(e.key==='Escape')shade.classList.remove('open')});const notice=()=>{const toast=document.getElementById('toast');if(toast){toast.textContent='Платёжная система пока не подключена';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2600)}};buy&&buy.addEventListener('click',notice);donate&&donate.addEventListener('click',notice);})();
 </script>
 
+<div id="dock" aria-label="Действия с садом">
+ <button class="action" id="plantAction" type="button"><span class="actionIcon" aria-hidden="true">🌳</span><span class="actionLabel">Посадить</span></button>
+ <button class="action" id="waterAction" type="button"><span class="actionIcon" aria-hidden="true">💧</span><span class="actionLabel">Полить</span></button>
+ <button class="action" id="harvestAction" type="button"><span class="actionIcon" aria-hidden="true">🧺</span><span class="actionLabel">Собрать всё</span></button>
+ <button class="action" id="sellAction" type="button"><span class="actionIcon" aria-hidden="true">🛒</span><span class="actionLabel">Продать</span></button>
+</div>
+<script>
+(()=>{const labels={plantAction:'Посадка',waterAction:'Полив',harvestAction:'Сбор урожая',sellAction:'Продажа'};for(const [id,label] of Object.entries(labels)){const button=document.getElementById(id);if(!button)continue;button.addEventListener('click',()=>{const toast=document.getElementById('toast');if(!toast)return;toast.textContent=label+' — игровая механика пока не подключена';toast.classList.add('show');clearTimeout(window.greenFarmActionToastTimer);window.greenFarmActionToastTimer=setTimeout(()=>toast.classList.remove('show'),2400)})}})();
+</script>
 <div id="login"><div class="login-card"><h1>GREEN WORLD</h1><p>Новый мир готовится к открытию. Войди через Telegram, чтобы открыть 3D-мир.</p><button class="smallbtn" id="retry-login">ПОДКЛЮЧИТЬ TELEGRAM</button><p id="login-error"></p></div></div>
 </div></div>
 <script>window.GREEN_WORLD_API_URL='https://green-world-api-mx3v.onrender.com';</script>
