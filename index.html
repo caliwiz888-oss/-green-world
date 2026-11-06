@@ -289,7 +289,19 @@ function makeHouse(){
      masonryCtx.fillRect(x+2,y+2,92,28);
      masonryCtx.fillStyle='rgba(255,255,255,.12)';
      masonryCtx.fillRect(x+4,y+3,88,2);
+     // Мягкая фаска по нижнему краю каждого каменного блока добавляет читаемый объём без новых полигонов.
+     masonryCtx.fillStyle='rgba(70,70,70,.10)';
+     masonryCtx.fillRect(x+4,y+26,86,1);
+     masonryCtx.fillStyle='rgba(255,255,255,.10)';
+     masonryCtx.fillRect(x+4,y+5,1,19);
    }
+ }
+ // Мелкое зерно известняка делает поверхность менее пластиковой, сохраняя спокойный светлый тон.
+ for(let i=0;i<900;i++){
+   const px=(i*73+19)%256,py=(i*151+37)%256;
+   const alpha=.035+((i*17)%30)/1000;
+   masonryCtx.fillStyle=i%3===0?'rgba(70,70,70,'+alpha+')':'rgba(255,255,255,'+alpha+')';
+   masonryCtx.fillRect(px,py,1+(i%3),1);
  }
  masonryCtx.strokeStyle='#777777';masonryCtx.lineWidth=3;
  for(let row=0;row<8;row++){
