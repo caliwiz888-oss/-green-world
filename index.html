@@ -2855,10 +2855,32 @@ function makeFactory(){
    cylinder(g,.065,.065,.28,x,.58,4.34,canopyGutter,12).rotation.x=Math.PI/2;
    box(g,.16,.12,.2,x,.43,4.23,M.stone2,false);
  }
+ // Отдельные локальные материалы сохраняют общий металл завода, но дают решёткам более точную отделку.
+ const factoryVentMetal=metal.clone();
+ factoryVentMetal.roughness=.62;factoryVentMetal.metalness=.38;
+ const factoryVentCanvas=document.createElement('canvas');factoryVentCanvas.width=128;factoryVentCanvas.height=128;
+ const factoryVentCtx=factoryVentCanvas.getContext('2d');
+ factoryVentCtx.fillStyle='#929b94';factoryVentCtx.fillRect(0,0,128,128);
+ for(let y=0;y<128;y+=8){
+   factoryVentCtx.fillStyle='rgba(36,46,40,.17)';factoryVentCtx.fillRect(0,y,128,1);
+   factoryVentCtx.fillStyle='rgba(255,255,255,.13)';factoryVentCtx.fillRect(0,y+1,128,1);
+ }
+ for(let i=0;i<180;i++){
+   const x=(i*47+9)%128,y=(i*29+13)%128;
+   factoryVentCtx.fillStyle=i%2?'rgba(35,45,39,.08)':'rgba(255,255,255,.08)';
+   factoryVentCtx.fillRect(x,y,1,1);
+ }
+ const factoryVentTexture=new THREE.CanvasTexture(factoryVentCanvas);
+ factoryVentTexture.colorSpace=THREE.SRGBColorSpace;
+ factoryVentTexture.wrapS=factoryVentTexture.wrapT=THREE.RepeatWrapping;
+ factoryVentTexture.repeat.set(1,1);
+ factoryVentTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const factoryVentBump=factoryVentTexture.clone();factoryVentBump.colorSpace=THREE.NoColorSpace;factoryVentBump.needsUpdate=true;
+ factoryVentMetal.map=factoryVentTexture;factoryVentMetal.bumpMap=factoryVentBump;factoryVentMetal.bumpScale=.006;factoryVentMetal.needsUpdate=true;
  // Three recessed service vents on the quieter left wall, with fine metal grilles.
  for(const z of [-1.55,0,1.55]){
    box(g,.1,.92,.72,-3.7,2.28,z,darkMetal,false);
-   box(g,.055,.72,.54,-3.77,2.28,z,metal,false);
+   box(g,.055,.72,.54,-3.77,2.28,z,factoryVentMetal,false);
    for(const y of [2.02,2.15,2.28,2.41,2.54]){
      box(g,.035,.045,.5,-3.81,y,z,M.gold,false);
    }
