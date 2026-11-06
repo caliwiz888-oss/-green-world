@@ -343,6 +343,18 @@ function makeHouse(){
      doorCtx.fillStyle='rgba(255,220,170,.12)';doorCtx.fillRect(x+2,0,1,256);
    }
  }
+ // Тонкие продольные волокна подчёркивают натуральную древесину без изменения формы двери.
+ for(let i=0;i<96;i++){
+   const x=(i*47+13)%256;
+   const y=(i*83+29)%256;
+   const length=24+(i*17)%92;
+   doorCtx.strokeStyle=i%4===0?'rgba(255,220,170,.10)':'rgba(42,25,14,.065)';
+   doorCtx.lineWidth=i%7===0?2:1;
+   doorCtx.beginPath();
+   doorCtx.moveTo(x,y);
+   doorCtx.bezierCurveTo(x+1,y+length*.28,x-1,y+length*.68,x+((i%5)-2),Math.min(255,y+length));
+   doorCtx.stroke();
+ }
  for(const [x,y] of [[68,72],[188,184]]){
    doorCtx.strokeStyle='rgba(45,25,12,.16)';doorCtx.lineWidth=2;
    doorCtx.beginPath();doorCtx.ellipse(x,y,5,13,.1,0,Math.PI*2);doorCtx.stroke();
