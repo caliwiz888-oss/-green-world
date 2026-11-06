@@ -2818,6 +2818,32 @@ function makeWorldDecor(){
     const x=side==="left"?-14:16.5;
     for(let z=-10.5;z<=10.5;z+=3.5)fencePanelOrnament(x,z,side);
   }
+  // Узкие вертикальные каннелюры внутри панелей добавляют глубину, не перегружая центральные медальоны.
+  for(const side of ["front","back"]){
+    const z=side==="front"?14:-14;
+    const faceZ=z+(side==="front"?.302:-.302);
+    for(let x=-12.25;x<=15.75;x+=3.5){
+      if(side==="front"&&Math.abs(x)<4.1)continue;
+      for(const dx of [-.58,.58]){
+        box(world,.035,.46,.025,x+dx,.72,faceZ,fenceBaseTrim,false);
+        box(world,.012,.38,.018,x+dx+(dx<0?-.028:.028),.72,faceZ+(side==="front"?.018:-.018),fenceLightTrim,false);
+        box(world,.09,.035,.028,x+dx,.485,faceZ,fenceRelief,false);
+        box(world,.09,.035,.028,x+dx,.955,faceZ,fenceRelief,false);
+      }
+    }
+  }
+  for(const side of ["left","right"]){
+    const x=side==="right"?16.5:-14;
+    const faceX=x+(side==="right"?.302:-.302);
+    for(let z=-10.5;z<=10.5;z+=3.5){
+      for(const dz of [-.58,.58]){
+        box(world,.025,.46,.035,faceX,.72,z+dz,fenceBaseTrim,false);
+        box(world,.018,.38,.012,faceX+(side==="right"?.018:-.018),.72,z+dz+(dz<0?-.028:.028),fenceLightTrim,false);
+        box(world,.028,.035,.09,faceX,.485,z+dz,fenceRelief,false);
+        box(world,.028,.035,.09,faceX,.955,z+dz,fenceRelief,false);
+      }
+    }
+  }
   // Каменный фриз под карнизом: неглубокие чередующиеся блоки дают ограде законченный силуэт.
   for(const z of [-14,14]){
     const spans=z===14?[[-14,-3.8],[3.8,16.5]]:[[-14,16.5]];
