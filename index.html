@@ -3295,7 +3295,9 @@ renderer.domElement.addEventListener('pointerup',e=>{if(!pointer||pointer.id!==e
 renderer.domElement.addEventListener('pointercancel',()=>pointer=null);
 
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
-cameraPosition();function animate(){requestAnimationFrame(animate);renderer.render(scene,camera)}animate();
+// Плавное течение реки: сдвигаем карту бликов по руслу, сохраняя непрерывность текстуры.
+const riverFlowClock=new THREE.Clock();
+cameraPosition();function animate(){requestAnimationFrame(animate);const flowDelta=Math.min(riverFlowClock.getDelta(),.05);waterTexture.offset.x=(waterTexture.offset.x+flowDelta*.026)%1;waterTexture.offset.y=(waterTexture.offset.y+flowDelta*.003)%1;renderer.render(scene,camera)}animate();
 window.GREEN_WORLD_STARTUP_STAGE='renderer-running';
 window.GREEN_WORLD_MODULE_READY=true;window.GREEN_WORLD_STARTUP_STAGE='module-ready';window.dispatchEvent(new Event('green-world-renderer-ready'));
 window.addEventListener('green-world-auth',event=>{
