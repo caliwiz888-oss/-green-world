@@ -1421,9 +1421,9 @@ function makeMarket(){
    box(g,.32,.12,.32,x,.62,z,M.gold);
  }
  // Плоская широкая кровля с выступающим козырьком — главный отличительный силуэт лавки.
- box(g,6.65,.24,5.75,0,3.48,0,roofEdge);
- box(g,6.48,.16,5.58,0,3.66,0,roof);
- box(g,6.22,.08,5.3,0,3.79,0,M.gold,false);
+ box(g,6.65,.24,6.65,0,3.48,0,roofEdge);
+ box(g,6.48,.16,6.48,0,3.66,0,roof);
+ box(g,6.22,.08,6.22,0,3.79,0,M.gold,false);
  // Неглубокий центральный фонарь-клересторий вместо домового фронтона.
  box(g,2.45,.34,1.15,0,3.98,-.55,dark);
  for(const x of [-.82,-.28,.28,.82])box(g,.07,.26,1.05,x,3.99,-.55,M.gold,false);
@@ -3251,8 +3251,7 @@ function drawPlayer(){
     box(fallback,3.38,.96,.035,0,1.65,2.255,windowInterior,false);
     for(const x of [-2.35,-1.25,0,1.25,2.35])box(fallback,.13,2.5,.22,x,1.42,2.4,M.gold);
     box(fallback,1.1,2.25,.22,0,1.35,2.48,shopTimber);
-    const leftRoof=box(fallback,3.05,.25,4.9,-1.35,3.85,0,shopRoof);leftRoof.rotation.z=.42;
-    const rightRoof=box(fallback,3.05,.25,4.9,1.35,3.85,0,shopRoof);rightRoof.rotation.z=-.42;
+    box(fallback,6.2,.25,6.2,0,3.85,0,shopRoof);
     box(fallback,.22,.28,4.9,0,4.48,0,M.gold);
     for(let i=0;i<7;i++)box(fallback,.72,.18,.85,-2.52+i*.84,2.75,2.72,i%2?shopRoof:shopTrim);
     box(fallback,2.05,.62,.16,0,4.05,2.62,shopTimber);
