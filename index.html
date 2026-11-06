@@ -2340,39 +2340,76 @@ function makeWorldDecor(){
 
   // Декоративная каменная отделка ограждения: цоколь, карниз и рельефные панели.
   const fenceBaseTrim=mat(0x98896f),fenceLightTrim=mat(0xe8dcc1),fenceRelief=mat(0xcbbd9e),fenceShadow=mat(0x887b65);
-  // Центральная каменная арка входа: стоит в одной плоскости с передним забором и оставляет свободный проход для дороги с моста.
+  // Парадная арка центрального въезда: массивная классическая каменная кладка с полукруглым сводом.
+  const gateCenterY=2.45,gateOuterR=2.95,gateInnerR=2.12,gateFrontZ=14.285;
   const entranceGateShape=new THREE.Shape();
-  entranceGateShape.moveTo(-2.9,0);
-  entranceGateShape.lineTo(-2.9,3.05);
-  entranceGateShape.quadraticCurveTo(-2.9,4.05,0,4.05);
-  entranceGateShape.quadraticCurveTo(2.9,4.05,2.9,3.05);
-  entranceGateShape.lineTo(2.9,0);
+  entranceGateShape.moveTo(-gateOuterR,0);
+  entranceGateShape.lineTo(-gateOuterR,gateCenterY);
+  entranceGateShape.absarc(0,gateCenterY,gateOuterR,Math.PI,0,true);
+  entranceGateShape.lineTo(gateOuterR,0);
   entranceGateShape.closePath();
   const entranceGateOpening=new THREE.Path();
-  entranceGateOpening.moveTo(-2.12,0);
-  entranceGateOpening.lineTo(-2.12,2.62);
-  entranceGateOpening.quadraticCurveTo(-2.12,3.25,0,3.25);
-  entranceGateOpening.quadraticCurveTo(2.12,3.25,2.12,2.62);
-  entranceGateOpening.lineTo(2.12,0);
+  entranceGateOpening.moveTo(-gateInnerR,0);
+  entranceGateOpening.lineTo(-gateInnerR,gateCenterY);
+  entranceGateOpening.absarc(0,gateCenterY,gateInnerR,Math.PI,0,true);
+  entranceGateOpening.lineTo(gateInnerR,0);
   entranceGateOpening.closePath();
   entranceGateShape.holes.push(entranceGateOpening);
-  const entranceGateGeometry=new THREE.ExtrudeGeometry(entranceGateShape,{depth:.48,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.055,bevelThickness:.055});
+  const entranceGateGeometry=new THREE.ExtrudeGeometry(entranceGateShape,{depth:.52,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.075,bevelThickness:.065,curveSegments:32});
   const entranceGate=new THREE.Mesh(entranceGateGeometry,fenceMat);
   entranceGate.position.set(0,.02,13.76);
   entranceGate.castShadow=true;entranceGate.receiveShadow=true;world.add(entranceGate);
-  // Светлый каменный контур, замковый камень и основания визуально связывают арку с увеличенными столбами забора.
-  for(const x of [-2.52,2.52]){
-    box(world,.88,.2,.72,x,.16,13.72,fenceBaseTrim,false);
-    box(world,.82,.13,.76,x,3.08,13.72,fenceCap,false);
-    box(world,.96,.12,.78,x,3.2,13.72,fenceBaseTrim,false);
-  }
-  box(world,.58,.28,.62,0,4.03,13.7,fenceCap,false);
-  box(world,.82,.1,.7,0,4.2,13.7,fenceBaseTrim,false);
-  // Небольшие рельефные камни по фасаду арки.
-  for(const x of [-2.52,2.52]){
-    for(const y of [.72,1.48,2.24]){
-      box(world,.12,.34,.055,x,y,14.255,fenceLightTrim,false);
+  // Светлый внутренний архивольт подчёркивает форму свода и отделяет его от основной кладки.
+  const gateArchLine=(radius,tube,material,z=gateFrontZ)=>{
+    const pts=[];
+    for(let i=0;i<=48;i++){
+      const angle=Math.PI-i*Math.PI/48;
+      pts.push(new THREE.Vector3(radius*Math.cos(angle),gateCenterY+radius*Math.sin(angle),z));
     }
+    const curve=new THREE.CatmullRomCurve3(pts);
+    const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,96,tube,8,false),material);
+    mesh.castShadow=false;mesh.receiveShadow=false;world.add(mesh);
+    return mesh;
+  };
+  gateArchLine(2.17,.075,fenceLightTrim);
+  gateArchLine(2.84,.09,fenceCap);
+  gateArchLine(2.98,.045,fenceBaseTrim);
+  // Каменные клинья свода: радиальные швы делают арку похожей на настоящую резную кладку.
+  for(let i=1;i<13;i++){
+    const angle=Math.PI-i*Math.PI/13;
+    const inner=new THREE.Vector3(2.19*Math.cos(angle),gateCenterY+2.19*Math.sin(angle),gateFrontZ+.035);
+    const outer=new THREE.Vector3(2.82*Math.cos(angle),gateCenterY+2.82*Math.sin(angle),gateFrontZ+.035);
+    const seamCurve=new THREE.LineCurve3(inner,outer);
+    const seam=new THREE.Mesh(new THREE.TubeGeometry(seamCurve,1,.018,6,false),fenceShadow);
+    seam.castShadow=false;seam.receiveShadow=false;world.add(seam);
+  }
+  // Парные рустованные пилоны с базами, вертикальными каннелюрами и резными капителями.
+  for(const x of [-2.56,2.56]){
+    box(world,.92,.24,.78,x,.16,13.98,fenceBaseTrim,false);
+    box(world,.82,.14,.82,x,.34,13.98,fenceLightTrim,false);
+    box(world,.76,2.02,.7,x,1.42,13.99,fenceMat,false);
+    for(const dx of [-.24,0,.24]){
+      box(world,.045,1.58,.035,x+dx,1.42,14.365,fenceLightTrim,false);
+    }
+    box(world,1.02,.16,.86,x,2.48,13.98,fenceCap,false);
+    box(world,.9,.12,.82,x,2.62,13.98,fenceBaseTrim,false);
+    box(world,1.08,.14,.9,x,2.75,13.98,fenceLightTrim,false);
+    box(world,.96,.12,.84,x,2.88,13.98,fenceBaseTrim,false);
+  }
+  // Выразительный замковый камень и небольшой герб над вершиной свода.
+  const gateKeystone=box(world,.62,.76,.22,0,5.02,14.34,fenceCap,false);
+  gateKeystone.rotation.z=Math.PI/4;
+  box(world,.92,.13,.34,0,5.43,14.12,fenceBaseTrim,false);
+  box(world,.68,.11,.32,0,5.52,14.12,fenceLightTrim,false);
+  const gateCrest= new THREE.Mesh(new THREE.OctahedronGeometry(.25,0),fenceCap);
+  gateCrest.position.set(0,5.78,14.18);gateCrest.scale.set(.9,1.15,.42);gateCrest.castShadow=true;world.add(gateCrest);
+  // Латунные медальоны на пилонах и тонкий поясок соединяют арку с архитектурой ограды.
+  for(const x of [-2.56,2.56]){
+    box(world,.98,.09,.86,x,3.02,13.98,fenceCap,false);
+    const medallion=cylinder(world,.16,.16,.055,x,1.62,14.405,M.gold,12);
+    medallion.rotation.x=Math.PI/2;
+    const medallionCore=sphere(world,.07,x,1.62,14.445,fenceLightTrim,.9);
+    medallionCore.scale.z=.35;
   }
   // Непрерывный нижний цоколь и верхний каменный карниз по четырём сторонам.
   for(const z of [-14,14]){
