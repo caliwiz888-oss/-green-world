@@ -3358,13 +3358,13 @@ function makeWorldLandscape(){
  for(const x of [-2.18,2.18]){
    for(let i=0;i<=12;i++){
      const z=bridgeStartZ+.28+(bridgeLength-.56)*i/12,y=bridgeDeckY(z);
-     const foot=box(world,.3,.12,.3,x,y+.07,z,bridgeStoneMid);foot.castShadow=false;foot.receiveShadow=false;
-     const post=box(world,.2,.56,.2,x,y+.31,z,bridgeStoneLight);post.castShadow=false;post.receiveShadow=false;
-     const collar=box(world,.25,.1,.25,x,y+.55,z,bridgeStoneMid);collar.castShadow=false;collar.receiveShadow=false;
-     // Small restrained diamond-cut granite bosses give each baluster a hand-carved finish.
-     const boss=box(world,.105,.105,.026,x,y+.32,z+.108,bridgeStoneDark);boss.rotation.z=Math.PI/4;boss.castShadow=false;boss.receiveShadow=false;
-     const bossCore=box(world,.043,.043,.029,x,y+.32,z+.128,bridgeStoneLight);bossCore.rotation.z=Math.PI/4;bossCore.castShadow=false;bossCore.receiveShadow=false;
-     const cap=sphere(world,.14,x,y+.66,z,bridgeStoneMid,false);cap.scale.set(.72,.7,.72);cap.castShadow=false;cap.receiveShadow=false;
+     const foot=box(world,.37,.15,.37,x,y+.085,z,bridgeStoneMid);foot.castShadow=false;foot.receiveShadow=false;
+      const post=box(world,.27,.62,.27,x,y+.36,z,bridgeStoneLight);post.castShadow=false;post.receiveShadow=false;
+      const collar=box(world,.34,.14,.34,x,y+.66,z,bridgeStoneMid);collar.castShadow=false;collar.receiveShadow=false;
+      // Larger carved granite medallions give the balusters a stronger, monumental profile.
+      const boss=box(world,.145,.145,.034,x,y+.37,z+.145,bridgeStoneDark);boss.rotation.z=Math.PI/4;boss.castShadow=false;boss.receiveShadow=false;
+      const bossCore=box(world,.06,.06,.038,x,y+.37,z+.173,bridgeStoneLight);bossCore.rotation.z=Math.PI/4;bossCore.castShadow=false;bossCore.receiveShadow=false;
+      const cap=sphere(world,.18,x,y+.8,z,bridgeStoneMid,false);cap.scale.set(.8,.74,.8);cap.castShadow=false;cap.receiveShadow=false;
    }
    // Broad end piers anchor the parapets with restrained carved stone caps.
    for(const z of [bridgeStartZ+.16,bridgeEndZ-.16]){
@@ -3374,7 +3374,11 @@ function makeWorldLandscape(){
    }
    const railPoints=[];for(let i=0;i<=32;i++){const z=bridgeStartZ+bridgeLength*i/32;railPoints.push(new THREE.Vector3(x,bridgeDeckY(z)+.79,z));}
    const railCurve=new THREE.CatmullRomCurve3(railPoints);
-   const handrail=new THREE.Mesh(new THREE.TubeGeometry(railCurve,64,.115,8,false),new THREE.MeshStandardMaterial({color:0x858d8e,roughness:.9,metalness:0}));handrail.castShadow=false;handrail.receiveShadow=false;world.add(handrail);
+   const handrail=new THREE.Mesh(new THREE.TubeGeometry(railCurve,64,.16,10,false),new THREE.MeshStandardMaterial({color:0x858d8e,roughness:.9,metalness:0}));handrail.castShadow=false;handrail.receiveShadow=false;world.add(handrail);
+    // A continuous lower granite rail visually ties the enlarged balusters together.
+    const lowerPoints=[];for(let i=0;i<=32;i++){const z=bridgeStartZ+bridgeLength*i/32;lowerPoints.push(new THREE.Vector3(x,bridgeDeckY(z)+.2,z));}
+    const lowerCurve=new THREE.CatmullRomCurve3(lowerPoints);
+    const lowerRail=new THREE.Mesh(new THREE.TubeGeometry(lowerCurve,64,.085,8,false),bridgeStoneMid);lowerRail.castShadow=false;lowerRail.receiveShadow=false;world.add(lowerRail);
  }
  for(const bridgePart of world.children.slice(bridgeChildrenStart)){if(bridgePart.isMesh){bridgePart.castShadow=false;bridgePart.receiveShadow=false;}}
  // Natural riverbank detail: smooth stones, reeds and shallow-water highlights.
