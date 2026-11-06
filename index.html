@@ -2281,7 +2281,7 @@ function makeWorldDecor(){
       if(z===14 && Math.abs(p)<3.6) continue;
       box(world,1.25,.55,.42,p,.27,z,fenceMat,false);
     }
-    for(const x of [-14,18]){
+    for(const x of [-14,16.5]){
       box(world,.42,.55,1.25,x,.27,p,fenceMat,false);
     }
   }
@@ -2292,7 +2292,7 @@ function makeWorldDecor(){
       box(world,.72,.13,.72,p,.91,z,fenceCap,false);
       box(world,.38,.045,.38,p,.99,z,fenceJoint,false);
     }
-    for(const x of [-14,18]){
+    for(const x of [-14,16.5]){
       box(world,.58,.86,.58,x,.43,p,fenceMat,false);
       box(world,.72,.13,.72,x,.91,p,fenceCap,false);
       box(world,.38,.045,.38,x,.99,p,fenceJoint,false);
@@ -2306,7 +2306,7 @@ function makeWorldDecor(){
   // Fountain, entrance arch, lamps and crop beds are omitted.
  // Low ornamental ground cover and natural stone clusters around the outer border.
  const shrubMat=mat(0x477f3d),rockMat=mat(0x8b8979);
- for(const [x,z,scale] of [[-17,-10,1.2],[-18,7,1.1],[17,-8,1.25],[18,8,1.15],[-12,18,1],[12,18,1]]){
+ for(const [x,z,scale] of [[-17,-10,1.2],[17,-8,1.25],[18,8,1.15],[-12,18,1],[12,18,1]]){
    const shrub=sphere(world,.72,x,.42,z,shrubMat,.72);shrub.scale.set(scale,scale*.78,scale);
    sphere(world,.48,x+.42,.3,z+.22,M.leaf2,.7).scale.setScalar(scale*.82);
  }
@@ -3345,7 +3345,7 @@ function applyPlayer(){$('login').style.display='none';try{drawPlayer()}catch(e)
 async function request(path,body=null,retry=true){const opts={method:body===null?'GET':'POST',credentials:'include',headers:{'Content-Type':'application/json'}};if(token)opts.headers.Authorization='Bearer '+token;if(body!==null)opts.body=JSON.stringify(body);let res=await fetch(API+path,opts);if(res.status===401&&retry&&!['/api/auth/telegram','/api/auth/refresh'].includes(path)){const rr=await fetch(API+'/api/auth/refresh',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'}});if(rr.ok){token=(await rr.json()).accessToken;return request(path,body,false)}}const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Ошибка сервера '+res.status);return data}
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2600)}
 async function login(){const tg=window.Telegram?.WebApp;const initData=tg?.initData||'';if(!initData){$('login-error').textContent='Открой игру из Telegram-бота, чтобы войти.';return}try{tg.ready();tg.expand();$('login-error').textContent='Подключаем аккаунт…';const data=await request('/api/auth/telegram',{initData},false);token=data.accessToken;applyPlayer()}catch(e){$('login-error').textContent='Не удалось войти: '+e.message}}
-function cameraPosition(){camera.position.set(0,cameraHeight,cameraRadius);camera.lookAt(0,.8,-1.5)}
+function cameraPosition(){camera.position.set(13.5,cameraHeight,cameraRadius);camera.lookAt(0,.8,-1.5)}
 
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
 // Плавное течение реки: сдвигаем карту бликов по руслу, сохраняя непрерывность текстуры.
