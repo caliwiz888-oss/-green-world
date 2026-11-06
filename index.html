@@ -3108,6 +3108,21 @@ function makeWorldDecor(){
     box(world,.96,.035,.045,x,2.35,14.405,fenceBaseTrim,false);
     box(world,.96,.025,.035,x,2.30,14.415,fenceLightTrim,false);
   }
+  // Парные резные розетки на нижних частях пилонов уравновешивают орнамент верхних капителей.
+  for(const x of [-2.56,2.56]){
+    const baseRosette=new THREE.Mesh(new THREE.OctahedronGeometry(.105,0),fenceLightTrim);
+    baseRosette.position.set(x,.72,14.405);
+    baseRosette.scale.set(1,.92,.34);
+    baseRosette.castShadow=false;baseRosette.receiveShadow=false;world.add(baseRosette);
+    const baseRosetteCore=new THREE.Mesh(new THREE.OctahedronGeometry(.043,0),fenceBaseTrim);
+    baseRosetteCore.position.set(x,.72,14.447);
+    baseRosetteCore.scale.set(.9,.9,.32);
+    baseRosetteCore.castShadow=false;baseRosetteCore.receiveShadow=false;world.add(baseRosetteCore);
+    for(const side of [-1,1]){
+      const baseRay=box(world,.025,.13,.018,x+side*.105,.72,14.425,fenceRelief,false);
+      baseRay.rotation.z=side*.42;
+    }
+  }
   // Дополнительная резная отделка пилонов: узкие внутренние каннелюры и каменные угловые фаски.
   for(const x of [-2.56,2.56]){
     for(const dx of [-.17,.17]){
