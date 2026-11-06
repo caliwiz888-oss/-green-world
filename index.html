@@ -2868,6 +2868,28 @@ function makeFactory(){
  const factoryPlinthStone=M.stone2.clone();
  factoryPlinthStone.color.setHex(0x555956);
  factoryPlinthStone.roughness=.9;
+ // Мелкозернистая фактура тёмного цокольного камня подчёркивает тесаные плиты и горизонтальные слои.
+ const factoryPlinthCanvas=document.createElement('canvas');factoryPlinthCanvas.width=128;factoryPlinthCanvas.height=128;
+ const factoryPlinthCtx=factoryPlinthCanvas.getContext('2d');
+ factoryPlinthCtx.fillStyle='#a4a8a3';factoryPlinthCtx.fillRect(0,0,128,128);
+ for(let i=0;i<34;i++){
+   const y=(i*37+9)%128;
+   factoryPlinthCtx.strokeStyle=i%3===0?'rgba(42,49,45,.10)':'rgba(255,255,255,.075)';
+   factoryPlinthCtx.lineWidth=.5+(i%3)*.35;
+   factoryPlinthCtx.beginPath();factoryPlinthCtx.moveTo(0,y);factoryPlinthCtx.lineTo(128,y+((i%3)-1)*.35);factoryPlinthCtx.stroke();
+ }
+ for(let i=0;i<620;i++){
+   const x=(i*47+13)%128,y=(i*71+5)%128;
+   factoryPlinthCtx.fillStyle=i%2?'rgba(35,43,39,.09)':'rgba(255,255,255,.085)';
+   factoryPlinthCtx.fillRect(x,y,1+(i%2),1);
+ }
+ const factoryPlinthTexture=new THREE.CanvasTexture(factoryPlinthCanvas);
+ factoryPlinthTexture.colorSpace=THREE.SRGBColorSpace;
+ factoryPlinthTexture.wrapS=factoryPlinthTexture.wrapT=THREE.RepeatWrapping;
+ factoryPlinthTexture.repeat.set(1.5,1);
+ factoryPlinthTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const factoryPlinthBump=factoryPlinthTexture.clone();factoryPlinthBump.colorSpace=THREE.NoColorSpace;factoryPlinthBump.needsUpdate=true;
+ factoryPlinthStone.map=factoryPlinthTexture;factoryPlinthStone.bumpMap=factoryPlinthBump;factoryPlinthStone.bumpScale=.018;factoryPlinthStone.needsUpdate=true;
  const factoryPlinthCap=M.stone.clone();
  factoryPlinthCap.color.setHex(0x747a73);
  factoryPlinthCap.roughness=.86;
