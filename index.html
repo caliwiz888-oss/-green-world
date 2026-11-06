@@ -2366,8 +2366,20 @@ function makeWorldLandscape(){
    const k=(y*128+x)*4;foothillImage.data[k]=v;foothillImage.data[k+1]=v;foothillImage.data[k+2]=v;foothillImage.data[k+3]=255;
  }
  foothillCtx.putImageData(foothillImage,0,0);
- foothillCtx.strokeStyle='rgba(65,91,57,.12)';foothillCtx.lineWidth=1;
- for(let y=10;y<128;y+=23){foothillCtx.beginPath();foothillCtx.moveTo(0,y);foothillCtx.quadraticCurveTo(64,y-5,128,y+4);foothillCtx.stroke();}
+ // Неровная мозаика мягких растительных оттенков разбивает однотонность склонов без изменения их силуэта.
+ for(let i=0;i<24;i++){
+   const x=(i*43+17)%128,y=(i*67+23)%128,rx=5+(i*7)%12,ry=2+(i*5)%6;
+   foothillCtx.fillStyle=i%3===0?'rgba(76,112,63,.075)':(i%3===1?'rgba(174,190,128,.065)':'rgba(103,132,82,.055)');
+   foothillCtx.beginPath();foothillCtx.ellipse(x,y,rx,ry,(i%7-3)*.11,0,Math.PI*2);foothillCtx.fill();
+ }
+ // Многоуровневые тонкие линии повторяют плавные изгибы рельефа и остаются почти незаметными издалека.
+ for(let y=5;y<128;y+=11){
+   foothillCtx.strokeStyle=y%22===5?'rgba(65,91,57,.105)':'rgba(224,231,195,.055)';
+   foothillCtx.lineWidth=y%22===5?.85:.55;
+   foothillCtx.beginPath();foothillCtx.moveTo(-4,y);
+   foothillCtx.bezierCurveTo(28,y-7+(y%9),72,y+5-(y%7),132,y-2+(y%11));
+   foothillCtx.stroke();
+ }
  const foothillTexture=new THREE.CanvasTexture(foothillCanvas);
  foothillTexture.colorSpace=THREE.SRGBColorSpace;foothillTexture.wrapS=foothillTexture.wrapT=THREE.RepeatWrapping;
  foothillTexture.repeat.set(2,1);foothillTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
