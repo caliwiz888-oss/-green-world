@@ -2722,6 +2722,60 @@ function makeWorldDecor(){
     const x=side==="left"?-14:16.5;
     for(let z=-10.5;z<=10.5;z+=3.5)fencePanel(x,z,side);
   }
+  // Рельефные центральные медальоны и угловые заклёпки завершают картуши ограды.
+  const fencePanelOrnament=(cx,cz,side)=>{
+    if(side==="front"||side==="back"){
+      const z=cz+(side==="front"?.265:-.265);
+      const diamond=box(world,.28,.28,.045,cx,.72,z,fenceRelief,false);
+      diamond.rotation.z=Math.PI/4;
+      box(world,.13,.13,.052,cx,.72,z+(side==="front"?.035:-.035),fenceLightTrim,false);
+      const jewel=sphere(world,.052,cx,.72,z+(side==="front"?.075:-.075),M.gold,.88);
+      jewel.scale.set(1,1,.34);jewel.castShadow=false;jewel.receiveShadow=false;
+      for(const dx of [-.88,.88]){
+        const stud=cylinder(world,.035,.035,.025,cx+dx,.72,z+(side==="front"?.045:-.045),fenceBaseTrim,10);
+        stud.rotation.x=Math.PI/2;stud.castShadow=false;stud.receiveShadow=false;world.add(stud);
+      }
+    }else{
+      const x=cx+(side==="right"?.265:-.265);
+      const diamond=box(world,.045,.28,.28,x,.72,cz,fenceRelief,false);
+      diamond.rotation.y=Math.PI/4;
+      box(world,.052,.13,.13,x+(side==="right"?.035:-.035),.72,cz,fenceLightTrim,false);
+      const jewel=sphere(world,.052,x+(side==="right"?.075:-.075),.72,cz,M.gold,.88);
+      jewel.scale.set(.34,1,1);jewel.castShadow=false;jewel.receiveShadow=false;
+      for(const dz of [-.88,.88]){
+        const stud=cylinder(world,.035,.035,.025,x+(side==="right"?.045:-.045),.72,cz+dz,fenceBaseTrim,10);
+        stud.rotation.z=Math.PI/2;stud.castShadow=false;stud.receiveShadow=false;world.add(stud);
+      }
+    }
+  };
+  for(const side of ["front","back"]){
+    const z=side==="front"?14:-14;
+    for(let x=-12.25;x<=15.75;x+=3.5){
+      if(side==="front"&&Math.abs(x)<4.1)continue;
+      fencePanelOrnament(x,z,side);
+    }
+  }
+  for(const side of ["left","right"]){
+    const x=side==="left"?-14:16.5;
+    for(let z=-10.5;z<=10.5;z+=3.5)fencePanelOrnament(x,z,side);
+  }
+  // Каменный фриз под карнизом: неглубокие чередующиеся блоки дают ограде законченный силуэт.
+  for(const z of [-14,14]){
+    const spans=z===14?[[-14,-3.8],[3.8,16.5]]:[[-14,16.5]];
+    for(const [start,end] of spans){
+      for(let x=start+.65;x<end-.4;x+=1.75){
+        box(world,.82,.075,.035,x,1.205,z+(z<0?-.405:.405),fenceBaseTrim,false);
+        box(world,.68,.025,.045,x,1.255,z+(z<0?-.425:.425),fenceLightTrim,false);
+      }
+    }
+  }
+  for(const x of [-14,16.5]){
+    const faceX=x+(x<0?-.405:.405);
+    for(let z=-12.2;z<=12.2;z+=1.75){
+      box(world,.035,.075,.82,faceX,1.205,z,fenceBaseTrim,false);
+      box(world,.045,.025,.68,faceX+(x<0?-.02:.02),1.255,z,fenceLightTrim,false);
+    }
+  }
   // Тонкие фаски на торцах верхнего карниза усиливают глубину каменного профиля.
   for(const z of [-14,14]){
     const spans=z===14?[[-14,-3.8],[3.8,16.5]]:[[-14,16.5]];
