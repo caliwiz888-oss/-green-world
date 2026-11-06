@@ -2544,6 +2544,15 @@ function makeWorldLandscape(){
    foothillCtx.bezierCurveTo(x+len*.25,y+bend,x+len*.7,y-bend*.4,x+len,y+bend*.2);
    foothillCtx.stroke();
  }
+ // Мягкие локальные тени в небольших впадинах делают дальние склоны объёмнее, не добавляя новых объектов.
+ for(let i=0;i<8;i++){
+   const x=(i*37+18)%128,y=(i*53+12)%128,len=10+(i*7)%15,ry=1.8+(i%3)*.7;
+   const g=foothillCtx.createRadialGradient(x,y,0,x,y,len);
+   g.addColorStop(0,'rgba(43,68,45,.075)');
+   g.addColorStop(1,'rgba(43,68,45,0)');
+   foothillCtx.fillStyle=g;foothillCtx.beginPath();
+   foothillCtx.ellipse(x,y,len,ry,(i%5-2)*.12,0,Math.PI*2);foothillCtx.fill();
+ }
  const foothillTexture=new THREE.CanvasTexture(foothillCanvas);
  foothillTexture.colorSpace=THREE.SRGBColorSpace;foothillTexture.wrapS=foothillTexture.wrapT=THREE.RepeatWrapping;
  foothillTexture.repeat.set(2,1);foothillTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
