@@ -2461,6 +2461,15 @@ function makeWorldLandscape(){
    waterCtx.lineWidth=.35+(i%3)*.22;waterCtx.beginPath();
    waterCtx.moveTo(x,y);waterCtx.quadraticCurveTo(x+len*.48,y-1.2+(i%5)*.45,x+len,y+.4);waterCtx.stroke();
  }
+ // Редкие широкие мягкие блики передают отражение неба и плавное течение реки.
+ for(let i=0;i<14;i++){
+   const x=(i*41+13)%128,y=(i*53+7)%128,len=20+(i*11)%34,curve=((i*7)%9)-4;
+   waterCtx.strokeStyle=i%3===0?'rgba(255,255,255,.105)':'rgba(226,245,239,.065)';
+   waterCtx.lineWidth=1.1+(i%3)*.45;waterCtx.lineCap='round';waterCtx.beginPath();
+   waterCtx.moveTo(x,y);
+   waterCtx.bezierCurveTo(x+len*.28,y+curve*.3,x+len*.68,y-curve*.45,x+len,y+curve*.15);
+   waterCtx.stroke();
+ }
  const waterTexture=new THREE.CanvasTexture(waterCanvas);waterTexture.colorSpace=THREE.SRGBColorSpace;
  waterTexture.wrapS=waterTexture.wrapT=THREE.RepeatWrapping;waterTexture.repeat.set(2,1);
  waterTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();water.map=waterTexture;water.roughness=.24;water.needsUpdate=true;
