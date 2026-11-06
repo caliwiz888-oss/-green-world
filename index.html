@@ -361,16 +361,8 @@ function makeHouse(){
    box(g,.22,.18,.2,x,4.78,4.16,houseStoneTrim,false);
    box(g,.14,.045,.22,x,4.88,4.18,M.gold,false);
  }
- // Круглое слуховое окно в переднем фронтоне: стекло, каменный обод и тонкий латунный переплёт.
- const atticX=-.25,atticY=5.66,atticZ=4.125;
- const atticGlass=cylinder(g,.47,.47,.055,atticX,atticY,atticZ, M.glass,32);
- atticGlass.rotation.x=Math.PI/2;
- const atticRing=new THREE.Mesh(new THREE.TorusGeometry(.55,.075,10,40),houseStoneTrim);
- atticRing.position.set(atticX,atticY,4.18);atticRing.castShadow=true;atticRing.receiveShadow=true;g.add(atticRing);
- const atticBrass=new THREE.Mesh(new THREE.TorusGeometry(.43,.018,6,36),M.gold);
- atticBrass.position.set(atticX,atticY,4.205);g.add(atticBrass);
- box(g,.045,.84,.045,atticX,atticY,4.22,M.gold,false);
- box(g,.84,.045,.045,atticX,atticY,4.22,M.gold,false);
+ // Старое центральное круглое окно удалено: оно накладывалось на медальон фронтона.
+ // Сохранено одно верхнее слуховое окно с каменным и латунным обрамлением.
  // Central entrance, gold cross details and symmetrical windows.
  box(g,1.65,2.7,.24,0,1.35,4.12,M.wood);
  box(g,.16,2.3,.28,-.65,1.35,4.27,M.gold,false);
