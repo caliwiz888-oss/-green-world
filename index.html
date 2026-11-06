@@ -3547,6 +3547,14 @@ for(let x=0;x<20;x++)for(let z=0;z<20;z++){
  const i=x*20+z;const tile=new THREE.Mesh(tileGeo,(x+z)%2?M.grass:M.grass2);tile.position.set((x-9.5)*1.45,-.03,(z-9.5)*1.45);tile.receiveShadow=true;tile.userData.plotIndex=i;world.add(tile);tiles.push(tile);
 }
 const sharedWorldMaterials=new Set([...Object.values(M),windowInterior]);
+// Материалы-клоны зданий используют те же карты поверхности, что и общий мир.
+// Эти текстуры нельзя освобождать при перестройке одного здания.
+const sharedWorldTextures=new Set(Object.values(surfaceMaps));
+for(const material of sharedWorldMaterials){
+ for(const key of ['map','alphaMap','aoMap','bumpMap','normalMap','roughnessMap','metalnessMap','emissiveMap','envMap']){
+  const texture=material?.[key];if(texture&&texture.isTexture)sharedWorldTextures.add(texture);
+ }
+}
 function disposeObject3D(root){
  const materials=new Set(),textures=new Set();
  root.traverse(object=>{
@@ -3557,7 +3565,8 @@ function disposeObject3D(root){
    if(!material||sharedWorldMaterials.has(material))continue;
    materials.add(material);
    for(const key of ['map','alphaMap','aoMap','bumpMap','normalMap','roughnessMap','metalnessMap','emissiveMap','envMap']){
-    const texture=material[key];if(texture&&texture.isTexture)textures.add(texture);
+    const texture=material[key];
+    if(texture&&texture.isTexture&&!sharedWorldTextures.has(texture))textures.add(texture);
    }
   }
  });
