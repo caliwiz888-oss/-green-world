@@ -3402,6 +3402,13 @@ function makeWorldLandscape(){
      for(const side of [-1,1]){
        const quoin=box(world,.045,.7,.035,x+side*.255,.52,z+.305,bridgeStoneLight);quoin.castShadow=false;quoin.receiveShadow=false;
      }
+     // A restrained double moulding crowns the pier face, tying its carved panel into the arch.
+     for(const face of [-1,1]){
+       const upperFrontBand=box(world,.49,.026,.026,x,.775,z+face*.307,bridgeStoneLight);upperFrontBand.castShadow=false;upperFrontBand.receiveShadow=false;
+       const upperSideBand=box(world,.026,.026,.49,x+face*.307,.775,z,bridgeStoneLight);upperSideBand.castShadow=false;upperSideBand.receiveShadow=false;
+       const lowerFrontCut=box(world,.49,.012,.012,x,.746,z+face*.307,bridgeStoneDark);lowerFrontCut.castShadow=false;lowerFrontCut.receiveShadow=false;
+       const lowerSideCut=box(world,.012,.012,.49,x+face*.307,.746,z,bridgeStoneDark);lowerSideCut.castShadow=false;lowerSideCut.receiveShadow=false;
+     }
      // Fine recessed-looking mortar courses articulate the large granite pier blocks.
      for(const y of [.34,.59]){
        for(const face of [-1,1]){
