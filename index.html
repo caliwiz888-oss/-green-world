@@ -805,6 +805,8 @@ function makeHouse(){
      // Малые латунные крепления рёбер добавляют аккуратный металлический ритм кровле.
      for(const ry of [6.48,6.98]){
        sphere(t,.024,Math.cos(ang)*.96,ry,Math.sin(ang)*.96,towerGoldMaterial,.8);
+       // Миниатюрная светлая шайба под латунной головкой делает крепёж визуально точнее.
+       cylinder(t,.034,.034,.012,Math.cos(ang)*.962,ry-.012,Math.sin(ang)*.962,towerRoofSeam,8);
      }
    }
    cylinder(t,.1,.1,.85,0,8.82,0,towerGoldMaterial,8);
