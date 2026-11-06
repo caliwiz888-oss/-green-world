@@ -496,6 +496,15 @@ function makeHouse(){
    manorRoofCtx.fillStyle=i%2?'rgba(255,255,255,'+alpha+')':'rgba(18,25,31,'+alpha+')';
    manorRoofCtx.fillRect(x,y,1,1);
  }
+ // Едва заметные световые кромки отдельных кровельных пластин подчёркивают рельеф черепицы.
+ for(let i=0;i<18;i++){
+   const row=(i*7+3)%16,x=(i*53+21)%244,y=row*16+3+(i%5);
+   const len=8+(i*11)%25;
+   manorRoofCtx.strokeStyle=i%3===0?'rgba(255,255,255,.105)':'rgba(222,230,232,.065)';
+   manorRoofCtx.lineWidth=.45+(i%2)*.25;manorRoofCtx.beginPath();
+   manorRoofCtx.moveTo(x,y);manorRoofCtx.lineTo(Math.min(255,x+len),y+.35);
+   manorRoofCtx.stroke();
+ }
  const manorRoofTexture=new THREE.CanvasTexture(manorRoofCanvas);
  manorRoofTexture.colorSpace=THREE.SRGBColorSpace;
  manorRoofTexture.wrapS=manorRoofTexture.wrapT=THREE.RepeatWrapping;
