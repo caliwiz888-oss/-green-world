@@ -2677,10 +2677,10 @@ function makeWorldLandscape(){
    const wisp=new THREE.Mesh(new THREE.SphereGeometry(1,20,8),cirrusMat);
    wisp.position.set(x,y,z);wisp.scale.set(sx,sy,sz);wisp.rotation.z=rz;world.add(wisp);
  }
- const hillMat=mat(0x668f58),hillLight=mat(0x82a968),mountain=mat(0x71877b),snow=mat(0xe5eee5),water=new THREE.MeshPhysicalMaterial({color:0x4aa9c5,roughness:.2,metalness:.08,transparent:true,opacity:.82});
+ const hillMat=mat(0x668f58),hillLight=mat(0x82a968),mountain=mat(0x71877b),snow=mat(0xe5eee5),water=new THREE.MeshPhysicalMaterial({color:0x4aa9c5,roughness:.19,metalness:.055,clearcoat:.48,clearcoatRoughness:.2,reflectivity:.68,transparent:true,opacity:.84});
  // Едва заметная направленная фактура речной поверхности — без изменения русла и берегов.
  const waterCanvas=document.createElement('canvas');waterCanvas.width=128;waterCanvas.height=128;
- const waterCtx=waterCanvas.getContext('2d');waterCtx.fillStyle='#b9d9d5';waterCtx.fillRect(0,0,128,128);
+ const waterCtx=waterCanvas.getContext('2d');const waterBase=waterCtx.createLinearGradient(0,0,0,128);waterBase.addColorStop(0,'#c5e4df');waterBase.addColorStop(.48,'#a8d2d4');waterBase.addColorStop(1,'#78b8c8');waterCtx.fillStyle=waterBase;waterCtx.fillRect(0,0,128,128);
  // Мягкие вытянутые тональные переливы создают ощущение неодинаковой глубины и отражений на поверхности воды.
  for(let i=0;i<8;i++){
    const x=(i*43+17)%128,y=(i*59+9)%128,rx=15+(i*7)%17,ry=3+(i*3)%5;
