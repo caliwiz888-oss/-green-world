@@ -3616,8 +3616,23 @@ function makeWorldDecor(){
      leafCluster.castShadow=false;leafCluster.receiveShadow=false;world.add(leafCluster);
    }
  }
+ // Естественные группы валунов: крупный камень дополнен меньшими сколотыми фрагментами.
+ const rockLight=mat(0xa19d8d,.94),rockShade=mat(0x77796f,.97);
  for(const [x,z,r] of [[-17,-17,.9],[17,-17,.8],[-18,15,.75],[18,15,1.0]]){
-   const rock=sphere(world,r,x,.22,z,rockMat,.62);rock.rotation.z=.22;
+   const main=sphere(world,r,x,.22,z,rockMat,.62);
+   main.scale.set(1.12,.72,.9);main.rotation.set(.08,.22,-.12);
+   main.castShadow=false;main.receiveShadow=false;
+   const fragments=[
+     [-.72,.10,.24,.43,.32,.34,rockLight],
+     [.68,.08,-.28,.36,.28,.31,rockShade],
+     [.18,.045,.72,.27,.19,.24,rockLight]
+   ];
+   for(const [dx,dy,dz,sx,sy,sz,material] of fragments){
+     const shard=sphere(world,r,x+dx*r,.12+dy*r,z+dz*r,material,.68);
+     shard.scale.set(sx,sy,sz);
+     shard.rotation.set(.12,dx*.3,dz*.18);
+     shard.castShadow=false;shard.receiveShadow=false;
+   }
  }
  // Small natural ground-cover clusters soften the transition from the fenced farm to the hills.
  const grassA=mat(0x5b8e43),grassB=mat(0x7da653),pebble=mat(0xb2a98f);
