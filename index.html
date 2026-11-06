@@ -393,7 +393,7 @@ function makeSurfaceTexture(kind,seed){
  }
  const texture=new THREE.CanvasTexture(canvas);
  texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
- texture.repeat.set(kind==='wood'?2:3,kind==='wood'?2:3);
+ const textureRepeat=kind==='wood'?2:(kind==='stone'||kind==='roof'?4:3);texture.repeat.set(textureRepeat,textureRepeat);
  texture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  return texture;
 }
