@@ -2998,6 +2998,20 @@ function makeWorldDecor(){
       box(world,.92,.12,.92,x,1.52,p,fenceBaseTrim,false);
     }
   }
+  // Вертикальные русты на внешних гранях угловых опор подчёркивают их массивность и связывают стороны ограды.
+  for(const x of [-14,16.5])for(const z of [-14,14]){
+    const sx=x<0?-1:1, sz=z<0?-1:1;
+    for(const offset of [-.23,.23]){
+      box(world,.045,.72,.035,x+offset,.84,z+sz*.515,fenceBaseTrim,false);
+      box(world,.018,.62,.022,x+offset+(offset<0?-.035:.035),.84,z+sz*.538,fenceLightTrim,false);
+      box(world,.035,.72,.045,x+sx*.515,.84,z+offset,fenceBaseTrim,false);
+      box(world,.022,.62,.018,x+sx*.538,.84,z+offset+(offset<0?-.035:.035),fenceLightTrim,false);
+    }
+    for(const y of [.46,1.22]){
+      box(world,.62,.035,.035,x,y,z+sz*.52,fenceRelief,false);
+      box(world,.035,.035,.62,x+sx*.52,y,z,fenceRelief,false);
+    }
+  }
   // Непрерывные профилированные накрывные плиты объединяют секции ограды в цельную архитектуру.
   for(const z of [-14,14]){
     const spans=z===14?[[10.4,-8.8],[12.9,10.05]]:[[30.5,1.25]];
