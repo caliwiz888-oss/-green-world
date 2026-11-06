@@ -3296,11 +3296,11 @@ function makeWorldLandscape(){
      joint.rotation.x=-Math.atan(slope);joint.castShadow=false;joint.receiveShadow=false;
    }
  }
- // Individual staggered granite setts replace the old transverse stripe lines.
- // The dark bed remains visible only in the narrow joints, like real cobblestone paving.
- bridgeDeckMaterial.color.setHex(0x50595d);
+ // Alternating white and grey granite bricks in a staggered running-bond pattern.
+ // The dark base forms narrow mortar joints; each pale or grey brick keeps its own stone grain.
+ bridgeDeckMaterial.color.setHex(0x42494c);
  const settPositions=[],settColors=[],settUvs=[],settIndices=[];
- const settOutline=[[ -.5,-.34],[-.34,-.5],[.34,-.5],[.5,-.34],[.5,.34],[.34,.5],[-.34,.5],[-.5,.34]];
+ const settOutline=[[-.5,-.42],[-.42,-.5],[.42,-.5],[.5,-.42],[.5,.42],[.42,.5],[-.42,.5],[-.5,.42]];
  const settColumns=10,settRows=16,settPitchX=.45,settPitchZ=.565;
  for(let row=0;row<settRows;row++){
    const centerZ=bridgeStartZ+.29+row*settPitchZ;
@@ -3308,18 +3308,19 @@ function makeWorldLandscape(){
    for(let col=0;col<settColumns;col++){
      const centerX=-2.025+col*settPitchX+stagger;
      if(centerX< -2.2||centerX>2.2)continue;
-     const width=.415+(((row*7+col*3)%5)-2)*.006;
-     const depth=.515+(((row*5+col*11)%5)-2)*.007;
+     const width=.428+(((row*7+col*3)%5)-2)*.004;
+     const depth=.535+(((row*5+col*11)%5)-2)*.005;
      const base=settPositions.length/3;
-     const shade=.56+((row*13+col*17)%9)*.014;
+     const isWhite=(row+col)%2===0;
+     const shade=isWhite?.84+((row*13+col*17)%6)*.018:.43+((row*13+col*17)%6)*.018;
      const variation=((row*3+col*7)%5)*.012;
      for(let k=0;k<8;k++){
        const [ox,oz]=settOutline[k];
        const x=centerX+ox*width,z=centerZ+oz*depth;
-       const y=bridgeDeckY(z)+.035;
+       const y=bridgeDeckY(z)+.038;
        settPositions.push(x,y,z);
-       const tone=shade+(k%3===0?variation*.35:0);
-       settColors.push(tone,tone*1.025,tone*1.035);
+       const tone=Math.min(.98,shade+(k%3===0?variation*.35:0));
+       settColors.push(tone,tone*1.012,tone*1.02);
        settUvs.push((x+2.4)/4.8,(z-bridgeStartZ)/bridgeLength);
      }
      for(let k=1;k<7;k++)settIndices.push(base,base+k,base+k+1);
@@ -3330,7 +3331,7 @@ function makeWorldLandscape(){
  settGeometry.setAttribute('color',new THREE.Float32BufferAttribute(settColors,3));
  settGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(settUvs,2));
  settGeometry.setIndex(settIndices);settGeometry.computeVertexNormals();
- const settMaterial=new THREE.MeshStandardMaterial({color:0xffffff,map:surfaceMaps.stone,roughness:.97,metalness:0,vertexColors:true});
+ const settMaterial=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.96,metalness:0,vertexColors:true,bumpMap:surfaceMaps.stone,bumpScale:.018});
  const bridgeSetts=new THREE.Mesh(settGeometry,settMaterial);
  bridgeSetts.castShadow=false;bridgeSetts.receiveShadow=false;world.add(bridgeSetts);
  // Two substantial masonry arch ribs beneath the deck.
