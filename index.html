@@ -2722,6 +2722,34 @@ function makeWorldDecor(){
   for(const x of [-14,16.5]){
     box(world,.035,.028,28.25,x+(x<0?-.405:.405),.235,0,fenceLightTrim,false);
   }
+  // Уточнённая отделка каменных панелей: угловые розетки и тонкий внутренний профиль.
+  for(let p=-12.25;p<=12.25;p+=3.5){
+    for(const z of [-14.24,14.24]){
+      if(z===14.24 && Math.abs(p)<3.6) continue;
+      const faceZ=z+(z<0?-.205:.205);
+      for(const sx of [-1,1]){
+        for(const sy of [-1,1]){
+          const stud=cylinder(world,.035,.035,.025,p+sx*.67,.68+sy*.115,faceZ+(z<0?-.018:.018),fenceCap,10);
+          stud.rotation.x=Math.PI/2;
+          stud.castShadow=false;stud.receiveShadow=false;world.add(stud);
+        }
+      }
+      box(world,.92,.018,.025,p,.82,faceZ,fenceBaseTrim,false);
+      box(world,.92,.018,.025,p,.54,faceZ,fenceBaseTrim,false);
+    }
+    for(const x of [-14.24,16.74]){
+      const faceX=x+(x<0?-.205:.205);
+      for(const sz of [-1,1]){
+        for(const sy of [-1,1]){
+          const stud=cylinder(world,.035,.035,.025,faceX+(x<0?-.018:.018),.68+sy*.115,p+sz*.67,fenceCap,10);
+          stud.rotation.z=Math.PI/2;
+          stud.castShadow=false;stud.receiveShadow=false;world.add(stud);
+        }
+      }
+      box(world,.025,.018,.92,faceX,.82,p,fenceBaseTrim,false);
+      box(world,.025,.018,.92,faceX,.54,p,fenceBaseTrim,false);
+    }
+  }
   // Неглубокие декоративные картуши между опорными столбами ограды.
   // Каждая панель имеет тёмную внутреннюю грань и тонкую светлую каменную рамку.
   const fencePanel=(cx,cz,side)=>{
