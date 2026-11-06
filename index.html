@@ -4213,6 +4213,16 @@ function makeWorldLandscape(){
    ring.rotation.x=-Math.PI/2;ring.position.set(x,.112,z);ring.scale.set(.08,1,.08);world.add(ring);
    riverRingObjects.push({mesh:ring,material:ringMat,baseX:x,baseZ:z,phase:i*.71,speed:.22+(i%3)*.035});
  }
+ // Дополнительные круги ряби возникают в разных местах и расходятся по поверхности.
+ const eddyPoints=[[-20,20.3],[-14,23.8],[-8,21.1],[-2,24.1],[5,20.2],[11,23.6],[17,21.4],[22,24.2],[-5,22.8],[14,19.9]];
+ for(let i=0;i<eddyPoints.length;i++){
+   const [x,z]=eddyPoints[i];
+   const eddyMat=new THREE.MeshBasicMaterial({color:i%3===0?0xf4fff9:0xccebe4,transparent:true,opacity:.16,depthWrite:false,side:THREE.DoubleSide});
+   const eddy=new THREE.Mesh(new THREE.TorusGeometry(1,.009,5,32),eddyMat);
+   eddy.rotation.x=-Math.PI/2;eddy.position.set(x,.116,z);eddy.scale.set(.06,1,.06);
+   eddy.castShadow=false;eddy.receiveShadow=false;world.add(eddy);
+   riverRingObjects.push({mesh:eddy,material:eddyMat,baseX:x,baseZ:z,phase:i*1.13+0.5,speed:.27+(i%4)*.035});
+ }
  // Узкие подвижные отражения света и береговой зелени у кромки реки.
  const bankReflectionMat=new THREE.MeshBasicMaterial({color:0xd9eee0,transparent:true,opacity:.14,depthWrite:false});
  for(let i=0;i<10;i++){
@@ -4228,6 +4238,15 @@ function makeWorldLandscape(){
    const foam=new THREE.Mesh(new THREE.SphereGeometry(.5,12,8),foamMat);
    foam.position.set(x,.112,z);foam.scale.set(len,.012,.055+(i%2)*.018);foam.rotation.y=(i%5-2)*.035;world.add(foam);
    riverFoamObjects.push({mesh:foam,material:foamMat,baseX:x,baseZ:z,phase:i*.91,speed:.19+(i%4)*.035,drift:.42+(i%3)*.18});
+ }
+ // Небольшие пенистые язычки закручиваются и распадаются по течению.
+ for(let i=0;i<14;i++){
+   const x=-21+(i*7.15)%42,z=19.55+(i*17%52)/10;
+   const foamMat=new THREE.MeshBasicMaterial({color:0xe9faf2,transparent:true,opacity:.1,depthWrite:false});
+   const foam=new THREE.Mesh(new THREE.SphereGeometry(.5,10,7),foamMat);
+   foam.position.set(x,.119,z);foam.scale.set(.18+(i%3)*.07,.012,.045+(i%2)*.018);
+   foam.rotation.y=(i%5-2)*.045;foam.castShadow=false;foam.receiveShadow=false;world.add(foam);
+   riverFoamObjects.push({mesh:foam,material:foamMat,baseX:x,baseZ:z,phase:i*1.37+.6,speed:.24+(i%4)*.04,drift:.55+(i%3)*.16});
  }
  // Мягкие цветные отражения неба и зелёных берегов дробятся на отдельные движущиеся дорожки.
  const riverReflectionColors=[0xc8e8e8,0xd8eee2,0x9fc9a6,0xb8d9d2];
