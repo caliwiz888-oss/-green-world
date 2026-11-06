@@ -1569,6 +1569,14 @@ function makeFactory(level=1){
      brickCtx.fillRect(x+4,y+3,56,2);
    }
  }
+ // Мелкое минеральное зерно кирпича: только в карте материала, без накладной геометрии.
+ // Детерминированный рисунок исключает мерцание и сохраняет одинаковую фактуру между кадрами.
+ for(let i=0;i<420;i++){
+   const x=(i*73+19)%256,y=(i*47+11)%256;
+   const light=i%3===0;
+   brickCtx.fillStyle=light?'rgba(255,255,255,.10)':'rgba(35,24,20,.075)';
+   brickCtx.fillRect(x,y,1+(i%3),1+(i%2));
+ }
  brickCtx.strokeStyle='#555555';brickCtx.lineWidth=5;
  for(let row=0;row<8;row++){
    const y=row*32;
