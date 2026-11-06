@@ -798,6 +798,9 @@ function makeHouse(){
    cylinder(t,.135,.135,.035,0,9.18,0,towerGoldMaterial,8);
    // Многоступенчатое латунное навершие завершает шатёр без изменения его силуэта.
    cylinder(t,.17,.17,.1,0,8.48,0,towerGoldMaterial,8);
+   // Узкие обоймы подчёркивают основание стержня и переход к верхнему наконечнику.
+   cylinder(t,.145,.145,.025,0,8.56,0,towerGoldMaterial,8);
+   cylinder(t,.112,.112,.025,0,9.32,0,towerGoldMaterial,8);
    sphere(t,.105,0,9.27,0,towerGoldMaterial,.9);
    cone(t,.105,.3,0,9.46,0,towerGoldMaterial,8);
    for(const z of [-1.09,1.09])box(t,.65,1.15,.12,0,3.35,z,M.wood);
