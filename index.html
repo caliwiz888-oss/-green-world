@@ -4277,7 +4277,7 @@ function makeWorldLandscape(){
    const wisp=new THREE.Mesh(new THREE.SphereGeometry(1,20,8),cirrusMat);
    wisp.position.set(x,y,z);wisp.scale.set(sx,sy,sz);wisp.rotation.z=rz;world.add(wisp);
  }
- const hillMat=mat(0x668f58),hillLight=mat(0x82a968),mountain=mat(0x563522),snow=mat(0xe5eee5),water=new THREE.MeshPhysicalMaterial({color:0x4aa9c5,roughness:.19,metalness:.055,clearcoat:.48,clearcoatRoughness:.2,reflectivity:.68,transparent:true,opacity:.84});
+ const hillMat=mat(0x668f58),hillLight=mat(0x82a968),mountain=mat(0x625f58),snow=mat(0xe5eee5),water=new THREE.MeshPhysicalMaterial({color:0x4aa9c5,roughness:.19,metalness:.055,clearcoat:.48,clearcoatRoughness:.2,reflectivity:.68,transparent:true,opacity:.84});
  // Едва заметная направленная фактура речной поверхности — без изменения русла и берегов.
  const waterCanvas=document.createElement('canvas');waterCanvas.width=128;waterCanvas.height=128;
  const waterCtx=waterCanvas.getContext('2d');const waterBase=waterCtx.createLinearGradient(0,0,0,128);waterBase.addColorStop(0,'#c5e4df');waterBase.addColorStop(.48,'#a8d2d4');waterBase.addColorStop(1,'#78b8c8');waterCtx.fillStyle=waterBase;waterCtx.fillRect(0,0,128,128);
@@ -4428,10 +4428,10 @@ function makeWorldLandscape(){
  const alpineRockPixels=alpineRockCtx.createImageData(128,128);
  for(let py=0;py<128;py++)for(let px=0;px<128;px++){
    const n=118+Math.round(13*Math.sin(px*.19+py*.075)+8*Math.sin(py*.31-px*.045)+((px*17+py*29)%11)-5);
-   const k=(py*128+px)*4;alpineRockPixels.data[k]=n;alpineRockPixels.data[k+1]=Math.round(n*.78);alpineRockPixels.data[k+2]=Math.round(n*.62);alpineRockPixels.data[k+3]=255;
+   const k=(py*128+px)*4;alpineRockPixels.data[k]=n;alpineRockPixels.data[k+1]=Math.round(n*.96);alpineRockPixels.data[k+2]=Math.round(n*.91);alpineRockPixels.data[k+3]=255;
  }
  alpineRockCtx.putImageData(alpineRockPixels,0,0);
- alpineRockCtx.strokeStyle='rgba(45,61,56,.16)';alpineRockCtx.lineWidth=1;
+ alpineRockCtx.strokeStyle='rgba(43,46,45,.18)';alpineRockCtx.lineWidth=1;
  for(let y=12;y<128;y+=19){alpineRockCtx.beginPath();alpineRockCtx.moveTo(0,y);alpineRockCtx.lineTo(128,y+9);alpineRockCtx.stroke();}
  // Тонкие разломы и минеральные вкрапления делают скальную поверхность выразительнее без новых полигонов.
  for(let i=0;i<22;i++){
@@ -4622,9 +4622,9 @@ function makeWorldLandscape(){
    const [x,z,h,r]=peaks[i];
    const summit=cone(world,r,h,x,h*.48,z,mountain,8);summit.rotation.y=(i%2?-.13:.11);summit.scale.set(i%3===0?1.08:1,.98,i%2?1.12:.94);
    // Darker lower rock bands and lighter exposed upper shoulders break up the plain cone silhouette.
-   const lower=cone(world,r*.88,h*.43,x,h*.27,z+.16,mat(0x3b261a),9);
+   const lower=cone(world,r*.88,h*.43,x,h*.27,z+.16,mat(0x45443f),9);
    lower.scale.set(1,.94,1);
-   cone(world,r*.66,h*.29,x+(i%2?-.5:.45),h*.48,z-.18,mat(0x68452e),9);
+   cone(world,r*.66,h*.29,x+(i%2?-.5:.45),h*.48,z-.18,mat(0x777168),9);
    // Snow crown sits high on each summit with a smaller offset ridge for an irregular alpine profile.
    cone(world,r*.43,h*.36,x,h*.79,z+.22,snow,9);
    cone(world,r*.2,h*.19,x+(i%2?-.42:.38),h*.88,z-.2,mat(0xf4f5ed),7);
@@ -4635,7 +4635,7 @@ function makeWorldLandscape(){
    }
  }
  // A distant secondary alpine ridge adds atmospheric depth behind the main snow peaks.
- const farRock=mat(0x68452f),farShadow=mat(0x493021),farSnow=mat(0xdce8e3);
+ const farRock=mat(0x77766f),farShadow=mat(0x4b4a45),farSnow=mat(0xdce8e3);
  // Та же минеральная карта на дальнем хребте, но с меньшей силой рельефа из-за атмосферной перспективы.
  for(const m of [farRock,farShadow]){
    m.map=alpineRockTexture;m.bumpMap=alpineRockBump;m.bumpScale=.038;
@@ -4648,7 +4648,7 @@ function makeWorldLandscape(){
    cone(world,r*.28,h*.18,x+.18,h*.88,z-.2,farSnow,7);
  }
  // Fine diagonal strata on the forward faces give the exposed stone a layered, carved appearance.
- const stratumDark=mat(0x382419),stratumLight=mat(0x79543a);
+ const stratumDark=mat(0x3d3d39),stratumLight=mat(0x81796d);
  for(let i=0;i<peaks.length;i++){
    const [x,z,h,r]=peaks[i];
    for(const side of [-1,1]){
@@ -4658,7 +4658,7 @@ function makeWorldLandscape(){
    }
  }
  // Narrow exposed-rock ribs and snow gullies break up the main summits with natural alpine variation.
- const rockRib=mat(0x40291d),snowShadow=mat(0xf0f5f0);
+ const rockRib=mat(0x494640),snowShadow=mat(0xf0f5f0);
  for(let i=0;i<peaks.length;i++){
    const [x,z,h,r]=peaks[i];
    for(const side of [-1,1]){
@@ -4669,7 +4669,7 @@ function makeWorldLandscape(){
    }
  }
  // Small broken rock ledges catch side light on the lower alpine faces.
- const ledgeMat=mat(0x62432e);
+ const ledgeMat=mat(0x6b665d);
  for(let i=0;i<peaks.length;i++){
    const [x,z,h,r]=peaks[i];
    const ledge=new THREE.Mesh(new THREE.SphereGeometry(1,14,8),ledgeMat);
@@ -4711,7 +4711,7 @@ function makeWorldLandscape(){
    ridgeLine.position.set(x,y,z);ridgeLine.scale.set(sx,sy,sz);world.add(ridgeLine);
  }
  // Far blue-grey peaks sit behind the main range, giving the horizon a true layered-distance effect.
- const farRockBack=mat(0x745036),farSnowBack=mat(0xcbd9d6);
+ const farRockBack=mat(0x858178),farSnowBack=mat(0xcbd9d6);
  // Дальние вершины используют те же минеральные и снежные карты, что и основной хребет.
  farRockBack.map=alpineRockTexture;farRockBack.bumpMap=alpineRockBump;farRockBack.bumpScale=.032;farRockBack.roughness=.98;farRockBack.needsUpdate=true;
  farSnowBack.map=snowTexture;farSnowBack.bumpMap=snowBump;farSnowBack.bumpScale=.008;farSnowBack.roughness=.99;farSnowBack.needsUpdate=true;
@@ -4725,7 +4725,7 @@ function makeWorldLandscape(){
    snowFace.position.set(x,y,z);snowFace.scale.set(sx,sy,sz);snowFace.rotation.y=.18;world.add(snowFace);
  }
  // Узкие световые грани на дальних скальных вершинах подчёркивают рельеф без изменения силуэта гор.
- const farRockLight=mat(0x8a6749);
+ const farRockLight=mat(0x9a9488);
  for(const [x,y,z,sx,sy,sz,rz] of [
    [-29,4.7,-45.9,1.45,.16,.42,-.22],[-18,6.2,-50.9,1.8,.18,.48,.16],
    [-5,5.3,-53.9,1.35,.15,.4,-.12],[9,6.7,-51.9,1.9,.17,.5,.2],
