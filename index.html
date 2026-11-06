@@ -4162,6 +4162,21 @@ function makeWorldLandscape(){
    const mist=new THREE.Mesh(new THREE.SphereGeometry(1,20,10),mistMat);
    mist.position.set(x,y,z);mist.scale.set(sx,sy,sz);world.add(mist);
  }
+ // Дальняя линия хвойных деревьев связывает ограду с холмами, не затрагивая игровую площадку.
+ const pineTrunkMat=mat(0x70513a,.96),pineDeepMat=mat(0x315b43,.98),pineMidMat=mat(0x47754c,.96),pineTipMat=mat(0x638b59,.94);
+ const pinePositions=[[-29,-30,4.4],[-24,-33,5.2],[-18,-31,3.8],[-12,-35,5.6],[-5,-33,4.3],[3,-36,5.8],[10,-32,4.5],[17,-35,5.4],[24,-32,4.1],[29,-29,4.8]];
+ for(let i=0;i<pinePositions.length;i++){
+   const [x,z,h]=pinePositions[i],base=.16+(i%3)*.035;
+   const trunk=new THREE.Mesh(new THREE.CylinderGeometry(base*.72,base,h*.48,7),pineTrunkMat);
+   trunk.position.set(x,h*.24,z);trunk.castShadow=false;trunk.receiveShadow=false;world.add(trunk);
+   for(let tier=0;tier<3;tier++){
+     const radius=(.72-tier*.13)*(h/4.8),tierHeight=h*(.43-tier*.035);
+     const crown=new THREE.Mesh(new THREE.ConeGeometry(radius,tierHeight,8),tier===0?pineDeepMat:(tier===1?pineMidMat:pineTipMat));
+     crown.position.set(x,h*(.36+tier*.205),z);
+     crown.rotation.y=(i%4)*.18+tier*.24;
+     crown.castShadow=false;crown.receiveShadow=false;world.add(crown);
+   }
+ }
  // A broad river outside the farm boundary, with layered banks and a stone crossing.
  // Цельная сетчатая поверхность с реальной плавной волной вместо плоской коробки.
  const riverGeometry=new THREE.PlaneGeometry(52,6.8,156,28);
