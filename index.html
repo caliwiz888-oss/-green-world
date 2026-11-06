@@ -1466,6 +1466,17 @@ function makeHouse(){
  for(let ix=0;ix<5;ix++)for(let iz=0;iz<2;iz++){
    box(g,.96,.035,.62,-1.92+ix*.96,.112,4.58+iz*.66,ix%2?M.stone:M.stone2,false);
  }
+ // Ступенчатый каменный цоколь по всему периметру главного дома,
+ // от нижней кромки фасада до земли, в той же архитектуре, что и основание фабрики.
+ for(const z of [-4.06,4.06]){
+   box(g,10.42,.14,.22,0,.07,z,houseStoneTrim,false);
+   box(g,10.22,.24,.16,0,.25,z,houseStone,false);
+ }
+ for(const x of [-5.06,5.06]){
+   box(g,.22,.14,8.02,x,.07,0,houseStoneTrim,false);
+   box(g,.16,.24,7.82,x,.25,0,houseStone,false);
+ }
+
  return disableCastShadows(g);
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
@@ -1637,6 +1648,17 @@ function makeMarket(){
  for(const x of [-2.78,2.78]){
    box(g,.075,.055,4.95,x,3.34,0,timber,false);
  }
+ // Цоколь по всему периметру павильона опускается до уровня земли, как у фабрики.
+ // Два каменных пояса образуют аккуратную ступенчатую основу; все детали без теней.
+ for(const z of [-2.43,2.43]){
+   box(g,5.98,.14,.16,0,.09,z,M.stone2,false);
+   box(g,5.88,.22,.12,0,.27,z,M.stone,false);
+ }
+ for(const x of [-2.98,2.98]){
+   box(g,.16,.14,4.72,x,.09,0,M.stone2,false);
+   box(g,.12,.22,4.62,x,.27,0,M.stone,false);
+ }
+
  return disableCastShadows(g);
 }
 function makeFactory(){
