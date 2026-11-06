@@ -856,191 +856,65 @@ function makeHouse(){
      }
    }
  }
- // Отдельный материал башенных шатров наследует фактуру металлических пластин основной кровли.
- const towerRoofMaterial=manorRoofMaterial.clone();
- towerRoofMaterial.color.setHex(0xd5d9dc);towerRoofMaterial.roughness=.62;towerRoofMaterial.metalness=.28;towerRoofMaterial.bumpScale=.012;towerRoofMaterial.needsUpdate=true;
- // Башенная кладка получает более выраженную микрофактуру светлого тесаного известняка.
+ // Новая архитектура двух башен: стройный восьмигранный каменный объём и высокие окна.
+ // Сохраняем прежние места и общую высоту башен, убирая тяжёлую квадратную кладку и избыток золота.
  const towerStoneMaterial=houseStone.clone();
- towerStoneMaterial.color.setHex(0xe2ded4);towerStoneMaterial.roughness=.9;towerStoneMaterial.bumpScale=.038;towerStoneMaterial.needsUpdate=true;
- // Тонкие швы кладки подчёркивают масштаб тесаных блоков башен.
- const towerMortarMaterial=towerStoneMaterial.clone();
- towerMortarMaterial.color.setHex(0xcfc9bd);towerMortarMaterial.roughness=.98;towerMortarMaterial.bumpScale=0;towerMortarMaterial.needsUpdate=true;
- const towerDetailStone=houseStoneTrim.clone();
- towerDetailStone.color.setHex(0xe6e0d5);towerDetailStone.roughness=.94;towerDetailStone.bumpScale=.032;towerDetailStone.needsUpdate=true;
- // Спокойный сатинированный металл объединяет латунные пояса, крепления и навершия башен.
- const towerGoldMaterial=M.gold.clone();
- towerGoldMaterial.color.setHex(0xd6b36b);towerGoldMaterial.metalness=.78;towerGoldMaterial.roughness=.3;towerGoldMaterial.needsUpdate=true;
- // Two corner towers with separate steep roofs and golden finials.
+ towerStoneMaterial.color.setHex(0xdedbd2);towerStoneMaterial.roughness=.92;towerStoneMaterial.bumpScale=.026;towerStoneMaterial.needsUpdate=true;
+ const towerTrimMaterial=houseStoneTrim.clone();
+ towerTrimMaterial.color.setHex(0xeee9df);towerTrimMaterial.roughness=.9;towerTrimMaterial.needsUpdate=true;
+ const towerRoofMaterial=new THREE.MeshStandardMaterial({color:0x3d5350,roughness:.82,metalness:.06});
+ const towerRoofLine=new THREE.MeshStandardMaterial({color:0x68766c,roughness:.86,metalness:.04});
+ const towerMetal=new THREE.MeshStandardMaterial({color:0xb99a61,roughness:.48,metalness:.48});
+ const towerWindow=mat(0x263b40,.34);
+ // Две башни остаются на прежних углах главного дома.
  for(const x of [-4.35,4.35]){
    const t=group(g,x,0,-2.25);
-   box(t,2.15,5.8,2.15,0,2.9,0,towerStoneMaterial);
-   // Низкий каменный цокольный пояс завершает основание башни у уровня земли.
-   box(t,2.24,.12,.075,0,.13,1.09,towerDetailStone,false);
-   box(t,2.24,.12,.075,0,.13,-1.09,towerDetailStone,false);
-   box(t,.075,.12,2.24,1.09,.13,0,towerDetailStone,false);
-   box(t,.075,.12,2.24,-1.09,.13,0,towerDetailStone,false);
-   box(t,2.35,.22,2.35,0,5.82,0,houseStoneTrim);
-   // Тонкая фасадная линия подчёркивает верхнюю кромку каменного карниза по всему периметру.
-   for(const side of [-1,1]){
-     box(t,2.12,.016,.016,0,5.875,side*1.183,towerDetailStone,false);
-     box(t,.016,.016,2.12,side*1.183,5.875,0,towerDetailStone,false);
-   }
-   // Два тонких каменных пояса под верхним карнизом подчёркивают переход к шатру.
-   for(const y of [5.66,5.76]){
-     box(t,2.28,.045,.075,0,y,1.105,towerDetailStone,false);
-     box(t,2.28,.045,.075,0,y,-1.105,towerDetailStone,false);
-     box(t,.075,.045,2.28,1.105,y,0,towerDetailStone,false);
-     box(t,.075,.045,2.28,-1.105,y,0,towerDetailStone,false);
-   }
-   // Tower roof base: layered eaves and a narrow brass weatherproofing band.
-   cylinder(t,1.76,1.76,.12,0,5.98,0,houseStoneTrim,4);
-   cylinder(t,1.79,1.79,.055,0,6.055,0,towerGoldMaterial,4);
-   // Четыре небольших латунных заклёпки уточняют крепление пояса у основания шатра.
-   for(const sx of [-1,1]){
-     for(const sz of [-1,1]){
-       sphere(t,.035,sx*1.265,6.09,sz*1.265,towerGoldMaterial,.85);
+   // Восьмигранный ствол визуально легче прежней массивной квадратной башни.
+   cylinder(t,1.22,1.22,5.55,0,2.82,0,towerStoneMaterial,8);
+   cylinder(t,1.29,1.29,.18,0,.16,0,towerTrimMaterial,8);
+   cylinder(t,1.25,1.25,.10,0,.31,0,towerStoneMaterial,8);
+   for(const y of [1.02,5.55])cylinder(t,1.25,1.25,.075,0,y,0,towerTrimMaterial,8);
+   cylinder(t,1.34,1.34,.2,0,5.68,0,towerTrimMaterial,8);
+   cylinder(t,1.28,1.28,.055,0,5.81,0,towerRoofLine,8);
+   // Высокие окна с тёмным стеклом, светлым обрамлением и мягкой арочной верхушкой.
+   for(const axis of ["front","back","left","right"]){
+     const front=axis==="front"||axis==="back";
+     const sign=(axis==="back"||axis==="left")?-1:1;
+     const face=front?sign*1.205:sign*1.205;
+     if(front){
+       box(t,.62,1.42,.045,0,3.22,face,towerWindow,false);
+       sphere(t,.31,0,3.92,face,towerWindow,.82);
+       for(const sx of [-.37,.37])box(t,.075,1.62,.12,sx,3.2,face+sign*.025,towerTrimMaterial,false);
+       box(t,.84,.12,.14,0,4.08,face+sign*.025,towerTrimMaterial,false);
+       box(t,.82,.10,.15,0,2.42,face+sign*.025,towerTrimMaterial,false);
+       box(t,.035,1.28,.035,0,3.23,face+sign*.065,towerMetal,false);
+       box(t,.58,.035,.035,0,3.18,face+sign*.065,towerMetal,false);
+     }else{
+       box(t,.045,1.42,.62,face,3.22,0,towerWindow,false);
+       sphere(t,.31,face,3.92,0,towerWindow,.82);
+       for(const sz of [-.37,.37])box(t,.12,1.62,.075,face+sign*.025,3.2,sz,towerTrimMaterial,false);
+       box(t,.14,.12,.84,face+sign*.025,4.08,0,towerTrimMaterial,false);
+       box(t,.15,.10,.82,face+sign*.025,2.42,0,towerTrimMaterial,false);
+       box(t,.035,1.28,.035,face+sign*.065,3.23,0,towerMetal,false);
+       box(t,.035,.035,.58,face+sign*.065,3.18,0,towerMetal,false);
      }
    }
-   // Узкая каменная разделительная фаска смягчает переход от латунного пояса к шатру.
-   cylinder(t,1.765,1.765,.018,0,6.115,0,towerStoneMaterial,4);
-   // Тонкий светлый кант подчёркивает нижний край металлического шатра.
-   cylinder(t,1.735,1.735,.028,0,6.16,0,towerDetailStone,4);
-   cone(t,1.72,2.55,0,7.18,0,towerRoofMaterial,4);
-   // Три тонких горизонтальных фальца подчёркивают ярусность металлического шатра.
-   const towerRoofSeam=towerRoofMaterial.clone();
-   towerRoofSeam.color.setHex(0xb9c0c5);towerRoofSeam.roughness=.54;towerRoofSeam.metalness=.34;towerRoofSeam.bumpScale=0;towerRoofSeam.needsUpdate=true;
-   for(const seam of [{y:6.55,r:1.29},{y:7.18,r:.87},{y:7.8,r:.44}]){
-     cylinder(t,seam.r,seam.r,.018,0,seam.y,0,towerRoofSeam,4);
-   }
-   // Fine vertical roof ribs emphasize the four-sided tower silhouette.
-   for(let a=0;a<4;a++){
-     const ang=Math.PI/4+a*Math.PI/2;
-     const rib=box(t,.055,1.82,.07,Math.cos(ang)*.91,6.88,Math.sin(ang)*.91,towerRoofMaterial,false);
+   // Восьмигранный шатёр с широким каменным карнизом и тонким металлическим кантом.
+   cylinder(t,1.48,1.48,.18,0,5.94,0,towerTrimMaterial,8);
+   cylinder(t,1.43,1.43,.055,0,6.055,0,towerMetal,8);
+   cylinder(t,1.37,1.37,.045,0,6.105,0,towerRoofLine,8);
+   cone(t,1.38,2.48,0,7.32,0,towerRoofMaterial,8);
+   // Восемь тонких рёбер подчёркивают грани шатра, не дробя его силуэт.
+   for(let a=0;a<8;a++){
+     const ang=Math.PI/8+a*Math.PI/4;
+     const rib=box(t,.035,1.92,.045,Math.cos(ang)*.73,7.12,Math.sin(ang)*.73,towerRoofLine,false);
      rib.rotation.y=-ang;
-     // Узкая светлая грань ловит свет вдоль каждого металлического ребра шатра.
-     const ribEdge=box(t,.012,1.72,.012,Math.cos(ang)*.951,6.88,Math.sin(ang)*.951,towerRoofSeam,false);
-     ribEdge.rotation.y=-ang;
-     // Малые латунные крепления рёбер добавляют аккуратный металлический ритм кровле.
-     for(const ry of [6.48,6.98]){
-       sphere(t,.024,Math.cos(ang)*.96,ry,Math.sin(ang)*.96,towerGoldMaterial,.8);
-       // Миниатюрная светлая шайба под латунной головкой делает крепёж визуально точнее.
-       cylinder(t,.034,.034,.012,Math.cos(ang)*.962,ry-.012,Math.sin(ang)*.962,towerRoofSeam,8);
-     }
    }
-   cylinder(t,.1,.1,.85,0,8.82,0,towerGoldMaterial,8);
-   // Узкая обойма у основания стержня добавляет аккуратный переход от каменной опоры к металлу.
-   cylinder(t,.112,.112,.018,0,8.68,0,towerGoldMaterial,8);
-   // Тонкие декоративные обоймы уточняют профиль вертикального стержня навершия.
-   cylinder(t,.125,.125,.045,0,9.08,0,towerGoldMaterial,8);
-   cylinder(t,.135,.135,.035,0,9.18,0,towerGoldMaterial,8);
-   // Каменная опорная площадка аккуратно связывает навершие с вершиной шатра.
-   cylinder(t,.215,.215,.018,0,8.405,0,houseStoneTrim,8);
-   cylinder(t,.205,.205,.055,0,8.425,0,towerDetailStone,8);
-   cylinder(t,.185,.185,.025,0,8.465,0,houseStoneTrim,8);
-   // Многоступенчатое латунное навершие завершает шатёр без изменения его силуэта.
-   cylinder(t,.17,.17,.1,0,8.48,0,towerGoldMaterial,8);
-   // Узкие обоймы подчёркивают основание стержня и переход к верхнему наконечнику.
-   cylinder(t,.145,.145,.025,0,8.56,0,towerGoldMaterial,8);
-   cylinder(t,.112,.112,.025,0,9.32,0,towerGoldMaterial,8);
-   sphere(t,.105,0,9.27,0,towerGoldMaterial,.9);
-   cone(t,.105,.3,0,9.46,0,towerGoldMaterial,8);
-   for(const z of [-1.09,1.09])box(t,.65,1.15,.12,0,3.35,z,M.wood);
-   // Тихие горизонтальные швы на четырёх гранях связывают башню в единую каменную кладку.
-   for(const y of [1.22,1.92,4.62,5.28]){
-     for(const side of [-1,1]){
-       box(t,1.76,.018,.012,0,y,side*1.081,towerMortarMaterial,false);
-       box(t,.012,.018,1.76,side*1.081,y,0,towerMortarMaterial,false);
-     }
-   }
-   // Короткие вертикальные стыки создают спокойную перевязку каменных блоков.
-   for(const joint of [{x:-.38,y:1.57},{x:.38,y:4.95}]){
-     for(const side of [-1,1]){
-       box(t,.012,.62,.012,joint.x,joint.y,side*1.083,towerMortarMaterial,false);
-       box(t,.012,.62,.012,side*1.083,joint.y,joint.x,towerMortarMaterial,false);
-     }
-   }
-   // Stone window surrounds and a crisp sill on each tower face.
-   // Corner stone dressings and a continuous upper cornice sharpen each tower.
-   for(const sx of [-1,1]){
-     for(const sz of [-1,1]){
-       box(t,.16,5.35,.16,sx*1.0,2.92,sz*1.0,towerDetailStone,false);
-       // Тонкая светлая грань подчёркивает вертикальный профиль угловой каменной лопатки.
-       box(t,.018,4.72,.018,sx*1.075,2.92,sz*1.075,towerDetailStone,false);
-       box(t,.24,.16,.24,sx*1.0,5.68,sz*1.0,towerGoldMaterial,false);
-       // Небольшие каменные капители членят угловые лопатки под карнизом.
-       box(t,.25,.09,.25,sx*1.0,5.48,sz*1.0,towerDetailStone,false);
-       // Узкая верхняя полочка завершает капитель и мягко связывает её с карнизом.
-       box(t,.29,.025,.29,sx*1.0,5.535,sz*1.0,towerDetailStone,false);
-       // Тонкий каменный пояс под латунным акцентом завершает профиль капители.
-       box(t,.27,.022,.27,sx*1.0,5.585,sz*1.0,towerStoneMaterial,false);
-       box(t,.21,.07,.21,sx*1.0,5.37,sz*1.0,towerStoneMaterial,false);
-     }
-   }
-   for(const z of [-1.09,1.09]){
-     box(t,.82,.12,.2,0,3.98,z*1.035,towerDetailStone);
-     // Узкая верхняя фаска завершает каменную перемычку окна.
-     box(t,.9,.025,.22,0,4.055,z*1.045,towerStoneMaterial,false);
-     // Тонкие внутренние фаски придают каменному обрамлению окна дополнительную глубину.
-     box(t,.66,.035,.035,0,3.88,z*1.145,towerStoneMaterial,false);
-     box(t,.66,.035,.035,0,4.075,z*1.145,towerStoneMaterial,false);
-     box(t,.035,.98,.035,-.345,3.35,z*1.145,towerStoneMaterial,false);
-     box(t,.035,.98,.035,.345,3.35,z*1.145,towerStoneMaterial,false);
-     // Узкие светлые фаски выделяют внутренние грани боковых каменных стоек.
-     for(const jambX of [-.345,.345]){
-       box(t,.018,.72,.018,jambX,3.35,z*1.17,towerDetailStone,false);
-     }
-     // Внешние тонкие каменные стойки формируют второй, более спокойный контур окна.
-     box(t,.035,.92,.035,-.5,3.35,z*1.145,towerStoneMaterial,false);
-     box(t,.035,.92,.035,.5,3.35,z*1.145,towerStoneMaterial,false);
-     // Короткие светлые прожилки выделяют плоскость наружных каменных стоек, не перекрывая крепёж.
-     for(const revealX of [-.5,.5]){
-       box(t,.012,.28,.012,revealX,3.35,z*1.17,towerDetailStone,false);
-     }
-     // Миниатюрные латунные крепёжные точки подчёркивают наружные каменные стойки.
-     for(const px of [-.5,.5]){
-       for(const py of [3.08,3.62]){
-         sphere(t,.022,px,py,z*1.18,towerGoldMaterial,.8);
-       }
-       // Каменные мини-накладки аккуратно завершают верх и низ наружных стоек.
-       box(t,.09,.045,.045,px,2.89,z*1.18,towerDetailStone,false);
-       box(t,.09,.045,.045,px,3.81,z*1.18,towerDetailStone,false);
-     }
-     box(t,.82,.12,.2,0,2.72,z*1.035,towerDetailStone);
-     box(t,.1,1.28,.18,-.39,3.35,z*1.035,towerGoldMaterial,false);
-     box(t,.1,1.28,.18,.39,3.35,z*1.035,towerGoldMaterial,false);
-     box(t,.08,.92,.12,0,3.35,z*1.09,towerGoldMaterial,false);
-     // Небольшие каменные акцентные площадки подчёркивают основания оконных перемычек.
-     for(const ax of [-.31,.31]){
-       box(t,.12,.055,.055,ax,3.91,z*1.17,towerDetailStone,false);
-     }
-     // Каменные накладки на концах перемычки подчёркивают её опирание на стойки.
-     for(const headX of [-.37,.37]){
-       box(t,.105,.065,.018,headX,3.99,z*1.15,towerDetailStone,false);
-     }
-     // Небольшой центральный замковый камень завершает верх окна и связывает раму с кладкой.
-     box(t,.24,.18,.22,0,4.13,z*1.075,towerDetailStone,false);
-     sphere(t,.045,0,4.25,z*1.13,towerGoldMaterial,.85);
-     // Тонкая каменная полка подчёркивает глубину подоконника.
-     box(t,.94,.055,.24,0,2.64,z*1.075,towerStoneMaterial,false);
-     // Тонкая верхняя накладка и нижняя капельная кромка завершают профиль подоконника.
-     box(t,.99,.025,.27,0,2.68,z*1.075,towerDetailStone,false);
-     box(t,.88,.025,.22,0,2.59,z*1.075,towerDetailStone,false);
-     // Небольшие торцевые каменные завершения аккуратно замыкают полку подоконника.
-     for(const ex of [-.48,.48]){
-       box(t,.055,.075,.27,ex,2.66,z*1.075,towerDetailStone,false);
-     }
-     // Узкая латунная инкрустация подчёркивает переднюю грань каменной полки.
-     box(t,.58,.018,.018,0,2.68,z*1.218,towerGoldMaterial,false);
-     // Тонкая теневая проточка на лицевой грани подчёркивает толщину каменной полки.
-     box(t,.42,.012,.012,0,2.625,z*1.22,towerStoneMaterial,false);
-     // Два компактных каменных кронштейна дают подоконнику читаемую опору и мягкую глубину.
-     for(const bx of [-.31,.31]){
-       box(t,.13,.13,.19,bx,2.53,z*1.085,towerDetailStone,false);
-       // Небольшие расширенные опорные пятки подчёркивают каменную работу кронштейнов.
-       box(t,.17,.035,.22,bx,2.465,z*1.085,towerStoneMaterial,false);
-     }
-   }
-
+   // Сдержанное навершие вместо массивной золотой конструкции.
+   cylinder(t,.09,.09,.38,0,8.72,0,towerMetal,8);
+   cylinder(t,.14,.14,.07,0,8.53,0,towerMetal,8);
+   sphere(t,.105,0,8.94,0,towerMetal,.9);
+   cone(t,.085,.25,0,9.1,0,towerMetal,8);
  }
  // Entry terrace and three broad stone steps.
  box(g,3.5,.3,1.65,0,.18,5,houseStoneTrim);
