@@ -2460,11 +2460,31 @@ function makeWorldLandscape(){
    foothillCtx.bezierCurveTo(28,y-7+(y%9),72,y+5-(y%7),132,y-2+(y%11));
    foothillCtx.stroke();
  }
+ // Дополнительные редкие горизонтали повторяют естественные линии склонов и подчёркивают рельеф без геометрических накладок.
+ for(let i=0;i<13;i++){
+   const y=8+i*9.1,shift=(i%4)*3.2;
+   foothillCtx.strokeStyle=i%3===0?'rgba(48,76,51,.085)':'rgba(238,239,207,.07)';
+   foothillCtx.lineWidth=i%4===0?.9:.55;
+   foothillCtx.beginPath();
+   foothillCtx.moveTo(-5,y+shift);
+   foothillCtx.bezierCurveTo(24,y-5+shift,47,y+8-shift*.35,76,y+1);
+   foothillCtx.bezierCurveTo(96,y-4,112,y+7-shift*.2,133,y-2+shift*.3);
+   foothillCtx.stroke();
+ }
+ // Мелкие редкие штрихи растительности смягчают переход между пятнами травы и открытой землёй.
+ for(let i=0;i<54;i++){
+   const x=(i*53+19)%128,y=(i*31+11)%128;
+   foothillCtx.strokeStyle=i%2?'rgba(54,83,48,.10)':'rgba(225,231,190,.12)';
+   foothillCtx.lineWidth=.45+(i%3)*.18;
+   foothillCtx.beginPath();foothillCtx.moveTo(x,y);
+   foothillCtx.quadraticCurveTo(x+1.8,y-1.2,x+3.4,y-2.1+(i%3)*.5);
+   foothillCtx.stroke();
+ }
  const foothillTexture=new THREE.CanvasTexture(foothillCanvas);
  foothillTexture.colorSpace=THREE.SRGBColorSpace;foothillTexture.wrapS=foothillTexture.wrapT=THREE.RepeatWrapping;
  foothillTexture.repeat.set(2,1);foothillTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const foothillBump=foothillTexture.clone();foothillBump.colorSpace=THREE.NoColorSpace;foothillBump.needsUpdate=true;
- for(const m of [hillMat,hillLight]){m.map=foothillTexture;m.bumpMap=foothillBump;m.bumpScale=.035;m.roughness=.96;m.needsUpdate=true;}
+ for(const m of [hillMat,hillLight]){m.map=foothillTexture;m.bumpMap=foothillBump;m.bumpScale=.041;m.roughness=.97;m.needsUpdate=true;}
  const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=128;alpineRockCanvas.height=128;
  const alpineRockCtx=alpineRockCanvas.getContext('2d');
  const alpineRockPixels=alpineRockCtx.createImageData(128,128);
