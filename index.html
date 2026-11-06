@@ -2380,6 +2380,11 @@ function makeFactory(){
  factoryWindowStoneMaterial.roughness=.84;
  if(factoryWindowStoneMaterial.bumpMap)factoryWindowStoneMaterial.bumpScale=.068;
  factoryWindowStoneMaterial.needsUpdate=true;
+ // Отдельный материал для уже существующих боковых оконных обрамлений.
+ const factorySideWindowStoneMaterial=factoryWindowStoneMaterial.clone();
+ factorySideWindowStoneMaterial.roughness=.87;
+ if(factorySideWindowStoneMaterial.bumpMap)factorySideWindowStoneMaterial.bumpScale=.074;
+ factorySideWindowStoneMaterial.needsUpdate=true;
  // Шлифованный металл оконных переплётов: отдельный клон золотого материала сохраняет исходный оттенок.
  const factoryWindowMetalCanvas=document.createElement('canvas');factoryWindowMetalCanvas.width=128;factoryWindowMetalCanvas.height=128;
  const factoryWindowMetalCtx=factoryWindowMetalCanvas.getContext('2d');
@@ -2576,18 +2581,18 @@ function makeFactory(){
  for(const side of [-1,1]){
    for(const z of [-1.38,1.38]){
      const face=side*3.69;
-     box(g,.14,.98,1.18,face,2.48,z,M.stone2,false);
+     box(g,.14,.98,1.18,face,2.48,z,factorySideWindowStoneMaterial,false);
      box(g,.07,.78,.96,face+side*.085,2.48,z,M.wood,false);
      box(g,.045,.68,.84,face+side*.13,2.48,z,factoryGlass,false);
      // Четыре секции остекления и узкая наружная металлическая рамка.
      box(g,.055,.7,.065,face+side*.17,2.48,z,M.gold,false);
      box(g,.055,.065,.86,face+side*.17,2.48,z,M.gold,false);
      for(const dz of [-.51,.51]){
-       box(g,.2,1.16,.14,face+side*.045,2.48,z+dz,M.stone2,false);
-       box(g,.22,.12,.18,face+side*.08,3.08,z+dz,M.stone2,false);
-       box(g,.22,.12,.18,face+side*.08,1.88,z+dz,M.stone2,false);
+       box(g,.2,1.16,.14,face+side*.045,2.48,z+dz,factorySideWindowStoneMaterial,false);
+       box(g,.22,.12,.18,face+side*.08,3.08,z+dz,factorySideWindowStoneMaterial,false);
+       box(g,.22,.12,.18,face+side*.08,1.88,z+dz,factorySideWindowStoneMaterial,false);
      }
-     box(g,.24,.14,1.34,face+side*.08,1.84,z,M.stone2,false);
+     box(g,.24,.14,1.34,face+side*.08,1.84,z,factorySideWindowStoneMaterial,false);
      box(g,.26,.055,1.38,face+side*.12,1.76,z,M.gold,false);
      for(const dz of [-.34,.34]){
        sphere(g,.032,face+side*.19,1.78,z+dz,M.gold,.8);
