@@ -2372,6 +2372,8 @@ function makeWorldDecor(){
     return mesh;
   };
   gateArchLine(2.17,.075,fenceLightTrim);
+  gateArchLine(2.26,.028,fenceBaseTrim);
+  gateArchLine(2.76,.035,fenceLightTrim);
   gateArchLine(2.84,.09,fenceCap);
   gateArchLine(2.98,.045,fenceBaseTrim);
   // Каменные клинья свода: радиальные швы делают арку похожей на настоящую резную кладку.
@@ -2395,6 +2397,12 @@ function makeWorldDecor(){
     box(world,.9,.12,.82,x,2.62,13.98,fenceBaseTrim,false);
     box(world,1.08,.14,.9,x,2.75,13.98,fenceLightTrim,false);
     box(world,.96,.12,.84,x,2.88,13.98,fenceBaseTrim,false);
+    // Углублённая лицевая панель и тонкие каменные обрамления пилонов.
+    box(world,.48,.92,.035,x,1.43,14.365,fenceBaseTrim,false);
+    box(world,.39,.82,.025,x,1.43,14.389,fenceLightTrim,false);
+    box(world,.29,.70,.018,x,1.43,14.407,fenceMat,false);
+    box(world,.52,.045,.04,x,1.94,14.39,fenceCap,false);
+    box(world,.52,.045,.04,x,.92,14.39,fenceCap,false);
   }
   // Выразительный замковый камень и небольшой герб над вершиной свода.
   const gateKeystone=box(world,.62,.76,.22,0,5.02,14.34,fenceCap,false);
@@ -2439,12 +2447,24 @@ function makeWorldDecor(){
       box(world,1.24,.07,.095,p,.68,z+(z<0?-.045:.045),fenceLightTrim,false);
       box(world,.12,.48,.095,p-.74,.68,z+(z<0?-.045:.045),fenceShadow,false);
       box(world,.12,.48,.095,p+.74,.68,z+(z<0?-.045:.045),fenceShadow,false);
+      // Дополнительная тонкая рамка и центральный ромб на каждой каменной панели.
+      const faceZ=z+(z<0?-.105:.105);
+      box(world,1.18,.035,.035,p,.91,faceZ,fenceLightTrim,false);
+      box(world,1.18,.035,.035,p,.45,faceZ,fenceBaseTrim,false);
+      const panelBoss=box(world,.16,.16,.045,p,.68,faceZ,fenceCap,false);
+      panelBoss.rotation.z=Math.PI/4;
+      box(world,.055,.055,.052,p,.68,faceZ+(z<0?-.025:.025),fenceBaseTrim,false);
     }
     for(const x of [-14.24,16.74]){
       box(world,.075,.34,1.62,x,.68,p,fenceRelief,false);
       box(world,.095,.07,1.24,x+(x<0?-.045:.045),.68,p,fenceLightTrim,false);
       box(world,.095,.48,.12,x+(x<0?-.045:.045),.68,p-.74,fenceShadow,false);
       box(world,.095,.48,.12,x+(x<0?-.045:.045),.68,p+.74,fenceShadow,false);
+      const faceX=x+(x<0?-.105:.105);
+      box(world,.035,.035,1.18,faceX,.91,p,fenceLightTrim,false);
+      box(world,.035,.035,1.18,faceX,.45,p,fenceBaseTrim,false);
+      const sideBoss=box(world,.045,.16,.16,faceX,.68,p,fenceCap,false);
+      sideBoss.rotation.z=Math.PI/4;
     }
   }
   // Многослойные основания и широкие капители квадратных столбов.
@@ -2466,6 +2486,20 @@ function makeWorldDecor(){
       box(world,1.08,.15,1.08,x,1.40,p,fenceLightTrim,false);
       box(world,.92,.12,.92,x,1.52,p,fenceBaseTrim,false);
     }
+  }
+  // Непрерывные профилированные накрывные плиты объединяют секции ограды в цельную архитектуру.
+  for(const z of [-14,14]){
+    const spans=z===14?[[10.4,-8.8],[12.9,10.05]]:[[30.5,1.25]];
+    for(const [length,cx] of spans){
+      box(world,length,.13,.78,cx,.965,z,fenceCap,false);
+      box(world,length,.045,.80,cx,1.055,z,fenceLightTrim,false);
+      box(world,length,.035,.82,cx,.875,z,fenceBaseTrim,false);
+    }
+  }
+  for(const x of [-14,16.5]){
+    box(world,.78,.13,28.4,x,.965,0,fenceCap,false);
+    box(world,.80,.045,28.4,x,1.055,0,fenceLightTrim,false);
+    box(world,.82,.035,28.4,x,.875,0,fenceBaseTrim,false);
   }
   // Входные столбы по краям центральной дорожки.
   for(const x of [-3.5,3.5]){
