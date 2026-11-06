@@ -2869,9 +2869,10 @@ function makeWorldDecor(){
         const stagger=staggerAxis==='z'?col%2:row%2;
         const x=startX+col*pitchX+(staggerAxis==='x'?stagger*.5*pitchX:0);
         const z=startZ+row*pitchZ+(staggerAxis==='z'?stagger*.5*pitchZ:0);
-        const shadeBase=(row+col)%2===0?.84:.43;
-        const shade=shadeBase+((row*13+col*17)%6)*.018;
-        const variation=((row*3+col*7)%5)*.012;
+        // Высокий контраст: чистый светлый гранит чередуется с почти чёрным камнем.
+        const shadeBase=(row+col)%2===0?.98:.035;
+        const shade= Math.min(1,shadeBase+((row*13+col*17)%5)*.004);
+        const variation=((row*3+col*7)%5)*.004;
         const base=positions.length/3;
         for(let ring=0;ring<2;ring++){
           const inset=ring===0?1:.925;
