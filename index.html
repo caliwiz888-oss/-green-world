@@ -462,6 +462,21 @@ function makeHouse(){
    doorCtx.beginPath();doorCtx.ellipse(x,y,5,13,.1,0,Math.PI*2);doorCtx.stroke();
    doorCtx.strokeStyle='rgba(255,220,170,.12)';doorCtx.beginPath();doorCtx.ellipse(x+1,y,2,9,.1,0,Math.PI*2);doorCtx.stroke();
  }
+ // Дополнительные тонкие волокна и мягкие годичные дуги придают входной двери более глубокую фактуру.
+ for(let i=0;i<28;i++){
+   const x=(i*67+17)%256,y=(i*43+31)%256,len=18+(i*13)%58;
+   doorCtx.strokeStyle=i%5===0?'rgba(255,218,166,.085)':'rgba(35,20,11,.045)';
+   doorCtx.lineWidth=.55+(i%3)*.25;doorCtx.beginPath();
+   doorCtx.moveTo(x,y);
+   doorCtx.bezierCurveTo(x+2,y+len*.3,x-1.5,y+len*.7,x+((i%5)-2)*.45,Math.min(255,y+len));
+   doorCtx.stroke();
+ }
+ // Локальные мягкие переходы имитируют естественные тёплые оттенки древесины.
+ for(let i=0;i<12;i++){
+   const x=(i*71+23)%250,y=(i*53+19)%248;
+   doorCtx.fillStyle=i%3===0?'rgba(210,158,99,.035)':'rgba(35,22,13,.025)';
+   doorCtx.beginPath();doorCtx.ellipse(x,y,1.2+(i%4)*.45,7+(i%5)*2,(i%7)*.08,0,Math.PI*2);doorCtx.fill();
+ }
  const doorTexture=new THREE.CanvasTexture(doorCanvas);
  doorTexture.colorSpace=THREE.SRGBColorSpace;
  doorTexture.wrapS=doorTexture.wrapT=THREE.RepeatWrapping;
