@@ -943,6 +943,9 @@ function makeHouse(){
        box(t,.82,.10,.15,0,2.42,face+sign*.025,towerTrimMaterial,false);
        box(t,.035,1.28,.035,0,3.23,face+sign*.065,towerMetal,false);
        box(t,.58,.035,.035,0,3.18,face+sign*.065,towerMetal,false);
+       // Каменный импост делит верхнюю часть окна на аккуратные световые секции.
+       box(t,.64,.055,.11,0,3.70,face+sign*.075,towerTrimMaterial,false);
+       box(t,.035,.035,.035,0,3.70,face+sign*.14,towerMetal,false);
      }else{
        box(t,.045,1.42,.62,face,3.22,0,towerWindow,false);
        sphere(t,.31,face,3.92,0,towerWindow,.82);
@@ -951,6 +954,9 @@ function makeHouse(){
        box(t,.15,.10,.82,face+sign*.025,2.42,0,towerTrimMaterial,false);
        box(t,.035,1.28,.035,face+sign*.065,3.23,0,towerMetal,false);
        box(t,.035,.035,.58,face+sign*.065,3.18,0,towerMetal,false);
+       // Такой же каменный импост повторён на боковых гранях башни.
+       box(t,.11,.055,.64,face+sign*.075,3.70,0,towerTrimMaterial,false);
+       box(t,.035,.035,.035,face+sign*.14,3.70,0,towerMetal,false);
      }
    }
      // Резные каменные наличники и замковый камень подчёркивают арочную форму окон.
