@@ -3688,6 +3688,15 @@ function makeWorldDecor(){
   for(const x of [-3.5,3.5]){
     box(world,.92,1.45,.92,x,.725,14,fenceMat,false);
     box(world,1.08,.18,1.08,x,1.525,14,fenceCap,false);
+    // Резные вставки и вертикальные каннелюры выделяют парадные входные пилоны.
+    for(const dx of [-.24,.24]){
+      box(world,.045,.94,.028,x+dx,.76,14.472,fenceLightTrim,false);
+    }
+    const entryMedallion=new THREE.Mesh(new THREE.OctahedronGeometry(.16,0),fenceRelief);
+    entryMedallion.position.set(x,.91,14.48);
+    entryMedallion.scale.set(.82,1.18,.34);
+    entryMedallion.castShadow=false;entryMedallion.receiveShadow=false;world.add(entryMedallion);
+    box(world,.76,.035,.018,x,1.635,14.475,fenceJoint,false);
   }
   // Увеличенные плавные аркады: широкие пролёты с высоким округлым сводом.
   // Периметр, проезды и расположение ограды остаются прежними.
@@ -3732,6 +3741,10 @@ function makeWorldDecor(){
           pierMedallion.position.set(px,1.02,z+.245);
           pierMedallion.scale.set(.78,1.28,.34);
           pierMedallion.castShadow=false;pierMedallion.receiveShadow=false;world.add(pierMedallion);
+          const rearMedallion=new THREE.Mesh(new THREE.OctahedronGeometry(.105,0),fenceRelief);
+          rearMedallion.position.set(px,1.02,z-.245);
+          rearMedallion.scale.set(.78,1.28,.34);
+          rearMedallion.castShadow=false;rearMedallion.receiveShadow=false;world.add(rearMedallion);
         }
         addFenceArc(archProfile(left,right,baseY,apexY,z),fenceLightTrim,.055);
         addFenceArc(archProfile(left+.17,right-.17,baseY+.035,apexY-.19,z+sign*.075),fenceBaseTrim,.027);
@@ -3771,6 +3784,11 @@ function makeWorldDecor(){
         box(world,.48,.055,.48,x,1.61,pz,fenceBaseTrim,false);
         box(world,.54,.045,.54,x,1.66,pz,fenceLightTrim,false);
         box(world,.34,.025,.34,x,1.695,pz,fenceJoint,false);
+        // Ромбовидный каменный знак на внешней грани бокового пилона.
+        const sideMedallion=new THREE.Mesh(new THREE.OctahedronGeometry(.105,0),fenceRelief);
+        sideMedallion.position.set(x+sign*.245,1.02,pz);
+        sideMedallion.scale.set(.34,1.28,.78);
+        sideMedallion.castShadow=false;sideMedallion.receiveShadow=false;world.add(sideMedallion);
       }
       // Каждая арка занимает собственную секцию и опирается на общие квадратные столбы.
       addFenceArc(archProfile(front,back,baseY,apexY,x,'z'),fenceLightTrim,.055);
