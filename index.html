@@ -2178,11 +2178,22 @@ function makeFactory(){
  factoryGlassCtx.fillStyle=factoryGlassGradient;factoryGlassCtx.fillRect(0,0,128,128);
  factoryGlassCtx.fillStyle='rgba(255,255,255,.18)';factoryGlassCtx.beginPath();
  factoryGlassCtx.moveTo(10,0);factoryGlassCtx.lineTo(27,0);factoryGlassCtx.lineTo(104,128);factoryGlassCtx.lineTo(87,128);factoryGlassCtx.closePath();factoryGlassCtx.fill();
+ // Дополнительные слабые отражения дают заводскому стеклу глубину, не меняя его голубовато-серый тон.
+ const factoryGlassReflection=factoryGlassCtx.createLinearGradient(76,0,116,0);
+ factoryGlassReflection.addColorStop(0,'rgba(255,255,255,0)');
+ factoryGlassReflection.addColorStop(.48,'rgba(255,255,255,.075)');
+ factoryGlassReflection.addColorStop(1,'rgba(255,255,255,0)');
+ factoryGlassCtx.fillStyle=factoryGlassReflection;factoryGlassCtx.fillRect(76,0,40,128);
+ const factoryGlassShade=factoryGlassCtx.createLinearGradient(0,0,0,128);
+ factoryGlassShade.addColorStop(0,'rgba(255,255,255,.035)');
+ factoryGlassShade.addColorStop(.55,'rgba(255,255,255,0)');
+ factoryGlassShade.addColorStop(1,'rgba(18,35,43,.09)');
+ factoryGlassCtx.fillStyle=factoryGlassShade;factoryGlassCtx.fillRect(0,0,128,128);
  const factoryGlassTexture=new THREE.CanvasTexture(factoryGlassCanvas);
  factoryGlassTexture.colorSpace=THREE.SRGBColorSpace;
  factoryGlassTexture.wrapS=factoryGlassTexture.wrapT=THREE.ClampToEdgeWrapping;
  factoryGlassTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- const factoryGlass=M.glass.clone();factoryGlass.map=factoryGlassTexture;factoryGlass.roughness=.28;factoryGlass.metalness=.1;factoryGlass.needsUpdate=true;
+ const factoryGlass=M.glass.clone();factoryGlass.map=factoryGlassTexture;factoryGlass.roughness=.26;factoryGlass.metalness=.12;factoryGlass.needsUpdate=true;
  // Subtle repeating masonry relief gives the factory brickwork individual courses and mortar joints.
  const brickCanvas=document.createElement('canvas');brickCanvas.width=brickCanvas.height=256;
  const brickCtx=brickCanvas.getContext('2d');
