@@ -2404,6 +2404,22 @@ function makeWorldDecor(){
     box(world,.52,.045,.04,x,1.94,14.39,fenceCap,false);
     box(world,.52,.045,.04,x,.92,14.39,fenceCap,false);
   }
+  // Уточнённая резьба пилонов: угловые фаски, дополнительные каннелюры и акцентные вставки.
+  for(const x of [-2.56,2.56]){
+    for(const dx of [-.34,.34]){
+      box(world,.035,1.72,.045,x+dx,1.42,14.375,fenceBaseTrim,false);
+      box(world,.018,1.58,.026,x+dx+(dx<0?-.026:.026),1.42,14.405,fenceLightTrim,false);
+    }
+    // Небольшой геометрический орнамент над лицевой панелью.
+    const crownDiamond=box(world,.20,.20,.045,x,2.13,14.405,fenceRelief,false);
+    crownDiamond.rotation.z=Math.PI/4;
+    box(world,.065,.065,.055,x,2.13,14.435,fenceBaseTrim,false);
+    // Многослойные горизонтальные пояски у основания и капители.
+    box(world,.88,.035,.045,x,.48,14.405,fenceBaseTrim,false);
+    box(world,.88,.025,.035,x,.53,14.415,fenceLightTrim,false);
+    box(world,.96,.035,.045,x,2.35,14.405,fenceBaseTrim,false);
+    box(world,.96,.025,.035,x,2.30,14.415,fenceLightTrim,false);
+  }
   // Выразительный замковый камень и небольшой герб над вершиной свода.
   const gateKeystone=box(world,.62,.76,.22,0,5.02,14.34,fenceCap,false);
   gateKeystone.rotation.z=Math.PI/4;
