@@ -2851,7 +2851,8 @@ function makeFlowerBed(x,z){
  }
 }
 function makeWorldDecor(){
-  const fenceBaseTrim=mat(0x625847),fenceLightTrim=mat(0xc8bda5),fenceRelief=mat(0x9b8d73),fenceShadow=mat(0x514939);
+  // Двухцветная палитра ограды: тёплый известняк и приглушённый шалфейно-оливковый камень.
+  const fenceBaseTrim=mat(0x697260),fenceLightTrim=mat(0xd8cdb4),fenceRelief=mat(0xa99d80),fenceShadow=mat(0x555c50);
   // Открытая территория. Каменная дорожка идёт от главного дома к берегу реки.
   // var исключает TDZ для материалов дорожки при повторном/раннем вызове декораций.
   // Бело-серая гранитная гамма дорожек: светлый камень, холодный серый и графитовые швы.
@@ -2939,7 +2940,7 @@ function makeWorldDecor(){
   }
   // Дорога заканчивается у берега; подъездной настил и конструкции моста отсутствуют.
   // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проход оставлен открытым к берегу.
-  const fenceMat=mat(0x817967),fenceCap=mat(0xb0a38a),fenceJoint=mat(0x6b6252);
+  const fenceMat=mat(0xb5a789),fenceCap=mat(0xd0c2a3),fenceJoint=mat(0x747b69);
   for(let p=-14;p<=14;p+=1.75){
     for(const z of [-14,14]){
       if(z===14 && Math.abs(p)<3.6) continue;
