@@ -2835,6 +2835,25 @@ function makeWorldDecor(){
       box(world,.075,.028,.075,x,1.773,p,fenceBaseTrim,false);
     }
   }
+  // Тонкая светлая фаска под карнизом собирает отдельные секции в цельный архитектурный пояс.
+  for(const z of [-14,14]){
+    const spans=z===14?[[-14,-3.8],[3.8,16.5]]:[[-14,16.5]];
+    for(const [start,end] of spans){
+      box(world,end-start-.22,.018,.026,(start+end)/2,1.175,z+(z<0?-.414:.414),fenceLightTrim,false);
+    }
+  }
+  for(const x of [-14,16.5]){
+    box(world,.026,.018,27.78,x+(x<0?-.414:.414),1.175,0,fenceLightTrim,false);
+  }
+  // Матовая отделка подчёркивает натуральный известняк и не добавляет новых источников бликов.
+  fenceMat.roughness=.94;
+  fenceCap.roughness=.88;
+  fenceJoint.roughness=.98;
+  fenceBaseTrim.roughness=.92;
+  fenceLightTrim.roughness=.86;
+  fenceRelief.roughness=.93;
+  fenceMat.needsUpdate=true;fenceCap.needsUpdate=true;fenceJoint.needsUpdate=true;
+  fenceBaseTrim.needsUpdate=true;fenceLightTrim.needsUpdate=true;fenceRelief.needsUpdate=true;
   // Небольшие замковые камни на верхнем поясе ограды подчёркивают ритм кладки.
   // Они размещены только на прямых участках и обходят центральный въезд.
   for(const z of [-14,14]){
