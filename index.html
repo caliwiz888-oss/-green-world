@@ -686,6 +686,9 @@ function makeHouse(){
      }
    }
  }
+ // Отдельный материал башенных шатров наследует фактуру металлических пластин основной кровли.
+ const towerRoofMaterial=manorRoofMaterial.clone();
+ towerRoofMaterial.color.setHex(0xd5d9dc);towerRoofMaterial.roughness=.62;towerRoofMaterial.metalness=.28;towerRoofMaterial.bumpScale=.012;towerRoofMaterial.needsUpdate=true;
  // Two corner towers with separate steep roofs and golden finials.
  for(const x of [-4.35,4.35]){
    const t=group(g,x,0,-2.25);
@@ -694,7 +697,7 @@ function makeHouse(){
    // Tower roof base: layered eaves and a narrow brass weatherproofing band.
    cylinder(t,1.76,1.76,.12,0,5.98,0,houseStoneTrim,4);
    cylinder(t,1.79,1.79,.055,0,6.055,0,M.gold,4);
-   cone(t,1.72,2.55,0,7.18,0,M.roof2,4);
+   cone(t,1.72,2.55,0,7.18,0,towerRoofMaterial,4);
    // Fine vertical roof ribs emphasize the four-sided tower silhouette.
    for(let a=0;a<4;a++){
      const ang=Math.PI/4+a*Math.PI/2;
