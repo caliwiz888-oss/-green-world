@@ -2269,6 +2269,7 @@ function makeFlowerBed(x,z){
  }
 }
 function makeWorldDecor(){
+  const fenceBaseTrim=mat(0x625847),fenceLightTrim=mat(0xc8bda5),fenceRelief=mat(0x9b8d73),fenceShadow=mat(0x514939);
   // Открытая территория без забора. Каменная дорожка идёт от порога дома прямо к мосту.
   // var исключает TDZ для материалов дорожки при повторном/раннем вызове декораций.
   var sidePathBase=mat(0xd7c49e,.9),sidePathTile=mat(0xe8ddc5,.92),sidePathJoint=mat(0xbba985,.95);
@@ -2355,7 +2356,6 @@ function makeWorldDecor(){
   }
 
   // Декоративная каменная отделка ограждения: цоколь, карниз и рельефные панели.
-  const fenceBaseTrim=mat(0x625847),fenceLightTrim=mat(0xc8bda5),fenceRelief=mat(0x9b8d73),fenceShadow=mat(0x514939);
   // Парадная арка центрального въезда: массивная классическая каменная кладка с полукруглым сводом.
   const gateCenterY=2.45,gateOuterR=2.95,gateInnerR=2.12,gateFrontZ=14.285;
   const entranceGateShape=new THREE.Shape();
