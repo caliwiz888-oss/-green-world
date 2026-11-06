@@ -2632,6 +2632,15 @@ function makeWorldLandscape(){
    alpineRockCtx.quadraticCurveTo(x+lean*.35,y+len*.52,x+lean,y+len);
    alpineRockCtx.stroke();
  }
+ // Рассеянные холодные полутоновые пятна имитируют мягкие тени на неровных скальных плоскостях.
+ for(let i=0;i<10;i++){
+   const x=(i*39+16)%128,y=(i*57+22)%128,rx=5+(i*7)%10,ry=2+(i*3)%4;
+   const g=alpineRockCtx.createRadialGradient(x,y,0,x,y,rx);
+   g.addColorStop(0,i%2===0?'rgba(30,47,49,.09)':'rgba(205,218,211,.075)');
+   g.addColorStop(1,'rgba(205,218,211,0)');
+   alpineRockCtx.fillStyle=g;alpineRockCtx.beginPath();
+   alpineRockCtx.ellipse(x,y,rx,ry,(i%5-2)*.14,0,Math.PI*2);alpineRockCtx.fill();
+ }
  const alpineRockTexture=new THREE.CanvasTexture(alpineRockCanvas);
  alpineRockTexture.colorSpace=THREE.SRGBColorSpace;
  alpineRockTexture.wrapS=alpineRockTexture.wrapT=THREE.RepeatWrapping;
