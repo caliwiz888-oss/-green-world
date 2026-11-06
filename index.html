@@ -1679,7 +1679,8 @@ function makeFactory(level=1){
  roofTexture.wrapS=roofTexture.wrapT=THREE.RepeatWrapping;
  roofTexture.repeat.set(2,1);
  roofTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- const roofMetal=new THREE.MeshStandardMaterial({color:0xffffff,map:roofTexture,roughness:.52,metalness:.48});
+ const roofBump=roofTexture.clone();roofBump.colorSpace=THREE.NoColorSpace;roofBump.needsUpdate=true;
+ const roofMetal=new THREE.MeshStandardMaterial({color:0xffffff,map:roofTexture,bumpMap:roofBump,bumpScale:.012,roughness:.56,metalness:.46});
  // Tall pitched roof with a crisp ridge, dark eaves and metal seams.
  const roofA=box(g,3.95,.3,5.85,-1.48,4.72,0,roofMetal);roofA.rotation.z=.34;
  const roofB=box(g,3.95,.3,5.85,1.48,4.72,0,roofMetal);roofB.rotation.z=-.34;
