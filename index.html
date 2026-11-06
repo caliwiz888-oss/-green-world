@@ -2455,6 +2455,15 @@ function makeWorldLandscape(){
  // Едва заметная направленная фактура речной поверхности — без изменения русла и берегов.
  const waterCanvas=document.createElement('canvas');waterCanvas.width=128;waterCanvas.height=128;
  const waterCtx=waterCanvas.getContext('2d');waterCtx.fillStyle='#b9d9d5';waterCtx.fillRect(0,0,128,128);
+ // Мягкие вытянутые тональные переливы создают ощущение неодинаковой глубины и отражений на поверхности воды.
+ for(let i=0;i<8;i++){
+   const x=(i*43+17)%128,y=(i*59+9)%128,rx=15+(i*7)%17,ry=3+(i*3)%5;
+   const g=waterCtx.createRadialGradient(x,y,1,x,y,rx);
+   g.addColorStop(0,i%2===0?'rgba(255,255,255,.11)':'rgba(75,139,151,.055)');
+   g.addColorStop(1,'rgba(255,255,255,0)');
+   waterCtx.fillStyle=g;waterCtx.beginPath();
+   waterCtx.ellipse(x,y,rx,ry,(i%5-2)*.09,0,Math.PI*2);waterCtx.fill();
+ }
  for(let i=0;i<46;i++){
    const y=(i*29)%128,x=(i*47)%128,len=12+(i*17)%38;
    waterCtx.strokeStyle=i%3===0?'rgba(255,255,255,.24)':'rgba(48,116,132,.075)';
