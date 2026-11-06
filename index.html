@@ -2424,6 +2424,28 @@ function makeWorldLandscape(){
  alpineRockTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const alpineRockBump=alpineRockTexture.clone();alpineRockBump.colorSpace=THREE.NoColorSpace;alpineRockBump.needsUpdate=true;
  mountain.map=alpineRockTexture;mountain.bumpMap=alpineRockBump;mountain.bumpScale=.082;mountain.roughness=.94;mountain.needsUpdate=true;
+ // Тонкая холодная зернистость и ветровые полосы на снежных шапках — только картой материала.
+ const snowCanvas=document.createElement('canvas');snowCanvas.width=snowCanvas.height=128;
+ const snowCtx=snowCanvas.getContext('2d'),snowPixels=snowCtx.createImageData(128,128);
+ for(let y=0;y<128;y++)for(let x=0;x<128;x++){
+   const wave=4*Math.sin(x*.075+y*.025)+2*Math.sin(y*.16-x*.035);
+   const grain=((x*19+y*23)%7)-3;
+   const v=Math.max(0,Math.min(255,239+Math.round(wave+grain)));
+   const k=(y*128+x)*4;snowPixels.data[k]=v;snowPixels.data[k+1]=v;snowPixels.data[k+2]=v;snowPixels.data[k+3]=255;
+ }
+ snowCtx.putImageData(snowPixels,0,0);
+ for(let i=0;i<10;i++){
+   const y=9+i*11;
+   snowCtx.strokeStyle=i%2?'rgba(117,143,145,.055)':'rgba(255,255,255,.11)';
+   snowCtx.lineWidth=.6+(i%3)*.25;snowCtx.beginPath();
+   snowCtx.moveTo(-3,y);snowCtx.quadraticCurveTo(58,y-5+(i%4)*2,131,y+2-(i%3));
+   snowCtx.stroke();
+ }
+ const snowTexture=new THREE.CanvasTexture(snowCanvas);snowTexture.colorSpace=THREE.SRGBColorSpace;
+ snowTexture.wrapS=snowTexture.wrapT=THREE.RepeatWrapping;snowTexture.repeat.set(1.2,1.2);
+ snowTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const snowBump=snowTexture.clone();snowBump.colorSpace=THREE.NoColorSpace;snowBump.needsUpdate=true;
+ for(const m of [snow]){m.map=snowTexture;m.bumpMap=snowBump;m.bumpScale=.018;m.roughness=.98;m.needsUpdate=true;}
  // Layered green foothills and distant mountain silhouettes beyond the playable fence.
  for(const [x,z,sx,sy,sz,m] of [
    [-22,-23,8,4,5,hillMat],[-12,-27,10,5,6,hillLight],[0,-29,12,5,7,hillMat],
@@ -2477,6 +2499,7 @@ function makeWorldLandscape(){
    m.map=alpineRockTexture;m.bumpMap=alpineRockBump;m.bumpScale=.038;
    m.roughness=.97;m.needsUpdate=true;
  }
+ farSnow.map=snowTexture;farSnow.bumpMap=snowBump;farSnow.bumpScale=.009;farSnow.roughness=.99;farSnow.needsUpdate=true;
  for(const [x,z,h,r] of [[-31,-49,9,8],[-19,-54,12,10],[-5,-57,10,9],[11,-55,13,11],[28,-49,8,7]]){
    cone(world,r,h,x,h*.47,z,farRock,8);
    cone(world,r*.72,h*.34,x-.35,h*.72,z-.12,farShadow,7);
