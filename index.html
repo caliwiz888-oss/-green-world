@@ -787,6 +787,10 @@ function makeHouse(){
      const ang=Math.PI/4+a*Math.PI/2;
      const rib=box(t,.055,1.82,.07,Math.cos(ang)*.91,6.88,Math.sin(ang)*.91,towerRoofMaterial,false);
      rib.rotation.y=-ang;
+     // Малые латунные крепления рёбер добавляют аккуратный металлический ритм кровле.
+     for(const ry of [6.48,6.98]){
+       sphere(t,.024,Math.cos(ang)*.96,ry,Math.sin(ang)*.96,towerGoldMaterial,.8);
+     }
    }
    cylinder(t,.1,.1,.85,0,8.82,0,towerGoldMaterial,8);
    // Тонкие декоративные обоймы уточняют профиль вертикального стержня навершия.
