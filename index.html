@@ -3556,20 +3556,42 @@ for(const material of sharedWorldMaterials){
  }
 }
 function disposeObject3D(root){
- const materials=new Set(),textures=new Set();
- root.traverse(object=>{
-  if(!object.isMesh)return;
-  if(object.geometry)object.geometry.dispose();
+ // A resource may be referenced by meshes outside the subtree being rebuilt.
+ // Scan the live scene first; only dispose resources with no remaining users.
+ const liveGeometries=new Set(),liveMaterials=new Set(),liveTextures=new Set();
+ const textureSlots=['map','alphaMap','aoMap','bumpMap','normalMap','roughnessMap','metalnessMap','emissiveMap','envMap','lightMap','displacementMap','gradientMap','matcap'];
+ const collectLive=(object)=>{
+  if(!object.isMesh||!object.geometry)return;
+  liveGeometries.add(object.geometry);
   const list=Array.isArray(object.material)?object.material:[object.material];
   for(const material of list){
-   if(!material||sharedWorldMaterials.has(material))continue;
-   materials.add(material);
-   for(const key of ['map','alphaMap','aoMap','bumpMap','normalMap','roughnessMap','metalnessMap','emissiveMap','envMap']){
+   if(!material)continue;
+   liveMaterials.add(material);
+   for(const key of textureSlots){
     const texture=material[key];
-    if(texture&&texture.isTexture&&!sharedWorldTextures.has(texture))textures.add(texture);
+    if(texture&&texture.isTexture)liveTextures.add(texture);
+   }
+  }
+ };
+ world.traverse(object=>{
+  if(object===root||root.getObjectById(object.id))return;
+  collectLive(object);
+ });
+ const materials=new Set(),textures=new Set(),geometries=new Set();
+ root.traverse(object=>{
+  if(!object.isMesh)return;
+  if(object.geometry&&!liveGeometries.has(object.geometry))geometries.add(object.geometry);
+  const list=Array.isArray(object.material)?object.material:[object.material];
+  for(const material of list){
+   if(!material||liveMaterials.has(material)||sharedWorldMaterials.has(material))continue;
+   materials.add(material);
+   for(const key of textureSlots){
+    const texture=material[key];
+    if(texture&&texture.isTexture&&!liveTextures.has(texture)&&!sharedWorldTextures.has(texture))textures.add(texture);
    }
   }
  });
+ for(const geometry of geometries)geometry.dispose();
  for(const texture of textures)texture.dispose();
  for(const material of materials)material.dispose();
  if(root.parent)root.parent.remove(root);
