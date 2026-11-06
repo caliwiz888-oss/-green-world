@@ -70,48 +70,6 @@ function auth(req,res,next) {
     req.playerId = String(payload.sub); next();
   } catch { res.status(401).json({error:'Authentication required'}); }
 }
-const GROWTH_MS = 8 * 60 * 60 * 1000;
-const WATER_REDUCTION_MS = 4 * 60 * 60 * 1000;
-function publicPlots(rawPlots) {
-  const now=Date.now();
-  return (Array.isArray(rawPlots)?rawPlots:[]).map(item=>{
-    const plot={...item};
-    if(plot.grown&&!plot.readyAt) return plot;
-    if(!plot.readyAt) {
-      plot.plantedAt=plot.plantedAt||new Date(now).toISOString();
-      plot.readyAt=new Date(now+GROWTH_MS).toISOString();
-      plot.watered=Boolean(plot.watered);
-    }
-    plot.grown=new Date(plot.readyAt).getTime()<=now;
-    return plot;
-  });
-}
-const state = p => ({
-  coins:p.coins, apples:p.apples, fruitInventory:p.fruit_inventory||{}, processedInventory:p.processed_inventory||{}, hasWarehouse:Boolean(p.has_warehouse), warehouseLevel:Number(p.warehouse_level)||0, landLevel:Math.min(5,Number(p.land_level)||1), unlockedPlots:[0,36,100,196,324,400][Math.min(5,Math.max(1,Number(p.land_level)||1))], seeds:p.seeds, seedInventory:p.seed_inventory||{}, orchardLevel:p.orchard_level,
-  experience:Number(p.experience)||0, playerLevel:Number(p.player_level)||1,
-  plots:publicPlots(p.plots)
-});
-function xpForLevel(level){
-  const thresholds=[0,0,100,250,450,700,1000];
-  if(level<thresholds.length) return thresholds[level];
-  const extra=level-5;
-  return 1000+extra*400+extra*(extra-1)*25;
-}
-async function awardExperience(c,playerId,player,amount){
-  const current=await c.query(
-    'UPDATE players SET experience=COALESCE(experience,0)+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING experience,player_level',
-    [playerId,amount]
-  );
-  if(!current.rowCount) reject(404,'Player not found');
-  const experience=Number(current.rows[0].experience)||0;
-  const previousLevel=Number(current.rows[0].player_level)||1;
-  let level=previousLevel;
-  while(experience>=xpForLevel(level+1)) level++;
-  const bonus=(level-previousLevel)*25;
-  if(level!==previousLevel || bonus>0){
-    await c.query('UPDATE players SET player_level=$2,coins=coins+$3,updated_at=NOW() WHERE telegram_id=$1',[playerId,level,bonus]);
-  }
-}
 async function mutate(req,res,fn) {
   const c=await db.connect();
   try {
@@ -153,9 +111,6 @@ app.post('/api/auth/telegram',(req,res,next)=>{
         VALUES($1,$2,$3,$4,NOW()+INTERVAL '30 days')`,
         [crypto.randomUUID(),u.id,hash(raw),family]);
       const q=await c.query('SELECT * FROM players WHERE telegram_id=$1',[u.id]);
-      const migratedPlots=publicPlots(q.rows[0].plots);
-      await c.query('UPDATE players SET plots=$2::jsonb WHERE telegram_id=$1',[u.id,JSON.stringify(migratedPlots)]);
-      q.rows[0].plots=migratedPlots;
       await c.query('COMMIT');
       res.cookie(COOKIE,raw,refreshCookie);
       res.json({accessToken:issueAccess(u.id),player:state(q.rows[0])});
@@ -235,126 +190,6 @@ app.post('/api/game/daily-reward/claim',auth,(req,res)=>mutate(req,res,async(c,p
   await c.query('UPDATE players SET coins=coins+$2,last_daily_claim=CURRENT_DATE,daily_streak=$3,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,reward,day]);
   return {player:await loadState(c,req.playerId),claimedToday:true,day,reward};
 }));
-app.post('/api/game/plant',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const i=Number(req.body?.plotIndex);const plots=Array.isArray(p.plots)?p.plots:[];
-  const type=String(req.body?.treeType||'apple');
-  const costs={apple:100,peach:300,cherry:700,pear:1200,orange:2000,mango:3500};
-  if(!Number.isInteger(i)||i<0||i>=400) reject(400,'Invalid plot');
-  const landLevel=Math.min(5,Math.max(1,Number(p.land_level)||1));
-  const side=[0,6,10,14,18,20][landLevel],start=Math.floor((20-side)/2),x=Math.floor(i/20),z=i%20;
-  if(x<start||x>=start+side||z<start||z>=start+side) reject(403,'This land plot is locked. Expand your territory first.');
-  if(plots.some(x=>x.index===i)) reject(409,'Plot occupied');
-  if(!Object.prototype.hasOwnProperty.call(costs,type)) reject(400,'Unknown fruit tree');
-  if(p.coins<costs[type]) reject(409,'Not enough Green Coin');
-  const now=new Date();
-  const newPlot={index:i,type,grown:false,plantedAt:now.toISOString(),readyAt:new Date(now.getTime()+GROWTH_MS).toISOString(),watered:false};
-  await c.query('UPDATE players SET coins=coins-$2,plots=plots || $3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,costs[type],JSON.stringify([newPlot])]);
-  await awardExperience(c,req.playerId,p,5);
-  return {player:await loadState(c,req.playerId)};
-}));
-app.post('/api/game/water',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const i=Number(req.body?.plotIndex);const plots=(Array.isArray(p.plots)?p.plots:[]).map(x=>({...x}));
-  const plot=plots.find(x=>x.index===i);if(!plot) reject(404,'Tree not found');
-  const now=Date.now();
-  if(plot.grown&&!plot.readyAt) reject(409,'Harvest is already ready');
-  if(!plot.readyAt){plot.plantedAt=plot.plantedAt||new Date(now).toISOString();plot.readyAt=new Date(now+GROWTH_MS).toISOString();}
-  if(new Date(plot.readyAt).getTime()<=now) reject(409,'Harvest is already ready');
-  if(plot.watered) reject(409,'Tree has already been watered this cycle');
-  plot.readyAt=new Date(Math.max(now,new Date(plot.readyAt).getTime()-WATER_REDUCTION_MS)).toISOString();
-  plot.watered=true;
-  plot.grown=new Date(plot.readyAt).getTime()<=now;
-  await c.query('UPDATE players SET plots=$2::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify(plots)]);
-  await awardExperience(c,req.playerId,p,2);
-  return {player:await loadState(c,req.playerId)};
-}));
-app.post('/api/game/harvest',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const i=Number(req.body?.plotIndex);const plots=(Array.isArray(p.plots)?p.plots:[]).map(x=>({...x}));
-  const plot=plots.find(x=>x.index===i);if(!plot) reject(404,'Tree not found');
-  const now=Date.now();
-  const ready=(plot.grown&&!plot.readyAt)||(plot.readyAt&&new Date(plot.readyAt).getTime()<=now);
-  if(!ready) reject(409,'Harvest is not ready yet');
-  const capacity=p.has_warehouse?100*(Number(p.warehouse_level)||1):20;
-  const inventory=p.fruit_inventory&&typeof p.fruit_inventory==='object'?{...p.fruit_inventory}:{};
-  const stored=Number(p.apples||0)+Object.values(inventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
-  const amount=Math.min(5,Math.max(0,capacity-stored));
-  const type=({apple:'apple',peach:'peach',cherry:'cherry',pear:'pear',orange:'orange',mango:'mango'})[plot.type||'apple'];
-  plot.plantedAt=new Date(now).toISOString();
-  plot.readyAt=new Date(now+GROWTH_MS).toISOString();
-  plot.watered=false;
-  plot.grown=false;
-  if(type==='apple'){
-    await c.query('UPDATE players SET apples=apples+$2,plots=$3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,amount,JSON.stringify(plots)]);
-  }else{
-    inventory[type]=(Number(inventory[type])||0)+amount;
-    await c.query('UPDATE players SET fruit_inventory=$2::jsonb,plots=$3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify(inventory),JSON.stringify(plots)]);
-  }
-  await awardExperience(c,req.playerId,p,10);
-  return {player:await loadState(c,req.playerId)};
-}));
-app.post('/api/game/harvest-all',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const plots=(Array.isArray(p.plots)?p.plots:[]).map(x=>({...x}));
-  const capacity=p.has_warehouse?100*(Number(p.warehouse_level)||1):20;
-  const inventory=p.fruit_inventory&&typeof p.fruit_inventory==='object'?{...p.fruit_inventory}:{};
-  let stored=Number(p.apples||0)+Object.values(inventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
-  const perTree=5;
-  const now=Date.now();
-  let harvested=0,totalFruits=0;
-  for(const plot of plots){
-    const ready=(plot.grown&&!plot.readyAt)||(plot.readyAt&&new Date(plot.readyAt).getTime()<=now);
-    if(!ready) continue;
-    const amount=Math.min(perTree,Math.max(0,capacity-stored));
-    if(amount<1) break;
-    const type=({apple:'apple',peach:'peach',cherry:'cherry',pear:'pear',orange:'orange',mango:'mango'})[plot.type||'apple'];
-    if(type==='apple'){
-      await c.query('UPDATE players SET apples=apples+$2 WHERE telegram_id=$1',[req.playerId,amount]);
-    }else{
-      inventory[type]=(Number(inventory[type])||0)+amount;
-    }
-    stored+=amount;totalFruits+=amount;harvested++;
-    plot.plantedAt=new Date(now).toISOString();
-    plot.readyAt=new Date(now+GROWTH_MS).toISOString();
-    plot.watered=false;plot.grown=false;
-  }
-  if(!harvested) reject(409,'No ripe fruit to harvest');
-  await c.query('UPDATE players SET fruit_inventory=$2::jsonb,plots=$3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify(inventory),JSON.stringify(plots)]);
-  for(let n=0;n<harvested;n++) await awardExperience(c,req.playerId,p,10);
-  return {player:await loadState(c,req.playerId),harvested,totalFruits};
-}));
-app.post('/api/game/sell',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const inventory=p.fruit_inventory&&typeof p.fruit_inventory==='object'?p.fruit_inventory:{};
-  const processed=p.processed_inventory&&typeof p.processed_inventory==='object'?p.processed_inventory:{};
-  const salePrices={peach:7,cherry:12,pear:9,orange:15,mango:22};
-  let earned=Number(p.apples||0)*(1+p.orchard_level);
-  for(const [type,price] of Object.entries(salePrices)) earned+=(Math.max(0,Number(inventory[type])||0))*price;
-  const baseApplePrice=1+(Number(p.orchard_level)||1);
-  for(const [key,count] of Object.entries(processed)){
-    const match=key.match(/^(apple|peach|cherry|pear|orange|mango)_(juice|jam)$/);
-    if(!match) continue;
-    const base=match[1]==='apple'?baseApplePrice:(salePrices[match[1]]||1);
-    earned+=Math.max(0,Number(count)||0)*base*(match[2]==='juice'?6.5:12);
-  }
-  const total=Number(p.apples||0)+Object.values(inventory).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0)+Object.values(processed).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
-  if(total<1) reject(409,'No fruit or processed goods to sell');
-  await c.query("UPDATE players SET coins=coins+$2,apples=0,fruit_inventory='{}'::jsonb,processed_inventory='{}'::jsonb,updated_at=NOW() WHERE telegram_id=$1",[req.playerId,Math.floor(earned)]);
-  await awardExperience(c,req.playerId,p,5);
-  return {player:await loadState(c,req.playerId),earned};
-}));
-app.post('/api/game/process',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const type=String(req.body?.fruitType||''),kind=String(req.body?.kind||'');
-  if(!['apple','peach','cherry','pear','orange','mango'].includes(type)) reject(400,'Unknown fruit type');
-  if(!['juice','jam'].includes(kind)) reject(400,'Unknown processing recipe');
-  const quantity=1;
-  const need=kind==='juice'?5:8;
-  const inventory=p.fruit_inventory&&typeof p.fruit_inventory==='object'?{...p.fruit_inventory}:{};
-  const available=type==='apple'?Number(p.apples)||0:Number(inventory[type])||0;
-  if(available<need) reject(409,'Not enough fruit for this recipe');
-  if(type==='apple') await c.query('UPDATE players SET apples=apples-$2 WHERE telegram_id=$1',[req.playerId,need]);
-  else inventory[type]-=need;
-  const processed=p.processed_inventory&&typeof p.processed_inventory==='object'?{...p.processed_inventory}:{};
-  const key=type+'_'+kind;processed[key]=(Number(processed[key])||0)+quantity;
-  await c.query('UPDATE players SET fruit_inventory=$2::jsonb,processed_inventory=$3::jsonb,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,JSON.stringify(inventory),JSON.stringify(processed)]);
-  return {player:await loadState(c,req.playerId),product:key,quantity};
-}));
 app.post('/api/game/expand-land',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   const level=Math.min(5,Math.max(1,Number(p.land_level)||1));
   if(level>=5) reject(409,'All land is already unlocked');
@@ -364,22 +199,9 @@ app.post('/api/game/expand-land',auth,(req,res)=>mutate(req,res,async(c,p)=>{
   await c.query('UPDATE players SET coins=coins-$2,land_level=land_level+1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,cost]);
   return {player:await loadState(c,req.playerId),unlockedPlots:[0,36,100,196,324,400][level+1]};
 }));
-app.post('/api/game/upgrade-orchard',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const cost=150*p.orchard_level;if(p.coins<cost) reject(409,'Not enough Green Coin');
-  await c.query('UPDATE players SET coins=coins-$2,orchard_level=orchard_level+1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,cost]);
-  return {player:await loadState(c,req.playerId)};
-}));
-
 app.use((err,_req,res,_next)=>{console.error(err.message);res.status(500).json({error:'Internal server error'});});
 const port=Number(process.env.PORT||3000);
-db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS fruit_inventory JSONB NOT NULL DEFAULT '{}'::jsonb")
-.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS processed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb"))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS land_level INTEGER NOT NULL DEFAULT 1"))
 .then(()=>db.query("UPDATE players SET land_level=GREATEST(COALESCE(land_level,1),1)"))
-.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS seed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb"))
-.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS experience INTEGER NOT NULL DEFAULT 0"))
-.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS player_level INTEGER NOT NULL DEFAULT 1"))
-.then(()=>db.query("UPDATE players SET experience=COALESCE(experience,0),player_level=COALESCE(player_level,1)"))
-.then(()=>db.query("ALTER TABLE players ALTER COLUMN experience SET DEFAULT 0, ALTER COLUMN experience SET NOT NULL, ALTER COLUMN player_level SET DEFAULT 1, ALTER COLUMN player_level SET NOT NULL"))
 .then(()=>app.listen(port,()=>console.log('GREEN WORLD API listening on '+port)))
 .catch(error=>{console.error('Database migration failed:',error);process.exit(1);});
