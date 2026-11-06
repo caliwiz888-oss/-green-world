@@ -2275,6 +2275,14 @@ function makeWorldDecor(){
     box(world,1.35,.14,1.35,-.675,.04,z,M.stone2,false);
     box(world,1.35,.14,1.35,.675,.04,z,M.stone2,false);
   }
+  // Непрерывный подход к крыльцу главного дома: продлеваем центральную дорожку до нижней ступени.
+  box(world,2.85,.16,3.35,0,.045,-8.85,sidePathBase,false);
+  for(let ix=0;ix<3;ix++)for(let iz=0;iz<3;iz++){
+    box(world,.92,.04,1.02,-.92+ix*.92,.145,-9.86+iz*1.02,ix%2?sidePathTile:M.stone2,false);
+  }
+  // Сплошные поперечные стыки убирают зазоры между боковыми ветками и центральной дорогой.
+  box(world,1.15,.16,2.1,-1.85,.045,-4.55,sidePathBase,false);
+  box(world,1.15,.16,2.1,1.85,.045,-4.55,sidePathBase,false);
   // Соединительные дорожки связывают входы лавки и завода с центральной дорогой у дома.
   const sidePathBase=mat(0xd7c49e,.9),sidePathTile=mat(0xe8ddc5,.92),sidePathJoint=mat(0xbba985,.95);
   // Левая ветка подходит к передней площадке торговой лавки.
