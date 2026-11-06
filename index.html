@@ -351,7 +351,7 @@ function cylinder(parent,r1,r2,h,x,y,z,material,n=12){const o=new THREE.Mesh(new
 function sphere(parent,r,x,y,z,material,sy=1){const o=new THREE.Mesh(new THREE.SphereGeometry(r,24,18),material);o.position.set(x,y,z);o.scale.y=sy;o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
 function group(parent,x,y,z){const g=new THREE.Group();g.position.set(x,y,z);parent.add(g);return g}
 // У выбранных крупных построек отключаем только отбрасывание теней, сохраняя освещение и материалы.
-function disableCastShadows(root){root.traverse(object=>{if(object.isMesh)object.castShadow=false});return root}
+function disableCastShadows(root){root.traverse(object=>{if(object.isMesh){object.castShadow=false;object.receiveShadow=false}});return root}
 function warmLight(parent,x,y,z,intensity=0.65,distance=5){const light=new THREE.PointLight(0xffc978,intensity,distance,2);light.position.set(x,y,z);light.castShadow=false;parent.add(light);return light}
 const world=group(scene,0,0,0);
 box(world,76,.55,76,0,-.42,0,M.grass,false);
