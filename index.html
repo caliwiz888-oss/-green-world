@@ -689,10 +689,13 @@ function makeHouse(){
  // Отдельный материал башенных шатров наследует фактуру металлических пластин основной кровли.
  const towerRoofMaterial=manorRoofMaterial.clone();
  towerRoofMaterial.color.setHex(0xd5d9dc);towerRoofMaterial.roughness=.62;towerRoofMaterial.metalness=.28;towerRoofMaterial.bumpScale=.012;towerRoofMaterial.needsUpdate=true;
+ // Башенная кладка получает более выраженную микрофактуру светлого тесаного известняка.
+ const towerStoneMaterial=houseStone.clone();
+ towerStoneMaterial.color.setHex(0xe2ded4);towerStoneMaterial.roughness=.92;towerStoneMaterial.bumpScale=.03;towerStoneMaterial.needsUpdate=true;
  // Two corner towers with separate steep roofs and golden finials.
  for(const x of [-4.35,4.35]){
    const t=group(g,x,0,-2.25);
-   box(t,2.15,5.8,2.15,0,2.9,0,houseStone);
+   box(t,2.15,5.8,2.15,0,2.9,0,towerStoneMaterial);
    box(t,2.35,.22,2.35,0,5.82,0,houseStoneTrim);
    // Tower roof base: layered eaves and a narrow brass weatherproofing band.
    cylinder(t,1.76,1.76,.12,0,5.98,0,houseStoneTrim,4);
