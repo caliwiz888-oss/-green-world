@@ -206,7 +206,7 @@ app.post('/api/game/expand-land',auth,(req,res)=>mutate(req,res,async(c,p)=>{
 }));
 app.use((err,_req,res,_next)=>{console.error(err.message);res.status(500).json({error:'Internal server error'});});
 const port=Number(process.env.PORT||3000);
-.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS land_level INTEGER NOT NULL DEFAULT 1"))
+db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS land_level INTEGER NOT NULL DEFAULT 1")
 .then(()=>db.query("UPDATE players SET land_level=GREATEST(COALESCE(land_level,1),1)"))
 .then(()=>app.listen(port,()=>console.log('GREEN WORLD API listening on '+port)))
 .catch(error=>{console.error('Database migration failed:',error);process.exit(1);});
