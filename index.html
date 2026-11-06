@@ -3709,7 +3709,8 @@ function makeWorldDecor(){
     }
   }
   for(const side of ["left","right"]){
-    const x=side==="right"?16.93:-14.43;
+    // Боковые арки перенесены на внутреннюю сторону ограды, во двор.
+    const x=side==="right"?16.02:-13.52;
     const sign=side==="right"?1:-1;
     for(let cz=-10.5;cz<=10.5;cz+=3.5){
       const front=cz-1.48,back=cz+1.48,baseY=1.43,apexY=2.62;
