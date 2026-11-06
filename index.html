@@ -3361,6 +3361,9 @@ function makeWorldLandscape(){
      const foot=box(world,.3,.12,.3,x,y+.07,z,bridgeStoneMid);foot.castShadow=false;foot.receiveShadow=false;
      const post=box(world,.2,.56,.2,x,y+.31,z,bridgeStoneLight);post.castShadow=false;post.receiveShadow=false;
      const collar=box(world,.25,.1,.25,x,y+.55,z,bridgeStoneMid);collar.castShadow=false;collar.receiveShadow=false;
+     // Small restrained diamond-cut granite bosses give each baluster a hand-carved finish.
+     const boss=box(world,.105,.105,.026,x,y+.32,z+.108,bridgeStoneDark);boss.rotation.z=Math.PI/4;boss.castShadow=false;boss.receiveShadow=false;
+     const bossCore=box(world,.043,.043,.029,x,y+.32,z+.128,bridgeStoneLight);bossCore.rotation.z=Math.PI/4;bossCore.castShadow=false;bossCore.receiveShadow=false;
      const cap=sphere(world,.14,x,y+.66,z,bridgeStoneMid,false);cap.scale.set(.72,.7,.72);cap.castShadow=false;cap.receiveShadow=false;
    }
    // Broad end piers anchor the parapets with restrained carved stone caps.
