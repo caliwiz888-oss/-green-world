@@ -46,17 +46,17 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 @media(max-width:360px){.wallet{gap:5px;padding:6px}.metric{min-width:38px}.metric b{font-size:14px}.brand{font-size:12px;padding:8px}.action{font-size:10px;min-height:48px}#dock{gap:5px;padding:6px}}
 
 /* Green Farm level plaque */
-#farmHud{position:fixed;z-index:6;top:calc(env(safe-area-inset-top,0px) + 4px);left:4px;display:flex;align-items:center;gap:0;max-width:calc(100vw - 8px);height:48px;padding:3px 9px 3px 3px;border:2px solid #e9c56e;border-radius:15px;background:linear-gradient(180deg,#81512d 0%,#4b2b19 48%,#2d1a12 100%);box-shadow:0 3px 0 #3b2416,0 5px 12px #172b1c66,inset 0 2px 2px #ffe6a0,inset 0 -2px 3px #1c100b;color:#fff4d7;pointer-events:auto}
-#farmMenuButton{flex:0 0 38px;width:38px;height:38px;border-radius:50%;border:2px solid #e5bd59;background:linear-gradient(145deg,#6e9b38,#315c20 70%,#24451b);box-shadow:0 1px 0 #3a2413,inset 0 2px 3px #eaffb1;color:#fff7d8;font-size:22px;font-weight:900;line-height:1;text-shadow:0 2px 3px #203714;cursor:pointer}
-#farmHudInfo{min-width:0;padding:0 0 0 7px;display:flex;flex-direction:column;gap:1px}
-#farmHudTitle{font-size:13px;line-height:15px;font-weight:1000;letter-spacing:.25px;color:#fff1cf;text-shadow:0 2px 2px #24140d;white-space:nowrap}
-#farmHudLevel{font-size:10px;line-height:12px;font-weight:850;color:#f4dfb2;text-shadow:0 1px 2px #24140d;white-space:nowrap}
+#farmHud{position:fixed;z-index:6;top:calc(env(safe-area-inset-top,0px) + 1px);left:1px;display:flex;align-items:center;gap:0;max-width:calc(100vw - 2px);height:44px;padding:2px 8px 2px 2px;border:2px solid #e9c56e;border-radius:14px;background:linear-gradient(180deg,#81512d 0%,#4b2b19 48%,#2d1a12 100%);box-shadow:0 2px 0 #3b2416,0 4px 10px #172b1c66,inset 0 2px 2px #ffe6a0,inset 0 -2px 3px #1c100b;color:#fff4d7;pointer-events:auto}
+#farmMenuButton{flex:0 0 34px;width:34px;height:34px;border-radius:50%;border:2px solid #e5bd59;background:linear-gradient(145deg,#6e9b38,#315c20 70%,#24451b);box-shadow:0 1px 0 #3a2413,inset 0 2px 3px #eaffb1;color:#fff7d8;font-size:20px;font-weight:900;line-height:1;text-shadow:0 2px 3px #203714;cursor:pointer}
+#farmHudInfo{min-width:0;padding:0 0 0 6px;display:flex;flex-direction:column;gap:0}
+#farmHudTitle{font-size:12px;line-height:14px;font-weight:1000;letter-spacing:.2px;color:#fff1cf;text-shadow:0 2px 2px #24140d;white-space:nowrap}
+#farmHudLevel{font-size:9px;line-height:11px;font-weight:850;color:#f4dfb2;text-shadow:0 1px 2px #24140d;white-space:nowrap}
 #farmMenuShade{display:none;position:fixed;z-index:15;inset:0;background:#102016a8;align-items:center;justify-content:center;padding:20px}
 #farmMenuShade.open{display:flex}
 #farmMenuPanel{width:min(310px,92vw);padding:18px;border:2px solid #e8c16c;border-radius:20px;background:linear-gradient(155deg,#81512d,#382116);box-shadow:0 10px 30px #0008;color:#fff1cf;text-align:center}
 #farmMenuPanel h2{margin:0 0 14px;font-size:20px;letter-spacing:.5px}
 #farmMenuClose{padding:10px 24px;border:1px solid #e6cf8e;border-radius:12px;background:linear-gradient(#8cc85d,#397b36);color:white;font-weight:900;font-size:14px}
-@media(max-width:360px){#farmHud{height:44px;gap:0;padding-right:7px;border-radius:14px}#farmMenuButton{width:34px;height:34px;flex-basis:34px;font-size:20px}#farmHudTitle{font-size:12px;line-height:14px}#farmHudLevel{font-size:9px;line-height:11px}}
+@media(max-width:360px){#farmHud{height:40px;gap:0;padding-right:6px;border-radius:13px}#farmMenuButton{width:30px;height:30px;flex-basis:30px;font-size:18px}#farmHudTitle{font-size:11px;line-height:13px}#farmHudLevel{font-size:8px;line-height:10px}}
 </style>
 </head>
 <body>
