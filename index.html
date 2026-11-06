@@ -4625,63 +4625,60 @@ function makeWorldLandscape(){
  const peaks=[[-25.5,-30.5,12.1,7.1],[-18.3,-34.8,17.2,8.3],[-10.5,-38.4,18.4,8.6],[-2.8,-40.6,21.4,9.7],[7.4,-39.2,19.1,8.5],[16.6,-35.6,15.2,8.3],[24.5,-30.7,12.8,6.9]];
  const rockPalette=[new THREE.Color(0x4c4a45),new THREE.Color(0x666158),new THREE.Color(0x81796d),new THREE.Color(0x5a5b57),new THREE.Color(0x918879)];
  const snowPalette=[new THREE.Color(0xdce7e3),new THREE.Color(0xf3f5ef),new THREE.Color(0xc5d4d1)];
- function buildMountainMassif(x,z,h,r,index){
-   // Плавный альпийский массив: единая сглаженная поверхность без повторяющихся цветных полос.
-   const positions=[],colors=[],indices=[];
-   const sectors=24;
-   const rings=[1,.91,.79,.65,.49,.33,.17];
-   const levels=[0,.14,.31,.49,.66,.81,.93];
-   const baseRock=new THREE.Color(0x625e56);
-   const sunRock=new THREE.Color(0x82796b);
-   const shadowRock=new THREE.Color(0x4c4d4a);
-   const snowColor=new THREE.Color(0xe8efeb);
-   const summit=[];
-   for(let ring=0;ring<rings.length;ring++){
-     const points=[];
-     for(let j=0;j<sectors;j++){
-       const a=j/sectors*Math.PI*2+(index%2)*.11;
-       const ridge=Math.sin(j*1.71+index*1.9)*.105+Math.cos(j*.83-index*.7)*.055;
-       const shoulder=Math.sin(j*2.37+index)*.035;
-       const radius=r*rings[ring]*(1+ridge*.48+shoulder);
-       const peakShape=1+ridge*.72;
-       const px=Math.cos(a)*radius;
-       const pz=Math.sin(a)*radius;
-       const py=h*(levels[ring]*peakShape+Math.sin(j*1.31+index)*.012*(1-levels[ring]));
-       points.push([px,py,pz]);
-       positions.push(px,py,pz);
-       const elevation=THREE.MathUtils.clamp(py/h,0,1);
-       const light=THREE.MathUtils.clamp(.48+.18*Math.sin(a+index*.8)+.09*Math.cos(a*2-index),.2,.78);
-       const rock=shadowRock.clone().lerp(baseRock,light+.18).lerp(sunRock,light*.28);
-       const snowBlend=THREE.MathUtils.smoothstep(elevation,.79,.94);
-       const color=rock.lerp(snowColor,snowBlend);
-       colors.push(color.r,color.g,color.b);
+ // Единый альпийский хребет с пятью выразительными вершинами и глубокими седловинами.
+ const ridgePositions=[],ridgeColors=[],ridgeIndices=[];
+ const ridgeNX=112,ridgeNZ=42;
+ const ridgePeaks=[
+   [-27,12.8,5.6],[-15.5,17.8,6.4],[-2.8,21.5,7.1],[11.5,17.2,6.2],[25,13.6,5.7]
+ ];
+ const ridgeRockDark=new THREE.Color(0x4c4e4b);
+ const ridgeRockMid=new THREE.Color(0x706b61);
+ const ridgeRockLight=new THREE.Color(0x928879);
+ const ridgeSnow=new THREE.Color(0xe9efeb);
+ for(let iz=0;iz<=ridgeNZ;iz++){
+   const z=-54+iz*(32/ridgeNZ);
+   for(let ix=0;ix<=ridgeNX;ix++){
+     const x=-38+ix*(76/ridgeNX);
+     let ridgeHeight=0;
+     for(let p=0;p<ridgePeaks.length;p++){
+       const [px,ph,pw]=ridgePeaks[p];
+       const dx=(x-px)/pw;
+       ridgeHeight+=ph*Math.exp(-.5*dx*dx);
      }
-     summit.push(points);
+     const crestZ=-39.2+1.5*Math.sin(x*.105)+.55*Math.sin(x*.29);
+     const depth=(z-crestZ)/8.4;
+     const crossSection=Math.exp(-.5*depth*depth);
+     const shoulders=.9*Math.exp(-.5*Math.pow((z-crestZ-5.3)/3.1,2));
+     const frontSlope=THREE.MathUtils.clamp((z+54)/7.5,0,1);
+     const backSlope=THREE.MathUtils.clamp((-22-z)/7.5,0,1);
+     const edge=THREE.MathUtils.clamp((38-Math.abs(x))/6,0,1);
+     const micro=(Math.sin(x*.37+z*.19)+Math.cos(x*.21-z*.31))*.18;
+     const y=Math.max(0,(ridgeHeight*crossSection+ridgeHeight*.23*shoulders+micro)*frontSlope*backSlope*edge);
+     ridgePositions.push(x,y,z);
+     const elevation=THREE.MathUtils.clamp(y/21.5,0,1);
+     const light=THREE.MathUtils.clamp(.48+.16*Math.sin(x*.12-z*.08)+.08*Math.cos(z*.22),.2,.8);
+     const rock=ridgeRockDark.clone().lerp(ridgeRockMid,light+.2).lerp(ridgeRockLight,light*.22);
+     const snowline=THREE.MathUtils.smoothstep(elevation,.69,.9);
+     const snowPatch=THREE.MathUtils.clamp(snowline*(.78+.22*Math.sin(x*.31+z*.18)),0,1);
+     const color=rock.lerp(ridgeSnow,snowPatch);
+     ridgeColors.push(color.r,color.g,color.b);
    }
-   const apexIndex=positions.length/3;
-   positions.push(0,h,0);
-   colors.push(snowColor.r,snowColor.g,snowColor.b);
-   for(let ring=0;ring<rings.length-1;ring++){
-     for(let j=0;j<sectors;j++){
-       const a=ring*sectors+j,b=ring*sectors+(j+1)%sectors;
-       const c=(ring+1)*sectors+j,d=(ring+1)*sectors+(j+1)%sectors;
-       indices.push(a,c,b,b,c,d);
-     }
-   }
-   const last=(rings.length-1)*sectors;
-   for(let j=0;j<sectors;j++)indices.push(last+j,apexIndex,last+(j+1)%sectors);
-   const geometry=new THREE.BufferGeometry();
-   geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
-   geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
-   geometry.setIndex(indices);
-   geometry.computeVertexNormals();
-   const material=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.96,metalness:0,flatShading:false});
-   const massif=new THREE.Mesh(geometry,material);
-   massif.position.set(x,0,z);
-   massif.castShadow=false;massif.receiveShadow=false;
-   world.add(massif);
  }
- for(let i=0;i<peaks.length;i++)buildMountainMassif(peaks[i][0],peaks[i][1],peaks[i][2],peaks[i][3],i);
+ for(let iz=0;iz<ridgeNZ;iz++){
+   for(let ix=0;ix<ridgeNX;ix++){
+     const a=iz*(ridgeNX+1)+ix,b=a+1,c=a+ridgeNX+1,d=c+1;
+     ridgeIndices.push(a,c,b,b,c,d);
+   }
+ }
+ const ridgeGeometry=new THREE.BufferGeometry();
+ ridgeGeometry.setAttribute('position',new THREE.Float32BufferAttribute(ridgePositions,3));
+ ridgeGeometry.setAttribute('color',new THREE.Float32BufferAttribute(ridgeColors,3));
+ ridgeGeometry.setIndex(ridgeIndices);
+ ridgeGeometry.computeVertexNormals();
+ const alpineRidge=new THREE.Mesh(ridgeGeometry,new THREE.MeshStandardMaterial({
+   color:0xffffff,vertexColors:true,roughness:.97,metalness:0,flatShading:false,side:THREE.DoubleSide
+ }));
+ alpineRidge.castShadow=false;alpineRidge.receiveShadow=false;world.add(alpineRidge);
  // Три округлых зелёных холма перед горами удалены; лес остаётся единственным переходом к скальному хребту.
  // Дополнительные зелёные гряды удалены: за хвойным лесом сразу начинается горный рельеф.
  // Far blue-grey peaks sit behind the main range, giving the horizon a true layered-distance effect.
