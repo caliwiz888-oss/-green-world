@@ -4619,6 +4619,112 @@ function makeWorldLandscape(){
  rollingHills.rotation.x=-Math.PI/2;
  rollingHills.position.set(0,.015,-24.5);
  rollingHills.receiveShadow=false;rollingHills.castShadow=false;world.add(rollingHills);
+
+ // Четыре отдельных альпийских массива: асимметричные склоны, ломаные гребни и ледниковые кулуары.
+ const alpineRockDark=new THREE.Color(0x343b3e);
+ const alpineRockMid=new THREE.Color(0x737875);
+ const alpineRockSun=new THREE.Color(0xa29f95);
+ const alpineSnow=new THREE.Color(0xf0f2ee);
+ const alpineSnowShadow=new THREE.Color(0xb9c6c8);
+ const alpineSmooth=(a,b,v)=>{const t=THREE.MathUtils.clamp((v-a)/(b-a),0,1);return t*t*(3-2*t);};
+ const buildAlpineMountain=(cfg)=>{
+   const {name,cx,cz,width,depth,height,lean,peaks,gullies,rotation=0}=cfg;
+   const nx=112,nz=104,positions=[],colors=[],indices=[];
+   const cs=Math.cos(rotation),sn=Math.sin(rotation);
+   const summitProfile=(u)=>{
+     let p=.16*Math.pow(Math.max(0,1-u*u),.45);
+     for(const [px,amp,spread] of peaks){
+       const q=(u-px)/spread;
+       p+=amp*Math.exp(-.5*q*q);
+     }
+     return p;
+   };
+   for(let iz=0;iz<=nz;iz++){
+     const v=-1+2*iz/nz;
+     for(let ix=0;ix<=nx;ix++){
+       const u=-1+2*ix/nx;
+       const ridgeV=.12*Math.sin(u*3.4+.6)+.055*Math.sin(u*8.1-1.2)+lean*u;
+       const cross=v-ridgeV;
+       const front=cross>0;
+       const slope=front?.48:.39;
+       const radial=Math.sqrt(u*u+v*v*.78);
+       const baseFade=1-alpineSmooth(.72,1,radial);
+       const crest=summitProfile(u);
+       const flank=Math.exp(-Math.pow(Math.abs(cross)/slope,front?1.42:1.58));
+       let h=height*crest*flank*baseFade;
+       // Длинные боковые рёбра сходят со склонов, образуя выступы и контрфорсы.
+       const ribs=[[-.76,-.12,.12],[-.48,.16,.10],[-.12,-.18,.115],[.27,.15,.10],[.62,-.12,.12]];
+       for(const [ru,offset,amp] of ribs){
+         const ribLine=ru+cross*.23+offset;
+         const rib=Math.exp(-.5*Math.pow((u-ribLine)/.075,2))*
+           alpineSmooth(.12,.36,Math.abs(cross))*(1-alpineSmooth(.78,1,radial));
+         h+=height*amp*rib;
+       }
+       // Эрозионные кулуары прорезают склоны от гребня к подножию.
+       for(const [gu,drift,widthCut,cut] of gullies){
+         const line=gu+cross*drift;
+         const dist=Math.abs(u-line);
+         const channel=Math.exp(-.5*Math.pow(dist/widthCut,2))*
+           alpineSmooth(.08,.34,Math.abs(cross))*(1-alpineSmooth(.78,.98,radial));
+         h-=height*cut*channel;
+       }
+       const broadNoise=(Math.sin(u*17+v*8.5)*.22+Math.cos(u*9-v*15)*.18);
+       const rockNoise=(Math.sin(u*47+v*39)*.075+Math.cos(u*71-v*53)*.045);
+       h=Math.max(0,(h+(broadNoise+rockNoise)*baseFade)*baseFade);
+       const lx=u*width,lz=v*depth+ridgeV*depth*.18;
+       const wx=cx+lx*cs-lz*sn,wz=cz+lx*sn+lz*cs;
+       positions.push(wx,h,wz);
+       colors.push(0,0,0);
+     }
+   }
+   for(let iz=0;iz<nz;iz++)for(let ix=0;ix<nx;ix++){
+     const a=iz*(nx+1)+ix,b=a+1,c=a+nx+1,d=c+1;
+     if((ix+iz)%2===0)indices.push(a,c,b,b,c,d);else indices.push(a,c,d,a,d,b);
+   }
+   const geometry=new THREE.BufferGeometry();
+   geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+   geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+   geometry.setIndex(indices);geometry.computeVertexNormals();
+   const pos=geometry.attributes.position,norm=geometry.attributes.normal,col=geometry.attributes.color;
+   for(let i=0;i<pos.count;i++){
+     const y=pos.getY(i),ny=norm.getY(i);
+     const light=THREE.MathUtils.clamp(.38+.44*(1-ny)+.12*Math.sin(pos.getX(i)*.09+pos.getZ(i)*.06),.12,.96);
+     const rock=alpineRockDark.clone().lerp(alpineRockMid,light).lerp(alpineRockSun,Math.max(0,light-.52)*.75);
+     const snowline=height*.68;
+     const snowCoverage=alpineSmooth(snowline,height*.91,y)*THREE.MathUtils.clamp((ny+.04)*1.35,0,1);
+     const snowPatch=THREE.MathUtils.clamp(.72+.16*Math.sin(pos.getX(i)*.31+pos.getZ(i)*.23)+.12*Math.cos(pos.getX(i)*.57-pos.getZ(i)*.37),.18,1);
+     rock.lerp(alpineSnowShadow,snowCoverage*snowPatch*.38).lerp(alpineSnow,snowCoverage*snowPatch*.62);
+     col.setXYZ(i,rock.r,rock.g,rock.b);
+   }
+   col.needsUpdate=true;
+   const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({
+     color:0xffffff,vertexColors:true,map:alpineRockTexture,bumpMap:alpineRockBump,
+     bumpScale:.085,roughness:.98,metalness:0,side:THREE.DoubleSide
+   }));
+   mesh.name=name;mesh.castShadow=false;mesh.receiveShadow=false;world.add(mesh);
+   return mesh;
+ };
+ buildAlpineMountain({
+   name:'Alpine mountain 1 - western shoulder',cx:-36,cz:-54,width:15.5,depth:18,height:14.2,lean:-.08,rotation:-.08,
+   peaks:[[-.56,.45,.23],[-.16,1,.22],[.38,.58,.27]],
+   gullies:[[-.48,.25,.055,.12],[-.04,-.18,.06,.16],[.48,.2,.06,.12]]
+ });
+ buildAlpineMountain({
+   name:'Alpine mountain 2 - highest central summit',cx:-12,cz:-55,width:16.5,depth:19,height:18.2,lean:.04,rotation:.035,
+   peaks:[[-.58,.38,.2],[-.18,.72,.2],[.16,1,.19],[.57,.48,.22]],
+   gullies:[[-.54,.18,.055,.13],[-.27,-.2,.05,.16],[.28,.2,.055,.17],[.62,-.16,.06,.12]]
+ });
+ buildAlpineMountain({
+   name:'Alpine mountain 3 - broken eastern ridge',cx:14,cz:-53,width:15.5,depth:17.5,height:15.8,lean:.11,rotation:.07,
+   peaks:[[-.52,.55,.24],[-.05,1,.2],[.42,.68,.25]],
+   gullies:[[-.5,.18,.06,.14],[-.08,-.22,.055,.16],[.46,.16,.06,.13]]
+ });
+ buildAlpineMountain({
+   name:'Alpine mountain 4 - eastern horn',cx:39,cz:-55,width:14.5,depth:18,height:13.6,lean:-.06,rotation:-.045,
+   peaks:[[-.48,.48,.23],[-.02,1,.2],[.48,.52,.24]],
+   gullies:[[-.44,.2,.055,.12],[.04,-.18,.06,.15],[.48,.17,.055,.13]]
+ });
+
  // Все горные массивы удалены по запросу; задний план остаётся открытым.
  // Весь лес удалён по запросу: хвойные и лиственные деревья не создаются.
   // A broad river outside the farm boundary, with layered banks and a stone crossing.
