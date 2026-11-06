@@ -18,7 +18,7 @@ if (location.hostname === 'caliwiz888-oss.github.io') {
 :root{font-family:Inter,system-ui,Arial,sans-serif;color:#284d32;background:#8fc3df;font-synthesis:none}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}body{touch-action:pan-y;background:linear-gradient(#8fc3df,#dce9ce)}
 #world{position:fixed;inset:0;width:100%;height:100%;display:block;outline:0}
-#world{touch-action:none;cursor:grab}#world.camera-dragging{cursor:grabbing}
+#world{touch-action:pan-y;cursor:default}
 .top{position:fixed;z-index:3;top:env(safe-area-inset-top,8px);left:10px;right:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
 .brand,.wallet,.pill,.panel{background:linear-gradient(145deg,#fffef4f2,#e5efd9f2);border:1px solid #fff;box-shadow:0 5px 18px #23472d45,inset 0 1px #fff;border-radius:15px}
 .brand{padding:9px 12px;font-size:14px;font-weight:1000;letter-spacing:1.4px;color:#28643b}.brand small{display:block;font-size:9px;letter-spacing:2px;color:#76916f;margin-top:2px}
@@ -3347,19 +3347,10 @@ async function request(path,body=null,retry=true){const opts={method:body===null
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2600)}
 async function login(){const tg=window.Telegram?.WebApp;const initData=tg?.initData||'';if(!initData){$('login-error').textContent='Открой игру из Telegram-бота, чтобы войти.';return}try{tg.ready();tg.expand();$('login-error').textContent='Подключаем аккаунт…';const data=await request('/api/auth/telegram',{initData},false);token=data.accessToken;applyPlayer()}catch(e){$('login-error').textContent='Не удалось войти: '+e.message}}
 
-const cameraTarget=new THREE.Vector3(.8,.8,-1.5);
-let cameraAzimuth=Math.atan2(1.2,66.5);
-let cameraPolar=Math.atan2(65,33-.8);
-let cameraPointerId=null,cameraLastX=0,cameraLastY=0;
-const cameraPointers=new Map();let pinchStartDistance=0,pinchStartRadius=cameraRadius;
+const cameraTarget=new THREE.Vector3(0,.8,-1.5);
+let cameraAzimuth=0;
+let cameraPolar=Math.atan2(60,30-.8);
 function updateOrbitCamera(){const orbitRadius=Math.hypot(cameraRadius,cameraHeight-.8),sinPolar=Math.sin(cameraPolar);camera.position.set(cameraTarget.x+orbitRadius*sinPolar*Math.sin(cameraAzimuth),cameraTarget.y+orbitRadius*Math.cos(cameraPolar),cameraTarget.z+orbitRadius*sinPolar*Math.cos(cameraAzimuth));camera.lookAt(cameraTarget)}
-const worldCanvas=$('world');
-function pointerDistance(){const pts=[...cameraPointers.values()];return pts.length<2?0:Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y)}
-worldCanvas.addEventListener('pointerdown',event=>{if(event.button!==0)return;cameraPointers.set(event.pointerId,{x:event.clientX,y:event.clientY});worldCanvas.setPointerCapture(event.pointerId);if(cameraPointers.size===1){cameraPointerId=event.pointerId;cameraLastX=event.clientX;cameraLastY=event.clientY;worldCanvas.classList.add('camera-dragging')}else if(cameraPointers.size===2){cameraPointerId=null;pinchStartDistance=pointerDistance();pinchStartRadius=cameraRadius}});
-worldCanvas.addEventListener('pointermove',event=>{if(!cameraPointers.has(event.pointerId))return;cameraPointers.set(event.pointerId,{x:event.clientX,y:event.clientY});if(cameraPointers.size>=2){const distance=pointerDistance();if(pinchStartDistance>0){cameraRadius=THREE.MathUtils.clamp(pinchStartRadius*pinchStartDistance/Math.max(distance,1),42,88);updateOrbitCamera()}return}if(event.pointerId!==cameraPointerId)return;const dx=event.clientX-cameraLastX,dy=event.clientY-cameraLastY;cameraLastX=event.clientX;cameraLastY=event.clientY;cameraAzimuth-=dx*.005;cameraPolar=THREE.MathUtils.clamp(cameraPolar+dy*.004,.38,1.42);updateOrbitCamera()});
-function finishCameraDrag(event){if(!cameraPointers.has(event.pointerId))return;cameraPointers.delete(event.pointerId);if(cameraPointers.size===1){const [id,p]=[...cameraPointers.entries()][0];cameraPointerId=id;cameraLastX=p.x;cameraLastY=p.y;pinchStartDistance=0}else{cameraPointerId=null;pinchStartDistance=0}if(cameraPointers.size===0)worldCanvas.classList.remove('camera-dragging')}
-worldCanvas.addEventListener('pointerup',finishCameraDrag);worldCanvas.addEventListener('pointercancel',finishCameraDrag);worldCanvas.addEventListener('lostpointercapture',finishCameraDrag);
-worldCanvas.addEventListener('wheel',event=>{event.preventDefault();cameraRadius=THREE.MathUtils.clamp(cameraRadius+Math.sign(event.deltaY)*2,42,88);updateOrbitCamera()},{passive:false});
 
 function cameraPosition(){updateOrbitCamera()}
 
