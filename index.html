@@ -3662,43 +3662,48 @@ function makeWorldDecor(){
     box(world,.92,1.45,.92,x,.725,14,fenceMat,false);
     box(world,1.08,.18,1.08,x,1.525,14,fenceCap,false);
   }
-  // Новая архитектура ограды: ритмичные каменные аркады над верхним карнизом.
-  // Арочные пролёты добавляют выразительный силуэт, не меняя периметр, проезды и расположение объектов.
+  // Увеличенные плавные аркады: широкие пролёты с высоким округлым сводом.
+  // Периметр, проезды и расположение ограды остаются прежними.
   const addFenceArc=(points,material,radius)=>{
-    const curve=new THREE.CatmullRomCurve3(points);
-    const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,28,radius,7,false),material);
+    const curve=new THREE.CatmullRomCurve3(points,false,'centripetal');
+    const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,64,radius,9,false),material);
     mesh.castShadow=false;mesh.receiveShadow=false;world.add(mesh);
+  };
+  const archProfile=(left,right,baseY,apexY,plane,axis='x')=>{
+    const span=right-left, rise=apexY-baseY;
+    const values=[
+      [left,baseY],[left+span*.12,baseY+rise*.43],
+      [left+span*.29,baseY+rise*.78],[left+span*.5,apexY],
+      [left+span*.71,baseY+rise*.78],[left+span*.88,baseY+rise*.43],[right,baseY]
+    ];
+    return values.map(([p,y])=>axis==='x'
+      ?new THREE.Vector3(p,y,plane)
+      :new THREE.Vector3(plane,y,p));
   };
   for(const side of ["front","back"]){
     const z=side==="front"?14.43:-14.43;
     const sign=side==="front"?1:-1;
     const spans=side==="front"?[[-14,-3.8],[3.8,16.5]]:[[-14,16.5]];
     for(const [start,end] of spans){
-      for(let cx=start+1.75;cx<end-1.1;cx+=3.5){
-        const left=cx-1.28,right=cx+1.28,baseY=1.36,apexY=1.78;
+      for(let cx=start+1.8;cx<end-1.35;cx+=3.5){
+        const left=cx-1.48,right=cx+1.48,baseY=1.43,apexY=2.62;
         for(const px of [left,right]){
-          box(world,.13,.40,.13,px,1.49,z,fenceBaseTrim,false);
-          box(world,.19,.055,.19,px,1.70,z,fenceLightTrim,false);
-          const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.105,0),fenceRelief);
-          finial.position.set(px,1.79,z);finial.scale.set(.78,1.25,.78);
+          box(world,.17,.62,.17,px,1.52,z,fenceBaseTrim,false);
+          box(world,.23,.075,.23,px,1.87,z,fenceLightTrim,false);
+          const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.135,0),fenceRelief);
+          finial.position.set(px,2.00,z);finial.scale.set(.82,1.3,.82);
           finial.castShadow=false;finial.receiveShadow=false;world.add(finial);
         }
-        addFenceArc([
-          new THREE.Vector3(left,baseY,z),
-          new THREE.Vector3(left+.34,1.57,z),
-          new THREE.Vector3(cx,apexY,z),
-          new THREE.Vector3(right-.34,1.57,z),
-          new THREE.Vector3(right,baseY,z)
-        ],fenceLightTrim,.035);
-        addFenceArc([
-          new THREE.Vector3(left+.16,baseY+.015,z+sign*.025),
-          new THREE.Vector3(cx,1.67,z+sign*.025),
-          new THREE.Vector3(right-.16,baseY+.015,z+sign*.025)
-        ],fenceBaseTrim,.014);
-        const quatrefoil=new THREE.Mesh(new THREE.TorusGeometry(.105,.022,6,20),fenceCap);
-        quatrefoil.position.set(cx,1.53,z+sign*.075);
-        quatrefoil.scale.set(1,1.12,.55);
+        addFenceArc(archProfile(left,right,baseY,apexY,z),fenceLightTrim,.055);
+        addFenceArc(archProfile(left+.17,right-.17,baseY+.035,apexY-.19,z+sign*.075),fenceBaseTrim,.027);
+        addFenceArc(archProfile(left+.31,right-.31,baseY+.055,apexY-.34,z-sign*.065),fenceRelief,.018);
+        const quatrefoil=new THREE.Mesh(new THREE.TorusGeometry(.145,.027,8,28),fenceCap);
+        quatrefoil.position.set(cx,1.78,z+sign*.115);
+        quatrefoil.scale.set(1,1.16,.62);
         quatrefoil.castShadow=false;quatrefoil.receiveShadow=false;world.add(quatrefoil);
+        const crown=new THREE.Mesh(new THREE.OctahedronGeometry(.13,0),fenceLightTrim);
+        crown.position.set(cx,2.62,z+sign*.02);crown.scale.set(1.1,1.35,.72);
+        crown.castShadow=false;crown.receiveShadow=false;world.add(crown);
       }
     }
   }
@@ -3706,26 +3711,20 @@ function makeWorldDecor(){
     const x=side==="right"?16.93:-14.43;
     const sign=side==="right"?1:-1;
     for(let cz=-10.5;cz<=10.5;cz+=3.5){
-      const front=cz-1.28,back=cz+1.28,baseY=1.36;
+      const front=cz-1.48,back=cz+1.48,baseY=1.43,apexY=2.62;
       for(const pz of [front,back]){
-        box(world,.13,.40,.13,x,1.49,pz,fenceBaseTrim,false);
-        box(world,.19,.055,.19,x,1.70,pz,fenceLightTrim,false);
-        const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.105,0),fenceRelief);
-        finial.position.set(x,1.79,pz);finial.scale.set(.78,1.25,.78);
+        box(world,.17,.62,.17,x,1.52,pz,fenceBaseTrim,false);
+        box(world,.23,.075,.23,x,1.87,pz,fenceLightTrim,false);
+        const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.135,0),fenceRelief);
+        finial.position.set(x,2.00,pz);finial.scale.set(.82,1.3,.82);
         finial.castShadow=false;finial.receiveShadow=false;world.add(finial);
       }
-      addFenceArc([
-        new THREE.Vector3(x,baseY,front),
-        new THREE.Vector3(x,1.57,front+.34),
-        new THREE.Vector3(x,1.78,cz),
-        new THREE.Vector3(x,1.57,back-.34),
-        new THREE.Vector3(x,baseY,back)
-      ],fenceLightTrim,.035);
-      addFenceArc([
-        new THREE.Vector3(x+sign*.025,baseY+.015,front+.16),
-        new THREE.Vector3(x+sign*.025,1.67,cz),
-        new THREE.Vector3(x+sign*.025,baseY+.015,back-.16)
-      ],fenceBaseTrim,.014);
+      addFenceArc(archProfile(front,back,baseY,apexY,x,'z'),fenceLightTrim,.055);
+      addFenceArc(archProfile(front+.17,back-.17,baseY+.035,apexY-.19,x+sign*.075,'z'),fenceBaseTrim,.027);
+      addFenceArc(archProfile(front+.31,back-.31,baseY+.055,apexY-.34,x-sign*.065,'z'),fenceRelief,.018);
+      const crown=new THREE.Mesh(new THREE.OctahedronGeometry(.13,0),fenceLightTrim);
+      crown.position.set(x,2.62,cz);crown.scale.set(.72,1.35,1.1);
+      crown.castShadow=false;crown.receiveShadow=false;world.add(crown);
     }
   }
   // Decorative entrance arch is built above; continue with natural ground-cover details.
