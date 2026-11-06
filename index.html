@@ -492,8 +492,7 @@ function makeHouse(){
  for(const z of [-4.52,4.52]){
    sphere(g,.16,-.25,6.82,z,houseStoneTrim,.9);
    // Тонкое латунное кольцо и шейка связывают концевые навершия с коньком.
-   const finialCollar=cylinder(g,.14,.14,.045,-.25,6.875,z,M.gold,12);
-   finialCollar.rotation.x=Math.PI/2;
+   cylinder(g,.14,.14,.045,-.25,6.875,z,M.gold,12);
    const finial=cylinder(g,.055,.12,.24,-.25,6.99,z,M.gold,8);
    sphere(g,.075,-.25,7.13,z,M.gold,.85);
  }
