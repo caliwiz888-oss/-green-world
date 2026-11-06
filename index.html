@@ -2851,16 +2851,16 @@ function makeFlowerBed(x,z){
 }
 function makeWorldDecor(){
   const fenceBaseTrim=mat(0x625847),fenceLightTrim=mat(0xc8bda5),fenceRelief=mat(0x9b8d73),fenceShadow=mat(0x514939);
-  // Открытая территория без забора. Каменная дорожка идёт от порога дома прямо к мосту.
+  // Открытая территория. Каменная дорожка идёт от главного дома к берегу реки.
   // var исключает TDZ для материалов дорожки при повторном/раннем вызове декораций.
-  // Та же бело-серая гранитная гамма, что и у моста: светлый камень, холодный серый и графитовые швы.
+  // Бело-серая гранитная гамма дорожек: светлый камень, холодный серый и графитовые швы.
   const roadBrickLight=mat(0xd9ddda,.96);
   const roadBrickDark=mat(0x788185,.96);
   // Основание в тон тёмному камню; контраст мягкий, без чисто белого и чёрного.
-  // Центральная дорога: ровная ось от крыльца главного дома к мосту, одинаковая ширина по всей длине.
+  // Центральная дорога: ровная ось от крыльца главного дома к берегу, одинаковая ширина по всей длине.
   const roadBase=mat(0x42494c,.98);
   box(world,3.9,.12,24.2,0,.035,2.05,roadBase,false);
-  // Точная копия мостовой брусчатки: форма, фаски, раскладка, оттенки и минеральная фактура.
+  // Единая брусчатка дорожек: форма, фаски, раскладка, оттенки и минеральная фактура.
   function addRoadGranite(cols,rows,x0,z0,pitchX,pitchZ,width,depth,heightAt,staggerAxis,skipTile=null){
     const positions=[],colors=[],uvs=[],indices=[];
     const outline=[[-.5,-.42],[-.42,-.5],[.42,-.5],[.5,-.42],[.5,.42],[.42,.5],[-.42,.5],[-.5,.42]];
@@ -2896,7 +2896,7 @@ function makeWorldDecor(){
     const material=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.98,metalness:0,vertexColors:true,side:THREE.DoubleSide});
     const mesh=new THREE.Mesh(geometry,material);mesh.castShadow=false;mesh.receiveShadow=false;world.add(mesh);
   }
-  // Центральная дорога: те же гранитные камни 0.428 × 0.535 м, что и на мосту.
+  // Центральная дорога выложена гранитными камнями 0.428 × 0.535 м.
   addRoadGranite(9,42,-1.8,-9.72,.45,.565,.428,.535,()=>.1475,'x');
   // Поперечная дорога выложена теми же камнями, без смены материала или рисунка.
   addRoadGranite(67,3,-13.95,-5.115,.45,.565,.428,.535,()=>.1475,'z',(x)=>Math.abs(x)<2.25);
@@ -2930,20 +2930,7 @@ function makeWorldDecor(){
       box(world,.025,.018,.195,x,.18,z,roadEdgeTop,false);
     }
   }
-  // Стык подъёма с мостом: дорожное полотно и начало настила выставлены на одну высоту.
-  // Семь рядов от Z=13.93 до Z=17.32; подъезд и начало настила имеют одинаковую отметку.
-  const rampStartZ=13.93,rampLastRowZ=17.32;
-  const rampHeight=z=>.1475;
-  for(let row=0;row<7;row++){
-    const z=rampStartZ+row*.571,deckY=rampHeight(z);
-    for(const side of [-1,1]){
-      const x=side*1.965;
-      box(world,.18,.085,.46,x,deckY-.0325,z,roadEdgeMat,false);
-      box(world,.07,.025,.43,x-side*.012,deckY+.022,z,roadEdgeTop,false);
-    }
-  }
-  // Бело-серая гранитная кладка заканчивается до начала сплошного настила моста.
-  addRoadGranite(10,7,-2.025,rampStartZ,.45,.571,.428,.535,rampHeight,'x');
+  // Дорога заканчивается у берега; подъездной настил и конструкции моста отсутствуют.
   // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проём оставлен для дороги с моста.
   const fenceMat=mat(0x817967),fenceCap=mat(0xb0a38a),fenceJoint=mat(0x6b6252);
   for(let p=-14;p<=14;p+=1.75){
@@ -3238,7 +3225,7 @@ function makeWorldDecor(){
       box(world,30.5,.15,.70,1.25,1.10,z,fenceLightTrim,false);
       box(world,30.5,.09,.74,1.25,1.20,z,fenceBaseTrim,false);
     }else{
-      // Центральный проём перед мостом остаётся полностью свободным.
+      // Центральный проход к берегу реки остаётся свободным.
       for(const [length,cx] of [[10.4,-8.8],[12.9,10.05]]){
         box(world,length,.22,.68,cx,.11,z,fenceBaseTrim,false);
         box(world,length,.15,.70,cx,1.10,z,fenceLightTrim,false);
