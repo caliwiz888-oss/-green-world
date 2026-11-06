@@ -44,11 +44,33 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 .login-card h1{font-size:25px;letter-spacing:2px;margin:0 0 7px}.login-card p{font-size:13px;line-height:1.5;color:#68806a}
 @media(min-width:700px){#dock{width:540px;left:50%;right:auto;transform:translateX(-50%);bottom:18px}.action{min-height:58px;font-size:12px}#shade{align-items:center}}
 @media(max-width:360px){.wallet{gap:5px;padding:6px}.metric{min-width:38px}.metric b{font-size:14px}.brand{font-size:12px;padding:8px}.action{font-size:10px;min-height:48px}#dock{gap:5px;padding:6px}}
+
+/* Green Farm level plaque */
+#farmHud{position:fixed;z-index:6;top:calc(env(safe-area-inset-top,0px) + 10px);left:8px;display:flex;align-items:center;gap:0;max-width:calc(100vw - 16px);height:64px;padding:5px 12px 5px 5px;border:2px solid #e9c56e;border-radius:19px;background:linear-gradient(180deg,#81512d 0%,#4b2b19 48%,#2d1a12 100%);box-shadow:0 4px 0 #3b2416,0 7px 16px #172b1c66,inset 0 2px 2px #ffe6a0,inset 0 -3px 4px #1c100b;color:#fff4d7;pointer-events:auto}
+#farmMenuButton{flex:0 0 52px;width:52px;height:52px;border-radius:50%;border:3px solid #e5bd59;background:linear-gradient(145deg,#6e9b38,#315c20 70%,#24451b);box-shadow:0 2px 0 #3a2413,inset 0 2px 4px #eaffb1;color:#fff7d8;font-size:29px;font-weight:900;line-height:1;text-shadow:0 2px 3px #203714;cursor:pointer}
+#farmHudInfo{min-width:0;padding:0 0 0 10px;display:flex;flex-direction:column;gap:3px}
+#farmHudTitle{font-size:16px;line-height:19px;font-weight:1000;letter-spacing:.35px;color:#fff1cf;text-shadow:0 2px 2px #24140d;white-space:nowrap}
+#farmHudLevel{font-size:12px;line-height:16px;font-weight:850;color:#f4dfb2;text-shadow:0 1px 2px #24140d;white-space:nowrap}
+#farmMenuShade{display:none;position:fixed;z-index:15;inset:0;background:#102016a8;align-items:center;justify-content:center;padding:20px}
+#farmMenuShade.open{display:flex}
+#farmMenuPanel{width:min(310px,92vw);padding:18px;border:2px solid #e8c16c;border-radius:20px;background:linear-gradient(155deg,#81512d,#382116);box-shadow:0 10px 30px #0008;color:#fff1cf;text-align:center}
+#farmMenuPanel h2{margin:0 0 14px;font-size:20px;letter-spacing:.5px}
+#farmMenuClose{padding:10px 24px;border:1px solid #e6cf8e;border-radius:12px;background:linear-gradient(#8cc85d,#397b36);color:white;font-weight:900;font-size:14px}
+@media(max-width:360px){#farmHud{height:57px;gap:0;padding-right:9px;border-radius:16px}#farmMenuButton{width:46px;height:46px;flex-basis:46px;font-size:25px}#farmHudTitle{font-size:14px}#farmHudLevel{font-size:10px}}
 </style>
 </head>
 <body>
 <canvas id="world"></canvas>
 <div id="toast"></div>
+<div id="farmHud" aria-label="Green Farm: уровень игрока">
+ <button id="farmMenuButton" type="button" aria-label="Открыть меню" title="Меню">☰</button>
+ <div id="farmHudInfo"><div id="farmHudTitle">🍀 GREEN FARM</div><div id="farmHudLevel">Уровень · Ур. 1 · ✨ 0 XP</div></div>
+</div>
+<div id="farmMenuShade" role="dialog" aria-modal="true" aria-label="Меню Green Farm"><div id="farmMenuPanel"><h2>GREEN FARM</h2><p>Уровень игрока: 1</p><p>Опыт: 0 XP</p><button id="farmMenuClose" type="button">Продолжить игру</button></div></div>
+<script>
+(()=>{const open=document.getElementById('farmMenuButton'),shade=document.getElementById('farmMenuShade'),close=document.getElementById('farmMenuClose');if(!open||!shade||!close)return;open.addEventListener('click',()=>shade.classList.add('open'));close.addEventListener('click',()=>shade.classList.remove('open'));shade.addEventListener('click',e=>{if(e.target===shade)shade.classList.remove('open')});document.addEventListener('keydown',e=>{if(e.key==='Escape')shade.classList.remove('open')});})();
+</script>
+
 <div id="login"><div class="login-card"><h1>GREEN WORLD</h1><p>Новый мир готовится к открытию. Войди через Telegram, чтобы открыть 3D-мир.</p><button class="smallbtn" id="retry-login">ПОДКЛЮЧИТЬ TELEGRAM</button><p id="login-error"></p></div></div>
 </div></div>
 <script>window.GREEN_WORLD_API_URL='https://green-world-api-mx3v.onrender.com';</script>
