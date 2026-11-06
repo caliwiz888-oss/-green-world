@@ -4732,24 +4732,19 @@ function makeWorldLandscape(){
    mesh.name=name;mesh.castShadow=false;mesh.receiveShadow=false;world.add(mesh);
    return mesh;
  };
- // Передний край гор — низкие каменные отроги, связанные с основным массивом.
- const foothillRange=geoBuildRealRange({
-   name:'Connected rocky mountain lower ridges',xMin:-48,xMax:48,zMin:-46,zMax:-35,nx:240,nz:42,
-   spineZ:-41,peaks:[[-35,1.0,8],[-18,1.25,9],[1,1.05,8],[21,1.35,9],[39,.95,7]],
-   depth:.72,snowLine:25
- });
- // Главный массив: одна связная горная система с длинным ломаным гребнем, отрогами и глубокими кулуарами.
- const mainAlpineRange=geoBuildRealRange({
-   name:'Continuous realistic alpine mountain wall',xMin:-47,xMax:47,zMin:-62,zMax:-42,nx:420,nz:112,
-   spineZ:-52,
-   peaks:[[-39,5.4,7],[-29,7.6,7.5],[-16,5.2,6.5],[-4,8.1,7.5],[10,6.0,6.8],[24,7.3,7.5],[38,5.0,6.5]],
-   depth:1.12,snowLine:8.9
- });
- // Дальние протяжённые горные цепи смягчены холодной атмосферной перспективой.
- const farAlpineRange=geoBuildRealRange({
-   name:'Distant continuous mountain silhouettes',xMin:-53,xMax:53,zMin:-79,zMax:-63,nx:240,nz:44,
-   spineZ:-70,peaks:[[-43,2.5,11],[-27,3.4,12],[-9,2.8,10],[10,3.7,12],[30,3.0,11],[46,2.3,9]],
-   depth:.72,snowLine:20,opacity:.72,far:true
+ // Четыре самостоятельные альпийские горы с широкими основаниями и выраженными седловинами.
+ // Вместо сплошной стены — четыре разных массива с отдельными вершинами и естественным ритмом высот.
+ const fourAlpineMountains=geoBuildRealRange({
+   name:'Four distinct realistic alpine mountains',
+   xMin:-52,xMax:52,zMin:-68,zMax:-37,nx:520,nz:150,
+   spineZ:-53,
+   peaks:[
+     [-37,10.8,7.8],
+     [-13,13.6,8.4],
+     [13,11.9,7.6],
+     [37,10.2,8.1]
+   ],
+   depth:1.24,snowLine:11.8
  });
  // Soft, translucent mountain mist settles in the valleys without obscuring the playable area.
  const mistMat=new THREE.MeshBasicMaterial({color:0xe3eee9,transparent:true,opacity:.16,depthWrite:false,fog:false});
