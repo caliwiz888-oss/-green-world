@@ -18,6 +18,7 @@ if (location.hostname === 'caliwiz888-oss.github.io') {
 :root{font-family:Inter,system-ui,Arial,sans-serif;color:#284d32;background:#8fc3df;font-synthesis:none}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}body{touch-action:pan-y;background:linear-gradient(#8fc3df,#dce9ce)}
 #world{position:fixed;inset:0;width:100%;height:100%;display:block;outline:0}
+#world{touch-action:none;cursor:grab}#world.camera-dragging{cursor:grabbing}
 .top{position:fixed;z-index:3;top:env(safe-area-inset-top,8px);left:10px;right:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
 .brand,.wallet,.pill,.panel{background:linear-gradient(145deg,#fffef4f2,#e5efd9f2);border:1px solid #fff;box-shadow:0 5px 18px #23472d45,inset 0 1px #fff;border-radius:15px}
 .brand{padding:9px 12px;font-size:14px;font-weight:1000;letter-spacing:1.4px;color:#28643b}.brand small{display:block;font-size:9px;letter-spacing:2px;color:#76916f;margin-top:2px}
@@ -3345,7 +3346,19 @@ function applyPlayer(){$('login').style.display='none';try{drawPlayer()}catch(e)
 async function request(path,body=null,retry=true){const opts={method:body===null?'GET':'POST',credentials:'include',headers:{'Content-Type':'application/json'}};if(token)opts.headers.Authorization='Bearer '+token;if(body!==null)opts.body=JSON.stringify(body);let res=await fetch(API+path,opts);if(res.status===401&&retry&&!['/api/auth/telegram','/api/auth/refresh'].includes(path)){const rr=await fetch(API+'/api/auth/refresh',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'}});if(rr.ok){token=(await rr.json()).accessToken;return request(path,body,false)}}const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Ошибка сервера '+res.status);return data}
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2600)}
 async function login(){const tg=window.Telegram?.WebApp;const initData=tg?.initData||'';if(!initData){$('login-error').textContent='Открой игру из Telegram-бота, чтобы войти.';return}try{tg.ready();tg.expand();$('login-error').textContent='Подключаем аккаунт…';const data=await request('/api/auth/telegram',{initData},false);token=data.accessToken;applyPlayer()}catch(e){$('login-error').textContent='Не удалось войти: '+e.message}}
-function cameraPosition(){camera.position.set(2,cameraHeight,cameraRadius);camera.lookAt(.8,.8,-1.5)}
+
+const cameraTarget=new THREE.Vector3(.8,.8,-1.5);
+let cameraAzimuth=Math.atan2(1.2,66.5);
+let cameraPolar=Math.atan2(65,33-.8);
+let cameraPointerId=null,cameraLastX=0,cameraLastY=0;
+function updateOrbitCamera(){const orbitRadius=Math.hypot(cameraRadius,cameraHeight-.8),sinPolar=Math.sin(cameraPolar);camera.position.set(cameraTarget.x+orbitRadius*sinPolar*Math.sin(cameraAzimuth),cameraTarget.y+orbitRadius*Math.cos(cameraPolar),cameraTarget.z+orbitRadius*sinPolar*Math.cos(cameraAzimuth));camera.lookAt(cameraTarget)}
+const worldCanvas=$('world');
+worldCanvas.addEventListener('pointerdown',event=>{if(event.button!==0||cameraPointerId!==null)return;cameraPointerId=event.pointerId;cameraLastX=event.clientX;cameraLastY=event.clientY;worldCanvas.classList.add('camera-dragging');worldCanvas.setPointerCapture(event.pointerId)});
+worldCanvas.addEventListener('pointermove',event=>{if(event.pointerId!==cameraPointerId)return;const dx=event.clientX-cameraLastX,dy=event.clientY-cameraLastY;cameraLastX=event.clientX;cameraLastY=event.clientY;cameraAzimuth-=dx*.005;cameraPolar=THREE.MathUtils.clamp(cameraPolar+dy*.004,.38,1.42);updateOrbitCamera()});
+function finishCameraDrag(event){if(event.pointerId!==cameraPointerId)return;cameraPointerId=null;worldCanvas.classList.remove('camera-dragging')}
+worldCanvas.addEventListener('pointerup',finishCameraDrag);worldCanvas.addEventListener('pointercancel',finishCameraDrag);worldCanvas.addEventListener('lostpointercapture',finishCameraDrag);
+
+function cameraPosition(){updateOrbitCamera()}
 
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
 // Плавное течение реки: сдвигаем карту бликов по руслу, сохраняя непрерывность текстуры.
