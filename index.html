@@ -3743,6 +3743,9 @@ function makeWorldDecor(){
           box(world,.56,.14,.56,px,1.43,z,fenceLightTrim,false);
           box(world,.38,.08,.38,px,1.54,z,fenceRelief,false);
           box(world,.48,.055,.48,px,1.61,z,fenceBaseTrim,false);
+          // Каменные импосты расширяют опору в месте, где свод передаёт нагрузку на пилон.
+          box(world,.62,.12,.62,px,1.49,z,fenceBaseTrim,false);
+          box(world,.66,.035,.66,px,1.565,z,fenceLightTrim,false);
           // Двухступенчатое навершие завершает квадратный пилон и повторяет оттенки карниза.
           box(world,.54,.045,.54,px,1.66,z,fenceLightTrim,false);
           box(world,.34,.025,.34,px,1.695,z,fenceJoint,false);
@@ -3796,6 +3799,9 @@ function makeWorldDecor(){
         box(world,.56,.14,.56,x,1.43,pz,fenceLightTrim,false);
         box(world,.38,.08,.38,x,1.54,pz,fenceRelief,false);
         box(world,.48,.055,.48,x,1.61,pz,fenceBaseTrim,false);
+        // Ступенчатый импост подчёркивает переход от квадратной опоры к боковому своду.
+        box(world,.62,.12,.62,x,1.49,pz,fenceBaseTrim,false);
+        box(world,.66,.035,.66,x,1.565,pz,fenceLightTrim,false);
         box(world,.54,.045,.54,x,1.66,pz,fenceLightTrim,false);
         box(world,.34,.025,.34,x,1.695,pz,fenceJoint,false);
         // Ромбовидный каменный знак на внешней грани бокового пилона.
