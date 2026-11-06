@@ -692,6 +692,9 @@ function makeHouse(){
  // Башенная кладка получает более выраженную микрофактуру светлого тесаного известняка.
  const towerStoneMaterial=houseStone.clone();
  towerStoneMaterial.color.setHex(0xe2ded4);towerStoneMaterial.roughness=.92;towerStoneMaterial.bumpScale=.03;towerStoneMaterial.needsUpdate=true;
+ // Спокойный сатинированный металл объединяет латунные пояса, крепления и навершия башен.
+ const towerGoldMaterial=towerGoldMaterial.clone();
+ towerGoldMaterial.color.setHex(0xd6b36b);towerGoldMaterial.metalness=.78;towerGoldMaterial.roughness=.3;towerGoldMaterial.needsUpdate=true;
  // Two corner towers with separate steep roofs and golden finials.
  for(const x of [-4.35,4.35]){
    const t=group(g,x,0,-2.25);
@@ -699,30 +702,30 @@ function makeHouse(){
    box(t,2.35,.22,2.35,0,5.82,0,houseStoneTrim);
    // Tower roof base: layered eaves and a narrow brass weatherproofing band.
    cylinder(t,1.76,1.76,.12,0,5.98,0,houseStoneTrim,4);
-   cylinder(t,1.79,1.79,.055,0,6.055,0,M.gold,4);
+   cylinder(t,1.79,1.79,.055,0,6.055,0,towerGoldMaterial,4);
    cone(t,1.72,2.55,0,7.18,0,towerRoofMaterial,4);
    // Fine vertical roof ribs emphasize the four-sided tower silhouette.
    for(let a=0;a<4;a++){
      const ang=Math.PI/4+a*Math.PI/2;
-     const rib=box(t,.055,1.82,.07,Math.cos(ang)*.91,6.88,Math.sin(ang)*.91,M.roof,false);
+     const rib=box(t,.055,1.82,.07,Math.cos(ang)*.91,6.88,Math.sin(ang)*.91,towerRoofMaterial,false);
      rib.rotation.y=-ang;
    }
-   cylinder(t,.1,.1,.85,0,8.82,0,M.gold,8);
+   cylinder(t,.1,.1,.85,0,8.82,0,towerGoldMaterial,8);
    for(const z of [-1.09,1.09])box(t,.65,1.15,.12,0,3.35,z,M.wood);
    // Stone window surrounds and a crisp sill on each tower face.
    // Corner stone dressings and a continuous upper cornice sharpen each tower.
    for(const sx of [-1,1]){
      for(const sz of [-1,1]){
        box(t,.16,5.35,.16,sx*1.0,2.92,sz*1.0,houseStoneTrim,false);
-       box(t,.24,.16,.24,sx*1.0,5.68,sz*1.0,M.gold,false);
+       box(t,.24,.16,.24,sx*1.0,5.68,sz*1.0,towerGoldMaterial,false);
      }
    }
    for(const z of [-1.09,1.09]){
      box(t,.82,.12,.2,0,3.98,z*1.035,houseStoneTrim);
      box(t,.82,.12,.2,0,2.72,z*1.035,houseStoneTrim);
-     box(t,.1,1.28,.18,-.39,3.35,z*1.035,M.gold,false);
-     box(t,.1,1.28,.18,.39,3.35,z*1.035,M.gold,false);
-     box(t,.08,.92,.12,0,3.35,z*1.09,M.gold,false);
+     box(t,.1,1.28,.18,-.39,3.35,z*1.035,towerGoldMaterial,false);
+     box(t,.1,1.28,.18,.39,3.35,z*1.035,towerGoldMaterial,false);
+     box(t,.08,.92,.12,0,3.35,z*1.09,towerGoldMaterial,false);
    }
 
  }
