@@ -2372,7 +2372,11 @@ function makeWorldDecor(){
     return mesh;
   };
   gateArchLine(2.17,.075,fenceLightTrim);
+  gateArchLine(2.20,.018,fenceBaseTrim,gateFrontZ+.105);
   gateArchLine(2.26,.028,fenceBaseTrim);
+  // Двойная тонкая инкрустация подчёркивает ширину каменного архивольта.
+  gateArchLine(2.51,.014,fenceLightTrim,gateFrontZ+.115);
+  gateArchLine(2.56,.012,fenceBaseTrim,gateFrontZ+.115);
   gateArchLine(2.76,.035,fenceLightTrim);
   gateArchLine(2.84,.09,fenceCap);
   gateArchLine(2.98,.045,fenceBaseTrim);
