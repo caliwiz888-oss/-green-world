@@ -904,6 +904,16 @@ function makeHouse(){
    cylinder(t,1.22,1.22,5.55,0,2.82,0,towerStoneMaterial,8);
    cylinder(t,1.29,1.29,.18,0,.16,0,towerTrimMaterial,8);
    cylinder(t,1.25,1.25,.10,0,.31,0,towerStoneMaterial,8);
+   cylinder(t,1.38,1.38,.16,0,.48,0,towerTrimMaterial,8);
+   cylinder(t,1.31,1.31,.075,0,.60,0,towerMetal,8);
+   cylinder(t,1.27,1.27,.12,0,.72,0,towerStoneMaterial,8);
+   // Восемь гранёных каменных выступов подчёркивают основание восьмигранной башни.
+   for(let a=0;a<8;a++){
+     const ang=Math.PI/8+a*Math.PI/4;
+     const boss=box(t,.24,.32,.16,Math.cos(ang)*1.22,.52,Math.sin(ang)*1.22,towerTrimMaterial,false);
+     boss.rotation.y=-ang;
+     sphere(t,.035,Math.cos(ang)*1.31,.54,Math.sin(ang)*1.31,towerMetal,.8);
+   }
    for(const y of [1.02,5.55])cylinder(t,1.25,1.25,.075,0,y,0,towerTrimMaterial,8);
    cylinder(t,1.34,1.34,.2,0,5.68,0,towerTrimMaterial,8);
    cylinder(t,1.28,1.28,.055,0,5.81,0,towerRoofLine,8);
