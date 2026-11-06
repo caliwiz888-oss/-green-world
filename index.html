@@ -22,8 +22,7 @@ if (location.hostname === 'caliwiz888-oss.github.io') {
 .brand,.wallet,.pill,.panel{background:linear-gradient(145deg,#fffef4f2,#e5efd9f2);border:1px solid #fff;box-shadow:0 5px 18px #23472d45,inset 0 1px #fff;border-radius:15px}
 .brand{padding:9px 12px;font-size:14px;font-weight:1000;letter-spacing:1.4px;color:#28643b}.brand small{display:block;font-size:9px;letter-spacing:2px;color:#76916f;margin-top:2px}
 .wallet{display:flex;gap:12px;align-items:center;padding:7px 10px}.metric{text-align:center;min-width:43px}.metric b{display:block;font-size:16px;color:#a36c1d}.metric span{font-size:8px;font-weight:900;color:#6e846c;letter-spacing:.5px}
-#status{position:fixed;z-index:3;top:76px;left:50%;transform:translateX(-50%);padding:7px 12px;font-size:10px;font-weight:900;white-space:nowrap;color:#46734a}
-#selection{position:fixed;z-index:3;top:110px;left:50%;transform:translateX(-50%);padding:8px 13px;font-size:11px;font-weight:800;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+
 #tools{position:fixed;z-index:4;right:10px;top:78px;display:grid;gap:7px}
 .menu{position:fixed;z-index:5;left:10px;top:78px;width:42px;height:42px;border-radius:13px;background:linear-gradient(150deg,#fffdf0,#dbe9d0);color:#386c42;font-size:19px;font-weight:900;box-shadow:0 4px 12px #244a3850;border:1px solid #fff}
 #dock{position:fixed;z-index:5;bottom:calc(10px + env(safe-area-inset-bottom,0px));left:9px;right:9px;padding:8px;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;border-radius:20px;background:linear-gradient(145deg,#6b442b,#3c2b21);border:2px solid #e7c58b;box-shadow:0 7px 0 #38271d,0 12px 28px #18352377}
@@ -57,8 +56,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
   <div class="metric"><b id="level">—</b><span>УРОВЕНЬ</span></div>
  </div>
 </header>
-<div id="status" class="pill">ПОДКЛЮЧЕНИЕ…</div>
-<div id="selection" class="pill">Коснись свободного участка</div>
+
 <button class="menu" id="menu-open" aria-label="Меню">☰</button>
 
 <nav id="dock">
@@ -84,7 +82,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 (()=>{
  const button=document.getElementById('retry-login');
  window.GREEN_WORLD_MODULE_READY=false;
- setTimeout(()=>{if(!window.GREEN_WORLD_MODULE_READY){const status=document.getElementById('status');if(status)status.textContent='3D-МИР НЕ ЗАПУСТИЛСЯ';if(error)error.textContent='Графический модуль не запустился. Проверяю загрузку 3D-сцены.';}},25000);
+ setTimeout(()=>{if(!window.GREEN_WORLD_MODULE_READY){if(error)error.textContent='Графический модуль не запустился. Проверяю загрузку 3D-сцены.';}},25000);
  const error=document.getElementById('login-error');
  const api=window.GREEN_WORLD_API_URL;
  let connecting=false;
@@ -126,13 +124,9 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
  }
  button.addEventListener('click',connectTelegram);
  window.addEventListener('error',event=>{
-  const status=document.getElementById('status');
-  if(status)status.textContent='ОШИБКА ЗАПУСКА ИГРЫ';
   if(error&&event.message){window.GREEN_WORLD_STARTUP_ERROR='Ошибка загрузки игры: '+event.message;error.textContent=window.GREEN_WORLD_STARTUP_ERROR;}
  });
  window.addEventListener('unhandledrejection',event=>{
-  const status=document.getElementById('status');
-  if(status)status.textContent='ОШИБКА ПОДКЛЮЧЕНИЯ';
   if(error){window.GREEN_WORLD_STARTUP_ERROR='Ошибка: '+(event.reason?.message||String(event.reason||'неизвестная ошибка'));error.textContent=window.GREEN_WORLD_STARTUP_ERROR;}
  });
  connectTelegram();
@@ -3655,13 +3649,13 @@ function drawPlayer(){
   try{updateHud()}catch(hudError){console.error('[render] HUD update failed:',hudError)}
 }
 function updateHud(){if(!player)return;$('coins').textContent=Number(player.coins||0).toLocaleString('ru-RU');$('apples').textContent=Number(player.apples||0).toLocaleString('ru-RU');$('level').textContent=player.playerLevel||1;$('inventory-apples').textContent=player.apples||0;$('inventory-fruit').textContent=Object.entries(player.fruitInventory||{}).filter(([,v])=>v>0).map(([k,v])=>k+': '+v).join(' · ')||'Пока пусто';$('inventory-processed').textContent=Object.entries(player.processedInventory||{}).filter(([,v])=>v>0).map(([k,v])=>k+': '+v).join(' · ')||'Пока пусто';}
-function applyPlayer(p){player=p;$('login').style.display='none';$('status').textContent='АККАУНТ ПОДКЛЮЧЁН · ЗАГРУЗКА МИРА…';try{drawPlayer();$('status').textContent='МИР СОХРАНЁН · СЕРВЕР ПОДКЛЮЧЁН'}catch(e){console.error('[render] World drawing failed:',e);$('status').textContent='АККАУНТ ПОДКЛЮЧЁН · ОШИБКА 3D';$('login-error').textContent='Ошибка отображения мира: '+(e?.message||e)}}
+function applyPlayer(p){player=p;$('login').style.display='none';try{drawPlayer()}catch(e){console.error('[render] World drawing failed:',e);$('login-error').textContent='Ошибка отображения мира: '+(e?.message||e)}}
 async function request(path,body=null,retry=true){const opts={method:body===null?'GET':'POST',credentials:'include',headers:{'Content-Type':'application/json'}};if(token)opts.headers.Authorization='Bearer '+token;if(body!==null)opts.body=JSON.stringify(body);let res=await fetch(API+path,opts);if(res.status===401&&retry&&!['/api/auth/telegram','/api/auth/refresh'].includes(path)){const rr=await fetch(API+'/api/auth/refresh',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'}});if(rr.ok){token=(await rr.json()).accessToken;return request(path,body,false)}}const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Ошибка сервера '+res.status);return data}
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2600)}
 async function action(path,body,msg){if(busy)return;busy=true;try{const data=await request(path,body);if(data.player)applyPlayer(data.player);toast(msg||'Сохранено');return true}catch(e){toast(e.message||'Ошибка');return false}finally{busy=false}}
 async function login(){const tg=window.Telegram?.WebApp;const initData=tg?.initData||'';if(!initData){$('login-error').textContent='Открой игру из Telegram-бота, чтобы войти.';return}try{tg.ready();tg.expand();$('login-error').textContent='Подключаем аккаунт…';const data=await request('/api/auth/telegram',{initData},false);token=data.accessToken;applyPlayer(data.player);await loadDaily()}catch(e){$('login-error').textContent='Не удалось войти: '+e.message}}
 async function loadDaily(){try{daily=await request('/api/game/daily-reward');$('daily-info').textContent=daily.claimedToday?'Сегодня уже получено':'День '+daily.day+' · '+daily.reward+' GC';$('daily-claim').disabled=!!daily.claimedToday;$('daily-claim').textContent=daily.claimedToday?'ПОЛУЧЕНО':'ПОЛУЧИТЬ'}catch(e){$('daily-info').textContent=e.message}}
-function setSelected(i){selected=i;const p=(player?.plots||[]).find(x=>x.index===i);$('selection').textContent=p?(p.grown?'УРОЖАЙ ГОТОВ · УЧАСТОК '+(i+1):'ДЕРЕВО РАСТЁТ · УЧАСТОК '+(i+1)):'СВОБОДНЫЙ УЧАСТОК '+(i+1);$('plot-hint').textContent='Участок №'+(i+1)+' выбран'}
+function setSelected(i){selected=i}
 function plant(){if(selected===null){toast('Сначала выбери участок на карте');return}if(!unlocked(selected)){toast('Этот участок пока недоступен');return}const type=$('tree-type').value;action('/api/game/plant',{plotIndex:selected,treeType:type},'Дерево посажено')}
 function water(){if(selected===null){toast('Выбери дерево на карте');return}action('/api/game/water',{plotIndex:selected},'Дерево полито · рост ускорен')}
 $('plant').onclick=plant;$('plant-menu').onclick=plant;$('water').onclick=()=>{if(selected===null){toast('Выбери дерево на карте');return}action('/api/game/water',{plotIndex:selected},'Дерево полито')};
