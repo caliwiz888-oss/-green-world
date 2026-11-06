@@ -235,6 +235,21 @@ function makeSurfaceTexture(kind,seed){
    ctx.fillStyle='rgba(125,125,125,.12)';ctx.beginPath();ctx.ellipse(x,y,r,r*.55,rand()*Math.PI,0,Math.PI*2);ctx.fill();
   }
  }
+ if(kind==='stone'){
+  // Мелкие минеральные включения и редкие мягкие прожилки оживляют камень и мощение.
+  for(let i=0;i<980;i++){
+   const x=rand()*size,y=rand()*size,r=.35+rand()*1.25;
+   const light=rand()>.48,alpha=.045+rand()*.075;
+   ctx.fillStyle=light?'rgba(255,255,255,'+alpha+')':'rgba(58,55,48,'+alpha+')';
+   ctx.beginPath();ctx.ellipse(x,y,r*1.8,r,rand()*Math.PI,0,Math.PI*2);ctx.fill();
+  }
+  for(let i=0;i<34;i++){
+   const x=rand()*size,y=rand()*size,len=12+rand()*42,drift=(rand()-.5)*7;
+   ctx.strokeStyle=i%2?'rgba(255,255,255,.055)':'rgba(75,69,58,.045)';
+   ctx.lineWidth=.45+rand()*.55;ctx.beginPath();
+   ctx.moveTo(x,y);ctx.quadraticCurveTo(x+len*.48,y+drift,x+len,y+drift*.35);ctx.stroke();
+  }
+ }
  if(kind==='soil'){
   // Тонкие вытянутые песчинки и следы грунта делают дорожки менее плоскими.
   for(let i=0;i<240;i++){
