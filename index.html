@@ -655,15 +655,16 @@ function makeHouse(){
  manorRoofTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const manorRoofBump=manorRoofTexture.clone();manorRoofBump.colorSpace=THREE.NoColorSpace;manorRoofBump.needsUpdate=true;
  const manorRoofMaterial=M.roof.clone();
- // Глубокий хвойно-зелёный тон основной кровли главного дома.
-  manorRoofMaterial.color.setHex(0x293f35);
+ // Тёплая светлая терракота с медным подтоном для основной кровли главного дома.
+  manorRoofMaterial.color.setHex(0xd18b60);
+ manorRoofMaterial.roughness=.82;manorRoofMaterial.metalness=.035;
  manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.009;manorRoofMaterial.roughness=.7;manorRoofMaterial.metalness=.2;manorRoofMaterial.needsUpdate=true;
  // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
  const roofL=box(g,3.95,.34,8.9,-1.93,5.72,0,manorRoofMaterial);roofL.rotation.z=.58;
  const roofR=box(g,3.95,.34,8.9,1.43,5.72,0,manorRoofMaterial);roofR.rotation.z=-.58;
   // Основные скаты оставлены цельными: убраны накладные ряды и черепица, создававшие мерцание.
  // Карнизные балки вдоль обоих скатов закрывают торцы кровли и подчёркивают её толщину.
- const manorRoofEdgeMaterial=new THREE.MeshStandardMaterial({color:0x34483a,roughness:.86,metalness:.015});
+ const manorRoofEdgeMaterial=new THREE.MeshStandardMaterial({color:0x704832,roughness:.88,metalness:.02});
   for(const [x,y,angle] of [[-3.55,4.63,.58],[3.09,4.78,-.58]]){
     const fascia=box(g,.2,.24,9.02,x,y,0,manorRoofEdgeMaterial,false);
    fascia.rotation.z=angle;
@@ -676,8 +677,8 @@ function makeHouse(){
  }
  // Коньковая накладка закрывает стык скатов и завершает силуэт крыши.
  const manorRidgeMaterial=M.roof2.clone();
- manorRidgeMaterial.color.setHex(0x202a26);
- manorRidgeMaterial.roughness=.82;manorRidgeMaterial.metalness=.08;manorRidgeMaterial.needsUpdate=true;
+ manorRidgeMaterial.color.setHex(0x493329);
+ manorRidgeMaterial.roughness=.88;manorRidgeMaterial.metalness=.025;manorRidgeMaterial.needsUpdate=true;
  const ridge=cylinder(g,.13,.13,9.02,-.25,6.82,0,manorRidgeMaterial,12);
  ridge.rotation.x=Math.PI/2;
  // Небольшие латунные стяжки на коньке визуально соединяют секции кровельного покрытия.
