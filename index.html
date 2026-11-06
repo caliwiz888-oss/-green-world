@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261106-153000';
+const GREEN_WORLD_BUILD_ID = '20261106-154500';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -223,13 +223,13 @@ let token='';
 let cameraRadius=60,cameraHeight=30;
 let buildingObjects=[];
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,78,175);
-const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,3.5,160);
-// Более близкая near-плоскость и ограниченный far-диапазон повышают точность depth buffer и уменьшают z-fighting на мобильных GPU.
-const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance',reversedDepthBuffer:true});
+const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,4.5,140);
+// Умеренно близкая near-плоскость и ограниченный far-диапазон повышают точность стандартного depth buffer на мобильных GPU.
+const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});
 window.GREEN_WORLD_STARTUP_STAGE='webgl-ready';
 window.GREEN_WORLD_RENDER_DIAGNOSTICS={reversedDepthBuffer:!!renderer.capabilities.reversedDepthBuffer,webgl2:renderer.capabilities.isWebGL2,pixelRatio:renderer.getPixelRatio(),threeRevision:THREE.REVISION};
 console.info('[GREEN WORLD] Render diagnostics',window.GREEN_WORLD_RENDER_DIAGNOSTICS);
-// Используем обратный буфер глубины, если мобильный GPU поддерживает EXT_clip_control: он точнее различает близкие поверхности и уменьшает z-fighting.
+// Используем стандартный буфер глубины для стабильной совместимости с WebGL в Android Telegram WebView.
 renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;renderer.useLegacyLights=false;renderer.setClearColor(0x9acbe8,1);
 // Мягкое небесное заполнение сохраняет детали в тенях на фасадах, листве и горном рельефе.
 scene.add(new THREE.HemisphereLight(0xeaf7ff,0x5a7447,2.2));
@@ -391,7 +391,7 @@ for(const [material,texture,scale] of surfaceBumps){
 }
 // Keep the mobile render scale consistent; do not override the renderer's 1.5x cap.
 
-function box(parent,w,h,d,x,y,z,material,cast=true){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=cast;o.receiveShadow=true;parent.add(o);return o}
+function box(parent,w,h,d,x,y,z,material,cast=true){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=cast;o.receiveShadow=cast;parent.add(o);return o}
 function cone(parent,r,h,x,y,z,material,n=4){const o=new THREE.Mesh(new THREE.ConeGeometry(r,h,n),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
 function cylinder(parent,r1,r2,h,x,y,z,material,n=12){const o=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,Math.max(n,16)),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
 function sphere(parent,r,x,y,z,material,sy=1){const o=new THREE.Mesh(new THREE.SphereGeometry(r,24,18),material);o.position.set(x,y,z);o.scale.y=sy;o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
