@@ -8,9 +8,14 @@
 <meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#91c6df">
 <script>
-// Telegram still opens the legacy GitHub Pages address; send it to the current Render frontend.
+// Telegram may keep an old WebView document alive; version the Render URL on every frontend release.
 if (location.hostname === 'caliwiz888-oss.github.io') {
-  location.replace('https://green-world-game.onrender.com/' + location.search + location.hash);
+  const target = new URL('https://green-world-game.onrender.com/');
+  const incoming = new URLSearchParams(location.search);
+  incoming.forEach((value, key) => target.searchParams.append(key, value));
+  target.searchParams.set('gwbuild', '20261106-134542');
+  target.hash = location.hash;
+  location.replace(target.toString());
 }
 </script>
 <title>GREEN WORLD — Новый мир</title>
