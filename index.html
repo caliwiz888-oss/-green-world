@@ -2327,9 +2327,18 @@ function makeWorldDecor(){
   const fenceBaseTrim=mat(0x98896f),fenceLightTrim=mat(0xe8dcc1),fenceRelief=mat(0xcbbd9e),fenceShadow=mat(0x887b65);
   // Непрерывный нижний цоколь и верхний каменный карниз по четырём сторонам.
   for(const z of [-14,14]){
-    box(world,28.4,.18,.56,1.25,.10,z,fenceBaseTrim,false);
-    box(world,28.4,.12,.58,1.25,.69,z,fenceLightTrim,false);
-    box(world,28.4,.07,.62,1.25,.78,z,fenceBaseTrim,false);
+    if(z===-14){
+      box(world,30.5,.18,.56,1.25,.10,z,fenceBaseTrim,false);
+      box(world,30.5,.12,.58,1.25,.69,z,fenceLightTrim,false);
+      box(world,30.5,.07,.62,1.25,.78,z,fenceBaseTrim,false);
+    }else{
+      // Центральный проём перед мостом остаётся полностью свободным.
+      for(const [length,cx] of [[10.4,-8.8],[12.9,10.05]]){
+        box(world,length,.18,.56,cx,.10,z,fenceBaseTrim,false);
+        box(world,length,.12,.58,cx,.69,z,fenceLightTrim,false);
+        box(world,length,.07,.62,cx,.78,z,fenceBaseTrim,false);
+      }
+    }
   }
   for(const x of [-14,16.5]){
     box(world,.56,.18,28.4,x,.10,0,fenceBaseTrim,false);
