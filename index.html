@@ -2488,6 +2488,15 @@ function makeWorldLandscape(){
    waterCtx.quadraticCurveTo(x+len*.5,y-.55+(i%3)*.35,x+len,y+.15);
    waterCtx.stroke();
  }
+ // Короткие прерывистые блики разной длины добавляют воде глубину, не превращая отражения в сплошные полосы.
+ for(let i=0;i<9;i++){
+   const x=(i*37+9)%128,y=(i*53+14)%128,len=5+(i*7)%13;
+   waterCtx.strokeStyle=i%3===0?'rgba(255,255,255,.19)':'rgba(230,247,241,.105)';
+   waterCtx.lineWidth=.45+(i%2)*.3;waterCtx.lineCap='round';waterCtx.beginPath();
+   waterCtx.moveTo(x,y);
+   waterCtx.quadraticCurveTo(x+len*.48,y-.45+(i%4)*.22,x+len,y+.12);
+   waterCtx.stroke();
+ }
  const waterTexture=new THREE.CanvasTexture(waterCanvas);waterTexture.colorSpace=THREE.SRGBColorSpace;
  waterTexture.wrapS=waterTexture.wrapT=THREE.RepeatWrapping;waterTexture.repeat.set(2,1);
  waterTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();water.map=waterTexture;water.roughness=.24;water.needsUpdate=true;
