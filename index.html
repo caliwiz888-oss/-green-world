@@ -445,8 +445,9 @@ function makeHouse(){
  manorRoofTexture.wrapS=manorRoofTexture.wrapT=THREE.RepeatWrapping;
  manorRoofTexture.repeat.set(1.5,2);
  manorRoofTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const manorRoofBump=manorRoofTexture.clone();manorRoofBump.colorSpace=THREE.NoColorSpace;manorRoofBump.needsUpdate=true;
  const manorRoofMaterial=M.roof.clone();
- manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.roughness=.68;manorRoofMaterial.metalness=.22;manorRoofMaterial.needsUpdate=true;
+ manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.009;manorRoofMaterial.roughness=.7;manorRoofMaterial.metalness=.2;manorRoofMaterial.needsUpdate=true;
  // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
  const roofL=box(g,3.95,.34,8.9,-1.93,5.72,0,manorRoofMaterial);roofL.rotation.z=.58;
  const roofR=box(g,3.95,.34,8.9,1.43,5.72,0,manorRoofMaterial);roofR.rotation.z=-.58;
