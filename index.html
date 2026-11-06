@@ -4585,37 +4585,7 @@ function makeWorldLandscape(){
  snowTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const snowBump=snowTexture.clone();snowBump.colorSpace=THREE.NoColorSpace;snowBump.needsUpdate=true;
  for(const m of [snow]){m.map=snowTexture;m.bumpMap=snowBump;m.bumpScale=.018;m.roughness=.98;m.needsUpdate=true;}
- // Layered green foothills and distant mountain silhouettes beyond the playable fence.
- for(const [x,z,sx,sy,sz,m] of [
-   [-22,-23,8,4,5,hillMat],[-12,-27,10,5,6,hillLight],[0,-29,12,5,7,hillMat],
-   [13,-27,10,5,6,hillLight],[23,-22,8,4,5,hillMat],
-   [-25,3,7,3,6,hillLight],[25,4,7,3,6,hillMat]
- ]){
-   const h=sphere(world,1,x,sy*.42,z,m,1);h.scale.set(sx,sy,sz);
- }
- // Soft contour layers on the distant foothills add terrain depth while keeping the farm perimeter clear.
- const foothillShade=mat(0x557d59),foothillLight=mat(0x91ad78);
- // Текстура дернины распространяется и на контурные слои, сохраняя их исходные оттенки и форму.
- for(const m of [foothillShade,foothillLight]){m.map=foothillTexture;m.bumpMap=foothillBump;m.bumpScale=.018;m.roughness=.98;m.needsUpdate=true;}
- for(const [x,y,z,sx,sy,sz,material] of [
-   [-22,1.25,-20,6.8,.42,1.2,foothillShade],[-12,1.55,-24,7.4,.38,1.25,foothillLight],
-   [1,1.45,-25,8.8,.4,1.35,foothillShade],[14,1.45,-23,7.2,.36,1.15,foothillLight],
-   [23,1.15,-19,5.8,.34,1.05,foothillShade]
- ]){
-   const contour=new THREE.Mesh(new THREE.SphereGeometry(1,20,10),material);
-   contour.position.set(x,y,z);contour.scale.set(sx,sy,sz);world.add(contour);
- }
- // Restrained sunlit grass facets give the distant foothills a less uniform natural surface.
- const hillSunMat=mat(0x9ab47a),hillShadeMat=mat(0x5f815d);
- for(const m of [hillSunMat,hillShadeMat]){m.map=foothillTexture;m.bumpMap=foothillBump;m.bumpScale=.012;m.roughness=.98;m.needsUpdate=true;}
- for(const [x,y,z,sx,sy,sz,material] of [
-   [-25,1.35,-21,3.2,.16,.72,hillSunMat],[-14,1.65,-25,3.7,.14,.68,hillShadeMat],
-   [0,1.5,-26,4.2,.15,.76,hillSunMat],[14,1.55,-24,3.4,.14,.7,hillShadeMat],
-   [25,1.2,-20,2.8,.13,.62,hillSunMat]
- ]){
-   const facet=new THREE.Mesh(new THREE.SphereGeometry(1,16,8),material);
-   facet.position.set(x,y,z);facet.scale.set(sx,sy,sz);world.add(facet);
- }
+ // Зелёные круглые холмы и клумбообразные выступы удалены: за домом остаётся только плотный хвойный лес перед горным хребтом.
  // Layered alpine range: overlapping faceted peaks create a varied skyline and visible depth.
  const peaks=[[-25,-30,12.5,6.9],[-18,-34,16.5,8.1],[-10,-38,19,8.8],[-2,-40,22,9.5],[7,-39,18.5,8.3],[16,-35,16,8.1],[24,-30,12,6.7]];
  for(let i=0;i<peaks.length;i++){
