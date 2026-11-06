@@ -2456,6 +2456,8 @@ function makeWorldLandscape(){
  }
  // Soft contour layers on the distant foothills add terrain depth while keeping the farm perimeter clear.
  const foothillShade=mat(0x557d59),foothillLight=mat(0x91ad78);
+ // Текстура дернины распространяется и на контурные слои, сохраняя их исходные оттенки и форму.
+ for(const m of [foothillShade,foothillLight]){m.map=foothillTexture;m.bumpMap=foothillBump;m.bumpScale=.018;m.roughness=.98;m.needsUpdate=true;}
  for(const [x,y,z,sx,sy,sz,material] of [
    [-22,1.25,-20,6.8,.42,1.2,foothillShade],[-12,1.55,-24,7.4,.38,1.25,foothillLight],
    [1,1.45,-25,8.8,.4,1.35,foothillShade],[14,1.45,-23,7.2,.36,1.15,foothillLight],
@@ -2466,6 +2468,7 @@ function makeWorldLandscape(){
  }
  // Restrained sunlit grass facets give the distant foothills a less uniform natural surface.
  const hillSunMat=mat(0x9ab47a),hillShadeMat=mat(0x5f815d);
+ for(const m of [hillSunMat,hillShadeMat]){m.map=foothillTexture;m.bumpMap=foothillBump;m.bumpScale=.012;m.roughness=.98;m.needsUpdate=true;}
  for(const [x,y,z,sx,sy,sz,material] of [
    [-25,1.35,-21,3.2,.16,.72,hillSunMat],[-14,1.65,-25,3.7,.14,.68,hillShadeMat],
    [0,1.5,-26,4.2,.15,.76,hillSunMat],[14,1.55,-24,3.4,.14,.7,hillShadeMat],
