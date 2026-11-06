@@ -832,6 +832,8 @@ function makeHouse(){
    for(const sx of [-1,1]){
      for(const sz of [-1,1]){
        box(t,.16,5.35,.16,sx*1.0,2.92,sz*1.0,towerDetailStone,false);
+       // Тонкая светлая грань подчёркивает вертикальный профиль угловой каменной лопатки.
+       box(t,.018,4.72,.018,sx*1.075,2.92,sz*1.075,towerDetailStone,false);
        box(t,.24,.16,.24,sx*1.0,5.68,sz*1.0,towerGoldMaterial,false);
        // Небольшие каменные капители членят угловые лопатки под карнизом.
        box(t,.25,.09,.25,sx*1.0,5.48,sz*1.0,towerDetailStone,false);
