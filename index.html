@@ -757,6 +757,13 @@ function makeHouse(){
    const t=group(g,x,0,-2.25);
    box(t,2.15,5.8,2.15,0,2.9,0,towerStoneMaterial);
    box(t,2.35,.22,2.35,0,5.82,0,houseStoneTrim);
+   // Два тонких каменных пояса под верхним карнизом подчёркивают переход к шатру.
+   for(const y of [5.66,5.76]){
+     box(t,2.28,.045,.075,0,y,1.105,towerDetailStone,false);
+     box(t,2.28,.045,.075,0,y,-1.105,towerDetailStone,false);
+     box(t,.075,.045,2.28,1.105,y,0,towerDetailStone,false);
+     box(t,.075,.045,2.28,-1.105,y,0,towerDetailStone,false);
+   }
    // Tower roof base: layered eaves and a narrow brass weatherproofing band.
    cylinder(t,1.76,1.76,.12,0,5.98,0,houseStoneTrim,4);
    cylinder(t,1.79,1.79,.055,0,6.055,0,towerGoldMaterial,4);
