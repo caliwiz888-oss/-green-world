@@ -2295,9 +2295,9 @@ function makeWorldDecor(){
   // Широкий прямой переход плавно поднимается от участка к началу каменного моста.
   // Высота каждого ряда вычисляется по профилю моста, без ступенчатых скачков.
   for(let row=0;row<6;row++){
-    const z=14.25+row*.58;
+    const z=14.30+row*.63;
     const t=row/5;
-    const y=.16+.78*t;
+    const y=.16+.84*t;
     box(world,4.0,.14,.61,0,y-.07,z,roadBase,false);
     for(let col=0;col<4;col++){
       const x=-1.44+col*.96;
