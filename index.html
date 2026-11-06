@@ -412,6 +412,8 @@ function makeHouse(){
  const doorBump=doorTexture.clone();doorBump.colorSpace=THREE.NoColorSpace;doorBump.needsUpdate=true;
  const manorDoor= M.wood.clone();manorDoor.map=doorTexture;manorDoor.bumpMap=doorBump;manorDoor.bumpScale=.018;manorDoor.roughness=.76;manorDoor.needsUpdate=true;
  const manorDoorTrim=M.wood2.clone();manorDoorTrim.map=doorTexture;manorDoorTrim.bumpMap=doorBump;manorDoorTrim.bumpScale=.012;manorDoorTrim.roughness=.72;manorDoorTrim.needsUpdate=true;
+ // Отдельная отделка входных ступеней: плотный матовый известняк с мягким микрорельефом.
+ const entranceStepMaterial=houseStone.clone();entranceStepMaterial.color.setHex(0xd8d2c7);entranceStepMaterial.roughness=.94;entranceStepMaterial.bumpScale=.032;entranceStepMaterial.needsUpdate=true;
  // Холодные отражения на стекле добавляют глубину окнам, не меняя их рам и размеров.
  const glassCanvas=document.createElement('canvas');glassCanvas.width=128;glassCanvas.height=128;
  const glassCtx=glassCanvas.getContext('2d');
@@ -585,7 +587,7 @@ function makeHouse(){
  sphere(g,.075,0,1.25,4.38,M.gold,.9);
  for(let i=0;i<3;i++){
    const stepWidth=4.1-i*.35;
-   box(g,stepWidth,.055,.07,0,.085+i*.16,5.28+i*.58,houseStone,false);
+   box(g,stepWidth,.055,.07,0,.085+i*.16,5.28+i*.58,entranceStepMaterial,false);
  }
  // Paired brass-and-glass entrance lanterns add a warm architectural focal point.
  for(const x of [-1.48,1.48]){
