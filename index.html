@@ -847,6 +847,10 @@ function makeHouse(){
      box(t,.66,.035,.035,0,4.075,z*1.145,towerStoneMaterial,false);
      box(t,.035,.98,.035,-.345,3.35,z*1.145,towerStoneMaterial,false);
      box(t,.035,.98,.035,.345,3.35,z*1.145,towerStoneMaterial,false);
+     // Узкие светлые фаски выделяют внутренние грани боковых каменных стоек.
+     for(const jambX of [-.345,.345]){
+       box(t,.018,.72,.018,jambX,3.35,z*1.17,towerDetailStone,false);
+     }
      // Внешние тонкие каменные стойки формируют второй, более спокойный контур окна.
      box(t,.035,.92,.035,-.5,3.35,z*1.145,towerStoneMaterial,false);
      box(t,.035,.92,.035,.5,3.35,z*1.145,towerStoneMaterial,false);
