@@ -2614,6 +2614,15 @@ function makeWorldLandscape(){
    alpineRockCtx.lineTo(x+len,y+drop);
    alpineRockCtx.stroke();
  }
+ // Короткие следы вертикального выветривания добавляют скалам естественную шероховатость без изменения силуэта.
+ for(let i=0;i<12;i++){
+   const x=(i*43+14)%128,y=(i*29+8)%128,len=7+(i*5)%15,lean=((i*7)%7)-3;
+   alpineRockCtx.strokeStyle=i%3===0?'rgba(235,239,225,.075)':'rgba(29,44,42,.065)';
+   alpineRockCtx.lineWidth=.45+(i%2)*.2;alpineRockCtx.beginPath();
+   alpineRockCtx.moveTo(x,y);
+   alpineRockCtx.quadraticCurveTo(x+lean*.35,y+len*.52,x+lean,y+len);
+   alpineRockCtx.stroke();
+ }
  const alpineRockTexture=new THREE.CanvasTexture(alpineRockCanvas);
  alpineRockTexture.colorSpace=THREE.SRGBColorSpace;
  alpineRockTexture.wrapS=alpineRockTexture.wrapT=THREE.RepeatWrapping;
