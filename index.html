@@ -2860,21 +2860,25 @@ function makeWorldDecor(){
   // Центральная дорога: ровная ось от крыльца главного дома к мосту, одинаковая ширина по всей длине.
   const roadBase=mat(0x59483d,.98);
   box(world,3.9,.12,24.2,0,.035,2.05,roadBase,false);
-  for(let row=0;row<26;row++){
-    const z=-9.35+row*.94;
-    for(let col=0;col<4;col++){
-      const x=-1.44+col*.96;
-      box(world,.935,.07,.915,x,.13,z,(row+col)%2===0?roadBrickLight:roadBrickDark,false);
+  // Мелкий прямоугольный кирпич: плотная кладка с перевязкой каждого второго ряда.
+  for(let row=0;row<52;row++){
+    const z=-9.72+row*.47,offset=row%2?.285:0;
+    for(let col=0;col<6;col++){
+      const x=-1.425+col*.57+offset;
+      const brick=(row+col)%2===0?roadBrickLight:roadBrickDark;
+      box(world,.515,.105,.425,x,.1475,z,brick,false);
     }
   }
   // Поперечная дорога проходит ровно от внутренней грани левого забора до внутренней грани правого.
   // Ширина 30 метров и центр X=1.25 точно соответствуют боковым сторонам ограждения (-14 и 16.5).
   box(world,30.0,.12,1.95,1.25,.035,-4.55,roadBase,false);
-  for(let col=0;col<31;col++){
-    const x=-13.27+col*.968;
-    for(let row=0;row<2;row++){
-      const z=-5.025+row*.95;
-      box(world,.958,.07,.94,x,.13,z,(col+row)%2===0?roadBrickLight:roadBrickDark,false);
+  // Поперечная дорога выложена тем же мелким кирпичом; смещение рядов создаёт перевязку.
+  for(let col=0;col<55;col++){
+    const x=-13.46+col*.545;
+    for(let row=0;row<3;row++){
+      const z=-5.10+row*.55+(col%2?.275:0);
+      const brick=(col+row)%2===0?roadBrickLight:roadBrickDark;
+      box(world,.515,.105,.495,x,.1475,z,brick,false);
     }
   }
   // Тёмный контур и каменные бордюры подчёркивают геометрию всех основных дорожек.
@@ -2929,9 +2933,10 @@ function makeWorldDecor(){
     const t=row/5;
     const deckY=.16+.86*t;
     box(world,4.0,.12,.48,0,deckY-.06,z,roadBase,false);
-    for(let col=0;col<4;col++){
-      const x=-1.44+col*.96;
-      box(world,.935,.065,.46,x,deckY-.0325,z,(row+col)%2===0?roadBrickLight:roadBrickDark,false);
+    for(let col=0;col<7;col++){
+      const x=-1.71+col*.57+(row%2?.285:0);
+      const brick=(row+col)%2===0?roadBrickLight:roadBrickDark;
+      box(world,.53,.09,.49,x,deckY+.005,z,brick,false);
     }
   }
   // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проём оставлен для дороги с моста.
