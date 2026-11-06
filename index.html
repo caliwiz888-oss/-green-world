@@ -2905,18 +2905,22 @@ function makeWorldDecor(){
   const roadEdgeMat=mat(0x30383b,.96);
   const roadEdgeTop=mat(0x687174,.92);
   const roadEdgeInlay=mat(0xd9ddda,.94);
-  // Продольные бордюры центральной дорожки: непрерывная тёмная внешняя линия и светлая фаска.
-  for(const side of [-1,1]){
-    const x=side*1.965;
-    box(world,.19,.13,28.07,x,.105,4.24,roadEdgeMat,false);
-    box(world,.075,.035,28.0,x-side*.012,.184,4.24,roadEdgeTop,false);
-    box(world,.025,.018,27.62,x-side*.105,.169,4.24,roadEdgeInlay,false);
-    // Частые поперечные швы превращают край в аккуратную кладку из отдельных камней.
-    for(let i=0;i<15;i++){
-      const z=-9.15+i*1.86;
-      box(world,.195,.018,.025,x,.18,z,roadEdgeTop,false);
-    }
+  // Левый бордюр создаётся один раз; правый — его точная зеркальная копия без отличий в деталях.
+  const leftRoadBorder=new THREE.Group();
+  leftRoadBorder.position.set(-1.965,0,4.24);
+  box(leftRoadBorder,.19,.13,28.07,0,.105,0,roadEdgeMat,false);
+  box(leftRoadBorder,.075,.035,28.0,.012,.184,0,roadEdgeTop,false);
+  box(leftRoadBorder,.025,.018,27.62,.105,.169,0,roadEdgeInlay,false);
+  // Одинаковые поперечные швы по всей длине бордюра.
+  for(let i=0;i<15;i++){
+    const z=-13.39+i*1.86;
+    box(leftRoadBorder,.195,.018,.025,0,.18,z,roadEdgeTop,false);
   }
+  world.add(leftRoadBorder);
+  const rightRoadBorder=leftRoadBorder.clone();
+  rightRoadBorder.position.x=1.965;
+  rightRoadBorder.scale.x=-1;
+  world.add(rightRoadBorder);
   // Тёмные боковые линии поперечной дороги обрамляют плиточное мощение по всей ширине двора.
   for(const side of [-1,1]){
     const z=-4.55+side*.99;
