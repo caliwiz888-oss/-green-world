@@ -2339,7 +2339,28 @@ function makeFactory(){
  const roofMetal=new THREE.MeshStandardMaterial({color:0x34483a,map:roofTexture,bumpMap:roofBump,bumpScale:.016,roughness:.7,metalness:.24});
  // Отдельные материалы ворот и карнизов склада: тёплое дерево и состаренная бронза.
  const factoryDoorMaterial=new THREE.MeshStandardMaterial({color:0x76513b,roughness:.82,metalness:.025});
- const factoryCorniceMaterial=new THREE.MeshStandardMaterial({color:0x76664e,roughness:.78,metalness:.12});
+ // Тонкая патина и направленная шлифовка существующих бронзовых карнизов без изменения их оттенка.
+ const factoryCorniceCanvas=document.createElement('canvas');factoryCorniceCanvas.width=128;factoryCorniceCanvas.height=128;
+ const factoryCorniceCtx=factoryCorniceCanvas.getContext('2d');
+ factoryCorniceCtx.fillStyle='#b8b3a6';factoryCorniceCtx.fillRect(0,0,128,128);
+ for(let i=0;i<150;i++){
+   const y=(i*47+11)%128,x=(i*29+7)%128,len=12+(i*19)%71;
+   factoryCorniceCtx.strokeStyle=i%3===0?'rgba(48,61,48,.075)':'rgba(255,255,255,.075)';
+   factoryCorniceCtx.lineWidth=.5+(i%3)*.25;
+   factoryCorniceCtx.beginPath();factoryCorniceCtx.moveTo(x,y);factoryCorniceCtx.lineTo(Math.min(127,x+len),y+.2);factoryCorniceCtx.stroke();
+ }
+ for(let i=0;i<260;i++){
+   const x=(i*53+17)%128,y=(i*31+5)%128;
+   factoryCorniceCtx.fillStyle=i%2?'rgba(56,66,48,.055)':'rgba(255,255,255,.065)';
+   factoryCorniceCtx.fillRect(x,y,1,1);
+ }
+ const factoryCorniceTexture=new THREE.CanvasTexture(factoryCorniceCanvas);
+ factoryCorniceTexture.colorSpace=THREE.SRGBColorSpace;
+ factoryCorniceTexture.wrapS=factoryCorniceTexture.wrapT=THREE.RepeatWrapping;
+ factoryCorniceTexture.repeat.set(2,2);
+ factoryCorniceTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const factoryCorniceBump=factoryCorniceTexture.clone();factoryCorniceBump.colorSpace=THREE.NoColorSpace;factoryCorniceBump.needsUpdate=true;
+ const factoryCorniceMaterial=new THREE.MeshStandardMaterial({color:0x76664e,map:factoryCorniceTexture,bumpMap:factoryCorniceBump,bumpScale:.009,roughness:.74,metalness:.15});
  // Tall pitched roof with a crisp ridge, dark eaves and metal seams.
  const roofA=box(g,3.95,.3,5.85,-1.48,4.72,0,roofMetal);roofA.rotation.z=.34;
  const roofB=box(g,3.95,.3,5.85,1.48,4.72,0,roofMetal);roofB.rotation.z=-.34;
