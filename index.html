@@ -208,7 +208,7 @@ window.GREEN_WORLD_STARTUP_STAGE='three-loaded';
 const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
 let token='';
-let cameraRadius=65,cameraHeight=33;
+let cameraRadius=60,cameraHeight=30;
 let buildingObjects=[];
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,78,175);
 const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,3.5,160);
@@ -3351,12 +3351,15 @@ const cameraTarget=new THREE.Vector3(.8,.8,-1.5);
 let cameraAzimuth=Math.atan2(1.2,66.5);
 let cameraPolar=Math.atan2(65,33-.8);
 let cameraPointerId=null,cameraLastX=0,cameraLastY=0;
+const cameraPointers=new Map();let pinchStartDistance=0,pinchStartRadius=cameraRadius;
 function updateOrbitCamera(){const orbitRadius=Math.hypot(cameraRadius,cameraHeight-.8),sinPolar=Math.sin(cameraPolar);camera.position.set(cameraTarget.x+orbitRadius*sinPolar*Math.sin(cameraAzimuth),cameraTarget.y+orbitRadius*Math.cos(cameraPolar),cameraTarget.z+orbitRadius*sinPolar*Math.cos(cameraAzimuth));camera.lookAt(cameraTarget)}
 const worldCanvas=$('world');
-worldCanvas.addEventListener('pointerdown',event=>{if(event.button!==0||cameraPointerId!==null)return;cameraPointerId=event.pointerId;cameraLastX=event.clientX;cameraLastY=event.clientY;worldCanvas.classList.add('camera-dragging');worldCanvas.setPointerCapture(event.pointerId)});
-worldCanvas.addEventListener('pointermove',event=>{if(event.pointerId!==cameraPointerId)return;const dx=event.clientX-cameraLastX,dy=event.clientY-cameraLastY;cameraLastX=event.clientX;cameraLastY=event.clientY;cameraAzimuth-=dx*.005;cameraPolar=THREE.MathUtils.clamp(cameraPolar+dy*.004,.38,1.42);updateOrbitCamera()});
-function finishCameraDrag(event){if(event.pointerId!==cameraPointerId)return;cameraPointerId=null;worldCanvas.classList.remove('camera-dragging')}
+function pointerDistance(){const pts=[...cameraPointers.values()];return pts.length<2?0:Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y)}
+worldCanvas.addEventListener('pointerdown',event=>{if(event.button!==0)return;cameraPointers.set(event.pointerId,{x:event.clientX,y:event.clientY});worldCanvas.setPointerCapture(event.pointerId);if(cameraPointers.size===1){cameraPointerId=event.pointerId;cameraLastX=event.clientX;cameraLastY=event.clientY;worldCanvas.classList.add('camera-dragging')}else if(cameraPointers.size===2){cameraPointerId=null;pinchStartDistance=pointerDistance();pinchStartRadius=cameraRadius}});
+worldCanvas.addEventListener('pointermove',event=>{if(!cameraPointers.has(event.pointerId))return;cameraPointers.set(event.pointerId,{x:event.clientX,y:event.clientY});if(cameraPointers.size>=2){const distance=pointerDistance();if(pinchStartDistance>0){cameraRadius=THREE.MathUtils.clamp(pinchStartRadius*pinchStartDistance/Math.max(distance,1),42,88);updateOrbitCamera()}return}if(event.pointerId!==cameraPointerId)return;const dx=event.clientX-cameraLastX,dy=event.clientY-cameraLastY;cameraLastX=event.clientX;cameraLastY=event.clientY;cameraAzimuth-=dx*.005;cameraPolar=THREE.MathUtils.clamp(cameraPolar+dy*.004,.38,1.42);updateOrbitCamera()});
+function finishCameraDrag(event){if(!cameraPointers.has(event.pointerId))return;cameraPointers.delete(event.pointerId);if(cameraPointers.size===1){const [id,p]=[...cameraPointers.entries()][0];cameraPointerId=id;cameraLastX=p.x;cameraLastY=p.y;pinchStartDistance=0}else{cameraPointerId=null;pinchStartDistance=0}if(cameraPointers.size===0)worldCanvas.classList.remove('camera-dragging')}
 worldCanvas.addEventListener('pointerup',finishCameraDrag);worldCanvas.addEventListener('pointercancel',finishCameraDrag);worldCanvas.addEventListener('lostpointercapture',finishCameraDrag);
+worldCanvas.addEventListener('wheel',event=>{event.preventDefault();cameraRadius=THREE.MathUtils.clamp(cameraRadius+Math.sign(event.deltaY)*2,42,88);updateOrbitCamera()},{passive:false});
 
 function cameraPosition(){updateOrbitCamera()}
 
