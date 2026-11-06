@@ -1403,7 +1403,7 @@ function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,
 function makeMarket(){
  // Витрины лавки используют собственный материал: marketGlass локален внутри makeHouse.
  const marketGlass=M.glass.clone();
- const g=group(world,-11.6,0,-8.5);g.rotation.y=0;g.scale.setScalar(.85);
+ const g=group(world,-10.8,0,-8.5);g.rotation.y=0;g.scale.setScalar(1.2);
  box(g,5.4,2.8,4.4,0,1.4,0,M.stone);
  box(g,5.65,.24,4.65,0,2.86,0,M.gold);
  // Timber-framed storefront and broad display windows.
@@ -3535,8 +3535,8 @@ function drawPlayer(){
   catch(marketError){
     console.error('[render] Detailed market construction failed; using safe storefront:',marketError);
     for(const child of [...world.children])if(!marketChildrenBefore.has(child))world.remove(child);
-    const fallback=group(world,-11.6,0,-8.5);
-    fallback.scale.setScalar(.85);
+    const fallback=group(world,-10.8,0,-8.5);
+    fallback.scale.setScalar(1.2);
     const shopWall=mat(0xd6c7a8),shopTimber=mat(0x70472d),shopRoof=mat(0x91483a),shopTrim=mat(0xc8b898);
     box(fallback,5.4,2.8,4.4,0,1.4,0,shopWall);
     box(fallback,5.65,.24,4.65,0,2.86,0,M.gold);
