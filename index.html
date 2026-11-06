@@ -824,6 +824,9 @@ function makeHouse(){
        for(const py of [3.08,3.62]){
          sphere(t,.022,px,py,z*1.18,towerGoldMaterial,.8);
        }
+       // Каменные мини-накладки аккуратно завершают верх и низ наружных стоек.
+       box(t,.09,.045,.045,px,2.89,z*1.18,towerDetailStone,false);
+       box(t,.09,.045,.045,px,3.81,z*1.18,towerDetailStone,false);
      }
      box(t,.82,.12,.2,0,2.72,z*1.035,towerDetailStone);
      box(t,.1,1.28,.18,-.39,3.35,z*1.035,towerGoldMaterial,false);
