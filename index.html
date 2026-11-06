@@ -50,19 +50,10 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 <canvas id="world"></canvas>
 <header class="top">
  <div class="brand">GREEN WORLD<small>НОВЫЙ ЖИВОЙ МИР · 3D</small></div>
- <div class="wallet">
-  <div class="metric"><b id="coins">—</b><span>GREEN COIN</span></div>
- </div>
 </header>
 
-<button class="menu" id="menu-open" aria-label="Меню">☰</button>
-
-
 <div id="toast"></div>
-<div id="login"><div class="login-card"><h1>GREEN WORLD</h1><p>Новый мир готовится к открытию. Войди через Telegram, чтобы создать своё хозяйство и сохранить прогресс.</p><button class="smallbtn" id="retry-login">ПОДКЛЮЧИТЬ TELEGRAM</button><p id="login-error"></p></div></div>
-<div id="shade"><div class="panel">
- <div class="head"><h2>Управление</h2><button class="close" id="menu-close">×</button></div>
- <div class="section"><h3>Ежедневный подарок</h3><div class="line"><span id="daily-info">Проверяем награду…</span><button class="smallbtn" id="daily-claim">ПОЛУЧИТЬ</button></div></div>
+<div id="login"><div class="login-card"><h1>GREEN WORLD</h1><p>Новый мир готовится к открытию. Войди через Telegram, чтобы открыть 3D-мир.</p><button class="smallbtn" id="retry-login">ПОДКЛЮЧИТЬ TELEGRAM</button><p id="login-error"></p></div></div>
 </div></div>
 <script>window.GREEN_WORLD_API_URL='https://green-world-api-mx3v.onrender.com';</script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -151,7 +142,7 @@ try {
 window.GREEN_WORLD_STARTUP_STAGE='three-loaded';
 const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
-let token='',busy=false,player=null,daily=null;
+let token='';
 let cameraRadius=55,cameraHeight=31;
 let buildingObjects=[];
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,78,175);
@@ -1493,15 +1484,6 @@ function makeMarket(){
  // Каменная площадка перед витриной подчёркивает вход, не занимая игровые грядки.
  box(g,6.3,.12,1.45,0,.035,3.55,M.stone2,false);
  for(let ix=0;ix<6;ix++)box(g,.94,.035,.62,-2.35+ix*.94,.112,3.55,ix%2?M.stone:M.stone2,false);
- // Produce baskets and stacked delivery crates beside the entrance.
- for(const x of [-3.25,3.25]){
-   box(g,.92,.58,.78,x,.52,2.7,M.wood);
-   box(g,.98,.1,.84,x,.84,2.7,M.gold,false);
-   for(let i=0;i<3;i++){
-     const fruit=new THREE.Mesh(new THREE.SphereGeometry(.16,10,8),mat([0xd94c3d,0xe5a34b,0x78a94d][i]));
-     fruit.position.set(x-.22+i*.22,1.02,2.72);g.add(fruit);
-   }
- }
  // Extra storefront detailing: timber corner posts, window divisions and roof seams.
  for(const x of [-2.48,2.48]){
    box(g,.16,2.65,.22,x,1.42,2.48,M.gold);
@@ -1833,7 +1815,7 @@ function makeMarket(){
 }
 
 function makeFactory(){
- // Keep the factory in the back-right corner while fully inside the playable plots and mobile camera frame.
+ // Keep the factory in its approved back-right position and inside the camera frame.
  const g=group(world,9.35,0,-8.8);
  const brick=mat(0x9b5943),brickLight=mat(0xb96c50),darkMetal=mat(0x39474a),metal=mat(0x657477),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
  // Отдельное заводское остекление: спокойные отражения не затрагивают окна главного дома.
@@ -2508,37 +2490,6 @@ function makeFactory(){
  }
 return disableCastShadows(g);
 }
-function makeGardenBed(x,z){
- const b=group(world,x,0,z);
- box(b,2.8,.28,2.1,0,.14,0,M.wood,false);
- box(b,2.48,.14,1.78,0,.34,0,M.soil,false);
- for(let row=0;row<3;row++){
-   // Fine raised planting ridges make the soil read as cultivated rows.
-   box(b,2.22,.045,.09,0,.45,-.56+row*.56,mat(0x76563a),false);
-   for(let col=0;col<4;col++){
-     const px=-.88+col*.58,pz=-.55+row*.55;
-     cylinder(b,.045,.045,.32,px,.55,pz,M.leaf,6);
-     sphere(b,.18,px,.78,pz,mat((row+col)%3===0?0x73a94b:0x4f923f),.85);
-     sphere(b,.075,px-.07,.84,pz-.035,mat(0x91bd61),.7);
-   }
- }
- // Clean timber corner joints and a narrow stone lip around each bed.
- const edge=mat(0x59402b),lip=mat(0xc8bda2);
- for(const x0 of [-1.34,1.34])for(const z0 of [-.98,.98]){
-   box(b,.12,.34,.12,x0,.31,z0,edge,false);
-   box(b,.16,.055,.16,x0,.49,z0,lip,false);
- }
- box(b,2.62,.055,.07,0,.39,-.91,lip,false);
- box(b,2.62,.055,.07,0,.39,.91,lip,false);
-}
-function makeLamp(x,z){
- const l=group(world,x,0,z);
- cylinder(l,.13,.18,2.1,0,1.05,0,M.wood,8);
- box(l,.72,.12,.72,0,2.12,0,M.gold);
- const glow=new THREE.Mesh(new THREE.SphereGeometry(.27,12,10),new THREE.MeshStandardMaterial({color:0xffe5a0,emissive:0x9b6b22,emissiveIntensity:.35}));
- glow.position.y=2.48;l.add(glow);
- cone(l,.55,.38,0,2.82,0,M.roof2,6);
-}
 function makeFlowerBed(x,z){
  const b=group(world,x,0,z);box(b,2.2,.28,1.15,0,.14,0,M.stone2,false);
  box(b,1.9,.18,.88,0,.32,0,M.soil,false);
@@ -2550,7 +2501,7 @@ function makeFlowerBed(x,z){
  }
 }
 function makeWorldDecor(){
- // Keep the courtyard paths, perimeter fence and orchard; requested decorative clutter is omitted.
+ // Keep the courtyard paths and perimeter fence.
  for(let i=0;i<13;i++){
    const z=-4.1+i*1.45;
    box(world,1.35,.14,1.35,-3,.04,z,M.stone2,false);
@@ -2582,10 +2533,7 @@ function makeWorldDecor(){
      box(world,.38,.045,.38,x,.99,p,jointMat,false);
    }
  }
- // Fountain, entrance arch, lamps and flower beds remain removed.
- // Expanded vegetable beds on the left side of the manor, balanced against the shop area.
- for(const x of [-10.2,-6.9])for(const z of [1.2,4.0,6.8])makeGardenBed(x,z);
- // The well and decorative orchard trees remain omitted.
+ // Fountain, entrance arch, lamps and crop beds are omitted.
  // Low ornamental ground cover and natural stone clusters around the outer border.
  const shrubMat=mat(0x477f3d),rockMat=mat(0x8b8979);
  for(const [x,z,scale] of [[-17,-10,1.2],[-18,7,1.1],[17,-8,1.25],[18,8,1.15],[-12,18,1],[12,18,1]]){
@@ -3493,13 +3441,7 @@ function makeWorldLandscape(){
  for(const [x,z] of [[-18,21.2],[-8,23.1],[9,21.6],[18,23.4]]){
    const glint=box(world,1.15,.025,.12,x,.09,z,waterGlint,false);glint.rotation.y=.12;riverMotionObjects.push({mesh:glint,baseX:x,baseZ:z,phase:x*.7,speed:.13,range:.28,baseLength:1.15});
  }
- // Distant evergreen silhouettes frame the scenery without entering the farm plot.
- const pineTrunk=mat(0x76543a),pineDark=mat(0x315f3b),pineLight=mat(0x47794a);
- for(const [x,z,h] of [[-24,-18,5.2],[-19,-22,4.4],[-26,-5,5.8],[24,-17,5.1],[20,-22,4.2],[26,7,5.4],[-25,11,4.8],[22,14,4.5]]){
-   cylinder(world,.16,.22,h*.48,x,h*.24,z,pineTrunk,7);
-   cone(world,1.25,h*.42,x,h*.48,z,pineDark,7);
-   cone(world,.92,h*.34,x,h*.72,z,pineLight,7);
- }
+ // Open riverbank horizon without tree models.
  // Small cascades at the river's far end create a visible waterfall effect.
  for(const z of [20.9,22.2,23.5]){
    const fall=box(world,.22,2.6,.72,25.2,-1.0,z,water,false);
@@ -3510,10 +3452,7 @@ function makeWorldLandscape(){
 window.GREEN_WORLD_STARTUP_STAGE='building-world';
 makeWorldDecor();makeWorldLandscape();
 window.GREEN_WORLD_STARTUP_STAGE='world-built';
-const tileGeo=new THREE.BoxGeometry(1.28,.16,1.28);
-for(let x=0;x<20;x++)for(let z=0;z<20;z++){
- const i=x*20+z;const tile=new THREE.Mesh(tileGeo,(x+z)%2?M.grass:M.grass2);tile.position.set((x-9.5)*1.45,-.03,(z-9.5)*1.45);tile.receiveShadow=true;world.add(tile);
-}
+// Continuous landscape without a grid of player-owned cells.
 const sharedWorldMaterials=new Set([...Object.values(M),windowInterior]);
 // Материалы-клоны зданий используют те же карты поверхности, что и общий мир.
 // Эти текстуры нельзя освобождать при перестройке одного здания.
@@ -3569,7 +3508,6 @@ function clearDynamic(){
  buildingObjects=[];
 }
 function drawPlayer(){
-  if(!player)return;
   // Здания — постоянная декоративная часть мира, не связанная с состоянием игрока.
   // Дом, завод и лавка — постоянные объекты мира. Не пересоздаём их при
   // обновлениях участков или повторной загрузке данных игрока: это исключает
@@ -3634,17 +3572,11 @@ function drawPlayer(){
     buildingObjects.push(market);
   }
   }
-  updateHud();
 }
-function updateHud(){if(!player)return;$('coins').textContent=Number(player.coins||0).toLocaleString('ru-RU');}
-function applyPlayer(p){player=p;$('login').style.display='none';try{drawPlayer()}catch(e){console.error('[render] World drawing failed:',e);$('login-error').textContent='Ошибка отображения мира: '+(e?.message||e)}}
+function applyPlayer(){$('login').style.display='none';try{drawPlayer()}catch(e){console.error('[render] World drawing failed:',e);$('login-error').textContent='Ошибка отображения мира: '+(e?.message||e)}}
 async function request(path,body=null,retry=true){const opts={method:body===null?'GET':'POST',credentials:'include',headers:{'Content-Type':'application/json'}};if(token)opts.headers.Authorization='Bearer '+token;if(body!==null)opts.body=JSON.stringify(body);let res=await fetch(API+path,opts);if(res.status===401&&retry&&!['/api/auth/telegram','/api/auth/refresh'].includes(path)){const rr=await fetch(API+'/api/auth/refresh',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'}});if(rr.ok){token=(await rr.json()).accessToken;return request(path,body,false)}}const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Ошибка сервера '+res.status);return data}
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2600)}
-async function action(path,body,msg){if(busy)return;busy=true;try{const data=await request(path,body);if(data.player)applyPlayer(data.player);toast(msg||'Сохранено');return true}catch(e){toast(e.message||'Ошибка');return false}finally{busy=false}}
-async function login(){const tg=window.Telegram?.WebApp;const initData=tg?.initData||'';if(!initData){$('login-error').textContent='Открой игру из Telegram-бота, чтобы войти.';return}try{tg.ready();tg.expand();$('login-error').textContent='Подключаем аккаунт…';const data=await request('/api/auth/telegram',{initData},false);token=data.accessToken;applyPlayer(data.player);await loadDaily()}catch(e){$('login-error').textContent='Не удалось войти: '+e.message}}
-async function loadDaily(){try{daily=await request('/api/game/daily-reward');$('daily-info').textContent=daily.claimedToday?'Сегодня уже получено':'День '+daily.day+' · '+daily.reward+' GC';$('daily-claim').disabled=!!daily.claimedToday;$('daily-claim').textContent=daily.claimedToday?'ПОЛУЧЕНО':'ПОЛУЧИТЬ'}catch(e){$('daily-info').textContent=e.message}}
-$('daily-claim').onclick=async()=>{await action('/api/game/daily-reward/claim',{},'Ежедневный подарок получен');await loadDaily()};
-$('menu-open').onclick=()=>$('shade').classList.add('open');$('menu-close').onclick=()=>$('shade').classList.remove('open');$('shade').addEventListener('click',e=>{if(e.target===$('shade'))$('shade').classList.remove('open')});
+async function login(){const tg=window.Telegram?.WebApp;const initData=tg?.initData||'';if(!initData){$('login-error').textContent='Открой игру из Telegram-бота, чтобы войти.';return}try{tg.ready();tg.expand();$('login-error').textContent='Подключаем аккаунт…';const data=await request('/api/auth/telegram',{initData},false);token=data.accessToken;applyPlayer()}catch(e){$('login-error').textContent='Не удалось войти: '+e.message}}
 function cameraPosition(){camera.position.set(0,cameraHeight,cameraRadius);camera.lookAt(0,.8,-1.5)}
 
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
@@ -3658,12 +3590,12 @@ window.addEventListener('green-world-auth',event=>{
  if(!data||!data.accessToken||!data.player)return;
  token=data.accessToken;
  applyPlayer(data.player);
- loadDaily();
+
 });
 if(window.GREEN_WORLD_AUTH_RESULT){
  token=window.GREEN_WORLD_AUTH_RESULT.accessToken;
- applyPlayer(window.GREEN_WORLD_AUTH_RESULT.player);
- loadDaily();
+ applyPlayer();
+
 }
 </script>
 </body>
