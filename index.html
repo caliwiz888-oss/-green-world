@@ -3398,6 +3398,18 @@ function makeWorldLandscape(){
      // A restrained raised granite panel gives each massive pier a finished, hand-cut face.
      const pierPanel=box(world,.31,.43,.018,x,.52,z+.302,bridgeStoneDark);pierPanel.castShadow=false;pierPanel.receiveShadow=false;
      const pierPanelInset=box(world,.255,.365,.022,x,.52,z+.316,bridgeStoneLight);pierPanelInset.castShadow=false;pierPanelInset.receiveShadow=false;
+     // Fine raised frame gives the recessed-looking pier panel a crisp dressed-stone border.
+     const panelFrameZ=z+.337;
+     for(const yy of [.315,.725]){
+       const panelRail=box(world,.305,.018,.018,x,yy,panelFrameZ,bridgeStoneDark);panelRail.castShadow=false;panelRail.receiveShadow=false;
+     }
+     for(const dx of [-.144,.144]){
+       const panelStile=box(world,.018,.41,.018,x+dx,.52,panelFrameZ,bridgeStoneDark);panelStile.castShadow=false;panelStile.receiveShadow=false;
+     }
+     // Small layered diamond boss echoes the keystones and baluster medallions.
+     const pierBoss=box(world,.022,.125,.125,x,.52,z+.35,bridgeStoneDark);pierBoss.rotation.x=Math.PI/4;pierBoss.castShadow=false;pierBoss.receiveShadow=false;
+     const pierBossInset=box(world,.026,.078,.078,x,.52,z+.365,bridgeStoneMid);pierBossInset.rotation.x=Math.PI/4;pierBossInset.castShadow=false;pierBossInset.receiveShadow=false;
+     const pierBossStud=sphere(world,.026,x,.52,z+.383,bridgeStoneLight,false);pierBossStud.scale.set(.32,1,.82);pierBossStud.castShadow=false;pierBossStud.receiveShadow=false;
      // Slim corner quoins articulate the pier edges without adding visual clutter.
      for(const side of [-1,1]){
        const quoin=box(world,.045,.7,.035,x+side*.255,.52,z+.305,bridgeStoneLight);quoin.castShadow=false;quoin.receiveShadow=false;
