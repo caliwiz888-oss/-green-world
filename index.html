@@ -2206,14 +2206,14 @@ function makeWorldDecor(){
     box(world,1.35,.14,1.35,-.675,.04,z,M.stone2,false);
     box(world,1.35,.14,1.35,.675,.04,z,M.stone2,false);
   }
-  // Каменное ограждение по всему периметру; центральный проём оставлен для дороги с моста.
+  // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проём оставлен для дороги с моста.
   const fenceMat=mat(0xbeb294),fenceCap=mat(0xe0d4b8),fenceJoint=mat(0x9f9276);
   for(let p=-14;p<=14;p+=1.75){
     for(const z of [-14,14]){
       if(z===14 && Math.abs(p)<3.6) continue;
       box(world,1.25,.55,.42,p,.27,z,fenceMat,false);
     }
-    for(const x of [-14,14]){
+    for(const x of [-14,18]){
       box(world,.42,.55,1.25,x,.27,p,fenceMat,false);
     }
   }
@@ -2224,7 +2224,7 @@ function makeWorldDecor(){
       box(world,.72,.13,.72,p,.91,z,fenceCap,false);
       box(world,.38,.045,.38,p,.99,z,fenceJoint,false);
     }
-    for(const x of [-14,14]){
+    for(const x of [-14,18]){
       box(world,.58,.86,.58,x,.43,p,fenceMat,false);
       box(world,.72,.13,.72,x,.91,p,fenceCap,false);
       box(world,.38,.045,.38,x,.99,p,fenceJoint,false);
