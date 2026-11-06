@@ -2785,6 +2785,35 @@ function makeWorldDecor(){
       box(world,length,.022,.035,center,1.132,z+(z<0?-.405:.405),fenceBaseTrim,false);
     }
   }
+  // Вертикальные каменные лопатки связывают секции ограды с опорными столбами и подчёркивают их ритм.
+  // Накладки неглубокие, симметричные и не затрагивают высоту или ширину ограждения.
+  for(let p=-14;p<=14;p+=3.5){
+    for(const z of [-14,14]){
+      if(z===14 && Math.abs(p)<3.8) continue;
+      const faceZ=z+(z<0?-.405:.405);
+      for(const dx of [-.235,.235]){
+        box(world,.055,.78,.045,p+dx,.68,faceZ,fenceBaseTrim,false);
+        box(world,.025,.68,.025,p+dx,.68,faceZ+(z<0?-.026:.026),fenceLightTrim,false);
+      }
+      box(world,.54,.045,.055,p,.99,faceZ,fenceLightTrim,false);
+      box(world,.54,.035,.055,p,.36,faceZ,fenceBaseTrim,false);
+      const postDiamond=box(world,.13,.13,.045,p,.68,faceZ+(z<0?-.035:.035),fenceRelief,false);
+      postDiamond.rotation.z=Math.PI/4;
+    }
+  }
+  for(const x of [-14,16.5]){
+    for(let p=-14;p<=14;p+=3.5){
+      const faceX=x+(x<0?-.405:.405);
+      for(const dz of [-.235,.235]){
+        box(world,.045,.78,.055,faceX,.68,p+dz,fenceBaseTrim,false);
+        box(world,.025,.68,.025,faceX+(x<0?-.026:.026),.68,p+dz,fenceLightTrim,false);
+      }
+      box(world,.055,.045,.54,faceX,.99,p,fenceLightTrim,false);
+      box(world,.055,.035,.54,faceX,.36,p,fenceBaseTrim,false);
+      const postDiamond=box(world,.045,.13,.13,faceX+(x<0?-.035:.035),.68,p,fenceRelief,false);
+      postDiamond.rotation.y=Math.PI/4;
+    }
+  }
   // Резные розетки на замковом камне арки: кольцо и центральный каменный кабошон.
   const gateRosetteRing=new THREE.Mesh(new THREE.TorusGeometry(.19,.026,8,36),fenceLightTrim);
   gateRosetteRing.position.set(0,5.02,14.475);
