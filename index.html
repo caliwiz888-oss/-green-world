@@ -3619,9 +3619,10 @@ function drawPlayer(){
     updateHud();
     return;
   }
-  if(buildingSignature!==lastBuildingSignature){
-    for(const b of buildingObjects)disposeObject3D(b);
-    buildingObjects=[];
+  // Дом, завод и лавка — постоянные объекты мира. Не пересоздаём их при
+  // обновлениях участков или повторной загрузке данных игрока: это исключает
+  // удаление и повторное создание фасадов/окон/крыш во время работы игры.
+  if(buildingObjects.length===0){
   // Завод создаётся первым и независимо от остальных объектов мира.
   const factoryChildrenBefore=new Set(world.children);
   let factory=null;
