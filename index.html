@@ -2396,6 +2396,15 @@ function makeWorldLandscape(){
    alpineRockCtx.fillStyle=i%2?'rgba(235,238,224,.12)':'rgba(35,49,46,.10)';
    alpineRockCtx.fillRect(x,y,r,r);
  }
+ // Редкие прерывистые минеральные жилы смягчают повторяемость рисунка скалы.
+ for(let i=0;i<9;i++){
+   const x=(i*31+7)%128,y=(i*43+16)%128,len=18+(i*9)%27,bend=((i*13)%11)-5;
+   alpineRockCtx.strokeStyle=i%2?'rgba(224,231,216,.19)':'rgba(48,65,59,.11)';
+   alpineRockCtx.lineWidth=.55+(i%3)*.2;alpineRockCtx.beginPath();
+   alpineRockCtx.moveTo(x,y);
+   alpineRockCtx.quadraticCurveTo(x+len*.48,y+bend,x+len,y+bend*.35);
+   alpineRockCtx.stroke();
+ }
  const alpineRockTexture=new THREE.CanvasTexture(alpineRockCanvas);
  alpineRockTexture.colorSpace=THREE.SRGBColorSpace;
  alpineRockTexture.wrapS=alpineRockTexture.wrapT=THREE.RepeatWrapping;
