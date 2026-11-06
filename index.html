@@ -3402,6 +3402,17 @@ function makeWorldLandscape(){
    const railPoints=[];for(let i=0;i<=32;i++){const z=bridgeStartZ+bridgeLength*i/32;railPoints.push(new THREE.Vector3(x,bridgeDeckY(z)+.79,z));}
    const railCurve=new THREE.CatmullRomCurve3(railPoints);
    const handrail=new THREE.Mesh(new THREE.TubeGeometry(railCurve,64,.16,10,false),new THREE.MeshStandardMaterial({color:0x858d8e,roughness:.9,metalness:0}));handrail.castShadow=false;handrail.receiveShadow=false;world.add(handrail);
+   // Twin fine granite mouldings run along the handrail, like a carefully dressed stone coping.
+   for(const side of [-1,1]){
+     const mouldPoints=[];for(let i=0;i<=32;i++){
+       const z=bridgeStartZ+bridgeLength*i/32;
+       mouldPoints.push(new THREE.Vector3(x+side*.112,bridgeDeckY(z)+.815,z));
+     }
+     const mouldCurve=new THREE.CatmullRomCurve3(mouldPoints);
+     const mould=new THREE.Mesh(new THREE.TubeGeometry(mouldCurve,64,.018,6,false),side===1?bridgeStoneLight:bridgeStoneDark);
+     mould.castShadow=false;mould.receiveShadow=false;world.add(mould);
+   }
+
     // A continuous lower granite rail visually ties the enlarged balusters together.
     const lowerPoints=[];for(let i=0;i<=32;i++){const z=bridgeStartZ+bridgeLength*i/32;lowerPoints.push(new THREE.Vector3(x,bridgeDeckY(z)+.2,z));}
     const lowerCurve=new THREE.CatmullRomCurve3(lowerPoints);
