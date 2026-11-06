@@ -802,6 +802,9 @@ function makeHouse(){
      for(const sz of [-1,1]){
        box(t,.16,5.35,.16,sx*1.0,2.92,sz*1.0,towerDetailStone,false);
        box(t,.24,.16,.24,sx*1.0,5.68,sz*1.0,towerGoldMaterial,false);
+       // Небольшие каменные капители членят угловые лопатки под карнизом.
+       box(t,.25,.09,.25,sx*1.0,5.48,sz*1.0,towerDetailStone,false);
+       box(t,.21,.07,.21,sx*1.0,5.37,sz*1.0,towerStoneMaterial,false);
      }
    }
    for(const z of [-1.09,1.09]){
