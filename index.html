@@ -2730,6 +2730,20 @@ function makeWorldLandscape(){
    waterCtx.lineWidth=.8+(i%3)*.45;waterCtx.lineCap='round';waterCtx.beginPath();
    waterCtx.moveTo(x,y);waterCtx.bezierCurveTo(x+len*.25,y+curve,x+len*.7,y-curve*.6,x+len,y+curve*.25);waterCtx.stroke();
  }
+ // Микрорябь и мягкие каустические переливы добавляют воде объём и естественную глубину.
+ for(let i=0;i<22;i++){
+   const x=(i*37+19)%128,y=(i*23+11)%128,rx=7+(i*5)%15,ry=1.2+(i%4)*.65;
+   const glow=waterCtx.createRadialGradient(x,y,0,x,y,rx);
+   glow.addColorStop(0,i%3===0?'rgba(255,255,255,.12)':'rgba(105,174,177,.075)');
+   glow.addColorStop(1,'rgba(255,255,255,0)');waterCtx.fillStyle=glow;waterCtx.beginPath();
+   waterCtx.ellipse(x,y,rx,ry,(i%7-3)*.07,0,Math.PI*2);waterCtx.fill();
+ }
+ for(let i=0;i<34;i++){
+   const x=(i*29+7)%128,y=(i*43+15)%128,len=3+(i*7)%12;
+   waterCtx.strokeStyle=i%5===0?'rgba(255,255,255,.2)':'rgba(35,104,123,.065)';
+   waterCtx.lineWidth=.3+(i%3)*.18;waterCtx.beginPath();waterCtx.moveTo(x,y);
+   waterCtx.quadraticCurveTo(x+len*.5,y-.7+(i%4)*.35,x+len,y+.2);waterCtx.stroke();
+ }
  const waterTexture=new THREE.CanvasTexture(waterCanvas);riverWaterTexture=waterTexture;waterTexture.colorSpace=THREE.SRGBColorSpace;
  waterTexture.wrapS=waterTexture.wrapT=THREE.RepeatWrapping;waterTexture.repeat.set(2,1);
  waterTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();water.map=waterTexture;water.roughness=.24;water.needsUpdate=true;
