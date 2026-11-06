@@ -4629,7 +4629,7 @@ function makeWorldLandscape(){
  const alpineSmooth=(a,b,v)=>{const t=THREE.MathUtils.clamp((v-a)/(b-a),0,1);return t*t*(3-2*t);};
  const buildAlpineMountain=(cfg)=>{
    const {name,cx,cz,width,depth,height,lean,peaks,gullies,rotation=0}=cfg;
-   const nx=112,nz=104,positions=[],colors=[],indices=[];
+   const nx=112,nz=104,positions=[],colors=[],uvs=[],indices=[];
    const cs=Math.cos(rotation),sn=Math.sin(rotation);
    const summitProfile=(u)=>{
      let p=.16*Math.pow(Math.max(0,1-u*u),.45);
@@ -4647,7 +4647,7 @@ function makeWorldLandscape(){
        const cross=v-ridgeV;
        const front=cross>0;
        const slope=front?.48:.39;
-       const radial=Math.sqrt(u*u+v*v*.78);
+       const radial=Math.sqrt(u*u+v*v);
        const baseFade=1-alpineSmooth(.72,1,radial);
        const crest=summitProfile(u);
        const flank=Math.exp(-Math.pow(Math.abs(cross)/slope,front?1.42:1.58));
@@ -4674,7 +4674,7 @@ function makeWorldLandscape(){
        const lx=u*width,lz=v*depth+ridgeV*depth*.18;
        const wx=cx+lx*cs-lz*sn,wz=cz+lx*sn+lz*cs;
        positions.push(wx,h,wz);
-       colors.push(0,0,0);
+       colors.push(0,0,0);uvs.push(u*.5+.5,v*.5+.5);
      }
    }
    for(let iz=0;iz<nz;iz++)for(let ix=0;ix<nx;ix++){
@@ -4684,6 +4684,7 @@ function makeWorldLandscape(){
    const geometry=new THREE.BufferGeometry();
    geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
    geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+   geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
    geometry.setIndex(indices);geometry.computeVertexNormals();
    const pos=geometry.attributes.position,norm=geometry.attributes.normal,col=geometry.attributes.color;
    for(let i=0;i<pos.count;i++){
