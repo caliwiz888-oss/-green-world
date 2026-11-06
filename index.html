@@ -2651,6 +2651,7 @@ function makeWorldDecor(){
 }
 let riverWaterTexture=null;
 const riverMotionObjects=[];
+const riverRingObjects=[];
 function makeWorldLandscape(){
  // A soft vertex-coloured sky dome replaces the flat horizon with a natural blue-to-haze gradient.
  const skyGeo=new THREE.SphereGeometry(148,40,24);
@@ -3152,6 +3153,14 @@ function makeWorldLandscape(){
    spark.position.set(x,.101,z);spark.rotation.y=(i%5-2)*.025;world.add(spark);
    riverMotionObjects.push({mesh:spark,baseX:x,baseZ:z,phase:i*1.37,speed:.24+(i%5)*.045,range:.35+(i%4)*.16,baseLength:len});
  }
+ // Круговые волны расходятся от тихих точек на поверхности и постепенно растворяются.
+ for(let i=0;i<6;i++){
+   const x=-17+i*6.6,z=20.4+(i%3)*1.25;
+   const ringMat=new THREE.MeshBasicMaterial({color:0xe5fbf4,transparent:true,opacity:.22,depthWrite:false,side:THREE.DoubleSide});
+   const ring=new THREE.Mesh(new THREE.TorusGeometry(1,.012,5,40),ringMat);
+   ring.rotation.x=-Math.PI/2;ring.position.set(x,.112,z);ring.scale.set(.08,1,.08);world.add(ring);
+   riverRingObjects.push({mesh:ring,material:ringMat,baseX:x,baseZ:z,phase:i*.71,speed:.22+(i%3)*.035});
+ }
  // Stone bridge crossing the river, with parapets and evenly spaced balusters.
  box(world,4.8,.62,9.2,0,.78,22.2,M.stone2);
  box(world,4.45,.16,8.9,0,1.16,22.2,M.stone);
@@ -3306,7 +3315,7 @@ renderer.domElement.addEventListener('pointercancel',()=>pointer=null);
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
 // Плавное течение реки: сдвигаем карту бликов по руслу, сохраняя непрерывность текстуры.
 const riverFlowClock=new THREE.Clock();
-cameraPosition();function animate(){requestAnimationFrame(animate);const flowDelta=Math.min(riverFlowClock.getDelta(),.05),flowTime=riverFlowClock.elapsedTime;if(riverWaterTexture){riverWaterTexture.offset.x=(riverWaterTexture.offset.x+flowDelta*.035)%1;riverWaterTexture.offset.y=(riverWaterTexture.offset.y+flowDelta*.006)%1;}for(const item of riverMotionObjects){const wave=Math.sin(flowTime*item.speed+item.phase);item.mesh.position.x=item.baseX+Math.sin(flowTime*item.speed*.72+item.phase)*item.range;item.mesh.position.y=.092+Math.max(0,wave)*.018;const pulse=.78+.22*Math.sin(flowTime*item.speed*1.8+item.phase);item.mesh.scale.x=pulse;item.mesh.material.opacity=item.baseLength<.6?.13+.16*(.5+.5*wave):.12+.12*(.5+.5*wave)}renderer.render(scene,camera)}animate();
+cameraPosition();function animate(){requestAnimationFrame(animate);const flowDelta=Math.min(riverFlowClock.getDelta(),.05),flowTime=riverFlowClock.elapsedTime;if(riverWaterTexture){riverWaterTexture.offset.x=(riverWaterTexture.offset.x+flowDelta*.035)%1;riverWaterTexture.offset.y=(riverWaterTexture.offset.y+flowDelta*.006)%1;}for(const item of riverMotionObjects){const wave=Math.sin(flowTime*item.speed+item.phase);item.mesh.position.x=item.baseX+Math.sin(flowTime*item.speed*.72+item.phase)*item.range;item.mesh.position.y=.092+Math.max(0,wave)*.018;const pulse=.78+.22*Math.sin(flowTime*item.speed*1.8+item.phase);item.mesh.scale.x=pulse;item.mesh.material.opacity=item.baseLength<.6?.13+.16*(.5+.5*wave):.12+.12*(.5+.5*wave)}for(const ring of riverRingObjects){const cycle=(flowTime*ring.speed+ring.phase)%(Math.PI*2),progress=(1-Math.cos(cycle))*.5;const radius=.12+progress*.72;ring.mesh.position.x=ring.baseX+Math.sin(flowTime*.31+ring.phase)*.12;ring.mesh.position.z=ring.baseZ+Math.cos(flowTime*.27+ring.phase)*.1;ring.mesh.scale.set(radius,1,radius*.72);ring.material.opacity=.2*(1-progress)}renderer.render(scene,camera)}animate();
 window.GREEN_WORLD_STARTUP_STAGE='renderer-running';
 window.GREEN_WORLD_MODULE_READY=true;window.GREEN_WORLD_STARTUP_STAGE='module-ready';window.dispatchEvent(new Event('green-world-renderer-ready'));
 window.addEventListener('green-world-auth',event=>{
