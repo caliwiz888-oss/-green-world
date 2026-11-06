@@ -518,6 +518,20 @@ function makeHouse(){
      manorRoofCtx.fillRect(x+5,y+3,52,1);
    }
  }
+ // Тонкие следы естественного выветривания различают черепичные пластины, не меняя их рисунок и форму.
+ for(let i=0;i<34;i++){
+   const row=(i*5+2)%16,offset=(row%2)*32,x=(i*47+offset+9)%250,y=row*16+4+(i%6);
+   const len=5+(i*9)%17;
+   manorRoofCtx.strokeStyle=i%4===0?'rgba(225,232,231,.075)':'rgba(20,27,34,.045)';
+   manorRoofCtx.lineWidth=.45+(i%3)*.18;manorRoofCtx.beginPath();
+   manorRoofCtx.moveTo(x,y);manorRoofCtx.quadraticCurveTo(x+len*.48,y-1.1,x+len,y+.4);manorRoofCtx.stroke();
+ }
+ // Едва заметные матовые участки смягчают равномерный блеск покрытия на крупных скатах.
+ for(let i=0;i<20;i++){
+   const row=(i*7+1)%16,x=(i*59+17)%248,y=row*16+5+(i%4);
+   manorRoofCtx.fillStyle=i%3===0?'rgba(225,220,205,.035)':'rgba(24,31,38,.028)';
+   manorRoofCtx.beginPath();manorRoofCtx.ellipse(x,y,3+(i%4)*1.4,1+(i%2),.08*(i%7),0,Math.PI*2);manorRoofCtx.fill();
+ }
  // Едва заметное зерно металла смягчает повторяемость текстуры при близком обзоре.
  for(let i=0;i<520;i++){
    const x=(i*73+19)%256,y=(i*151+37)%256;
