@@ -2814,6 +2814,27 @@ function makeWorldDecor(){
       postDiamond.rotation.y=Math.PI/4;
     }
   }
+  // Завершающая резьба верхушек столбов: ступенчатые накладки и неглубокие ромбовидные каменные знаки.
+  // Центральный въезд не затрагивается; все элементы остаются ниже силуэта арки.
+  for(let p=-14;p<=14;p+=3.5){
+    for(const z of [-14,14]){
+      if(z===14 && Math.abs(p)<3.8) continue;
+      box(world,.64,.035,.64,p,1.705,z,fenceBaseTrim,false);
+      box(world,.48,.025,.48,p,1.735,z,fenceLightTrim,false);
+      const capMark=box(world,.22,.025,.22,p,1.755,z,fenceRelief,false);
+      capMark.rotation.y=Math.PI/4;
+      box(world,.075,.028,.075,p,1.773,z,fenceBaseTrim,false);
+    }
+  }
+  for(const x of [-14,16.5]){
+    for(let p=-14;p<=14;p+=3.5){
+      box(world,.64,.035,.64,x,1.705,p,fenceBaseTrim,false);
+      box(world,.48,.025,.48,x,1.735,p,fenceLightTrim,false);
+      const capMark=box(world,.22,.025,.22,x,1.755,p,fenceRelief,false);
+      capMark.rotation.y=Math.PI/4;
+      box(world,.075,.028,.075,x,1.773,p,fenceBaseTrim,false);
+    }
+  }
   // Резные розетки на замковом камне арки: кольцо и центральный каменный кабошон.
   const gateRosetteRing=new THREE.Mesh(new THREE.TorusGeometry(.19,.026,8,36),fenceLightTrim);
   gateRosetteRing.position.set(0,5.02,14.475);
