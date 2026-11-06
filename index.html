@@ -475,6 +475,13 @@ function makeHouse(){
      masonryCtx.fillRect(x+2,y+2,92,28);
      masonryCtx.fillStyle='rgba(255,255,255,.12)';
      masonryCtx.fillRect(x+4,y+3,88,2);
+     // Едва заметный вертикальный светотеневой градиент подчёркивает плоскость каждого тесаного блока.
+     const faceShade=masonryCtx.createLinearGradient(0,y+4,0,y+25);
+     faceShade.addColorStop(0,'rgba(255,255,255,.035)');
+     faceShade.addColorStop(.55,'rgba(255,255,255,.008)');
+     faceShade.addColorStop(1,'rgba(48,45,39,.055)');
+     masonryCtx.fillStyle=faceShade;
+     masonryCtx.fillRect(x+4,y+5,88,20);
      // Мягкая фаска по нижнему краю каждого каменного блока добавляет читаемый объём без новых полигонов.
      masonryCtx.fillStyle='rgba(70,70,70,.10)';
      masonryCtx.fillRect(x+4,y+26,86,1);
@@ -545,7 +552,7 @@ function makeHouse(){
  masonryTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const masonryBump=masonryTexture.clone();masonryBump.colorSpace=THREE.NoColorSpace;masonryBump.needsUpdate=true;
  for(const material of [houseStone,houseStoneTrim]){
-   material.map=masonryTexture;material.bumpMap=masonryBump;material.bumpScale=.024;material.needsUpdate=true;
+   material.map=masonryTexture;material.bumpMap=masonryBump;material.bumpScale=.027;material.needsUpdate=true;
  }
  // Тёплая древесная текстура парадной двери: спокойные вертикальные волокна и редкие мягкие сучки.
  const doorCanvas=document.createElement('canvas');doorCanvas.width=256;doorCanvas.height=256;
