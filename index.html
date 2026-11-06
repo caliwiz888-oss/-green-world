@@ -2508,6 +2508,15 @@ function makeWorldLandscape(){
    foothillCtx.quadraticCurveTo(x+1.8,y-1.2,x+3.4,y-2.1+(i%3)*.5);
    foothillCtx.stroke();
  }
+ // Короткие прерывистые контурные тени подчёркивают складки дальних холмов без эффекта нарисованных полос.
+ for(let i=0;i<11;i++){
+   const x=(i*29+9)%128,y=(i*41+14)%128,len=16+(i*9)%25,bend=((i*7)%9)-4;
+   foothillCtx.strokeStyle=i%3===0?'rgba(43,70,48,.075)':'rgba(235,237,202,.065)';
+   foothillCtx.lineWidth=.45+(i%3)*.16;foothillCtx.beginPath();
+   foothillCtx.moveTo(x,y);
+   foothillCtx.bezierCurveTo(x+len*.25,y+bend,x+len*.7,y-bend*.4,x+len,y+bend*.2);
+   foothillCtx.stroke();
+ }
  const foothillTexture=new THREE.CanvasTexture(foothillCanvas);
  foothillTexture.colorSpace=THREE.SRGBColorSpace;foothillTexture.wrapS=foothillTexture.wrapT=THREE.RepeatWrapping;
  foothillTexture.repeat.set(2,1);foothillTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
