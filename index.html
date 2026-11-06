@@ -2517,6 +2517,20 @@ function makeWorldLandscape(){
    alpineRockCtx.quadraticCurveTo(x+len*.48,y+bend,x+len,y+bend*.35);
    alpineRockCtx.stroke();
  }
+ // Природные слоистые полосы и выветренные участки подчёркивают направление горных склонов.
+ for(let i=0;i<16;i++){
+   const y=(i*17+6)%128,x=(i*29+3)%128,len=28+(i*13)%55,bend=((i*7)%13)-6;
+   alpineRockCtx.strokeStyle=i%4===0?'rgba(225,232,218,.13)':'rgba(35,52,48,.075)';
+   alpineRockCtx.lineWidth=.55+(i%3)*.22;alpineRockCtx.beginPath();
+   alpineRockCtx.moveTo(x,y);
+   alpineRockCtx.bezierCurveTo(x+len*.28,y+bend,x+len*.67,y-bend*.45,x+len,y+bend*.2);
+   alpineRockCtx.stroke();
+ }
+ for(let i=0;i<38;i++){
+   const x=(i*41+17)%128,y=(i*59+7)%128,rx=2+(i%5),ry=.7+(i%3)*.35;
+   alpineRockCtx.fillStyle=i%3===0?'rgba(221,229,211,.09)':'rgba(32,49,45,.055)';
+   alpineRockCtx.beginPath();alpineRockCtx.ellipse(x,y,rx,ry,(i%7-3)*.12,0,Math.PI*2);alpineRockCtx.fill();
+ }
  const alpineRockTexture=new THREE.CanvasTexture(alpineRockCanvas);
  alpineRockTexture.colorSpace=THREE.SRGBColorSpace;
  alpineRockTexture.wrapS=alpineRockTexture.wrapT=THREE.RepeatWrapping;
