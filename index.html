@@ -2311,31 +2311,31 @@ function makeWorldDecor(){
   for(let p=-14;p<=14;p+=1.75){
     for(const z of [-14,14]){
       if(z===14 && Math.abs(p)<3.6) continue;
-      box(world,1.25,.55,.42,p,.27,z,fenceMat,false);
+      box(world,1.35,.90,.58,p,.45,z,fenceMat,false);
     }
     for(const x of [-14,16.5]){
-      box(world,.42,.55,1.25,x,.27,p,fenceMat,false);
+      box(world,.58,.90,1.35,x,.45,p,fenceMat,false);
     }
   }
   for(let p=-14;p<=14;p+=3.5){
     for(const z of [-14,14]){
       if(z===14 && Math.abs(p)<3.6) continue;
-      box(world,.58,.86,.58,p,.43,z,fenceMat,false);
-      box(world,.72,.13,.72,p,.91,z,fenceCap,false);
-      box(world,.38,.045,.38,p,.99,z,fenceJoint,false);
+      box(world,.76,1.28,.76,p,.64,z,fenceMat,false);
+      box(world,.94,.16,.94,p,1.34,z,fenceCap,false);
+      box(world,.50,.055,.50,p,1.45,z,fenceJoint,false);
     }
     for(const x of [-14,16.5]){
-      box(world,.58,.86,.58,x,.43,p,fenceMat,false);
-      box(world,.72,.13,.72,x,.91,p,fenceCap,false);
-      box(world,.38,.045,.38,x,.99,p,fenceJoint,false);
+      box(world,.76,1.28,.76,x,.64,p,fenceMat,false);
+      box(world,.94,.16,.94,x,1.34,p,fenceCap,false);
+      box(world,.50,.055,.50,x,1.45,p,fenceJoint,false);
     }
   }
   // Соединительные секции закрывают зазоры правых переднего и заднего углов.
   for(const z of [-14,14]){
-    box(world,2.5,.55,.42,15.25,.27,z,fenceMat,false);
-    box(world,.58,.86,.58,16.5,.43,z,fenceMat,false);
-    box(world,.72,.13,.72,16.5,.91,z,fenceCap,false);
-    box(world,.38,.045,.38,16.5,.99,z,fenceJoint,false);
+    box(world,2.7,.90,.58,15.25,.45,z,fenceMat,false);
+    box(world,.76,1.28,.76,16.5,.64,z,fenceMat,false);
+    box(world,.94,.16,.94,16.5,1.34,z,fenceCap,false);
+    box(world,.50,.055,.50,16.5,1.45,z,fenceJoint,false);
   }
 
   // Декоративная каменная отделка ограждения: цоколь, карниз и рельефные панели.
@@ -2343,63 +2343,63 @@ function makeWorldDecor(){
   // Непрерывный нижний цоколь и верхний каменный карниз по четырём сторонам.
   for(const z of [-14,14]){
     if(z===-14){
-      box(world,30.5,.18,.56,1.25,.10,z,fenceBaseTrim,false);
-      box(world,30.5,.12,.58,1.25,.69,z,fenceLightTrim,false);
-      box(world,30.5,.07,.62,1.25,.78,z,fenceBaseTrim,false);
+      box(world,30.5,.22,.68,1.25,.11,z,fenceBaseTrim,false);
+      box(world,30.5,.15,.70,1.25,1.10,z,fenceLightTrim,false);
+      box(world,30.5,.09,.74,1.25,1.20,z,fenceBaseTrim,false);
     }else{
       // Центральный проём перед мостом остаётся полностью свободным.
       for(const [length,cx] of [[10.4,-8.8],[12.9,10.05]]){
-        box(world,length,.18,.56,cx,.10,z,fenceBaseTrim,false);
-        box(world,length,.12,.58,cx,.69,z,fenceLightTrim,false);
-        box(world,length,.07,.62,cx,.78,z,fenceBaseTrim,false);
+        box(world,length,.22,.68,cx,.11,z,fenceBaseTrim,false);
+        box(world,length,.15,.70,cx,1.10,z,fenceLightTrim,false);
+        box(world,length,.09,.74,cx,1.20,z,fenceBaseTrim,false);
       }
     }
   }
   for(const x of [-14,16.5]){
-    box(world,.56,.18,28.4,x,.10,0,fenceBaseTrim,false);
-    box(world,.58,.12,28.4,x,.69,0,fenceLightTrim,false);
-    box(world,.62,.07,28.4,x,.78,0,fenceBaseTrim,false);
+    box(world,.68,.22,28.4,x,.11,0,fenceBaseTrim,false);
+    box(world,.70,.15,28.4,x,1.10,0,fenceLightTrim,false);
+    box(world,.74,.09,28.4,x,1.20,0,fenceBaseTrim,false);
   }
   // Рельефные вставки на фасадах стен, с небольшим отступом от поверхности.
   for(let p=-12.25;p<=12.25;p+=3.5){
     for(const z of [-14.24,14.24]){
       if(z===14.24 && Math.abs(p)<3.6) continue;
-      box(world,1.48,.24,.055,p,.43,z,fenceRelief,false);
-      box(world,1.12,.055,.075,p,.43,z+(z<0?-.035:.035),fenceLightTrim,false);
-      box(world,.10,.34,.075,p-.68,.43,z+(z<0?-.035:.035),fenceShadow,false);
-      box(world,.10,.34,.075,p+.68,.43,z+(z<0?-.035:.035),fenceShadow,false);
+      box(world,1.62,.34,.075,p,.68,z,fenceRelief,false);
+      box(world,1.24,.07,.095,p,.68,z+(z<0?-.045:.045),fenceLightTrim,false);
+      box(world,.12,.48,.095,p-.74,.68,z+(z<0?-.045:.045),fenceShadow,false);
+      box(world,.12,.48,.095,p+.74,.68,z+(z<0?-.045:.045),fenceShadow,false);
     }
     for(const x of [-14.24,16.74]){
-      box(world,.055,.24,1.48,x,.43,p,fenceRelief,false);
-      box(world,.075,.055,1.12,x+(x<0?-.035:.035),.43,p,fenceLightTrim,false);
-      box(world,.075,.34,.10,x+(x<0?-.035:.035),.43,p-.68,fenceShadow,false);
-      box(world,.075,.34,.10,x+(x<0?-.035:.035),.43,p+.68,fenceShadow,false);
+      box(world,.075,.34,1.62,x,.68,p,fenceRelief,false);
+      box(world,.095,.07,1.24,x+(x<0?-.045:.045),.68,p,fenceLightTrim,false);
+      box(world,.095,.48,.12,x+(x<0?-.045:.045),.68,p-.74,fenceShadow,false);
+      box(world,.095,.48,.12,x+(x<0?-.045:.045),.68,p+.74,fenceShadow,false);
     }
   }
   // Многослойные основания и широкие капители квадратных столбов.
   for(const x of [-14,16.5])for(const z of [-14,14]){
-    box(world,.84,.14,.84,x,.12,z,fenceBaseTrim,false);
-    box(world,.92,.12,.92,x,.98,z,fenceLightTrim,false);
-    box(world,.78,.10,.78,x,1.09,z,fenceBaseTrim,false);
-    box(world,.48,.08,.48,x,1.18,z,fenceRelief,false);
+    box(world,.98,.16,.98,x,.13,z,fenceBaseTrim,false);
+    box(world,1.08,.15,1.08,x,1.40,z,fenceLightTrim,false);
+    box(world,.92,.12,.92,x,1.52,z,fenceBaseTrim,false);
+    box(world,.58,.10,.58,x,1.64,z,fenceRelief,false);
   }
   for(let p=-14;p<=14;p+=3.5){
     for(const z of [-14,14]){
       if(z===14 && Math.abs(p)<3.6) continue;
-      box(world,.84,.12,.84,p,.12,z,fenceBaseTrim,false);
-      box(world,.92,.12,.92,p,.98,z,fenceLightTrim,false);
-      box(world,.78,.10,.78,p,1.09,z,fenceBaseTrim,false);
+      box(world,.98,.16,.98,p,.13,z,fenceBaseTrim,false);
+      box(world,1.08,.15,1.08,p,1.40,z,fenceLightTrim,false);
+      box(world,.92,.12,.92,p,1.52,z,fenceBaseTrim,false);
     }
     for(const x of [-14,16.5]){
-      box(world,.84,.12,.84,x,.12,p,fenceBaseTrim,false);
-      box(world,.92,.12,.92,x,.98,p,fenceLightTrim,false);
-      box(world,.78,.10,.78,x,1.09,p,fenceBaseTrim,false);
+      box(world,.98,.16,.98,x,.13,p,fenceBaseTrim,false);
+      box(world,1.08,.15,1.08,x,1.40,p,fenceLightTrim,false);
+      box(world,.92,.12,.92,x,1.52,p,fenceBaseTrim,false);
     }
   }
   // Входные столбы по краям центральной дорожки.
   for(const x of [-3.5,3.5]){
-    box(world,.72,1.05,.72,x,.525,14,fenceMat,false);
-    box(world,.88,.15,.88,x,.1125+1,14,fenceCap,false);
+    box(world,.92,1.45,.92,x,.725,14,fenceMat,false);
+    box(world,1.08,.18,1.08,x,1.525,14,fenceCap,false);
   }
   // Fountain, entrance arch, lamps and crop beds are omitted.
  // Low ornamental ground cover and natural stone clusters around the outer border.
