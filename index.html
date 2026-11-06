@@ -322,7 +322,8 @@ const world=group(scene,0,0,0);
 box(world,76,.55,76,0,-.42,0,M.grass,false);
 box(world,26,.12,26,0,-.08,0,M.grass2,false);
 function makeHouse(){
- const g=group(world,-3,0,-10);
+ // Центрируем главный вход строго по оси центральной дорожки и моста.
+ const g=group(world,0,0,-10);
  // Индивидуальная фактура светлого тесаного камня главного дома: тонкие швы и мягкая неоднородность.
  const houseStone=M.stone.clone(),houseStoneTrim=M.stone2.clone();
  const masonryCanvas=document.createElement('canvas');masonryCanvas.width=masonryCanvas.height=256;
@@ -1812,7 +1813,8 @@ function makeMarket(){
 
 function makeFactory(){
  // Keep the factory in its approved back-right position and inside the camera frame.
- const g=group(world,9.35,0,-8.8);
+ // Отодвинут немного назад, чтобы фасадная линия совпадала с главным домом.
+ const g=group(world,9.35,0,-10);
  const brick=mat(0x9b5943),brickLight=mat(0xb96c50),darkMetal=mat(0x39474a),metal=mat(0x657477),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
  // Отдельное заводское остекление: спокойные отражения не затрагивают окна главного дома.
  const factoryGlassCanvas=document.createElement('canvas');factoryGlassCanvas.width=128;factoryGlassCanvas.height=128;
@@ -3510,7 +3512,7 @@ function drawPlayer(){
     for(const child of [...world.children])if(!factoryChildrenBefore.has(child))world.remove(child);
   }
   if(!factory){
-    factory=group(world,9.35,0,-8.8);
+    factory=group(world,9.35,0,-10);
     const fallbackBrick=mat(0x985b43),fallbackStone=mat(0xb5a58b),fallbackRoof=mat(0x39474a);
     box(factory,7.25,3.35,5.25,0,1.85,0,fallbackBrick);
     box(factory,7.55,.24,5.5,0,3.62,0,fallbackStone);
