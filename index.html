@@ -2270,6 +2270,7 @@ function makeFlowerBed(x,z){
 }
 function makeWorldDecor(){
   // Открытая территория без забора. Каменная дорожка идёт от порога дома прямо к мосту.
+  const sidePathBase=mat(0xd7c49e,.9),sidePathTile=mat(0xe8ddc5,.92),sidePathJoint=mat(0xbba985,.95);
   for(let i=0;i<21;i++){
     const z=-10.5+i*1.35;
     box(world,1.35,.14,1.35,-.675,.04,z,M.stone2,false);
@@ -2284,7 +2285,6 @@ function makeWorldDecor(){
   box(world,1.15,.16,2.1,-1.85,.045,-4.55,sidePathBase,false);
   box(world,1.15,.16,2.1,1.85,.045,-4.55,sidePathBase,false);
   // Соединительные дорожки связывают входы лавки и завода с центральной дорогой у дома.
-  const sidePathBase=mat(0xd7c49e,.9),sidePathTile=mat(0xe8ddc5,.92),sidePathJoint=mat(0xbba985,.95);
   // Левая ветка подходит к передней площадке торговой лавки.
   box(world,9.1,.16,2.05,-5.55,.035,-4.55,sidePathBase,false);
   for(let ix=0;ix<9;ix++)for(let iz=0;iz<2;iz++){
