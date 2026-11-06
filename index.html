@@ -2449,6 +2449,30 @@ function makeWorldDecor(){
   box(world,.68,.11,.32,0,5.52,14.12,fenceLightTrim,false);
   const gateCrest= new THREE.Mesh(new THREE.OctahedronGeometry(.25,0),fenceCap);
   gateCrest.position.set(0,5.78,14.18);gateCrest.scale.set(.9,1.15,.42);gateCrest.castShadow=false;gateCrest.receiveShadow=false;world.add(gateCrest);
+  // Ромбовидный щит герба: многослойная каменная рамка с золотым центральным медальоном.
+  const crestFrame=box(world,.62,.62,.045,0,5.78,14.455,fenceBaseTrim,false);
+  crestFrame.rotation.z=Math.PI/4;
+  const crestInset=box(world,.48,.48,.055,0,5.78,14.49,fenceLightTrim,false);
+  crestInset.rotation.z=Math.PI/4;
+  const crestCenter=cylinder(world,.145,.145,.055,0,5.78,14.555,M.gold,20);
+  crestCenter.rotation.x=Math.PI/2;
+  crestCenter.castShadow=false;crestCenter.receiveShadow=false;world.add(crestCenter);
+  const crestCore=sphere(world,.075,0,5.78,14.59,fenceCap,.9);
+  crestCore.scale.z=.3;crestCore.castShadow=false;crestCore.receiveShadow=false;
+  // Четыре небольших каменных лепестка образуют симметричную корону вокруг щита.
+  for(const side of [-1,1]){
+    const upperLeaf=sphere(world,.105,side*.36,5.91,14.48,fenceRelief,.9);
+    upperLeaf.scale.set(1.45,.48,.32);upperLeaf.rotation.z=side*.62;
+    upperLeaf.castShadow=false;upperLeaf.receiveShadow=false;
+    const lowerLeaf=sphere(world,.09,side*.31,5.64,14.48,fenceRelief,.9);
+    lowerLeaf.scale.set(1.35,.46,.32);lowerLeaf.rotation.z=-side*.58;
+    lowerLeaf.castShadow=false;lowerLeaf.receiveShadow=false;
+  }
+  // Тонкая золотистая окантовка подчёркивает вершину герба.
+  for(const side of [-1,1]){
+    const crestStud=cylinder(world,.035,.035,.028,side*.205,5.78,14.565,M.gold,10);
+    crestStud.rotation.x=Math.PI/2;crestStud.castShadow=false;crestStud.receiveShadow=false;world.add(crestStud);
+  }
   // Резной центральный знак на замковом камне и ступенчатая корона над ним.
   const keystoneFrame=box(world,.34,.34,.055,0,5.02,14.475,fenceBaseTrim,false);
   keystoneFrame.rotation.z=Math.PI/4;
