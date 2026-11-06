@@ -1466,16 +1466,19 @@ function makeHouse(){
  for(let ix=0;ix<5;ix++)for(let iz=0;iz<2;iz++){
    box(g,.96,.035,.62,-1.92+ix*.96,.112,4.58+iz*.66,ix%2?M.stone:M.stone2,false);
  }
- // Ступенчатый каменный цоколь по всему периметру главного дома,
- // от нижней кромки фасада до земли, в той же архитектуре, что и основание фабрики.
- // Пояса вынесены за внешний край нижней облицовочной плиты, чтобы не скрываться внутри неё.
- for(const z of [-4.28,4.28]){
-   box(g,10.58,.18,.30,0,.09,z,houseStoneTrim,false);
-   box(g,10.42,.26,.24,0,.31,z,houseStone,false);
+ // Ступенчатый цоколь вокруг всего дома — по форме как у лавки,
+ // но из более тёмного серо-бежевого камня, чтобы контрастировал со светлой кладкой.
+ const housePlinthBase=M.stone2.clone();
+ housePlinthBase.color.setHex(0x77766f);
+ const housePlinthCap=M.stone.clone();
+ housePlinthCap.color.setHex(0x99958a);
+ for(const z of [-4.34,4.34]){
+   box(g,10.72,.42,.38,0,.22,z,housePlinthBase,false);
+   box(g,10.82,.12,.44,0,.49,z,housePlinthCap,false);
  }
- for(const x of [-5.28,5.28]){
-   box(g,.30,.18,8.48,x,.09,0,houseStoneTrim,false);
-   box(g,.24,.26,8.28,x,.31,0,houseStone,false);
+ for(const x of [-5.34,5.34]){
+   box(g,.38,.42,8.52,x,.22,0,housePlinthBase,false);
+   box(g,.44,.12,8.62,x,.49,0,housePlinthCap,false);
  }
 
  return disableCastShadows(g);
