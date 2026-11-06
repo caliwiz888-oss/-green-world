@@ -1501,9 +1501,9 @@ function makeMarket(){
  const marketGlass=M.glass.clone();
  const g=group(world,-10.8,0,-8.5);g.rotation.y=0;g.scale.setScalar(1.2);
  const timber=mat(0x765039,.78),timberLight=mat(0xa8794e,.72);
- const roof=new THREE.MeshStandardMaterial({color:0x477a4b,roughness:.76,metalness:.035});
- const roofEdge=new THREE.MeshStandardMaterial({color:0x294a31,roughness:.82,metalness:.025});
- const roofAccent=new THREE.MeshStandardMaterial({color:0x8eae70,roughness:.72,metalness:.04});
+ const roof=new THREE.MeshStandardMaterial({color:0x34483a,roughness:.84,metalness:.015});
+ const roofEdge=new THREE.MeshStandardMaterial({color:0x202e25,roughness:.88,metalness:.01});
+ const roofAccent=new THREE.MeshStandardMaterial({color:0x52664d,roughness:.84,metalness:.01});
  const counter=mat(0xd2c2a0,.82),dark=mat(0x35443d,.72);
  const warm=new THREE.MeshStandardMaterial({color:0xe8bd78,emissive:0x8a4b18,emissiveIntensity:.2,roughness:.7});
  // Низкое каменное основание и широкая торговая площадка.
@@ -1521,7 +1521,7 @@ function makeMarket(){
  // Плоская широкая кровля с выступающим козырьком — главный отличительный силуэт лавки.
  box(g,6.65,.24,6.65,0,3.48,0,roofEdge);
  box(g,6.48,.16,6.48,0,3.66,0,roof);
- box(g,6.22,.08,6.22,0,3.79,0,M.gold,false);
+ box(g,6.22,.08,6.22,0,3.79,0,roofEdge,false);
  // Неглубокий центральный фонарь-клересторий вместо домового фронтона.
  box(g,2.45,.34,1.15,0,3.98,-.55,dark);
  for(const x of [-.82,-.28,.28,.82])box(g,.07,.26,1.05,x,3.99,-.55,M.gold,false);
@@ -4295,7 +4295,7 @@ function drawPlayer(){
     for(const child of [...world.children])if(!marketChildrenBefore.has(child))world.remove(child);
     const fallback=group(world,-10.8,0,-8.5);
     fallback.scale.setScalar(1.2);
-    const shopWall=mat(0xd6c7a8),shopTimber=mat(0x70472d),shopRoof=new THREE.MeshStandardMaterial({color:0x477a4b,roughness:.76,metalness:.035}),shopTrim=mat(0xc8b898);
+    const shopWall=mat(0xd6c7a8),shopTimber=mat(0x70472d),shopRoof=new THREE.MeshStandardMaterial({color:0x34483a,roughness:.84,metalness:.015}),shopTrim=mat(0xc8b898);
     // Matching stone plinth for the fallback storefront, visible around the full building perimeter.
     const fallbackPlinthBase=M.stone2.clone();fallbackPlinthBase.color.setHex(0x626663);fallbackPlinthBase.roughness=.88;
     const fallbackPlinthCap=M.stone.clone();fallbackPlinthCap.color.setHex(0x858982);fallbackPlinthCap.roughness=.82;
