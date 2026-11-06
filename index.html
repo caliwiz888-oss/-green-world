@@ -784,7 +784,19 @@ function makeHouse(){
    box(g,.3,.12,.18,x,.42,4.08,manorFacadeTrim,false);
    box(g,.24,.07,.22,x,4.19,4.09,M.gold,false);
  }
- // Fine horizontal string course ties the front elevation together.
+ // Нижние каменные филёнки заполняют простенки под окнами и поддерживают ритм фасада.
+  for(const x of [-3.25,-1.95,1.95,3.25]){
+    const width=Math.abs(x)>2.5?1.12:.92;
+    box(g,width,.62,.075,x,1.12,4.12,houseStoneTrim,false);
+    box(g,width-.12,.48,.045,x,1.12,4.17,housePlinthBase,false);
+    box(g,width-.22,.34,.035,x,1.12,4.20,manorFacadeTrim,false);
+    box(g,width+.08,.065,.13,x,.78,4.14,housePlinthCap,false);
+    box(g,width+.08,.055,.13,x,1.46,4.14,housePlinthCap,false);
+    for(const dx of [-width*.42,width*.42]){
+      box(g,.035,.5,.045,x+dx,1.12,4.22,M.gold,false);
+    }
+  }
+  // Fine horizontal string course ties the front elevation together.
  box(g,9.72,.12,.16,0,3.88,4.075,manorFacadeTrim,false);
  box(g,9.72,.055,.18,0,3.98,4.09,M.gold,false);
  // Reflective inset glazing and delicate muntins give the front windows real depth.
