@@ -4819,9 +4819,15 @@ function makeWorldLandscape(){
     new THREE.InstancedMesh(leafyCrownGeometries[species],material,leafyTreeData.length*6)
   );
   // Мелкие листовые пучки поверх крупных объёмов: крона читается как листва, а не как гладкий шар.
-  const leafClusterGeometry=new THREE.SphereGeometry(1,8,6);
+  const leafClusterGeometry=new THREE.SphereGeometry(1,10,8);
+  const leafToneMaterials=[
+    mat(0x4f7845,.99),mat(0x719653,.99),mat(0x91a965,.99)
+  ];
   const leafClusterBatches=leafyMaterials.map(material=>
-    new THREE.InstancedMesh(leafClusterGeometry,material,leafyTreeData.length*30)
+    new THREE.InstancedMesh(leafClusterGeometry,material,leafyTreeData.length*16)
+  );
+  const leafClusterShadeBatches=leafToneMaterials.map(material=>
+    new THREE.InstancedMesh(leafClusterGeometry,material,leafyTreeData.length*16)
   );
   const secondaryBranchBatch=new THREE.InstancedMesh(new THREE.CylinderGeometry(.012,.038,1,7,1),leafyBranchMat,leafyTreeData.length*6);
   const secondaryBirchBranchBatch=new THREE.InstancedMesh(new THREE.CylinderGeometry(.012,.034,1,7,1),birchTrunkMat,leafyTreeData.length*6);
@@ -4891,24 +4897,29 @@ function makeWorldLandscape(){
       leafyDummy.rotation.set(.04*((i+lobe)%3),angle,.035*((i+lobe)%4));
       leafyDummy.updateMatrix();leafyCrownBatches[species].setMatrixAt(i*6+lobe,leafyDummy.matrix);
     }
-    // Тридцать небольших листовых пучков с разным размером и направлением на каждом дереве.
-    for(let leaf=0;leaf<30;leaf++){
+    // Мелкие листовые группы распределены по неровной поверхности кроны, а не по идеальному шару.
+    // Три оттенка смешиваются внутри каждой кроны; плотность и силуэт зависят от вида дерева.
+    const crownSpread=species===1?.69:species===2?1.08:.91;
+    const crownTall=species===1?1.18:species===2?.88:1.04;
+    for(let leaf=0;leaf<48;leaf++){
       const a=leaf*2.399963+i*.37;
-      const vertical=((leaf*7)%29)/29*2-1;
-      const radial=Math.sqrt(1-vertical*vertical);
-      const spread=species===1?.62:species===2?1.02:.82;
-      const crownY=h*.76+vertical*(species===1?.78:.63);
-      const leafX=tree.x+Math.cos(a)*radial*spread;
-      const leafZ=tree.z+Math.sin(a)*radial*spread;
+      const vertical=(((leaf*17+i*11)%47)/46)*2-1;
+      const radial=Math.sqrt(Math.max(.04,1-vertical*vertical));
+      const irregular=1+Math.sin(leaf*1.73+i*.61)*.13+Math.cos(leaf*.47+i)*.07;
+      const spread=crownSpread*radial*irregular;
+      const crownY=h*.76+vertical*crownTall*.66+Math.sin(a*2.1)*.055;
+      const leafX=tree.x+Math.cos(a)*spread;
+      const leafZ=tree.z+Math.sin(a)*spread;
       leafyDummy.position.set(leafX,crownY,leafZ);
-      const size=.105+((leaf*13+i*3)%7)*.012;
-      leafyDummy.scale.set(size*(species===1?.82:1.15),size*.62,size);
+      const size=(.09+((leaf*13+i*3)%9)*.012)*(species===1?.86:species===2?1.18:1);
+      leafyDummy.scale.set(size*(species===2?1.2:1),size*(.55+((leaf+i)%4)*.09),size);
       leafyDummy.rotation.set((leaf%5)*.19,a,(leaf%7-3)*.12);
       leafyDummy.updateMatrix();
-      leafClusterBatches[species].setMatrixAt(i*30+leaf,leafyDummy.matrix);
+      const tone=leaf%3,slot=i*16+Math.floor(leaf/3);
+      (tone===0?leafClusterBatches:leafClusterShadeBatches)[species].setMatrixAt(slot,leafyDummy.matrix);
     }
   }
-  for(const batch of [leafyTrunkBatch,birchTrunkBatch,branchBatch,birchBranchBatch,secondaryBranchBatch,secondaryBirchBranchBatch,birchMarkBatch,...leafyCrownBatches,...leafClusterBatches]){
+  for(const batch of [leafyTrunkBatch,birchTrunkBatch,branchBatch,birchBranchBatch,secondaryBranchBatch,secondaryBirchBranchBatch,birchMarkBatch,...leafyCrownBatches,...leafClusterBatches,...leafClusterShadeBatches]){
     batch.instanceMatrix.needsUpdate=true;
     batch.castShadow=false;batch.receiveShadow=false;world.add(batch);
   }
