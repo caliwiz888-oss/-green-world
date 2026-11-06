@@ -1659,6 +1659,27 @@ function makeMarket(){
    const oppositeSupport=box(g,.16,.32,.11,-3.02,3.23,z,roofEdge,false);
    oppositeSupport.rotation.z=-.28;
  }
+ // Открытая нижняя сторона кровли получает деревянный каркас, видимый из торгового зала.
+ for(const z of [-2.48,0,2.48]){
+   box(g,5.72,.105,.15,0,3.16,z,timber,false);
+   box(g,5.76,.035,.17,0,3.225,z,roofAccent,false);
+   for(const x of [-2.72,-1.82,-.91,0,.91,1.82,2.72]){
+     box(g,.11,.13,.19,x,3.16,z,roofEdge,false);
+   }
+ }
+ // Продольные балки замыкают потолочную решётку по бокам павильона.
+ for(const x of [-2.48,2.48]){
+   box(g,.15,.105,5.72,x,3.16,0,timber,false);
+   box(g,.17,.035,5.76,x,3.225,0,roofAccent,false);
+   for(const z of [-2.72,-1.82,-.91,.91,1.82,2.72]){
+     box(g,.19,.13,.11,x,3.16,z,roofEdge,false);
+   }
+ }
+ // Небольшие каменные розетки отмечают четыре узла потолочного каркаса.
+ for(const x of [-2.48,2.48])for(const z of [-2.48,2.48]){
+   box(g,.24,.045,.24,x,3.245,z,M.stone2,false);
+   box(g,.13,.025,.13,x,3.28,z,roofAccent,false);
+ }
  // Небольшая задняя дверь для хозяйственного доступа.
  box(g,1.12,1.85,.12,0,1.45,-2.22,timber);
  box(g,.88,1.55,.045,0,1.45,-2.29,timberLight,false);
