@@ -774,6 +774,9 @@ function makeHouse(){
      rib.rotation.y=-ang;
    }
    cylinder(t,.1,.1,.85,0,8.82,0,towerGoldMaterial,8);
+   // Тонкие декоративные обоймы уточняют профиль вертикального стержня навершия.
+   cylinder(t,.125,.125,.045,0,9.08,0,towerGoldMaterial,8);
+   cylinder(t,.135,.135,.035,0,9.18,0,towerGoldMaterial,8);
    // Многоступенчатое латунное навершие завершает шатёр без изменения его силуэта.
    cylinder(t,.17,.17,.1,0,8.48,0,towerGoldMaterial,8);
    sphere(t,.105,0,9.27,0,towerGoldMaterial,.9);
