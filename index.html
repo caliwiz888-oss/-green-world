@@ -283,6 +283,13 @@ function makeSurfaceTexture(kind,seed){
    ctx.lineWidth=.5+rand()*.55;ctx.beginPath();ctx.moveTo(x,y);
    ctx.quadraticCurveTo(x+len*.48,y+bend,x+len,y+bend*.25);ctx.stroke();
   }
+  // Мягкие участки естественного выветривания связывают песчинки и слоистые следы в цельную поверхность.
+  for(let i=0;i<18;i++){
+   const x=rand()*size,y=rand()*size,rx=10+rand()*24,ry=4+rand()*10;
+   const shade=rand()>.5?'rgba(222,194,145,.045)':'rgba(63,51,39,.035)';
+   ctx.fillStyle=shade;ctx.beginPath();
+   ctx.ellipse(x,y,rx,ry,(rand()-.5)*.7,0,Math.PI*2);ctx.fill();
+  }
  }
  }
  const texture=new THREE.CanvasTexture(canvas);
