@@ -207,10 +207,10 @@ window.GREEN_WORLD_STARTUP_STAGE='three-loaded';
 const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
 let token='';
-let cameraRadius=55,cameraHeight=31;
+let cameraRadius=67,cameraHeight=38;
 let buildingObjects=[];
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,78,175);
-const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,3.5,130);
+const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,3.5,160);
 // Более близкая near-плоскость и ограниченный far-диапазон повышают точность depth buffer и уменьшают z-fighting на мобильных GPU.
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance',reversedDepthBuffer:true});
 window.GREEN_WORLD_STARTUP_STAGE='webgl-ready';
@@ -3345,7 +3345,7 @@ function applyPlayer(){$('login').style.display='none';try{drawPlayer()}catch(e)
 async function request(path,body=null,retry=true){const opts={method:body===null?'GET':'POST',credentials:'include',headers:{'Content-Type':'application/json'}};if(token)opts.headers.Authorization='Bearer '+token;if(body!==null)opts.body=JSON.stringify(body);let res=await fetch(API+path,opts);if(res.status===401&&retry&&!['/api/auth/telegram','/api/auth/refresh'].includes(path)){const rr=await fetch(API+'/api/auth/refresh',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'}});if(rr.ok){token=(await rr.json()).accessToken;return request(path,body,false)}}const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Ошибка сервера '+res.status);return data}
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2600)}
 async function login(){const tg=window.Telegram?.WebApp;const initData=tg?.initData||'';if(!initData){$('login-error').textContent='Открой игру из Telegram-бота, чтобы войти.';return}try{tg.ready();tg.expand();$('login-error').textContent='Подключаем аккаунт…';const data=await request('/api/auth/telegram',{initData},false);token=data.accessToken;applyPlayer()}catch(e){$('login-error').textContent='Не удалось войти: '+e.message}}
-function cameraPosition(){camera.position.set(13.5,cameraHeight,cameraRadius);camera.lookAt(0,.8,-1.5)}
+function cameraPosition(){camera.position.set(0,cameraHeight,cameraRadius);camera.lookAt(0,.8,-1.5)}
 
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
 // Плавное течение реки: сдвигаем карту бликов по руслу, сохраняя непрерывность текстуры.
