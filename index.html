@@ -4716,7 +4716,7 @@ function makeWorldLandscape(){
  naturalMountain.castShadow=false;naturalMountain.receiveShadow=false;world.add(naturalMountain);
  // Дальний план — низкие размытые горные гряды, чтобы сохранить широкую полосу открытого неба.
  const farRockBack=mat(0x858178),farSnowBack=mat(0xcbd9d6);
- farRockBack.map=alpineRockTexture;farRockBack.bumpMap=alpineRockBump;farRockBack.bumpScale:.025;farRockBack.roughness=.99;farRockBack.needsUpdate=true;
+ farRockBack.map=alpineRockTexture;farRockBack.bumpMap=alpineRockBump;farRockBack.bumpScale=.025;farRockBack.roughness=.99;farRockBack.needsUpdate=true;
  farSnowBack.map=snowTexture;farSnowBack.bumpMap=snowBump;farSnowBack.bumpScale=.008;farSnowBack.roughness=.99;farSnowBack.needsUpdate=true;
  const distantRidgePositions=[],distantRidgeIndices=[];
  const distantNX=144,distantNZ=18;
