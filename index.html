@@ -2835,6 +2835,30 @@ function makeWorldDecor(){
       box(world,.075,.028,.075,x,1.773,p,fenceBaseTrim,false);
     }
   }
+  // Небольшие замковые камни на верхнем поясе ограды подчёркивают ритм кладки.
+  // Они размещены только на прямых участках и обходят центральный въезд.
+  for(const z of [-14,14]){
+    const faceZ=z+(z<0?-.445:.445);
+    const spans=z===14?[[-14,-3.8],[3.8,16.5]]:[[-14,16.5]];
+    for(const [start,end] of spans){
+      for(let p=start+1.75;p<end-.8;p+=3.5){
+        const block=box(world,.42,.105,.055,p,1.355,faceZ,fenceRelief,false);
+        block.rotation.z=0;
+        box(world,.24,.025,.065,p,1.365,faceZ+(z<0?-.018:.018),fenceLightTrim,false);
+        const pin=cylinder(world,.028,.028,.022,p,1.355,faceZ+(z<0?-.045:.045),fenceBaseTrim,8);
+        pin.rotation.x=Math.PI/2;pin.castShadow=false;pin.receiveShadow=false;world.add(pin);
+      }
+    }
+  }
+  for(const x of [-14,16.5]){
+    const faceX=x+(x<0?-.445:.445);
+    for(let p=-12.25;p<=12.25;p+=3.5){
+      box(world,.055,.105,.42,faceX,1.355,p,fenceRelief,false);
+      box(world,.065,.025,.24,faceX+(x<0?-.018:.018),1.365,p,fenceLightTrim,false);
+      const pin=cylinder(world,.028,.028,.022,faceX+(x<0?-.045:.045),1.355,p,fenceBaseTrim,8);
+      pin.rotation.z=Math.PI/2;pin.castShadow=false;pin.receiveShadow=false;world.add(pin);
+    }
+  }
   // Резные розетки на замковом камне арки: кольцо и центральный каменный кабошон.
   const gateRosetteRing=new THREE.Mesh(new THREE.TorusGeometry(.19,.026,8,36),fenceLightTrim);
   gateRosetteRing.position.set(0,5.02,14.475);
