@@ -2505,6 +2505,35 @@ function makeWorldDecor(){
     box(world,1.35,.14,1.35,-.675,.04,z,M.stone2,false);
     box(world,1.35,.14,1.35,.675,.04,z,M.stone2,false);
   }
+  // Каменное ограждение по всему периметру; центральный проём оставлен для дороги с моста.
+  const fenceMat=mat(0xbeb294),fenceCap=mat(0xe0d4b8),fenceJoint=mat(0x9f9276);
+  for(let p=-14;p<=14;p+=1.75){
+    for(const z of [-14,14]){
+      if(z===14 && Math.abs(p)<3.6) continue;
+      box(world,1.25,.55,.42,p,.27,z,fenceMat,false);
+    }
+    for(const x of [-14,14]){
+      box(world,.42,.55,1.25,x,.27,p,fenceMat,false);
+    }
+  }
+  for(let p=-14;p<=14;p+=3.5){
+    for(const z of [-14,14]){
+      if(z===14 && Math.abs(p)<3.6) continue;
+      box(world,.58,.86,.58,p,.43,z,fenceMat,false);
+      box(world,.72,.13,.72,p,.91,z,fenceCap,false);
+      box(world,.38,.045,.38,p,.99,z,fenceJoint,false);
+    }
+    for(const x of [-14,14]){
+      box(world,.58,.86,.58,x,.43,p,fenceMat,false);
+      box(world,.72,.13,.72,x,.91,p,fenceCap,false);
+      box(world,.38,.045,.38,x,.99,p,fenceJoint,false);
+    }
+  }
+  // Входные столбы по краям центральной дорожки.
+  for(const x of [-3.5,3.5]){
+    box(world,.72,1.05,.72,x,.525,14,fenceMat,false);
+    box(world,.88,.15,.88,x,.1125+1,14,fenceCap,false);
+  }
   // Fountain, entrance arch, lamps and crop beds are omitted.
  // Low ornamental ground cover and natural stone clusters around the outer border.
  const shrubMat=mat(0x477f3d),rockMat=mat(0x8b8979);
