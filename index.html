@@ -655,16 +655,17 @@ function makeHouse(){
  manorRoofTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const manorRoofBump=manorRoofTexture.clone();manorRoofBump.colorSpace=THREE.NoColorSpace;manorRoofBump.needsUpdate=true;
  const manorRoofMaterial=M.roof.clone();
- // Холодный тёмный сланцево-серый оттенок вместо красной кровли главного дома.
- manorRoofMaterial.color.setHex(0x46545a);
+ // Глубокий хвойно-зелёный тон основной кровли главного дома.
+  manorRoofMaterial.color.setHex(0x293f35);
  manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.009;manorRoofMaterial.roughness=.7;manorRoofMaterial.metalness=.2;manorRoofMaterial.needsUpdate=true;
  // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
  const roofL=box(g,3.95,.34,8.9,-1.93,5.72,0,manorRoofMaterial);roofL.rotation.z=.58;
  const roofR=box(g,3.95,.34,8.9,1.43,5.72,0,manorRoofMaterial);roofR.rotation.z=-.58;
   // Основные скаты оставлены цельными: убраны накладные ряды и черепица, создававшие мерцание.
  // Карнизные балки вдоль обоих скатов закрывают торцы кровли и подчёркивают её толщину.
- for(const [x,y,angle] of [[-3.55,4.63,.58],[3.09,4.78,-.58]]){
-   const fascia=box(g,.2,.24,9.02,x,y,0,M.wood2);
+ const manorRoofEdgeMaterial=new THREE.MeshStandardMaterial({color:0x34483a,roughness:.86,metalness:.015});
+  for(const [x,y,angle] of [[-3.55,4.63,.58],[3.09,4.78,-.58]]){
+    const fascia=box(g,.2,.24,9.02,x,y,0,manorRoofEdgeMaterial,false);
    fascia.rotation.z=angle;
    // Ритмичные резные кронштейны поддерживают длинный карниз главного дома.
    for(const z of [-3.65,-2.2,-.73,.73,2.2,3.65]){
@@ -675,16 +676,14 @@ function makeHouse(){
  }
  // Коньковая накладка закрывает стык скатов и завершает силуэт крыши.
  const manorRidgeMaterial=M.roof2.clone();
- manorRidgeMaterial.color.setHex(0x303c42);
+ manorRidgeMaterial.color.setHex(0x202a26);
  manorRidgeMaterial.roughness=.82;manorRidgeMaterial.metalness=.08;manorRidgeMaterial.needsUpdate=true;
  const ridge=cylinder(g,.13,.13,9.02,-.25,6.82,0,manorRidgeMaterial,12);
  ridge.rotation.x=Math.PI/2;
  // Небольшие латунные стяжки на коньке визуально соединяют секции кровельного покрытия.
  for(const z of [-3.55,-2.15,-.72,.72,2.15,3.55]){
-   const ridgeBand=cylinder(g,.145,.145,.055,-.25,6.82,z,M.gold,16);
-   ridgeBand.rotation.x=Math.PI/2;
-   const bandHighlight=cylinder(g,.151,.151,.018,-.25,6.82,z+.035,houseStoneTrim,16);
-   bandHighlight.rotation.x=Math.PI/2;
+   const ridgeBand=cylinder(g,.145,.145,.055,-.25,6.82,z,manorRidgeMaterial,16);
+    ridgeBand.rotation.x=Math.PI/2;
  }
  // Compact stone-and-brass ridge finials finish both visible ends of the manor roof.
  for(const z of [-4.52,4.52]){
@@ -904,8 +903,8 @@ function makeHouse(){
  towerStoneMaterial.color.setHex(0xdedbd2);towerStoneMaterial.roughness=.92;towerStoneMaterial.bumpScale=.026;towerStoneMaterial.needsUpdate=true;
  const towerTrimMaterial=houseStoneTrim.clone();
  towerTrimMaterial.color.setHex(0xeee9df);towerTrimMaterial.roughness=.9;towerTrimMaterial.needsUpdate=true;
- const towerRoofMaterial=new THREE.MeshStandardMaterial({color:0x3d5350,roughness:.82,metalness:.06});
- const towerRoofLine=new THREE.MeshStandardMaterial({color:0x68766c,roughness:.86,metalness:.04});
+ const towerRoofMaterial=new THREE.MeshStandardMaterial({color:0x293f35,roughness:.86,metalness:.025});
+  const towerRoofLine=new THREE.MeshStandardMaterial({color:0x526456,roughness:.88,metalness:.015});
  const towerMetal=new THREE.MeshStandardMaterial({color:0xb99a61,roughness:.48,metalness:.48});
  const towerWindow=mat(0x263b40,.34);
  // Две башни остаются на прежних углах главного дома.
