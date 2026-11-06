@@ -3614,7 +3614,6 @@ function makeWorldDecor(){
   }
   // Новая архитектура ограды: ритмичные каменные аркады над верхним карнизом.
   // Арочные пролёты добавляют выразительный силуэт, не меняя периметр, проезды и расположение объектов.
-  const fenceArcMaterials=[fenceLightTrim,fenceRelief,fenceBaseTrim];
   const addFenceArc=(points,material,radius)=>{
     const curve=new THREE.CatmullRomCurve3(points);
     const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,28,radius,7,false),material);
@@ -3628,7 +3627,7 @@ function makeWorldDecor(){
       for(let cx=start+1.75;cx<end-1.1;cx+=3.5){
         const left=cx-1.28,right=cx+1.28,baseY=1.36,apexY=1.78;
         for(const px of [left,right]){
-          const pier=box(world,.13,.40,.13,px,1.49,z,fenceBaseTrim,false);
+          box(world,.13,.40,.13,px,1.49,z,fenceBaseTrim,false);
           box(world,.19,.055,.19,px,1.70,z,fenceLightTrim,false);
           const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.105,0),fenceRelief);
           finial.position.set(px,1.79,z);finial.scale.set(.78,1.25,.78);
@@ -3654,7 +3653,7 @@ function makeWorldDecor(){
     }
   }
   for(const side of ["left","right"]){
-    const x=side==="right"?16.43:-13.93;
+    const x=side==="right"?16.93:-14.43;
     const sign=side==="right"?1:-1;
     for(let cz=-10.5;cz<=10.5;cz+=3.5){
       const front=cz-1.28,back=cz+1.28,baseY=1.36;
