@@ -3389,6 +3389,12 @@ function makeWorldLandscape(){
    archivolt.castShadow=false;archivolt.receiveShadow=false;world.add(archivolt);
    for(const z of [bridgeStartZ+.12,bridgeEndZ-.12]){
      const pier=box(world,.58,.78,.58,x,.52,z,bridgeStoneMid);pier.castShadow=false;pier.receiveShadow=false;
+     // Broad stepped granite footings visually anchor each arch pier at the riverbank.
+     const pierFoot=box(world,.78,.12,.78,x,.14,z,bridgeStoneDark);pierFoot.castShadow=false;pierFoot.receiveShadow=false;
+     const pierFootCap=box(world,.7,.045,.7,x,.218,z,bridgeStoneLight);pierFootCap.castShadow=false;pierFootCap.receiveShadow=false;
+     // Fine cut-stone lines finish the exposed front and side edges of each footing.
+     const footFrontLine=box(world,.58,.012,.012,x,.16,z+.394,bridgeStoneLight);footFrontLine.castShadow=false;footFrontLine.receiveShadow=false;
+     const footSideLine=box(world,.012,.012,.58,x+.394,.16,z,bridgeStoneLight);footSideLine.castShadow=false;footSideLine.receiveShadow=false;
      // A restrained raised granite panel gives each massive pier a finished, hand-cut face.
      const pierPanel=box(world,.31,.43,.018,x,.52,z+.302,bridgeStoneDark);pierPanel.castShadow=false;pierPanel.receiveShadow=false;
      const pierPanelInset=box(world,.255,.365,.022,x,.52,z+.316,bridgeStoneLight);pierPanelInset.castShadow=false;pierPanelInset.receiveShadow=false;
