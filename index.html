@@ -1675,13 +1675,26 @@ function makeFactory(level=1){
    roofCtx.fillStyle='rgba(35,47,49,.12)';roofCtx.fillRect(x,0,1,128);
    roofCtx.fillStyle='rgba(255,255,255,.13)';roofCtx.fillRect(x+2,0,1,128);
  }
+ // Мягкие продольные следы прокатки и редкое зерно металла делают скаты менее однородными.
+ // Рисунок детерминированный и остаётся частью одной текстуры — без мерцающих накладных деталей.
+ for(let i=0;i<180;i++){
+   const x=(i*83+17)%256,y=(i*47+9)%128,len=5+(i*13)%24;
+   roofCtx.strokeStyle=i%2?'rgba(255,255,255,.055)':'rgba(28,39,42,.045)';
+   roofCtx.lineWidth=.45+(i%3)*.2;
+   roofCtx.beginPath();roofCtx.moveTo(x,y);roofCtx.lineTo(Math.min(255,x+len),y+.15);roofCtx.stroke();
+ }
+ for(let i=0;i<520;i++){
+   const x=(i*71+23)%256,y=(i*43+7)%128;
+   roofCtx.fillStyle=i%2?'rgba(255,255,255,.045)':'rgba(24,34,37,.04)';
+   roofCtx.fillRect(x,y,1,1);
+ }
  const roofTexture=new THREE.CanvasTexture(roofCanvas);
  roofTexture.colorSpace=THREE.SRGBColorSpace;
  roofTexture.wrapS=roofTexture.wrapT=THREE.RepeatWrapping;
  roofTexture.repeat.set(2,1);
  roofTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const roofBump=roofTexture.clone();roofBump.colorSpace=THREE.NoColorSpace;roofBump.needsUpdate=true;
- const roofMetal=new THREE.MeshStandardMaterial({color:0xffffff,map:roofTexture,bumpMap:roofBump,bumpScale:.012,roughness:.56,metalness:.46});
+ const roofMetal=new THREE.MeshStandardMaterial({color:0xffffff,map:roofTexture,bumpMap:roofBump,bumpScale:.015,roughness:.59,metalness:.43});
  // Tall pitched roof with a crisp ridge, dark eaves and metal seams.
  const roofA=box(g,3.95,.3,5.85,-1.48,4.72,0,roofMetal);roofA.rotation.z=.34;
  const roofB=box(g,3.95,.3,5.85,1.48,4.72,0,roofMetal);roofB.rotation.z=-.34;
