@@ -2121,6 +2121,16 @@ function makeFactory(){
      brickCtx.fillRect(x+2,y+2,60,28);
      brickCtx.fillStyle='rgba(255,255,255,.13)';
      brickCtx.fillRect(x+4,y+3,56,2);
+     // Мягкая вертикальная растяжка света подчёркивает рельеф обожжённого кирпича.
+     const brickFace=brickCtx.createLinearGradient(0,y+4,0,y+27);
+     brickFace.addColorStop(0,'rgba(255,236,215,.045)');
+     brickFace.addColorStop(.58,'rgba(255,255,255,.008)');
+     brickFace.addColorStop(1,'rgba(35,22,18,.075)');
+     brickCtx.fillStyle=brickFace;
+     brickCtx.fillRect(x+4,y+5,56,21);
+     // Тонкая фаска по нижней кромке делает каждый кирпич визуально отдельным.
+     brickCtx.fillStyle='rgba(30,20,17,.09)';
+     brickCtx.fillRect(x+4,y+26,56,1);
    }
  }
  // Мелкое минеральное зерно кирпича: только в карте материала, без накладной геометрии.
@@ -2159,9 +2169,9 @@ function makeFactory(){
  brickTexture.repeat.set(2,1.5);
  brickTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const brickBump=brickTexture.clone();brickBump.colorSpace=THREE.NoColorSpace;brickBump.needsUpdate=true;
- brick.map=brickTexture;brick.bumpMap=brickBump;brick.bumpScale=.045;brick.needsUpdate=true;
+ brick.map=brickTexture;brick.bumpMap=brickBump;brick.bumpScale=.048;brick.needsUpdate=true;
  // Кирпичные выступающие опоры получают ту же кладочную фактуру, чтобы фасад читался единым материалом.
- brickLight.map=brickTexture;brickLight.bumpMap=brickBump;brickLight.bumpScale=.038;brickLight.needsUpdate=true;
+ brickLight.map=brickTexture;brickLight.bumpMap=brickBump;brickLight.bumpScale=.041;brickLight.needsUpdate=true;
  // Gentle warm interior lighting gives the factory glazing a believable evening glow.
  warmLight(g,-1.8,2.65,1.35,.8,8);warmLight(g,1.8,2.65,1.35,.8,8);
  // Каменная площадка перед промышленным входом связывает фасад с территорией.
