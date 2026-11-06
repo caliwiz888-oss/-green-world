@@ -2375,6 +2375,11 @@ function makeFactory(){
  factoryWindowFrameTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const factoryWindowFrameBump=factoryWindowFrameTexture.clone();factoryWindowFrameBump.colorSpace=THREE.NoColorSpace;factoryWindowFrameBump.needsUpdate=true;
  const factoryWindowFrameMaterial=new THREE.MeshStandardMaterial({color:0xffffff,map:factoryWindowFrameTexture,bumpMap:factoryWindowFrameBump,bumpScale:.018,roughness:.79,metalness:.015});
+ // Локальная настройка камня оконных наличников завода: клон не затрагивает общие материалы мира.
+ const factoryWindowStoneMaterial=M.stone2.clone();
+ factoryWindowStoneMaterial.roughness=.84;
+ if(factoryWindowStoneMaterial.bumpMap)factoryWindowStoneMaterial.bumpScale=.068;
+ factoryWindowStoneMaterial.needsUpdate=true;
  // Шлифованный металл оконных переплётов: отдельный клон золотого материала сохраняет исходный оттенок.
  const factoryWindowMetalCanvas=document.createElement('canvas');factoryWindowMetalCanvas.width=128;factoryWindowMetalCanvas.height=128;
  const factoryWindowMetalCtx=factoryWindowMetalCanvas.getContext('2d');
@@ -2517,10 +2522,10 @@ function makeFactory(){
    box(g,.1,.84,.08,x,2.58,2.91,M.gold,false);
    box(g,.86,.1,.08,x,2.58,2.91,M.gold,false);
    // Front window crowns, carved stone sills and small corbels add depth to the factory facade.
-   box(g,1.34,.14,.28,x,3.18,2.78,M.stone2,false);
-   box(g,1.34,.14,.28,x,1.92,2.78,M.stone2,false);
+   box(g,1.34,.14,.28,x,3.18,2.78,factoryWindowStoneMaterial,false);
+   box(g,1.34,.14,.28,x,1.92,2.78,factoryWindowStoneMaterial,false);
    for(const dx of [-.52,.52]){
-     box(g,.12,1.12,.16,x+dx,2.55,2.82,M.stone2,false);
+     box(g,.12,1.12,.16,x+dx,2.55,2.82,factoryWindowStoneMaterial,false);
      box(g,.1,.18,.16,x+dx,3.28,2.86,M.gold,false);
      box(g,.1,.18,.16,x+dx,1.82,2.86,M.gold,false);
    }
@@ -2542,10 +2547,10 @@ function makeFactory(){
    box(g,.075,.84,.065,x,2.58,-3.055,factoryWindowMetalMaterial,false);
    box(g,.86,.075,.065,x,2.58,-3.055,factoryWindowMetalMaterial,false);
    // Каменный наличник и выступающий подоконник повторяют стиль переднего фасада.
-   box(g,1.38,.14,.24,x,3.2,-2.91,M.stone2,false);
-   box(g,1.38,.14,.26,x,1.88,-2.91,M.stone2,false);
+   box(g,1.38,.14,.24,x,3.2,-2.91,factoryWindowStoneMaterial,false);
+   box(g,1.38,.14,.26,x,1.88,-2.91,factoryWindowStoneMaterial,false);
    for(const dx of [-.58,.58]){
-     box(g,.14,1.12,.18,x+dx,2.55,-2.91,M.stone2,false);
+     box(g,.14,1.12,.18,x+dx,2.55,-2.91,factoryWindowStoneMaterial,false);
      box(g,.16,.12,.2,x+dx,3.27,-2.94,M.gold,false);
      box(g,.16,.12,.2,x+dx,1.8,-2.94,M.gold,false);
    }
