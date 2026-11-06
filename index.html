@@ -3597,9 +3597,24 @@ function makeWorldDecor(){
   // Decorative entrance arch is built above; continue with natural ground-cover details.
  // Low ornamental ground cover and natural stone clusters around the outer border.
  const shrubMat=mat(0x477f3d),rockMat=mat(0x8b8979);
+ // Кустарники собраны из перекрывающихся округлых ярусов листвы с несколькими природными оттенками.
+ const shrubMaterials=[0x477f3d,0x568b43,0x699b4d,0x3f7339].map(color=>new THREE.MeshStandardMaterial({color,roughness:.96}));
+ const shrubGeometry=new THREE.SphereGeometry(1,14,10);
  for(const [x,z,scale] of [[-17,-10,1.2],[17,-8,1.25],[18,8,1.15],[-12,18,1],[12,18,1]]){
-   const shrub=sphere(world,.72,x,.42,z,shrubMat,.72);shrub.scale.set(scale,scale*.78,scale);
-   sphere(world,.48,x+.42,.3,z+.22,M.leaf2,.7).scale.setScalar(scale*.82);
+   const clusters=[
+     [0,.43,0,.67,.53,.66,0],
+     [-.34,.38,.12,.47,.43,.48,1],
+     [.34,.36,-.08,.49,.44,.48,2],
+     [-.12,.68,-.18,.46,.43,.45,2],
+     [.25,.65,.2,.43,.39,.44,1],
+     [.02,.3,.34,.38,.32,.38,3]
+   ];
+   for(const [dx,dy,dz,sx,sy,sz,mi] of clusters){
+     const leafCluster=new THREE.Mesh(shrubGeometry,shrubMaterials[mi]);
+     leafCluster.position.set(x+dx*scale,dy*scale,z+dz*scale);
+     leafCluster.scale.set(sx*scale,sy*scale,sz*scale);
+     leafCluster.castShadow=false;leafCluster.receiveShadow=false;world.add(leafCluster);
+   }
  }
  for(const [x,z,r] of [[-17,-17,.9],[17,-17,.8],[-18,15,.75],[18,15,1.0]]){
    const rock=sphere(world,r,x,.22,z,rockMat,.62);rock.rotation.z=.22;
