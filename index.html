@@ -4750,6 +4750,54 @@ function makeWorldLandscape(){
   for(const batch of [forestTrunkBatch,...forestCrownBatches]){
     batch.instanceMatrix.needsUpdate=true;batch.castShadow=false;batch.receiveShadow=false;world.add(batch);
   }
+
+  // Разнообразный лиственный ярус дополняет хвойные деревья: клёны, берёзы и широкие дубы.
+  // Посадки вплетены между хвойными рядами и продолжают лес до самого горного хребта.
+  const leafyTreeData=[];
+  for(let row=0;row<3;row++){
+    for(let col=0;col<12;col++){
+      const x=-29.2+col*5.25+(row%2)*2.45+(((col*11+row*5)%5)-2)*.22;
+      const z=-21.15-row*3.65+((col*7+row*3)%4)*.24;
+      const h=4.1+((col*5+row*9)%7)*.34;
+      const species=(col*3+row*5)%3;
+      leafyTreeData.push({x,z,h,species,index:row*12+col});
+    }
+  }
+  const leafyTrunkMat=mat(0x68503b,.98),birchTrunkMat=mat(0xd5d0b7,.96);
+  const leafyMaterials=[mat(0x56834b,.98),mat(0x759653,.98),mat(0x466b43,.99)];
+  const leafyTrunkBatch=new THREE.InstancedMesh(new THREE.CylinderGeometry(.095,.15,1,7),leafyTrunkMat,leafyTreeData.length);
+  const birchTrunkBatch=new THREE.InstancedMesh(new THREE.CylinderGeometry(.075,.11,1,7),birchTrunkMat,leafyTreeData.length);
+  const leafyCrownGeometries=[
+    new THREE.SphereGeometry(1,10,8),
+    new THREE.IcosahedronGeometry(1,1),
+    new THREE.SphereGeometry(1,12,9)
+  ];
+  const leafyCrownBatches=leafyMaterials.map((material,species)=>
+    new THREE.InstancedMesh(leafyCrownGeometries[species],material,leafyTreeData.length)
+  );
+  const leafyLobeBatches=leafyMaterials.map((material,species)=>
+    new THREE.InstancedMesh(leafyCrownGeometries[species],material,leafyTreeData.length)
+  );
+  const leafyDummy=new THREE.Object3D();
+  for(let i=0;i<leafyTreeData.length;i++){
+    const tree=leafyTreeData[i],h=tree.h;
+    const trunk=tree.species===1?birchTrunkBatch:leafyTrunkBatch;
+    leafyDummy.position.set(tree.x,h*.28,tree.z);
+    leafyDummy.scale.set(tree.species===1?.72:1,h*.56,tree.species===1?.72:1);
+    leafyDummy.rotation.set(0,0,0);leafyDummy.updateMatrix();trunk.setMatrixAt(i,leafyDummy.matrix);
+    const crownScale=tree.species===1?.72:tree.species===2?1.22:1;
+    leafyDummy.position.set(tree.x,h*.76,tree.z);
+    leafyDummy.scale.set(crownScale*(.72+h*.025),tree.species===1?1.05:.78,crownScale*(.72+h*.025));
+    leafyDummy.rotation.set(0,(i%5)*.21,0);leafyDummy.updateMatrix();
+    leafyCrownBatches[tree.species].setMatrixAt(i,leafyDummy.matrix);
+    leafyDummy.position.set(tree.x+(i%2?-.34:.34),h*.72,tree.z+(i%3-1)*.24);
+    leafyDummy.scale.set(crownScale*.53,.52,crownScale*.55);
+    leafyDummy.rotation.set(.08*(i%3),i*.17,-.06*(i%4));leafyDummy.updateMatrix();
+    leafyLobeBatches[tree.species].setMatrixAt(i,leafyDummy.matrix);
+  }
+  for(const batch of [leafyTrunkBatch,birchTrunkBatch,...leafyCrownBatches,...leafyLobeBatches]){
+    batch.instanceMatrix.needsUpdate=true;batch.castShadow=false;batch.receiveShadow=false;world.add(batch);
+  }
   // A broad river outside the farm boundary, with layered banks and a stone crossing.
  // Цельная сетчатая поверхность с реальной плавной волной вместо плоской коробки.
  const riverGeometry=new THREE.PlaneGeometry(52,6.8,156,28);
