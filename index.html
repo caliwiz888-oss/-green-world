@@ -1466,22 +1466,21 @@ function makeHouse(){
  for(let ix=0;ix<5;ix++)for(let iz=0;iz<2;iz++){
    box(g,.96,.035,.62,-1.92+ix*.96,.112,4.58+iz*.66,ix%2?M.stone:M.stone2,false);
  }
- // Ступенчатый цоколь вокруг всего дома — по форме как у лавки,
- // но из более тёмного серо-бежевого камня, чтобы контрастировал со светлой кладкой.
+ // Контрастный ступенчатый цоколь главного дома, выступающий за старую плиту основания.
  const housePlinthBase=M.stone2.clone();
- housePlinthBase.color.setHex(0x77766f);
+ housePlinthBase.color.setHex(0x62635f);
  const housePlinthCap=M.stone.clone();
- housePlinthCap.color.setHex(0x99958a);
- for(const z of [-4.34,4.34]){
-   box(g,10.72,.42,.38,0,.22,z,housePlinthBase,false);
-   box(g,10.82,.12,.44,0,.49,z,housePlinthCap,false);
+ housePlinthCap.color.setHex(0x929087);
+ for(const z of [-4.43,4.43]){
+   box(g,10.86,.46,.62,0,.23,z,housePlinthBase,false);
+   box(g,10.98,.12,.68,0,.52,z,housePlinthCap,false);
  }
- for(const x of [-5.34,5.34]){
-   box(g,.38,.42,8.52,x,.22,0,housePlinthBase,false);
-   box(g,.44,.12,8.62,x,.49,0,housePlinthCap,false);
+ for(const x of [-5.43,5.43]){
+   box(g,.62,.46,8.86,x,.23,0,housePlinthBase,false);
+   box(g,.68,.12,8.98,x,.52,0,housePlinthCap,false);
  }
 
- return disableCastShadows(g);
+  return disableCastShadows(g);
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
 function makeMarket(){
@@ -1653,18 +1652,21 @@ function makeMarket(){
    box(g,.075,.055,4.95,x,3.34,0,timber,false);
  }
  // Выразительный белый цоколь вокруг лавки, по образцу каменного основания фабрики.
- // Нижний массивный пояс начинается у земли; выступающая светлая полка подчёркивает верх.
- // Полосы вынесены за край площадки, поэтому видны с фасада и с обеих боковых сторон.
+ // Нижний пояс начинается от земли; боковые секции вынесены за край плиты, чтобы не перекрываться основанием.
+ const marketPlinthBase=M.stone2.clone();
+ marketPlinthBase.color.setHex(0xe0e0d9);
+ const marketPlinthCap=M.stone.clone();
+ marketPlinthCap.color.setHex(0xf8f5eb);
  for(const z of [-2.62,2.62]){
-   box(g,6.18,.42,.38,0,.22,z,M.stone2,false);
-   box(g,6.28,.12,.44,0,.49,z,M.stone,false);
+   box(g,6.28,.46,.42,0,.23,z,marketPlinthBase,false);
+   box(g,6.38,.12,.48,0,.52,z,marketPlinthCap,false);
  }
- for(const x of [-3.04,3.04]){
-   box(g,.38,.42,5.02,x,.22,0,M.stone2,false);
-   box(g,.44,.12,5.12,x,.49,0,M.stone,false);
+ for(const x of [-3.14,3.14]){
+   box(g,.42,.46,5.24,x,.23,0,marketPlinthBase,false);
+   box(g,.48,.12,5.34,x,.52,0,marketPlinthCap,false);
  }
 
- return disableCastShadows(g);
+  return disableCastShadows(g);
 }
 function makeFactory(){
  // Keep the factory in its approved back-right position and inside the camera frame.
