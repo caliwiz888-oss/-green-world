@@ -2703,6 +2703,18 @@ function makeWorldLandscape(){
    snowCtx.fillStyle=i%5===0?'rgba(111,145,158,.075)':'rgba(255,255,255,.17)';
    snowCtx.beginPath();snowCtx.arc(x,y,r,0,Math.PI*2);snowCtx.fill();
  }
+ // Мягкие вытянутые полосы уплотнённого снега передают микрорельеф ветровых гребней.
+ for(let i=0;i<8;i++){
+   const x=(i*41+13)%128,y=(i*59+18)%128,len=13+(i*9)%19,thick=1.2+(i%3)*.55;
+   const g=snowCtx.createLinearGradient(x,y,x+len,y+((i%4)-1.5)*1.8);
+   g.addColorStop(0,'rgba(112,145,158,0)');
+   g.addColorStop(.48,'rgba(112,145,158,.065)');
+   g.addColorStop(1,'rgba(112,145,158,0)');
+   snowCtx.strokeStyle=g;snowCtx.lineWidth=thick;snowCtx.lineCap='round';
+   snowCtx.beginPath();snowCtx.moveTo(x,y);
+   snowCtx.quadraticCurveTo(x+len*.52,y+((i%4)-1.5)*1.8,x+len,y+((i%4)-1.5)*.7);
+   snowCtx.stroke();
+ }
  const snowTexture=new THREE.CanvasTexture(snowCanvas);snowTexture.colorSpace=THREE.SRGBColorSpace;
  snowTexture.wrapS=snowTexture.wrapT=THREE.RepeatWrapping;snowTexture.repeat.set(1.2,1.2);
  snowTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
