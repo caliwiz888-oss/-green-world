@@ -1584,7 +1584,7 @@ function makeMarket(){
 function makeFactory(){
  // Keep the factory in its approved back-right position and inside the camera frame.
  // Отодвинут немного назад, чтобы фасадная линия совпадала с главным домом.
- const g=group(world,11.8,0,-8.5);
+ const g=group(world,11.8,0,-8.72);
  const brick=mat(0x9b5943),brickLight=mat(0xb96c50),darkMetal=mat(0x39474a),metal=mat(0x657477),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
  // Отдельное заводское остекление: спокойные отражения не затрагивают окна главного дома.
  const factoryGlassCanvas=document.createElement('canvas');factoryGlassCanvas.width=128;factoryGlassCanvas.height=128;
