@@ -166,8 +166,8 @@ let token='',busy=false,player=null,daily=null,selected=null;
 let cameraRadius=55,cameraHeight=31,pointer=null,dragged=false;
 let plots=[],treeObjects=[],buildingObjects=[],lastBuildingSignature='',lastPlotSignature='';
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,78,175);
-const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,1,180);
-// Узкий диапазон глубины повышает точность стандартного depth buffer на мобильных GPU и не требует logarithmicDepthBuffer.
+const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,3.5,130);
+// Более близкая near-плоскость и ограниченный far-диапазон повышают точность depth buffer и уменьшают z-fighting на мобильных GPU.
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});
 window.GREEN_WORLD_STARTUP_STAGE='webgl-ready';
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;renderer.useLegacyLights=false;renderer.setClearColor(0x9acbe8,1);
@@ -179,7 +179,7 @@ const sun=new THREE.DirectionalLight(0xfff1d9,3.35);sun.position.set(-28,42,24);
 const fill=new THREE.DirectionalLight(0xe1edda,.9);fill.position.set(24,18,-22);scene.add(fill);
 const mat=(c,r=.82)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.025});
 const windowInterior=new THREE.MeshStandardMaterial({color:0xffdca0,emissive:0xb87932,emissiveIntensity:.2,roughness:.42});
-const M={grass:mat(0x78a94f,.9),grass2:mat(0x699747,.92),soil:mat(0x98734a,.96),path:mat(0xd7bd8d,.88),stone:new THREE.MeshStandardMaterial({color:0xe8ddc5,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x91483a,roughness:.78,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0xb8644c,roughness:.74,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:mat(0x397b3c,.9),leaf2:mat(0x5a9a48,.9),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xd6b45d,roughness:.34,metalness:.58}),glass:new THREE.MeshPhysicalMaterial({color:0x9bdde1,roughness:.16,metalness:.08,clearcoat:.72,clearcoatRoughness:.12,reflectivity:.72,emissive:0x102b34,emissiveIntensity:.08,transparent:true,opacity:.52,depthWrite:false})};
+const M={grass:mat(0x78a94f,.9),grass2:mat(0x699747,.92),soil:mat(0x98734a,.96),path:mat(0xd7bd8d,.88),stone:new THREE.MeshStandardMaterial({color:0xe8ddc5,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x91483a,roughness:.78,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0xb8644c,roughness:.74,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:mat(0x397b3c,.9),leaf2:mat(0x5a9a48,.9),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xd6b45d,roughness:.34,metalness:.58}),glass:new THREE.MeshPhysicalMaterial({color:0x9bdde1,roughness:.16,metalness:.08,clearcoat:.72,clearcoatRoughness:.12,reflectivity:.72,emissive:0x102b34,emissiveIntensity:.08,transparent:true,opacity:.52,depthWrite:true})};
 
 function makeSurfaceTexture(kind,seed){
  const size=512,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
