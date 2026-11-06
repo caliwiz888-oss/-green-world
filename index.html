@@ -230,6 +230,22 @@ const skyGradient=skyCtx.createLinearGradient(0,0,0,512);
 skyGradient.addColorStop(0, '#4f91bd');skyGradient.addColorStop(.34, '#79b4d5');
 skyGradient.addColorStop(.68, '#b8d8df');skyGradient.addColorStop(1, '#dce8d7');
 skyCtx.fillStyle=skyGradient;skyCtx.fillRect(0,0,1024,512);
+// Мягкое солнечное сияние и дополнительные облачные слои придают небу глубину.
+const sunGlow=skyCtx.createRadialGradient(760,112,5,760,112,245);
+sunGlow.addColorStop(0,'rgba(255,247,211,.42)');
+sunGlow.addColorStop(.22,'rgba(255,238,194,.20)');
+sunGlow.addColorStop(.62,'rgba(255,244,220,.055)');
+sunGlow.addColorStop(1,'rgba(255,244,220,0)');
+skyCtx.fillStyle=sunGlow;skyCtx.fillRect(500,0,524,360);
+for(let i=0;i<9;i++){
+ const x=(i*137+95)%1120-48,y=175+(i*39)%175,w=125+(i*23)%145,h=12+(i%3)*6;
+ const veil=skyCtx.createLinearGradient(x,y-h*1.8,x,y+h*1.8);
+ veil.addColorStop(0,'rgba(255,255,255,0)');
+ veil.addColorStop(.42,'rgba(255,255,255,.045)');
+ veil.addColorStop(.58,'rgba(255,255,255,.085)');
+ veil.addColorStop(1,'rgba(255,255,255,0)');
+ skyCtx.fillStyle=veil;skyCtx.beginPath();skyCtx.ellipse(x,y,w,h,(i%5-2)*.025,0,Math.PI*2);skyCtx.fill();
+}
 for(let i=0;i<15;i++){
  const x=(i*173+61)%1024,y=95+(i*47)%235,w=95+(i*31)%155,h=9+(i%4)*4;
  const cloud=skyCtx.createLinearGradient(x,y-h,x,y+h);
