@@ -2633,6 +2633,36 @@ function makeWorldDecor(){
       }
     }
   }
+  // Ритм тесаной кладки: тонкие вертикальные швы между каменными блоками.
+  // Передняя стена разделена с сохранением центрального проезда под аркой.
+  for(const z of [-14.24,14.24]){
+    const faceZ=z+(z<0?-.176:.176);
+    for(let p=-12.25;p<=15.75;p+=1.75){
+      if(z===14.24 && Math.abs(p)<3.8) continue;
+      if(Math.abs((p+14)%3.5)<.12) continue;
+      box(world,.018,.62,.018,p,.69,faceZ,fenceShadow,false);
+      box(world,.012,.56,.014,p+.025,.69,faceZ+(z<0?-.012:.012),fenceLightTrim,false);
+    }
+  }
+  for(const x of [-14.24,16.74]){
+    const faceX=x+(x<0?-.176:.176);
+    for(let p=-12.25;p<=12.25;p+=1.75){
+      if(Math.abs((p+12.25)%3.5)<.12) continue;
+      box(world,.018,.62,.018,faceX,.69,p,fenceShadow,false);
+      box(world,.014,.56,.012,faceX+(x<0?-.012:.012),.69,p+.025,fenceLightTrim,false);
+    }
+  }
+  // Деликатная светлая фаска цоколя подчёркивает основание каменной ограды.
+  for(const z of [-14,14]){
+    const spans=z===14?[[-14,-3.7],[3.7,16.5]]:[[-14,16.5]];
+    for(const [start,end] of spans){
+      const length=end-start-.12,center=(start+end)/2;
+      box(world,length,.028,.035,center,.235,z+(z<0?-.405:.405),fenceLightTrim,false);
+    }
+  }
+  for(const x of [-14,16.5]){
+    box(world,.035,.028,28.25,x+(x<0?-.405:.405),.235,0,fenceLightTrim,false);
+  }
   // Тонкие фаски на торцах верхнего карниза усиливают глубину каменного профиля.
   for(const z of [-14,14]){
     const spans=z===14?[[-14,-3.8],[3.8,16.5]]:[[-14,16.5]];
