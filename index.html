@@ -2168,6 +2168,9 @@ function makeFactory(){
  const roofBump=roofTexture.clone();roofBump.colorSpace=THREE.NoColorSpace;roofBump.needsUpdate=true;
  // Матовая хвойно-зелёная фальцевая кровля связывает завод с архитектурой главного дома и лавки.
  const roofMetal=new THREE.MeshStandardMaterial({color:0x34483a,map:roofTexture,bumpMap:roofBump,bumpScale:.015,roughness:.72,metalness:.22});
+ // Отдельные материалы ворот и карнизов склада: тёплое дерево и состаренная бронза.
+ const factoryDoorMaterial=new THREE.MeshStandardMaterial({color:0x76513b,roughness:.82,metalness:.025});
+ const factoryCorniceMaterial=new THREE.MeshStandardMaterial({color:0x76664e,roughness:.78,metalness:.12});
  // Tall pitched roof with a crisp ridge, dark eaves and metal seams.
  const roofA=box(g,3.95,.3,5.85,-1.48,4.72,0,roofMetal);roofA.rotation.z=.34;
  const roofB=box(g,3.95,.3,5.85,1.48,4.72,0,roofMetal);roofB.rotation.z=-.34;
@@ -2177,8 +2180,8 @@ function makeFactory(){
  // Цельные металлические скаты без накладных панелей и крепежа: исключаем z-fighting.
  // Continuous metal eave fascias and evenly spaced support cleats finish both roof edges.
  for(const side of [-1,1]){
-   box(g,.2,.2,5.82,side*3.38,4.02,0,darkMetal,false);
-   box(g,.12,.055,5.88,side*3.38,4.14,0,M.gold,false);
+   box(g,.2,.2,5.82,side*3.38,4.02,0,factoryCorniceMaterial,false);
+   box(g,.12,.055,5.88,side*3.38,4.14,0,factoryCorniceMaterial,false);
    for(const z of [-2.35,-1.18,0,1.18,2.35]){
      box(g,.28,.12,.18,side*3.34,3.91,z,metal,false);
      box(g,.12,.22,.12,side*3.48,3.82,z,darkMetal,false);
@@ -2187,9 +2190,9 @@ function makeFactory(){
  // Торцевые фронтонные планки закрывают края металлической кровли и связывают скаты с кирпичными стенами.
  for(const zSide of [-1,1]){
    for(const [cx,angle] of [[-1.48,.34],[1.48,-.34]]){
-     const edge=box(g,4.02,.16,.18,cx,4.72,zSide*2.98,metal,false);
+     const edge=box(g,4.02,.16,.18,cx,4.72,zSide*2.98,factoryCorniceMaterial,false);
      edge.rotation.z=angle;
-     const edgeLip=box(g,3.94,.045,.2,cx,4.82,zSide*3.0,M.gold,false);
+     const edgeLip=box(g,3.94,.045,.2,cx,4.82,zSide*3.0,factoryCorniceMaterial,false);
      edgeLip.rotation.z=angle;
      // Ровные латунные заклёпки подчёркивают крепление торцевых планок.
      for(let k=0;k<5;k++){
@@ -2207,7 +2210,7 @@ function makeFactory(){
  }
  // Front loading entrance with a stone arch-like surround and timber doors.
  box(g,2.55,2.9,.22,0,1.75,2.78,M.stone2);
- box(g,2.12,2.55,.12,0,1.52,2.94,darkMetal);
+ box(g,2.12,2.55,.12,0,1.52,2.94,factoryDoorMaterial);
  for(const y of [.48,.98,1.48,1.98,2.48])box(g,1.98,.075,.08,0,y,3.03,metal,false);
  // Recessed loading-door threshold, paired hinge plates and visible fasteners.
  box(g,2.34,.16,.34,0,.24,3.08,M.stone2,false);
@@ -2235,7 +2238,7 @@ function makeFactory(){
  }
  // Усиленные вертикальные рёбра ворот и аккуратные заклёпки подчёркивают промышленную конструкцию.
  for(const x of [-.62,.62]){
-   box(g,.075,2.28,.075,x,1.52,3.105,darkMetal,false);
+   box(g,.075,2.28,.075,x,1.52,3.105,factoryDoorMaterial,false);
    for(const y of [.48,.9,1.32,1.74,2.16,2.55]){
      sphere(g,.035,x,y,3.155,M.gold,.85);
    }
