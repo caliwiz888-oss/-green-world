@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261106-154500';
+const GREEN_WORLD_BUILD_ID = '20261106-160000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -230,11 +230,11 @@ window.GREEN_WORLD_STARTUP_STAGE='webgl-ready';
 window.GREEN_WORLD_RENDER_DIAGNOSTICS={reversedDepthBuffer:!!renderer.capabilities.reversedDepthBuffer,webgl2:renderer.capabilities.isWebGL2,pixelRatio:renderer.getPixelRatio(),threeRevision:THREE.REVISION};
 console.info('[GREEN WORLD] Render diagnostics',window.GREEN_WORLD_RENDER_DIAGNOSTICS);
 // Используем стандартный буфер глубины для стабильной совместимости с WebGL в Android Telegram WebView.
-renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;renderer.useLegacyLights=false;renderer.setClearColor(0x9acbe8,1);
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;renderer.useLegacyLights=false;renderer.setClearColor(0x9acbe8,1);
 // Мягкое небесное заполнение сохраняет детали в тенях на фасадах, листве и горном рельефе.
 scene.add(new THREE.HemisphereLight(0xeaf7ff,0x5a7447,2.2));
 scene.add(new THREE.AmbientLight(0xffffff,.3));
-const sun=new THREE.DirectionalLight(0xfff1d9,3.35);sun.position.set(-28,42,24);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-30;sun.shadow.camera.right=30;sun.shadow.camera.top=30;sun.shadow.camera.bottom=-30;sun.shadow.bias=-0.00012;sun.shadow.normalBias=.018;sun.shadow.radius=3;scene.add(sun);
+const sun=new THREE.DirectionalLight(0xfff1d9,3.35);sun.position.set(-28,42,24);sun.castShadow=false;scene.add(sun);
 // Нейтрально-тёплый отражённый свет делает теневые стороны объектов читаемее без потери солнечного контраста.
 const fill=new THREE.DirectionalLight(0xe1edda,.9);fill.position.set(24,18,-22);scene.add(fill);
 const mat=(c,r=.82)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.025});
