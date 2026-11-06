@@ -2467,6 +2467,35 @@ function makeWorldDecor(){
       sideBoss.rotation.z=Math.PI/4;
     }
   }
+  // Тонкие швы кладки и фасеточные вставки придают ограждению вид настоящего тесаного камня.
+  for(let p=-10.5;p<=12.25;p+=3.5){
+    for(const z of [-14.24,14.24]){
+      if(z===14.24 && Math.abs(p)<3.6) continue;
+      const faceZ=z+(z<0?-.155:.155);
+      box(world,.028,.72,.026,p,.68,faceZ,fenceShadow,false);
+      box(world,.018,.72,.018,p+(z<0?-.025:.025),.68,faceZ+(z<0?-.018:.018),fenceLightTrim,false);
+    }
+    for(const x of [-14.24,16.74]){
+      const faceX=x+(x<0?-.155:.155);
+      box(world,.026,.72,.028,faceX,.68,p,fenceShadow,false);
+      box(world,.018,.72,.018,faceX+(x<0?-.018:.018),.68,p+.025,fenceLightTrim,false);
+    }
+  }
+  // Резные розетки на замковом камне арки: кольцо и центральный каменный кабошон.
+  const gateRosetteRing=new THREE.Mesh(new THREE.TorusGeometry(.19,.026,8,36),fenceLightTrim);
+  gateRosetteRing.position.set(0,5.02,14.475);
+  gateRosetteRing.castShadow=false;gateRosetteRing.receiveShadow=false;world.add(gateRosetteRing);
+  const gateRosetteCore=sphere(world,.105,0,5.02,14.49,fenceBaseTrim,.9);
+  gateRosetteCore.scale.z=.38;gateRosetteCore.castShadow=false;gateRosetteCore.receiveShadow=false;
+  // Небольшие фасеточные камни подчёркивают основание и верх пилонов.
+  for(const x of [-2.56,2.56]){
+    for(const y of [.48,2.98]){
+      const accent=box(world,.24,.12,.055,x,y,14.425,fenceRelief,false);
+      accent.rotation.z=Math.PI/4;
+      const accentCore=sphere(world,.055,x,y,14.46,fenceLightTrim,.85);
+      accentCore.scale.z=.3;accentCore.castShadow=false;accentCore.receiveShadow=false;
+    }
+  }
   // Многослойные основания и широкие капители квадратных столбов.
   for(const x of [-14,16.5])for(const z of [-14,14]){
     box(world,.98,.16,.98,x,.13,z,fenceBaseTrim,false);
