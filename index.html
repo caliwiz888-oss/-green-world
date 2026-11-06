@@ -3333,6 +3333,9 @@ function makeWorldLandscape(){
      const y=.31+.57*Math.pow(2*t-1,2),slope=2.28*(2*t-1)/(bridgeLength-.36);
      const voussoir=box(world,.16,.28,.57,x+(x<0?-.18:.18),y,z,bridgeStoneMid);
      voussoir.rotation.x=-Math.atan(slope);voussoir.castShadow=false;voussoir.receiveShadow=false;
+     // Narrow recessed joints separate each arch stone without turning the rib into stripes.
+     const voussoirJoint=box(world,.012,.014,.445,x+(x<0?-.266:.266),y,z,bridgeStoneDark);
+     voussoirJoint.rotation.x=-Math.atan(slope);voussoirJoint.castShadow=false;voussoirJoint.receiveShadow=false;
    }
    // A proud central keystone locks the arch visually and gives it a clear architectural crown.
    const crownZ=bridgeStartZ+bridgeLength*.5,crownY=.31;
