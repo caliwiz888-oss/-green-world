@@ -809,6 +809,11 @@ function makeHouse(){
    }
    for(const z of [-1.09,1.09]){
      box(t,.82,.12,.2,0,3.98,z*1.035,towerDetailStone);
+     // Тонкие внутренние фаски придают каменному обрамлению окна дополнительную глубину.
+     box(t,.66,.035,.035,0,3.88,z*1.145,towerStoneMaterial,false);
+     box(t,.66,.035,.035,0,4.075,z*1.145,towerStoneMaterial,false);
+     box(t,.035,.98,.035,-.345,3.35,z*1.145,towerStoneMaterial,false);
+     box(t,.035,.98,.035,.345,3.35,z*1.145,towerStoneMaterial,false);
      box(t,.82,.12,.2,0,2.72,z*1.035,towerDetailStone);
      box(t,.1,1.28,.18,-.39,3.35,z*1.035,towerGoldMaterial,false);
      box(t,.1,1.28,.18,.39,3.35,z*1.035,towerGoldMaterial,false);
