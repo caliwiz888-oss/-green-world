@@ -3374,6 +3374,14 @@ function makeWorldLandscape(){
    const crownZ=bridgeStartZ+bridgeLength*.5,crownY=.31;
    const keystone=box(world,.27,.39,.46,x+(x<0?-.2:.2),crownY,crownZ,bridgeStoneLight);
    keystone.castShadow=false;keystone.receiveShadow=false;
+   // Layered diamond cartouche marks the crown keystone on the outward face of each arch.
+   const keystoneFaceX=x+(x<0?-.2:.2)+(x<0?-.145:.145);
+   const crownPlaque=box(world,.035,.205,.205,keystoneFaceX,crownY,crownZ,bridgeStoneDark);
+   crownPlaque.rotation.x=Math.PI/4;crownPlaque.castShadow=false;crownPlaque.receiveShadow=false;
+   const crownInset=box(world,.039,.135,.135,keystoneFaceX+(x<0?-.022:.022),crownY,crownZ,bridgeStoneMid);
+   crownInset.rotation.x=Math.PI/4;crownInset.castShadow=false;crownInset.receiveShadow=false;
+   const crownStud=sphere(world,.043,keystoneFaceX+(x<0?-.047:.047),crownY,crownZ,bridgeStoneLight,false);
+   crownStud.scale.set(.32,1,.82);crownStud.castShadow=false;crownStud.receiveShadow=false;
    // Fine outer archivolt follows the masonry curve as a continuous carved stone moulding.
    const trimPoints=[];for(let i=0;i<=36;i++){const t=i/36,z=bridgeStartZ+.18+(bridgeLength-.36)*t,y=.31+.57*Math.pow(2*t-1,2);trimPoints.push(new THREE.Vector3(x+(x<0?-.24:.24),y,z));}
    const trimCurve=new THREE.CatmullRomCurve3(trimPoints);
