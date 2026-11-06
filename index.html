@@ -253,11 +253,12 @@ for(let i=0;i<15;i++){
  skyCtx.fillStyle=cloud;skyCtx.beginPath();skyCtx.ellipse(x,y,w,h,(i%7-3)*.035,0,Math.PI*2);skyCtx.fill();
 }
 const skyTexture=new THREE.CanvasTexture(skyCanvas);skyTexture.colorSpace=THREE.SRGBColorSpace;
-skyTexture.mapping=THREE.EquirectangularReflectionMapping;skyTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();skyTexture.magFilter=THREE.LinearFilter;skyTexture.minFilter=THREE.LinearMipmapLinearFilter;skyTexture.generateMipmaps=true;skyTexture.needsUpdate=true;scene.background=skyTexture;
+skyTexture.mapping=THREE.EquirectangularReflectionMapping;skyTexture.magFilter=THREE.LinearFilter;skyTexture.minFilter=THREE.LinearMipmapLinearFilter;skyTexture.generateMipmaps=true;skyTexture.needsUpdate=true;scene.background=skyTexture;
 scene.fog=new THREE.Fog(0xb8d8df,78,175);
 const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,4.5,140);
 // Умеренно близкая near-плоскость и ограниченный far-диапазон повышают точность стандартного depth buffer на мобильных GPU.
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});
+skyTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
 window.GREEN_WORLD_STARTUP_STAGE='webgl-ready';
 window.GREEN_WORLD_RENDER_DIAGNOSTICS={reversedDepthBuffer:!!renderer.capabilities.reversedDepthBuffer,webgl2:renderer.capabilities.isWebGL2,pixelRatio:renderer.getPixelRatio(),threeRevision:THREE.REVISION};
 console.info('[GREEN WORLD] Render diagnostics',window.GREEN_WORLD_RENDER_DIAGNOSTICS);
