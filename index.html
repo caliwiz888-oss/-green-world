@@ -3715,16 +3715,18 @@ function makeWorldDecor(){
     for(let cz=-10.5;cz<=10.5;cz+=3.5){
       const front=cz-1.48,back=cz+1.48,baseY=1.43,apexY=2.62;
       for(const pz of [front,back]){
-        // Такие же высокие квадратные опоры на боковых сторонах ограды.
-        box(world,.17,.98,.17,x,1.82,pz,fenceBaseTrim,false);
-        box(world,.25,.085,.25,x,2.34,pz,fenceLightTrim,false);
-        const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.135,0),fenceRelief);
-        finial.position.set(x,2.47,pz);finial.scale.set(.82,1.3,.82);
+        // Массивные квадратные каменные столбы; арка проходит ровно по центру пролёта между ними.
+        box(world,.34,1.08,.34,x,1.77,pz,fenceBaseTrim,false);
+        box(world,.43,.13,.43,x,2.375,pz,fenceLightTrim,false);
+        box(world,.29,.12,.29,x,2.50,pz,fenceRelief,false);
+        const finial=new THREE.Mesh(new THREE.BoxGeometry(.22,.16,.22),fenceLightTrim);
+        finial.position.set(x,2.64,pz);
         finial.castShadow=false;finial.receiveShadow=false;world.add(finial);
       }
+      // Симметричный свод расположен в средней плоскости между квадратными столбами.
       addFenceArc(archProfile(front,back,baseY,apexY,x,'z'),fenceLightTrim,.055);
-      addFenceArc(archProfile(front+.17,back-.17,baseY+.035,apexY-.19,x+sign*.075,'z'),fenceBaseTrim,.027);
-      addFenceArc(archProfile(front+.31,back-.31,baseY+.055,apexY-.34,x-sign*.065,'z'),fenceRelief,.018);
+      addFenceArc(archProfile(front+.17,back-.17,baseY+.035,apexY-.19,x+sign*.035,'z'),fenceBaseTrim,.027);
+      addFenceArc(archProfile(front+.31,back-.31,baseY+.055,apexY-.34,x-sign*.035,'z'),fenceRelief,.018);
       const crown=new THREE.Mesh(new THREE.OctahedronGeometry(.13,0),fenceLightTrim);
       crown.position.set(x,2.62,cz);crown.scale.set(.72,1.35,1.1);
       crown.castShadow=false;crown.receiveShadow=false;world.add(crown);
