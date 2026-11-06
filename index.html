@@ -3441,7 +3441,7 @@ function makeWorldLandscape(){
  for(const [x,z] of [[-18,21.2],[-8,23.1],[9,21.6],[18,23.4]]){
    const glint=box(world,1.15,.025,.12,x,.09,z,waterGlint,false);glint.rotation.y=.12;riverMotionObjects.push({mesh:glint,baseX:x,baseZ:z,phase:x*.7,speed:.13,range:.28,baseLength:1.15});
  }
- // Open riverbank horizon without tree models.
+ // Open riverbank horizon.
  // Small cascades at the river's far end create a visible waterfall effect.
  for(const z of [20.9,22.2,23.5]){
    const fall=box(world,.22,2.6,.72,25.2,-1.0,z,water,false);
@@ -3508,10 +3508,7 @@ function clearDynamic(){
  buildingObjects=[];
 }
 function drawPlayer(){
-  // Здания — постоянная декоративная часть мира, не связанная с состоянием игрока.
-  // Дом, завод и лавка — постоянные объекты мира. Не пересоздаём их при
-  // обновлениях участков или повторной загрузке данных игрока: это исключает
-  // удаление и повторное создание фасадов/окон/крыш во время работы игры.
+  // Дом, завод и лавка — постоянные декоративные объекты мира.
   if(buildingObjects.length===0){
   // Завод создаётся первым и независимо от остальных объектов мира.
   const factoryChildrenBefore=new Set(world.children);
