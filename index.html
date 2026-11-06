@@ -324,9 +324,31 @@ function makeHouse(){
  box(g,10,4.5,8,0,2.25,0,houseStone);
  box(g,10.5,.38,8.5,0,4.55,0,houseStoneTrim);
  box(g,10.25,.16,8.25,0,.18,0,houseStoneTrim);
+ // Ненавязчивая фактура матовой кровли: тонкие горизонтальные полосы и лёгкая неоднородность тона.
+ const manorRoofCanvas=document.createElement('canvas');manorRoofCanvas.width=256;manorRoofCanvas.height=256;
+ const manorRoofCtx=manorRoofCanvas.getContext('2d');
+ manorRoofCtx.fillStyle='#a0a0a0';manorRoofCtx.fillRect(0,0,256,256);
+ for(let row=0;row<16;row++){
+   const y=row*16,shade=142+((row*13)%22);
+   manorRoofCtx.fillStyle='rgba('+shade+','+shade+','+shade+',.32)';
+   manorRoofCtx.fillRect(0,y,256,14);
+   manorRoofCtx.fillStyle='rgba(255,255,255,.12)';manorRoofCtx.fillRect(0,y,256,1);
+   manorRoofCtx.fillStyle='rgba(25,30,38,.13)';manorRoofCtx.fillRect(0,y+14,256,2);
+   for(let x=(row%2)*32;x<256;x+=64){
+     manorRoofCtx.fillStyle='rgba(255,255,255,.09)';manorRoofCtx.fillRect(x+2,y+2,1,10);
+     manorRoofCtx.fillStyle='rgba(20,25,32,.09)';manorRoofCtx.fillRect(x+62,y+2,1,10);
+   }
+ }
+ const manorRoofTexture=new THREE.CanvasTexture(manorRoofCanvas);
+ manorRoofTexture.colorSpace=THREE.SRGBColorSpace;
+ manorRoofTexture.wrapS=manorRoofTexture.wrapT=THREE.RepeatWrapping;
+ manorRoofTexture.repeat.set(1.5,2);
+ manorRoofTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const manorRoofMaterial=M.roof.clone();
+ manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.roughness=.68;manorRoofMaterial.metalness=.22;manorRoofMaterial.needsUpdate=true;
  // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
- const roofL=box(g,3.95,.34,8.9,-1.93,5.72,0,M.roof);roofL.rotation.z=.58;
- const roofR=box(g,3.95,.34,8.9,1.43,5.72,0,M.roof);roofR.rotation.z=-.58;
+ const roofL=box(g,3.95,.34,8.9,-1.93,5.72,0,manorRoofMaterial);roofL.rotation.z=.58;
+ const roofR=box(g,3.95,.34,8.9,1.43,5.72,0,manorRoofMaterial);roofR.rotation.z=-.58;
   // Основные скаты оставлены цельными: убраны накладные ряды и черепица, создававшие мерцание.
  // Карнизные балки вдоль обоих скатов закрывают торцы кровли и подчёркивают её толщину.
  for(const [x,y,angle] of [[-3.55,4.63,.58],[3.09,4.78,-.58]]){
