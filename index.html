@@ -210,6 +210,20 @@ function makeSurfaceTexture(kind,seed){
   image.data[i]=v;image.data[i+1]=v;image.data[i+2]=v;image.data[i+3]=255;
  }
  ctx.putImageData(image,0,0);
+ // Тонкие продольные волокна и редкие сучки добавляют деревянным деталям натуральную глубину.
+ if(kind==='wood'){
+  for(let i=0;i<92;i++){
+   const x=rand()*size,y=rand()*size,len=24+rand()*112,bend=(rand()-.5)*4;
+   ctx.strokeStyle=rand()>.5?'rgba(75,43,24,.105)':'rgba(255,221,173,.095)';
+   ctx.lineWidth=.45+rand()*.75;ctx.beginPath();ctx.moveTo(x,y);
+   ctx.bezierCurveTo(x+bend,y+len*.28,x-bend*.6,y+len*.72,x+bend*.25,y+len);ctx.stroke();
+  }
+  for(let i=0;i<7;i++){
+   const x=rand()*size,y=rand()*size,rx=2+rand()*3,ry=5+rand()*9;
+   ctx.strokeStyle='rgba(78,48,28,.10)';ctx.lineWidth=.7;ctx.beginPath();
+   ctx.ellipse(x,y,rx,ry,(rand()-.5)*.12,0,Math.PI*2);ctx.stroke();
+  }
+ }
  // Мягкие травяные штрихи и редкие пятна придают газону естественную фактуру без визуального мусора.
  if(kind==='grass'){
   for(let i=0;i<1450;i++){
