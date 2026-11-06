@@ -2859,55 +2859,28 @@ function makeWorldDecor(){
   // Основание в тон тёмному камню; контраст мягкий, без чисто белого и чёрного.
   // Центральная дорога: ровная ось от крыльца главного дома к мосту, одинаковая ширина по всей длине.
   const roadBase=mat(0x42494c,.98);
-  // Единая брусчатка по образцу моста: отдельные восьмигранные камни с фаской,
-  // бело-серыми оттенками, тёмными швами и перевязкой рядов.
-  const addGranitePaving=(rows,cols,startX,startZ,pitchX,pitchZ,width,depth,heightAt,staggerAxis='x')=>{
-    const positions=[],colors=[],indices=[];
-    const outline=[[-.5,-.42],[-.42,-.5],[.42,-.5],[.5,-.42],[.5,.42],[.42,.5],[-.42,.5],[-.5,.42]];
-    for(let row=0;row<rows;row++){
-      for(let col=0;col<cols;col++){
-        const stagger=staggerAxis==='z'?col%2:row%2;
-        const x=startX+col*pitchX+(staggerAxis==='x'?stagger*.5*pitchX:0);
-        const z=startZ+row*pitchZ+(staggerAxis==='z'?stagger*.5*pitchZ:0);
-        // Высокий контраст: чистый светлый гранит чередуется с почти чёрным камнем.
-        const shadeBase=(row+col)%2===0?.98:.035;
-        const shade= Math.min(1,shadeBase+((row*13+col*17)%5)*.004);
-        const variation=((row*3+col*7)%5)*.004;
-        const base=positions.length/3;
-        for(let ring=0;ring<2;ring++){
-          const inset=ring===0?1:.925;
-          for(let k=0;k<8;k++){
-            const [ox,oz]=outline[k],px=x+ox*width*inset,pz=z+oz*depth*inset;
-            const py=heightAt(pz)+(ring===0?.012:.046);
-            positions.push(px,py,pz);
-            const tone=Math.min(.99,shade*(ring===0?.72:1)+(ring===1&&k%3===0?variation*.35:0));
-            colors.push(tone,tone*1.012,tone*1.02);
-          }
-        }
-        positions.push(x,heightAt(z)+.046,z);
-        colors.push(shade,shade*1.012,shade*1.02);
-        for(let k=0;k<8;k++){
-          const next=(k+1)%8,lo=base+k,loNext=base+next,hi=base+8+k,hiNext=base+8+next;
-          indices.push(lo,loNext,hiNext,lo,hiNext,hi);
-          indices.push(base+8+k,base+8+next,base+16);
-        }
-      }
-    }
-    const geometry=new THREE.BufferGeometry();
-    geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
-    geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
-    geometry.setIndex(indices);geometry.computeVertexNormals();
-    const material=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.96,metalness:0});
-    const paving=new THREE.Mesh(geometry,material);paving.castShadow=false;paving.receiveShadow=false;world.add(paving);
-  };
   box(world,3.9,.12,24.2,0,.035,2.05,roadBase,false);
   // Мощение повторяет мост: белый и серый гранит, каждый следующий ряд смещён на половину камня.
-  addGranitePaving(42,8,-1.575,-9.72,.45,.565,.428,.535,()=>.1475,'x');
+  for(let row=0;row<52;row++){
+    const z=-9.72+row*.47,offset=row%2?.285:0;
+    for(let col=0;col<6;col++){
+      const x=-1.425+col*.57+offset;
+      const brick=(row+col)%2===0?roadBrickLight:roadBrickDark;
+      box(world,.515,.105,.425,x,.1475,z,brick,false);
+    }
+  }
   // Поперечная дорога проходит ровно от внутренней грани левого забора до внутренней грани правого.
   // Ширина 30 метров и центр X=1.25 точно соответствуют боковым сторонам ограждения (-14 и 16.5).
   box(world,30.0,.12,1.95,1.25,.035,-4.55,roadBase,false);
   // Поперечная дорожка использует ту же бело-серую перевязку, что и мост.
-  addGranitePaving(3,66,-13.375,-5.115,.45,.565,.428,.535,()=>.1475,'z');
+  for(let col=0;col<55;col++){
+    const x=-13.46+col*.545;
+    for(let row=0;row<3;row++){
+      const z=-5.10+row*.55+(col%2?.275:0);
+      const brick=(col+row)%2===0?roadBrickLight:roadBrickDark;
+      box(world,.515,.105,.495,x,.1475,z,brick,false);
+    }
+  }
   // Тёмный контур и каменные бордюры подчёркивают геометрию всех основных дорожек.
   const roadEdgeMat=mat(0x42494c,.96);
   const roadEdgeTop=mat(0x92999a,.92);
@@ -2935,13 +2908,13 @@ function makeWorldDecor(){
       box(world,.025,.018,.195,x,.18,z,roadEdgeTop,false);
     }
   }
-  // Боковые линии подъёма вынесены к внешней ширине настила моста.
+  // Боковые линии подъёма продолжают серый гранитный контур и сходятся с кромкой моста.
   for(let row=0;row<8;row++){
     const z=13.75+row*.55,t=row/7,deckY=.16+.86*t;
     for(const side of [-1,1]){
-      const x=side*2.405;
-      box(world,.13,.075,.46,x,deckY-.0325,z,roadEdgeMat,false);
-      box(world,.055,.022,.43,x-side*.012,deckY+.022,z,roadEdgeTop,false);
+      const x=side*1.965;
+      box(world,.18,.085,.46,x,deckY-.0325,z,roadEdgeMat,false);
+      box(world,.07,.025,.43,x-side*.012,deckY+.022,z,roadEdgeTop,false);
     }
   }
   // Небольшие тёмные угловые камни связывают пересечение двух дорожек в цельный узел.
@@ -2954,9 +2927,17 @@ function makeWorldDecor(){
   }
   // Подъём выполнен из тех же белых и серых гранитных кирпичей; последний ряд входит в настил моста без щели.
   // Центр последнего ряда совпадает с началом моста (Z=17.6), высота совпадает с bridgeDeckY=1.02.
-  box(world,4.8,.12,4.72,0,.48,15.675,roadBase,false);
-  // 10 камней по ширине, как на мосту; крайние ряды заходят под настил для бесшовного стыка.
-  addGranitePaving(8,10,-2.025,13.75,.45,.55,.428,.52,z=>.16+.86*Math.max(0,Math.min(1,(z-13.75)/(17.6-13.75))),'x');
+  for(let row=0;row<8;row++){
+    const z=13.75+row*.55;
+    const t=row/7;
+    const deckY=.16+.86*t;
+    box(world,4.0,.12,.48,0,deckY-.06,z,roadBase,false);
+    for(let col=0;col<7;col++){
+      const x=-1.71+col*.57+(row%2?.285:0);
+      const brick=(row+col)%2===0?roadBrickLight:roadBrickDark;
+      box(world,.53,.09,.49,x,deckY+.005,z,brick,false);
+    }
+  }
   // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проём оставлен для дороги с моста.
   const fenceMat=mat(0x817967),fenceCap=mat(0xb0a38a),fenceJoint=mat(0x6b6252);
   for(let p=-14;p<=14;p+=1.75){
