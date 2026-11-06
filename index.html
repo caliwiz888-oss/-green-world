@@ -3674,12 +3674,15 @@ function makeWorldDecor(){
       box(world,length,.13,.78,cx,.965,z,fenceCap,false);
       box(world,length,.045,.80,cx,1.055,z,fenceLightTrim,false);
       box(world,length,.035,.82,cx,.875,z,fenceBaseTrim,false);
+      // Тонкая шалфейная линия на лицевой грани связывает карниз с двухцветной палитрой ограды.
+      box(world,length,.022,.018,cx,.965,z+(z<0?-.397:.397),fenceJoint,false);
     }
   }
   for(const x of [-14,16.5]){
     box(world,.78,.13,28.4,x,.965,0,fenceCap,false);
     box(world,.80,.045,28.4,x,1.055,0,fenceLightTrim,false);
     box(world,.82,.035,28.4,x,.875,0,fenceBaseTrim,false);
+    box(world,.018,.022,28.4,x+(x<0?-.397:.397),.965,0,fenceJoint,false);
   }
   // Входные столбы по краям центральной дорожки.
   for(const x of [-3.5,3.5]){
@@ -3762,6 +3765,7 @@ function makeWorldDecor(){
         box(world,.46,1.43,.46,x,.715,pz,fenceBaseTrim,false);
         box(world,.56,.14,.56,x,1.43,pz,fenceLightTrim,false);
         box(world,.38,.08,.38,x,1.54,pz,fenceRelief,false);
+        box(world,.48,.055,.48,x,1.61,pz,fenceBaseTrim,false);
       }
       // Каждая арка занимает собственную секцию и опирается на общие квадратные столбы.
       addFenceArc(archProfile(front,back,baseY,apexY,x,'z'),fenceLightTrim,.055);
