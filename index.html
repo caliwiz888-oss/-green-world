@@ -2203,6 +2203,19 @@ function makeFactory(){
      brickFace.addColorStop(1,'rgba(35,22,18,.075)');
      brickCtx.fillStyle=brickFace;
      brickCtx.fillRect(x+4,y+5,56,21);
+     // Едва заметная неоднородность обжига внутри кирпича: мягкие тёплые и графитовые облака.
+     const kilnTone=brickCtx.createRadialGradient(x+18+(row%3)*7,y+10,2,x+30,y+16,34);
+     kilnTone.addColorStop(0,row%3===0?'rgba(190,132,91,.075)':'rgba(255,222,190,.045)');
+     kilnTone.addColorStop(1,'rgba(65,42,32,.012)');
+     brickCtx.fillStyle=kilnTone;
+     brickCtx.fillRect(x+4,y+5,56,21);
+     // Мелкие поры распределены по телу кирпича, не затрагивая растворные швы.
+     for(let pore=0;pore<5;pore++){
+       const px=x+7+((row*17+Math.floor(x/16)*11+pore*13)%50);
+       const py=y+7+((row*7+pore*5+Math.floor(x/8))%17);
+       brickCtx.fillStyle=pore%3===0?'rgba(255,226,195,.12)':'rgba(48,31,25,.10)';
+       brickCtx.fillRect(px,py,1,1);
+     }
      // Тонкая фаска по нижней кромке делает каждый кирпич визуально отдельным.
      brickCtx.fillStyle='rgba(30,20,17,.09)';
      brickCtx.fillRect(x+4,y+26,56,1);
@@ -2244,9 +2257,9 @@ function makeFactory(){
  brickTexture.repeat.set(2,1.5);
  brickTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const brickBump=brickTexture.clone();brickBump.colorSpace=THREE.NoColorSpace;brickBump.needsUpdate=true;
- brick.map=brickTexture;brick.bumpMap=brickBump;brick.bumpScale=.048;brick.needsUpdate=true;
+ brick.map=brickTexture;brick.bumpMap=brickBump;brick.bumpScale=.05;brick.needsUpdate=true;
  // Кирпичные выступающие опоры получают ту же кладочную фактуру, чтобы фасад читался единым материалом.
- brickLight.map=brickTexture;brickLight.bumpMap=brickBump;brickLight.bumpScale=.041;brickLight.needsUpdate=true;
+ brickLight.map=brickTexture;brickLight.bumpMap=brickBump;brickLight.bumpScale=.043;brickLight.needsUpdate=true;
  // Gentle warm interior lighting gives the factory glazing a believable evening glow.
  warmLight(g,-1.8,2.65,1.35,.8,8);warmLight(g,1.8,2.65,1.35,.8,8);
  // Каменная площадка перед промышленным входом связывает фасад с территорией.
