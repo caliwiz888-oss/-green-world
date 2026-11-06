@@ -351,6 +351,14 @@ function makeHouse(){
    masonryCtx.lineTo(px+2+(i%5),py+((i%3)-1));
    masonryCtx.stroke();
  }
+ // Короткие тонкие прожилки и микропоры подчёркивают природную структуру известняка.
+ for(let i=0;i<72;i++){
+   const px=(i*47+13)%256,py=(i*83+29)%256;
+   masonryCtx.strokeStyle=i%5===0?'rgba(151,126,96,.09)':'rgba(80,78,70,.055)';
+   masonryCtx.lineWidth=1;
+   masonryCtx.beginPath();masonryCtx.moveTo(px,py);masonryCtx.lineTo(px+3+(i%7),py+((i%5)-2)*.35);masonryCtx.stroke();
+   if(i%3===0){masonryCtx.fillStyle='rgba(65,65,65,.07)';masonryCtx.fillRect((px+11)%256,(py+7)%256,1,1);}
+ }
  masonryCtx.strokeStyle='#777777';masonryCtx.lineWidth=3;
  for(let row=0;row<8;row++){
    const y=row*32,offset=row%2?32:0;
