@@ -4669,17 +4669,8 @@ function makeWorldLandscape(){
    const facet=new THREE.Mesh(new THREE.SphereGeometry(1,14,8),material);
    facet.position.set(x,y,z);facet.scale.set(sx,sy,sz);facet.rotation.z=rz;world.add(facet);
  }
- // A low, blue-green ridge in front of the peaks gives the mountain range atmospheric depth.
- for(const [x,z,sx,sy,sz] of [[-19,-25,8,5,4],[0,-27,11,6,4.8],[19,-24,8,4.8,4]]){
-   const ridge=sphere(world,1,x,sy*.36,z,mat(0x78977f),1);
-   ridge.scale.set(sx,sy,sz);
- }
- // Soft secondary ridgelines add a little more depth to the distant green hills.
- const distantRidgeMat=mat(0x76977f);
- for(const [x,y,z,sx,sy,sz] of [[-29,1.35,-27,5.8,.28,1.05],[-17,1.55,-30,6.5,.3,1.1],[-1,1.4,-32,7.2,.26,1.15],[15,1.45,-29,6.2,.28,1.05],[28,1.25,-25,5.1,.24,.95]]){
-   const ridgeLine=new THREE.Mesh(new THREE.SphereGeometry(1,18,8),distantRidgeMat);
-   ridgeLine.position.set(x,y,z);ridgeLine.scale.set(sx,sy,sz);world.add(ridgeLine);
- }
+ // Три округлых зелёных холма перед горами удалены; лес остаётся единственным переходом к скальному хребту.
+ // Дополнительные зелёные гряды удалены: за хвойным лесом сразу начинается горный рельеф.
  // Far blue-grey peaks sit behind the main range, giving the horizon a true layered-distance effect.
  const farRockBack=mat(0x858178),farSnowBack=mat(0xcbd9d6);
  // Дальние вершины используют те же минеральные и снежные карты, что и основной хребет.
