@@ -4620,6 +4620,17 @@ function makeWorldLandscape(){
  for(const [x,z] of [[-18,21.2],[-8,23.1],[9,21.6],[18,23.4]]){
    const glint=box(world,1.15,.025,.12,x,.09,z,waterGlint,false);glint.rotation.y=.12;riverMotionObjects.push({mesh:glint,baseX:x,baseZ:z,phase:x*.7,speed:.13,range:.28,baseLength:1.15});
  }
+ // Broken, delicate foam traces gather along both shallow edges and drift with the current.
+ const bankFoamMat=new THREE.MeshBasicMaterial({color:0xd9eee5,transparent:true,opacity:.2,depthWrite:false});
+ for(let i=0;i<18;i++){
+   const x=-22.5+i*2.65;
+   for(const [side,phaseOffset] of [[19.12,.4],[25.28,1.7]]){
+     const len=.28+(i%4)*.11;
+     const foamTrace=box(world,len,.009,.045+(i%3)*.012,x,.105,side,bankFoamMat,false);
+     foamTrace.rotation.y=((i%5)-2)*.035;
+     riverMotionObjects.push({mesh:foamTrace,baseX:x,baseZ:side,phase:i*.91+phaseOffset,speed:.11+(i%3)*.025,range:.1+(i%2)*.04,baseLength:len});
+   }
+ }
  // Open riverbank horizon.
  // Small cascades at the river's far end create a visible waterfall effect.
  for(const z of [20.9,22.2,23.5]){
