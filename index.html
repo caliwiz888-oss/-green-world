@@ -2553,6 +2553,15 @@ function makeWorldLandscape(){
    foothillCtx.fillStyle=g;foothillCtx.beginPath();
    foothillCtx.ellipse(x,y,len,ry,(i%5-2)*.12,0,Math.PI*2);foothillCtx.fill();
  }
+ // Редкие светлые кромки на верхних изгибах холмов усиливают мягкое естественное освещение.
+ for(let i=0;i<7;i++){
+   const x=(i*37+12)%112,y=(i*31+16)%118,len=10+(i*7)%17,bend=((i*5)%7)-3;
+   foothillCtx.strokeStyle='rgba(232,238,207,.085)';
+   foothillCtx.lineWidth=.5+(i%2)*.2;foothillCtx.lineCap='round';
+   foothillCtx.beginPath();foothillCtx.moveTo(x,y);
+   foothillCtx.bezierCurveTo(x+len*.28,y-1.2+bend*.25,x+len*.68,y+1.1-bend*.2,x+len,y+.2);
+   foothillCtx.stroke();
+ }
  const foothillTexture=new THREE.CanvasTexture(foothillCanvas);
  foothillTexture.colorSpace=THREE.SRGBColorSpace;foothillTexture.wrapS=foothillTexture.wrapT=THREE.RepeatWrapping;
  foothillTexture.repeat.set(2,1);foothillTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
