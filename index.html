@@ -8,14 +8,21 @@
 <meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#91c6df">
 <script>
-// Telegram may keep an old WebView document alive; version the Render URL on every frontend release.
+// Force Telegram WebView onto the current frontend build from either entry host.
+const GREEN_WORLD_BUILD_ID = '20261106-150001';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
   incoming.forEach((value, key) => target.searchParams.append(key, value));
-  target.searchParams.set('gwbuild', '20261106-134542');
+  target.searchParams.set('gwbuild', GREEN_WORLD_BUILD_ID);
   target.hash = location.hash;
   location.replace(target.toString());
+} else if (location.hostname === 'green-world-game.onrender.com') {
+  const current = new URL(location.href);
+  if (current.searchParams.get('gwbuild') !== GREEN_WORLD_BUILD_ID) {
+    current.searchParams.set('gwbuild', GREEN_WORLD_BUILD_ID);
+    location.replace(current.toString());
+  }
 }
 </script>
 <title>GREEN WORLD — Новый мир</title>
