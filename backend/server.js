@@ -373,8 +373,7 @@ app.post('/api/game/upgrade-orchard',auth,(req,res)=>mutate(req,res,async(c,p)=>
 app.use((err,_req,res,_next)=>{console.error(err.message);res.status(500).json({error:'Internal server error'});});
 const port=Number(process.env.PORT||3000);
 db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS fruit_inventory JSONB NOT NULL DEFAULT '{}'::jsonb")
-.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS processed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb")
-))
+.then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS processed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb"))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS land_level INTEGER NOT NULL DEFAULT 1"))
 .then(()=>db.query("UPDATE players SET land_level=GREATEST(COALESCE(land_level,1),1)"))
 .then(()=>db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS seed_inventory JSONB NOT NULL DEFAULT '{}'::jsonb"))
