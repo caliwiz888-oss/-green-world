@@ -2481,6 +2481,39 @@ function makeWorldDecor(){
       box(world,.018,.72,.018,faceX+(x<0?-.018:.018),.68,p+.025,fenceLightTrim,false);
     }
   }
+  // Дополнительные горизонтальные швы подчёркивают крупные тесаные блоки между декоративными панелями.
+  for(const z of [-14.24,14.24]){
+    const faceZ=z+(z<0?-.158:.158);
+    const ranges=z===14?[[-14, -3.8],[-3.2,3.2],[3.8,16.5]]:[[-14,16.5]];
+    for(const [start,end] of ranges){
+      if(z===14 && Math.abs((start+end)/2)<3.6) continue;
+      const length=end-start-1.12;
+      if(length<=0) continue;
+      const center=(start+end)/2;
+      for(const y of [.31,1.12]){
+        box(world,length,.018,.022,center,y,faceZ,fenceShadow,false);
+        box(world,length,.012,.018,center,y+.025,faceZ+(z<0?-.012:.012),fenceLightTrim,false);
+      }
+    }
+  }
+  for(const x of [-14.24,16.74]){
+    const faceX=x+(x<0?-.158:.158);
+    for(let p=-12.25;p<=12.25;p+=3.5){
+      for(const y of [.31,1.12]){
+        box(world,.022,.018,2.38,faceX,y,p,fenceShadow,false);
+        box(world,.018,.012,2.38,faceX+(x<0?-.012:.012),y+.025,p,fenceLightTrim,false);
+      }
+    }
+  }
+  // Тонкие фаски на торцах верхнего карниза усиливают глубину каменного профиля.
+  for(const z of [-14,14]){
+    const spans=z===14?[[-14,-3.8],[3.8,16.5]]:[[-14,16.5]];
+    for(const [start,end] of spans){
+      const length=end-start-.18;
+      const center=(start+end)/2;
+      box(world,length,.022,.035,center,1.132,z+(z<0?-.405:.405),fenceBaseTrim,false);
+    }
+  }
   // Резные розетки на замковом камне арки: кольцо и центральный каменный кабошон.
   const gateRosetteRing=new THREE.Mesh(new THREE.TorusGeometry(.19,.026,8,36),fenceLightTrim);
   gateRosetteRing.position.set(0,5.02,14.475);
