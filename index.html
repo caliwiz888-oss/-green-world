@@ -2723,6 +2723,13 @@ function makeWorldLandscape(){
    waterCtx.quadraticCurveTo(x+len*.48,y-.45+(i%4)*.22,x+len,y+.12);
    waterCtx.stroke();
  }
+ // Разорванные мягкие отражения береговой зелени и светлого неба.
+ for(let i=0;i<12;i++){
+   const x=(i*31+11)%128,y=(i*19+21)%128,len=9+(i*13)%24,curve=(i%5-2)*1.15;
+   waterCtx.strokeStyle=i%3===0?'rgba(113,145,112,.095)':'rgba(246,255,249,.085)';
+   waterCtx.lineWidth=.8+(i%3)*.45;waterCtx.lineCap='round';waterCtx.beginPath();
+   waterCtx.moveTo(x,y);waterCtx.bezierCurveTo(x+len*.25,y+curve,x+len*.7,y-curve*.6,x+len,y+curve*.25);waterCtx.stroke();
+ }
  const waterTexture=new THREE.CanvasTexture(waterCanvas);riverWaterTexture=waterTexture;waterTexture.colorSpace=THREE.SRGBColorSpace;
  waterTexture.wrapS=waterTexture.wrapT=THREE.RepeatWrapping;waterTexture.repeat.set(2,1);
  waterTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();water.map=waterTexture;water.roughness=.24;water.needsUpdate=true;
@@ -3160,6 +3167,14 @@ function makeWorldLandscape(){
    const ring=new THREE.Mesh(new THREE.TorusGeometry(1,.012,5,40),ringMat);
    ring.rotation.x=-Math.PI/2;ring.position.set(x,.112,z);ring.scale.set(.08,1,.08);world.add(ring);
    riverRingObjects.push({mesh:ring,material:ringMat,baseX:x,baseZ:z,phase:i*.71,speed:.22+(i%3)*.035});
+ }
+ // Узкие подвижные отражения света и береговой зелени у кромки реки.
+ const bankReflectionMat=new THREE.MeshBasicMaterial({color:0xd9eee0,transparent:true,opacity:.14,depthWrite:false});
+ for(let i=0;i<10;i++){
+   const x=-20+(i*9.1)%40,z=i%2===0?19.05+(i%3)*.18:25.15-(i%3)*.16,len=.55+(i%4)*.24;
+   const reflection=new THREE.Mesh(new THREE.BoxGeometry(len,.008,.035),bankReflectionMat);
+   reflection.position.set(x,.108,z);reflection.rotation.y=(i%3-1)*.018;world.add(reflection);
+   riverMotionObjects.push({mesh:reflection,baseX:x,baseZ:z,phase:i*1.19,speed:.17+(i%4)*.025,range:.22+(i%3)*.1,baseLength:len});
  }
  // Stone bridge crossing the river, with parapets and evenly spaced balusters.
  box(world,4.8,.62,9.2,0,.78,22.2,M.stone2);
