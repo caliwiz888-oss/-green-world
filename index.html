@@ -832,6 +832,10 @@ function makeHouse(){
      box(t,.1,1.28,.18,-.39,3.35,z*1.035,towerGoldMaterial,false);
      box(t,.1,1.28,.18,.39,3.35,z*1.035,towerGoldMaterial,false);
      box(t,.08,.92,.12,0,3.35,z*1.09,towerGoldMaterial,false);
+     // Небольшие каменные акцентные площадки подчёркивают основания оконных перемычек.
+     for(const ax of [-.31,.31]){
+       box(t,.12,.055,.055,ax,3.91,z*1.17,towerDetailStone,false);
+     }
      // Небольшой центральный замковый камень завершает верх окна и связывает раму с кладкой.
      box(t,.24,.18,.22,0,4.13,z*1.075,towerDetailStone,false);
      sphere(t,.045,0,4.25,z*1.13,towerGoldMaterial,.85);
