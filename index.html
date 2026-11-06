@@ -3612,6 +3612,73 @@ function makeWorldDecor(){
     box(world,.92,1.45,.92,x,.725,14,fenceMat,false);
     box(world,1.08,.18,1.08,x,1.525,14,fenceCap,false);
   }
+  // Новая архитектура ограды: ритмичные каменные аркады над верхним карнизом.
+  // Арочные пролёты добавляют выразительный силуэт, не меняя периметр, проезды и расположение объектов.
+  const fenceArcMaterials=[fenceLightTrim,fenceRelief,fenceBaseTrim];
+  const addFenceArc=(points,material,radius)=>{
+    const curve=new THREE.CatmullRomCurve3(points);
+    const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,28,radius,7,false),material);
+    mesh.castShadow=false;mesh.receiveShadow=false;world.add(mesh);
+  };
+  for(const side of ["front","back"]){
+    const z=side==="front"?14.43:-14.43;
+    const sign=side==="front"?1:-1;
+    const spans=side==="front"?[[-14,-3.8],[3.8,16.5]]:[[-14,16.5]];
+    for(const [start,end] of spans){
+      for(let cx=start+1.75;cx<end-1.1;cx+=3.5){
+        const left=cx-1.28,right=cx+1.28,baseY=1.36,apexY=1.78;
+        for(const px of [left,right]){
+          const pier=box(world,.13,.40,.13,px,1.49,z,fenceBaseTrim,false);
+          box(world,.19,.055,.19,px,1.70,z,fenceLightTrim,false);
+          const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.105,0),fenceRelief);
+          finial.position.set(px,1.79,z);finial.scale.set(.78,1.25,.78);
+          finial.castShadow=false;finial.receiveShadow=false;world.add(finial);
+        }
+        addFenceArc([
+          new THREE.Vector3(left,baseY,z),
+          new THREE.Vector3(left+.34,1.57,z),
+          new THREE.Vector3(cx,apexY,z),
+          new THREE.Vector3(right-.34,1.57,z),
+          new THREE.Vector3(right,baseY,z)
+        ],fenceLightTrim,.035);
+        addFenceArc([
+          new THREE.Vector3(left+.16,baseY+.015,z+sign*.025),
+          new THREE.Vector3(cx,1.67,z+sign*.025),
+          new THREE.Vector3(right-.16,baseY+.015,z+sign*.025)
+        ],fenceBaseTrim,.014);
+        const quatrefoil=new THREE.Mesh(new THREE.TorusGeometry(.105,.022,6,20),fenceCap);
+        quatrefoil.position.set(cx,1.53,z+sign*.075);
+        quatrefoil.scale.set(1,1.12,.55);
+        quatrefoil.castShadow=false;quatrefoil.receiveShadow=false;world.add(quatrefoil);
+      }
+    }
+  }
+  for(const side of ["left","right"]){
+    const x=side==="right"?16.43:-13.93;
+    const sign=side==="right"?1:-1;
+    for(let cz=-10.5;cz<=10.5;cz+=3.5){
+      const front=cz-1.28,back=cz+1.28,baseY=1.36;
+      for(const pz of [front,back]){
+        box(world,.13,.40,.13,x,1.49,pz,fenceBaseTrim,false);
+        box(world,.19,.055,.19,x,1.70,pz,fenceLightTrim,false);
+        const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.105,0),fenceRelief);
+        finial.position.set(x,1.79,pz);finial.scale.set(.78,1.25,.78);
+        finial.castShadow=false;finial.receiveShadow=false;world.add(finial);
+      }
+      addFenceArc([
+        new THREE.Vector3(x,baseY,front),
+        new THREE.Vector3(x,1.57,front+.34),
+        new THREE.Vector3(x,1.78,cz),
+        new THREE.Vector3(x,1.57,back-.34),
+        new THREE.Vector3(x,baseY,back)
+      ],fenceLightTrim,.035);
+      addFenceArc([
+        new THREE.Vector3(x+sign*.025,baseY+.015,front+.16),
+        new THREE.Vector3(x+sign*.025,1.67,cz),
+        new THREE.Vector3(x+sign*.025,baseY+.015,back-.16)
+      ],fenceBaseTrim,.014);
+    }
+  }
   // Decorative entrance arch is built above; continue with natural ground-cover details.
  // Low ornamental ground cover and natural stone clusters around the outer border.
  const shrubMat=mat(0x477f3d),rockMat=mat(0x8b8979);
