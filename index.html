@@ -4446,6 +4446,51 @@ function makeWorldLandscape(){
     const lowerCurve=new THREE.CatmullRomCurve3(lowerPoints);
     const lowerRail=new THREE.Mesh(new THREE.TubeGeometry(lowerCurve,64,.085,8,false),bridgeStoneMid);lowerRail.castShadow=false;lowerRail.receiveShadow=false;world.add(lowerRail);
  }
+ // Архитектурное обновление: ажурные каменные арки между балясинами и выразительные входные пилоны.
+ const bridgeOrnamentMat=new THREE.MeshStandardMaterial({color:0xb0b3aa,map:surfaceMaps.stone,roughness:.91,metalness:0});
+ const bridgeAccentMat=new THREE.MeshStandardMaterial({color:0x596367,roughness:.88,metalness:.02});
+ for(const side of [-1,1]){
+   const faceX=side*2.355;
+   // Невысокие стрельчатые арочки связывают балясины в цельную резную балюстраду.
+   for(let bay=0;bay<12;bay++){
+     const z0=bridgeStartZ+.28+(bridgeLength-.56)*bay/12;
+     const z1=bridgeStartZ+.28+(bridgeLength-.56)*(bay+1)/12;
+     const mid=(z0+z1)*.5;
+     const points=[];
+     for(let k=0;k<=12;k++){
+       const t=k/12;
+       const z=z0+(z1-z0)*t;
+       const y=bridgeDeckY(z)+.24+.29*Math.sin(Math.PI*t);
+       points.push(new THREE.Vector3(faceX,y,z));
+     }
+     const archCurve=new THREE.CatmullRomCurve3(points);
+     const arch=new THREE.Mesh(new THREE.TubeGeometry(archCurve,24,.038,7,false),bridgeOrnamentMat);
+     arch.castShadow=false;arch.receiveShadow=false;world.add(arch);
+     // Центральный резной ромб завершает каждую арочную секцию.
+     const medY=bridgeDeckY(mid)+.405;
+     const med=box(world,.035,.145,.145,side*2.39,medY,mid,bridgeAccentMat,false);
+     med.rotation.x=Math.PI/4;
+     const medCore=sphere(world,.026,side*2.415,medY,mid,bridgeOrnamentMat,false);
+     medCore.scale.set(.42,1,.78);
+   }
+   // Парные монументальные пилоны отмечают вход и выход с моста, не сужая проезд.
+   for(const z of [bridgeStartZ+.12,bridgeEndZ-.12]){
+     const deckY=bridgeDeckY(z);
+     const base=box(world,.62,.18,.68,side*2.18,deckY+.09,z,bridgeStoneDark,false);
+     const baseCap=box(world,.54,.09,.6,side*2.18,deckY+.225,z,bridgeStoneLight,false);
+     const shaft=box(world,.39,.88,.43,side*2.18,deckY+.70,z,bridgeStoneMid,false);
+     const shaftInset=box(world,.025,.52,.245,side*2.18,deckY+.70,z+.224,bridgeAccentMat,false);
+     const shaftInsetCore=box(world,.03,.39,.16,side*2.18,deckY+.70,z+.243,bridgeOrnamentMat,false);
+     const capital=box(world,.57,.14,.59,side*2.18,deckY+1.19,z,bridgeStoneLight,false);
+     const crown= new THREE.Mesh(new THREE.CylinderGeometry(.22,.31,.34,4,1),bridgeStoneMid);
+     crown.position.set(side*2.18,deckY+1.42,z);crown.rotation.y=Math.PI/4;crown.castShadow=false;crown.receiveShadow=false;world.add(crown);
+     const finial=sphere(world,.105,side*2.18,deckY+1.66,z,bridgeStoneLight,false);
+     finial.scale.set(.82,1.25,.82);
+     const band=box(world,.43,.035,.47,side*2.18,deckY+1.30,z,bridgeAccentMat,false);
+     const faceStud=sphere(world,.045,side*2.18,deckY+.72,z+.265,bridgeStoneLight,false);
+     faceStud.scale.set(.5,1,.55);
+   }
+ }
  for(const bridgePart of world.children.slice(bridgeChildrenStart)){if(bridgePart.isMesh){bridgePart.castShadow=false;bridgePart.receiveShadow=false;}}
  // Natural riverbank detail: smooth stones, reeds and shallow-water highlights.
  const bankStone=mat(0x9a9b87),reedMat=mat(0x78964c),reedTip=mat(0xb6b56d),waterGlint=mat(0xa9e5e7);
