@@ -2358,7 +2358,7 @@ function makeWorldDecor(){
   const entranceGateGeometry=new THREE.ExtrudeGeometry(entranceGateShape,{depth:.52,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.075,bevelThickness:.065,curveSegments:32});
   const entranceGate=new THREE.Mesh(entranceGateGeometry,fenceMat);
   entranceGate.position.set(0,.02,13.76);
-  entranceGate.castShadow=true;entranceGate.receiveShadow=true;world.add(entranceGate);
+  entranceGate.castShadow=false;entranceGate.receiveShadow=false;world.add(entranceGate);
   // Светлый внутренний архивольт подчёркивает форму свода и отделяет его от основной кладки.
   const gateArchLine=(radius,tube,material,z=gateFrontZ)=>{
     const pts=[];
@@ -2402,14 +2402,14 @@ function makeWorldDecor(){
   box(world,.92,.13,.34,0,5.43,14.12,fenceBaseTrim,false);
   box(world,.68,.11,.32,0,5.52,14.12,fenceLightTrim,false);
   const gateCrest= new THREE.Mesh(new THREE.OctahedronGeometry(.25,0),fenceCap);
-  gateCrest.position.set(0,5.78,14.18);gateCrest.scale.set(.9,1.15,.42);gateCrest.castShadow=true;world.add(gateCrest);
+  gateCrest.position.set(0,5.78,14.18);gateCrest.scale.set(.9,1.15,.42);gateCrest.castShadow=false;gateCrest.receiveShadow=false;world.add(gateCrest);
   // Латунные медальоны на пилонах и тонкий поясок соединяют арку с архитектурой ограды.
   for(const x of [-2.56,2.56]){
     box(world,.98,.09,.86,x,3.02,13.98,fenceCap,false);
     const medallion=cylinder(world,.16,.16,.055,x,1.62,14.405,M.gold,12);
-    medallion.rotation.x=Math.PI/2;
+    medallion.rotation.x=Math.PI/2;medallion.castShadow=false;medallion.receiveShadow=false;
     const medallionCore=sphere(world,.07,x,1.62,14.445,fenceLightTrim,.9);
-    medallionCore.scale.z=.35;
+    medallionCore.scale.z=.35;medallionCore.castShadow=false;medallionCore.receiveShadow=false;
   }
   // Непрерывный нижний цоколь и верхний каменный карниз по четырём сторонам.
   for(const z of [-14,14]){
@@ -2909,7 +2909,7 @@ function makeWorldLandscape(){
    }
  }
  // Narrow exposed-rock ribs and snow gullies break up the main summits with natural alpine variation.
- const rockRib=mat(0x596f69),snowShadow=mat(0xc5d8d1);
+ const rockRib=mat(0x596f69),snowShadow=mat(0xf0f5f0);
  for(let i=0;i<peaks.length;i++){
    const [x,z,h,r]=peaks[i];
    for(const side of [-1,1]){
@@ -2935,13 +2935,13 @@ function makeWorldLandscape(){
    shelf.position.set(x,y,z);shelf.scale.set(sx,sy,sz);world.add(shelf);
  }
  // Cool shaded lips beneath the snow shelves make the summit layers read more clearly.
- const snowLipMat=mat(0xaebfba);
+ const snowLipMat=mat(0xf2f6f1);
  for(const [x,y,z,sx,sz] of [[-14,10.88,-35.82,2.35,.58],[-3,12.96,-38.82,3.05,.66],[9,11.3,-35.82,2.5,.57],[22,8.63,-30.82,1.8,.48]]){
    const lip=new THREE.Mesh(new THREE.SphereGeometry(1,14,8),snowLipMat);
    lip.position.set(x,y,z);lip.scale.set(sx,.085,sz);world.add(lip);
  }
  // Small cool-toned snow facets break the broad summit caps into natural irregular planes.
- const summitShadeMat=mat(0xd0dfda),summitLightMat=mat(0xf0f4ec);
+ const summitShadeMat=mat(0xf0f5ef),summitLightMat=mat(0xf6f8f3);
  for(const [x,y,z,sx,sy,sz,material,rz] of [
    [-22,10.9,-30.55,1.65,.13,.48,summitShadeMat,-.16],[-12,13.15,-35.55,1.9,.14,.52,summitLightMat,.12],
    [-1,14.2,-38.55,2.1,.15,.56,summitShadeMat,-.1],[11,12.85,-35.55,1.85,.13,.5,summitLightMat,.14],
@@ -2986,13 +2986,23 @@ function makeWorldLandscape(){
    facet.position.set(x,y,z);facet.scale.set(sx,sy,sz);facet.rotation.z=rz;world.add(facet);
  }
  // Тонкие холодные тени под снежными гранями дальних вершин усиливают объём снежных шапок.
- const farSnowShade=mat(0xb7c9c7);
+ const farSnowShade=mat(0xf0f5f0);
  for(const [x,y,z,sx,sz,rz] of [
    [-19,9.18,-52.82,1.45,.43,-.14],[-5,7.9,-55.82,1.2,.36,.12],
    [8,10.08,-53.82,1.62,.47,-.1],[23,7.72,-49.82,1.18,.34,.15]
  ]){
    const shade=new THREE.Mesh(new THREE.SphereGeometry(1,14,8),farSnowShade);
    shade.position.set(x,y,z);shade.scale.set(sx,.055,sz);shade.rotation.z=rz;world.add(shade);
+ }
+ // Убираем отбрасывание и приём теней на всех снежных поверхностях гор.
+ const mountainSnowMaterials=[snow,farSnow,snowShadow,snowLipMat,summitShadeMat,summitLightMat,farSnowBack,farSnowShade];
+ for(const object of world.children){
+   if(!object.isMesh) continue;
+   const materials=Array.isArray(object.material)?object.material:[object.material];
+   if(materials.some(material=>mountainSnowMaterials.includes(material))){
+     object.castShadow=false;
+     object.receiveShadow=false;
+   }
  }
  // Soft, translucent mountain mist settles in the valleys without obscuring the playable area.
  const mistMat=new THREE.MeshBasicMaterial({color:0xe3eee9,transparent:true,opacity:.16,depthWrite:false,fog:false});
