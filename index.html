@@ -3544,7 +3544,32 @@ const tiles=[];
 for(let x=0;x<20;x++)for(let z=0;z<20;z++){
  const i=x*20+z;const tile=new THREE.Mesh(tileGeo,(x+z)%2?M.grass:M.grass2);tile.position.set((x-9.5)*1.45,-.03,(z-9.5)*1.45);tile.receiveShadow=true;tile.userData.plotIndex=i;world.add(tile);tiles.push(tile);
 }
-function clearDynamic(){for(const t of treeObjects)world.remove(t);treeObjects=[];for(const b of buildingObjects)world.remove(b);buildingObjects=[]}
+const sharedWorldMaterials=new Set([...Object.values(M),windowInterior]);
+function disposeObject3D(root){
+ const materials=new Set(),textures=new Set();
+ root.traverse(object=>{
+  if(!object.isMesh)return;
+  if(object.geometry)object.geometry.dispose();
+  const list=Array.isArray(object.material)?object.material:[object.material];
+  for(const material of list){
+   if(!material||sharedWorldMaterials.has(material))continue;
+   materials.add(material);
+   for(const key of ['map','alphaMap','aoMap','bumpMap','normalMap','roughnessMap','metalnessMap','emissiveMap','envMap']){
+    const texture=material[key];if(texture&&texture.isTexture)textures.add(texture);
+   }
+  }
+ });
+ for(const texture of textures)texture.dispose();
+ for(const material of materials)material.dispose();
+ if(root.parent)root.parent.remove(root);
+}
+const plotRipeMaterial=mat(0x8fbd55),plotGrowingMaterial=mat(0x719a49);
+function clearDynamic(){
+ for(const t of treeObjects)disposeObject3D(t);
+ treeObjects=[];
+ for(const b of buildingObjects)disposeObject3D(b);
+ buildingObjects=[];
+}
 function unlocked(i){const level=Math.max(1,Number(player?.landLevel)||1),side=[0,6,10,14,18,20][level],start=Math.floor((20-side)/2),x=Math.floor(i/20),z=i%20;return x>=start&&x<start+side&&z>=start&&z<start+side}
 function drawPlayer(){
   if(!player)return;
@@ -3562,7 +3587,7 @@ function drawPlayer(){
     return;
   }
   if(buildingSignature!==lastBuildingSignature){
-    for(const b of buildingObjects)world.remove(b);
+    for(const b of buildingObjects)disposeObject3D(b);
     buildingObjects=[];
   // Завод создаётся первым и независимо от остальных объектов мира.
   const factoryChildrenBefore=new Set(world.children);
@@ -3625,7 +3650,7 @@ function drawPlayer(){
     lastBuildingSignature=buildingSignature;
   }
   if(plotSignature!==lastPlotSignature){
-    for(const t of treeObjects)world.remove(t);
+    for(const t of treeObjects)disposeObject3D(t);
     treeObjects=[];
     const map=new Map((player.plots||[]).map(p=>[p.index,p]));
   // Ошибка дерева, дома или рынка больше не прерывает создание завода.
@@ -3639,7 +3664,7 @@ function drawPlayer(){
   for(let i=0;i<400;i++){
     try{
       const p=map.get(i);
-      tiles[i].material=p?(p.grown?mat(0x8fbd55):mat(0x719a49)):((Math.floor(i/20)+i%20)%2?M.grass:M.grass2);
+      tiles[i].material=p?(p.grown?plotRipeMaterial:plotGrowingMaterial):((Math.floor(i/20)+i%20)%2?M.grass:M.grass2);
       tiles[i].material.needsUpdate=true;
     }catch(tileError){console.error('[render] Plot tile update failed:',tileError)}
   }
