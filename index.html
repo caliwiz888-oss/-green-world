@@ -2330,6 +2330,22 @@ function makeWorldDecor(){
       box(world,.50,.055,.50,x,1.45,p,fenceJoint,false);
     }
   }
+  // Четыре угловых пилона получают отдельные ступенчатые накладки и вертикальные каменные грани.
+  for(const x of [-14,16.5]) for(const z of [-14,14]){
+    const outerX=x+(x<0?-.405:.405),outerZ=z+(z<0?-.405:.405);
+    // Вертикальные фаски на двух внешних сторонах углового столба.
+    for(const dx of [-.22,.22]){
+      box(world,.055,1.02,.035,x+dx,.67,outerZ,fenceLightTrim,false);
+    }
+    for(const dz of [-.22,.22]){
+      box(world,.035,1.02,.055,outerX,.67,z+dz,fenceLightTrim,false);
+    }
+    // Ступенчатая верхняя плита с центральной ромбовидной вставкой.
+    box(world,1.02,.055,1.02,x,1.47,z,fenceBaseTrim,false);
+    box(world,.82,.045,.82,x,1.515,z,fenceLightTrim,false);
+    const cornerInset=box(world,.24,.035,.24,x,1.548,z,fenceRelief,false);
+    cornerInset.rotation.y=Math.PI/4;
+  }
   // Соединительные секции закрывают зазоры правых переднего и заднего углов.
   for(const z of [-14,14]){
     box(world,2.7,.90,.58,15.25,.45,z,fenceMat,false);
