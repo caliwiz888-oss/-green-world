@@ -71,10 +71,9 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 <div id="login"><div class="login-card"><h1>GREEN WORLD</h1><p>Новый мир готовится к открытию. Войди через Telegram, чтобы создать своё хозяйство и сохранить прогресс.</p><button class="smallbtn" id="retry-login">ПОДКЛЮЧИТЬ TELEGRAM</button><p id="login-error"></p></div></div>
 <div id="shade"><div class="panel">
  <div class="head"><h2>Управление хозяйством</h2><button class="close" id="menu-close">×</button></div>
- <div class="section"><h3>Твоя территория</h3><div class="line"><span id="land-status">Загрузка…</span><button class="smallbtn" id="expand">РАСШИРИТЬ</button></div>
+ <div class="section"><h3>Твоя территория</h3><div class="line"><span id="land-status">Загрузка…</span></div>
   <div class="actions">
    <button class="smallbtn" id="build-market">Торговая лавка · 1 500 GC</button>
-   <button class="smallbtn" id="build-factory">Завод · 5 000 GC</button>
   </div>
  </div>
  <div class="section"><h3>Посадка деревьев</h3><div class="line"><span>Выбери дерево</span><select id="tree-type"><option value="apple">Яблоня · 100 GC</option><option value="peach">Персик · 300 GC</option><option value="cherry">Вишня · 700 GC</option><option value="pear">Груша · 1 200 GC</option><option value="orange">Апельсин · 2 000 GC</option><option value="mango">Манго · 3 500 GC</option></select></div><div class="line"><span id="plot-hint">Выбери свободный участок на карте</span><button class="smallbtn" id="plant-menu">ПОСАДИТЬ</button></div></div>
@@ -3667,12 +3666,11 @@ async function action(path,body,msg){if(busy)return;busy=true;try{const data=awa
 async function login(){const tg=window.Telegram?.WebApp;const initData=tg?.initData||'';if(!initData){$('login-error').textContent='Открой игру из Telegram-бота, чтобы войти.';return}try{tg.ready();tg.expand();$('login-error').textContent='Подключаем аккаунт…';const data=await request('/api/auth/telegram',{initData},false);token=data.accessToken;applyPlayer(data.player);await loadDaily()}catch(e){$('login-error').textContent='Не удалось войти: '+e.message}}
 async function loadDaily(){try{daily=await request('/api/game/daily-reward');$('daily-info').textContent=daily.claimedToday?'Сегодня уже получено':'День '+daily.day+' · '+daily.reward+' GC';$('daily-claim').disabled=!!daily.claimedToday;$('daily-claim').textContent=daily.claimedToday?'ПОЛУЧЕНО':'ПОЛУЧИТЬ'}catch(e){$('daily-info').textContent=e.message}}
 function setSelected(i){selected=i;const p=(player?.plots||[]).find(x=>x.index===i);$('selection').textContent=p?(p.grown?'УРОЖАЙ ГОТОВ · УЧАСТОК '+(i+1):'ДЕРЕВО РАСТЁТ · УЧАСТОК '+(i+1)):'СВОБОДНЫЙ УЧАСТОК '+(i+1);$('plot-hint').textContent='Участок №'+(i+1)+' выбран'}
-function plant(){if(selected===null){toast('Сначала выбери участок на карте');return}if(!unlocked(selected)){toast('Участок закрыт — расширь территорию');return}const type=$('tree-type').value;action('/api/game/plant',{plotIndex:selected,treeType:type},'Дерево посажено')}
+function plant(){if(selected===null){toast('Сначала выбери участок на карте');return}if(!unlocked(selected)){toast('Этот участок пока недоступен');return}const type=$('tree-type').value;action('/api/game/plant',{plotIndex:selected,treeType:type},'Дерево посажено')}
 function water(){if(selected===null){toast('Выбери дерево на карте');return}action('/api/game/water',{plotIndex:selected},'Дерево полито · рост ускорен')}
 $('plant').onclick=plant;$('plant-menu').onclick=plant;$('water').onclick=()=>{if(selected===null){toast('Выбери дерево на карте');return}action('/api/game/water',{plotIndex:selected},'Дерево полито')};
 $('harvest').onclick=()=>action('/api/game/harvest-all',{},'Урожай собран');$('sell').onclick=()=>action('/api/game/sell',{},'Урожай продан');
-$('expand').onclick=()=>action('/api/game/expand-land',{},'Территория расширена');
-$('build-market').onclick=()=>action('/api/game/build',{kind:'market'},'Торговая лавка построена');$('build-factory').onclick=()=>action('/api/game/build',{kind:'factory'},'Завод построен');
+$('build-market').onclick=()=>action('/api/game/build',{kind:'market'},'Торговая лавка построена');
 
 $('daily-claim').onclick=async()=>{await action('/api/game/daily-reward/claim',{},'Ежедневный подарок получен');await loadDaily()};
 $('process-fruit').onclick=()=>action('/api/game/process',{fruitType:$('process-fruit-type').value,kind:$('process-kind').value},'Продукция изготовлена');
@@ -3681,7 +3679,7 @@ function cameraPosition(){camera.position.set(0,cameraHeight,cameraRadius);camer
 const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
 renderer.domElement.addEventListener('pointerdown',e=>{pointer={x:e.clientX,y:e.clientY,id:e.pointerId};dragged=false});
 renderer.domElement.addEventListener('pointermove',e=>{if(!pointer||pointer.id!==e.pointerId)return;const dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;if(Math.abs(dx)+Math.abs(dy)>5)dragged=true});
-renderer.domElement.addEventListener('pointerup',e=>{if(!pointer||pointer.id!==e.pointerId)return;if(!dragged){const r=renderer.domElement.getBoundingClientRect();mouse.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height*2-1));ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects(tiles,false);if(hits.length){const i=hits[0].object.userData.plotIndex;setSelected(i);if(!unlocked(i))toast('Участок закрыт — расширь территорию')}}pointer=null});
+renderer.domElement.addEventListener('pointerup',e=>{if(!pointer||pointer.id!==e.pointerId)return;if(!dragged){const r=renderer.domElement.getBoundingClientRect();mouse.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height*2-1));ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects(tiles,false);if(hits.length){const i=hits[0].object.userData.plotIndex;setSelected(i);if(!unlocked(i))toast('Этот участок пока недоступен')}}pointer=null});
 renderer.domElement.addEventListener('pointercancel',()=>pointer=null);
 
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
