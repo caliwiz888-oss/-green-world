@@ -224,8 +224,8 @@ let cameraRadius=60,cameraHeight=30;
 let buildingObjects=[];
 const scene=new THREE.Scene();
 // Мягкий процедурный небосвод: градиент от насыщенного голубого к светлому горизонту с едва заметными облачными вуалями.
-const skyCanvas=document.createElement('canvas');skyCanvas.width=4096;skyCanvas.height=2048;
-const skyCtx=skyCanvas.getContext('2d');skyCtx.scale(4,4);
+const skyCanvas=document.createElement('canvas');skyCanvas.width=8192;skyCanvas.height=4096;
+const skyCtx=skyCanvas.getContext('2d');skyCtx.scale(8,8);
 const skyGradient=skyCtx.createLinearGradient(0,0,0,512);
 skyGradient.addColorStop(0, '#4f91bd');skyGradient.addColorStop(.34, '#79b4d5');
 skyGradient.addColorStop(.68, '#b8d8df');skyGradient.addColorStop(1, '#dce8d7');
