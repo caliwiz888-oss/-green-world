@@ -262,7 +262,14 @@ function makeSurfaceTexture(kind,seed){
    const x=rand()*size,y=rand()*size,r=.5+rand()*1.8,tone=rand()>.5?125:75;
    ctx.fillStyle='rgba('+tone+','+tone+','+tone+','+(.12+rand()*.18)+')';
    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+   // Едва заметные плавные следы осадочных слоёв, без крупных камней и лишних объектов.
+  for(let i=0;i<26;i++){
+   const x=rand()*size,y=rand()*size,len=24+rand()*58,bend=(rand()-.5)*8;
+   ctx.strokeStyle=rand()>.5?'rgba(225,205,165,.055)':'rgba(70,58,43,.045)';
+   ctx.lineWidth=.5+rand()*.55;ctx.beginPath();ctx.moveTo(x,y);
+   ctx.quadraticCurveTo(x+len*.48,y+bend,x+len,y+bend*.25);ctx.stroke();
   }
+ }
  }
  const texture=new THREE.CanvasTexture(canvas);
  texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
