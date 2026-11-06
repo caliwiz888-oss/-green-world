@@ -403,6 +403,19 @@ function makeHouse(){
    masonryCtx.beginPath();masonryCtx.moveTo(px,py);masonryCtx.lineTo(px+3+(i%7),py+((i%5)-2)*.35);masonryCtx.stroke();
    if(i%3===0){masonryCtx.fillStyle='rgba(65,65,65,.07)';masonryCtx.fillRect((px+11)%256,(py+7)%256,1,1);}
  }
+ // Мягкие облачные минеральные оттенки раскрывают глубину известняка и не дробят фасад.
+ for(let i=0;i<24;i++){
+   const px=(i*89+41)%256,py=(i*57+19)%256;
+   const rx=5+(i*7)%13,ry=2+(i*5)%6;
+   masonryCtx.fillStyle=i%4===0?'rgba(177,151,119,.035)':'rgba(255,255,255,.045)';
+   masonryCtx.beginPath();masonryCtx.ellipse(px,py,rx,ry,(i%9)*.17,0,Math.PI*2);masonryCtx.fill();
+ }
+ // Небольшие затемнённые минеральные поры делают поверхность тесаного камня менее однородной.
+ for(let i=0;i<46;i++){
+   const px=(i*61+23)%256,py=(i*97+11)%256;
+   masonryCtx.fillStyle=i%5===0?'rgba(153,126,94,.085)':'rgba(73,70,64,.045)';
+   masonryCtx.beginPath();masonryCtx.ellipse(px,py,.7+(i%3)*.35,.55+(i%2)*.3,(i%6)*.2,0,Math.PI*2);masonryCtx.fill();
+ }
  masonryCtx.strokeStyle='#777777';masonryCtx.lineWidth=3;
  for(let row=0;row<8;row++){
    const y=row*32,offset=row%2?32:0;
