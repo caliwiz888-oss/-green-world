@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261106-160000';
+const GREEN_WORLD_BUILD_ID = '20261106-181000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2861,13 +2861,14 @@ function makeWorldDecor(){
   const roadBase=mat(0x42494c,.98);
   box(world,3.9,.12,24.2,0,.035,2.05,roadBase,false);
   // Точная копия мостовой брусчатки: форма, фаски, раскладка, оттенки и минеральная фактура.
-  function addRoadGranite(cols,rows,x0,z0,pitchX,pitchZ,width,depth,heightAt,staggerAxis){
+  function addRoadGranite(cols,rows,x0,z0,pitchX,pitchZ,width,depth,heightAt,staggerAxis,skipTile=null){
     const positions=[],colors=[],uvs=[],indices=[];
     const outline=[[-.5,-.42],[-.42,-.5],[.42,-.5],[.5,-.42],[.5,.42],[.42,.5],[-.42,.5],[-.5,.42]];
     for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
       const stagger=staggerAxis==='z'?(col%2)*pitchZ*.5:(row%2)*pitchX*.5;
       const x=x0+col*pitchX+(staggerAxis==='x'?stagger:0);
       const z=z0+row*pitchZ+(staggerAxis==='z'?stagger:0);
+      if(skipTile&&skipTile(x,z,row,col))continue;
       const w=width+(((row*7+col*3)%5)-2)*.004;
       const d=depth+(((row*5+col*11)%5)-2)*.005;
       const base=positions.length/3,isWhite=(row+col)%2===0;
@@ -2896,9 +2897,9 @@ function makeWorldDecor(){
     const mesh=new THREE.Mesh(geometry,material);mesh.castShadow=false;mesh.receiveShadow=false;world.add(mesh);
   }
   // Центральная дорога: те же гранитные камни 0.428 × 0.535 м, что и на мосту.
-  addRoadGranite(9,43,-1.8,-9.72,.45,.565,.428,.535,()=>.1475,'x');
+  addRoadGranite(9,42,-1.8,-9.72,.45,.565,.428,.535,()=>.1475,'x');
   // Поперечная дорога выложена теми же камнями, без смены материала или рисунка.
-  addRoadGranite(67,3,-13.95,-5.115,.45,.565,.428,.535,()=>.1475,'z');
+  addRoadGranite(67,3,-13.95,-5.115,.45,.565,.428,.535,()=>.1475,'z',(x)=>Math.abs(x)<2.25);
   // Тёмный контур и каменные бордюры подчёркивают геометрию всех основных дорожек.
   const roadEdgeMat=mat(0x42494c,.96);
   const roadEdgeTop=mat(0x92999a,.92);
@@ -2918,11 +2919,14 @@ function makeWorldDecor(){
   // Тёмные боковые линии поперечной дороги обрамляют плиточное мощение по всей ширине двора.
   for(const side of [-1,1]){
     const z=-4.55+side*.99;
-    box(world,30.15,.13,.19,1.25,.105,z,roadEdgeMat,false);
-    box(world,30.08,.035,.075,1.25,.184,z-side*.012,roadEdgeTop,false);
-    box(world,29.7,.018,.025,1.25,.169,z-side*.105,roadEdgeInlay,false);
+    for(const segment of [{x:-8.1,length:11.7},{x:9,length:13.5}]){
+      box(world,segment.length,.13,.19,segment.x,.105,z,roadEdgeMat,false);
+      box(world,segment.length-.07,.035,.075,segment.x,.184,z-side*.012,roadEdgeTop,false);
+      box(world,segment.length-.45,.018,.025,segment.x,.169,z-side*.105,roadEdgeInlay,false);
+    }
     for(let i=0;i<16;i++){
       const x=-12.55+i*1.84;
+      if(Math.abs(x)<2.25)continue;
       box(world,.025,.018,.195,x,.18,z,roadEdgeTop,false);
     }
   }
@@ -2935,17 +2939,9 @@ function makeWorldDecor(){
       box(world,.07,.025,.43,x-side*.012,deckY+.022,z,roadEdgeTop,false);
     }
   }
-  // Небольшие тёмные угловые камни связывают пересечение двух дорожек в цельный узел.
-  for(const x of [-1.91,1.91]){
-    for(const z of [-5.48,-3.62]){
-      const corner=box(world,.22,.11,.22,x,.105,z,roadEdgeMat,false);
-      corner.rotation.y=Math.PI/4;
-      box(world,.11,.025,.11,x,.17,z,roadEdgeTop,false);
-    }
-  }
   // Подъём выполнен из тех же белых и серых гранитных кирпичей; последний ряд входит в настил моста без щели.
   // Центр последнего ряда совпадает с началом моста (Z=17.6), высота совпадает с bridgeDeckY=1.02.
-  addRoadGranite(10,8,-2.025,13.75,.45,.565,.428,.535,z=>.16+.86*Math.max(0,Math.min(1,(z-13.75)/(17.6-13.75))),'x');
+  addRoadGranite(10,7,-2.025,14.01,.45,.565,.428,.535,z=>.16+.86*Math.max(0,Math.min(1,(z-13.75)/(17.6-13.75))),'x');
   // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проём оставлен для дороги с моста.
   const fenceMat=mat(0x817967),fenceCap=mat(0xb0a38a),fenceJoint=mat(0x6b6252);
   for(let p=-14;p<=14;p+=1.75){
