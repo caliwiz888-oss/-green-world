@@ -4759,22 +4759,37 @@ function makeWorldLandscape(){
    const mist=new THREE.Mesh(new THREE.SphereGeometry(1,20,10),mistMat);
    mist.position.set(x,y,z);mist.scale.set(sx,sy,sz);world.add(mist);
  }
- // Дальняя линия хвойных деревьев связывает ограду с холмами, не затрагивая игровую площадку.
- const pineTrunkMat=mat(0x70513a,.96),pineDeepMat=mat(0x315b43,.98),pineMidMat=mat(0x47754c,.96),pineTipMat=mat(0x638b59,.94);
- const pinePositions=[[-29,-30,4.4],[-24,-33,5.2],[-18,-31,3.8],[-12,-35,5.6],[-5,-33,4.3],[3,-36,5.8],[10,-32,4.5],[17,-35,5.4],[24,-32,4.1],[29,-29,4.8]];
- for(let i=0;i<pinePositions.length;i++){
-   const [x,z,h]=pinePositions[i],base=.16+(i%3)*.035;
-   const trunk=new THREE.Mesh(new THREE.CylinderGeometry(base*.72,base,h*.48,7),pineTrunkMat);
-   trunk.position.set(x,h*.24,z);trunk.castShadow=false;trunk.receiveShadow=false;world.add(trunk);
-   for(let tier=0;tier<3;tier++){
-     const radius=(.72-tier*.13)*(h/4.8),tierHeight=h*(.43-tier*.035);
-     const crown=new THREE.Mesh(new THREE.ConeGeometry(radius,tierHeight,8),tier===0?pineDeepMat:(tier===1?pineMidMat:pineTipMat));
-     crown.position.set(x,h*(.36+tier*.205),z);
-     crown.rotation.y=(i%4)*.18+tier*.24;
-     crown.castShadow=false;crown.receiveShadow=false;world.add(crown);
-   }
- }
- // A broad river outside the farm boundary, with layered banks and a stone crossing.
+ // Плотный многорядный хвойный лес закрывает задний план за домом; игровая площадка остаётся свободной.
+  const pineTrunkMat=mat(0x70513a,.96),pineDeepMat=mat(0x294f39,.99),pineMidMat=mat(0x3d7047,.97),pineTipMat=mat(0x5b8654,.95);
+  const forestTrees=[];
+  for(let row=0;row<4;row++){
+    for(let col=0;col<17;col++){
+      const x=-31+col*3.85+(row%2)*1.75+(((col*13+row*7)%5)-2)*.2;
+      const z=-19.5-row*3.55+((col*3+row)%4)*.2;
+      const h=3.5+((col*7+row*5)%8)*.29;
+      forestTrees.push({x,z,h,index:row*17+col});
+    }
+  }
+  const forestTrunkBatch=new THREE.InstancedMesh(new THREE.CylinderGeometry(.12,.18,1,7),pineTrunkMat,forestTrees.length);
+  const forestCrownGeometry=[0,1,2].map(()=>new THREE.ConeGeometry(1,1,8));
+  const forestCrownMaterials=[pineDeepMat,pineMidMat,pineTipMat];
+  const forestCrownBatches=forestCrownGeometry.map((geometry,tier)=>new THREE.InstancedMesh(geometry,forestCrownMaterials[tier],forestTrees.length));
+  const forestDummy=new THREE.Object3D();
+  for(let i=0;i<forestTrees.length;i++){
+    const tree=forestTrees[i],h=tree.h;
+    forestDummy.position.set(tree.x,h*.24,tree.z);forestDummy.scale.set(1,h*.48,1);forestDummy.rotation.set(0,0,0);forestDummy.updateMatrix();forestTrunkBatch.setMatrixAt(i,forestDummy.matrix);
+    for(let tier=0;tier<3;tier++){
+      const radius=(.72-tier*.13)*(h/4.8),tierHeight=h*(.43-tier*.035);
+      forestDummy.position.set(tree.x,h*(.36+tier*.205),tree.z);
+      forestDummy.scale.set(radius,tierHeight,radius);
+      forestDummy.rotation.set(0,(tree.index%4)*.18+tier*.24,0);forestDummy.updateMatrix();
+      forestCrownBatches[tier].setMatrixAt(i,forestDummy.matrix);
+    }
+  }
+  for(const batch of [forestTrunkBatch,...forestCrownBatches]){
+    batch.instanceMatrix.needsUpdate=true;batch.castShadow=false;batch.receiveShadow=false;world.add(batch);
+  }
+  // A broad river outside the farm boundary, with layered banks and a stone crossing.
  // Цельная сетчатая поверхность с реальной плавной волной вместо плоской коробки.
  const riverGeometry=new THREE.PlaneGeometry(52,6.8,156,28);
  riverSurfaceMesh=new THREE.Mesh(riverGeometry,water);
