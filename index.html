@@ -163,7 +163,7 @@ const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
 let token='',busy=false,player=null,daily=null,selected=null;
 let cameraRadius=55,cameraHeight=31,pointer=null,dragged=false;
-let plots=[],treeObjects=[],buildingObjects=[],lastBuildingSignature='',lastPlotSignature='';
+let plots=[],treeObjects=[],buildingObjects=[],lastPlotSignature='';
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,78,175);
 const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,3.5,130);
 // Более близкая near-плоскость и ограниченный far-диапазон повышают точность depth buffer и уменьшают z-fighting на мобильных GPU.
@@ -1443,7 +1443,7 @@ function makeTree(x,z,kind='apple',mature=false){
  }
  return g;
 }
-function makeMarket(level=1){
+function makeMarket(){
  // Витрины лавки используют собственный материал: marketGlass локален внутри makeHouse.
  const marketGlass=M.glass.clone();
  const g=group(world,11.15,0,10.65);g.rotation.y=0;g.scale.setScalar(.56);
@@ -1863,7 +1863,7 @@ function makeMarket(level=1){
   return disableCastShadows(g);
 }
 
-function makeFactory(level=1){
+function makeFactory(){
  // Keep the factory in the back-right corner while fully inside the playable plots and mobile camera frame.
  const g=group(world,9.35,0,-8.8);
  const brick=mat(0x9b5943),brickLight=mat(0xb96c50),darkMetal=mat(0x39474a),metal=mat(0x657477),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
@@ -2300,8 +2300,8 @@ function makeFactory(level=1){
  }
  // Дублирующие жалюзи у верхних окон удалены: они перекрывали оконные рамы и каменный пояс.
  // Накладные световые люки удалены: их основания пересекали цельные металлические скаты.
- // Building upgrades add subtle roof equipment rather than changing its footprint.
- for(let i=0;i<Math.min(5,Math.max(1,level));i++){
+ // Небольшие элементы крыши — постоянный декор, не зависящий от уровней.
+ for(let i=0;i<5;i++){
    box(g,.5,.22,.7,-2.45+i*1.05,5.12,.85,metal);
  }
    // Повторные передние пилястры удалены: угловые опоры уже заданы в основном фасаде.
@@ -3606,16 +3606,11 @@ function clearDynamic(){
 function unlocked(i){const level=Math.max(1,Number(player?.landLevel)||1),side=[0,6,10,14,18,20][level],start=Math.floor((20-side)/2),x=Math.floor(i/20),z=i%20;return x>=start&&x<start+side&&z>=start&&z<start+side}
 function drawPlayer(){
   if(!player)return;
-  // Разделяем обновление участков и зданий: рост дерева не должен пересоздавать дом и завод.
-  const buildingSignature=JSON.stringify({
-    factoryLevel:player.factoryLevel||1,
-    marketLevel:player.marketLevel||1,
-    landLevel:player.landLevel||1
-  });
+  // Здания — постоянная декоративная часть мира, не связанная с состоянием игрока.
   const plotSignature=JSON.stringify((player.plots||[])
     .map(p=>[p.index,p.type||'apple',!!p.grown])
     .sort((a,b)=>a[0]-b[0]));
-  if(buildingSignature===lastBuildingSignature&&plotSignature===lastPlotSignature){
+  if(plotSignature===lastPlotSignature){
     updateHud();
     return;
   }
@@ -3626,7 +3621,7 @@ function drawPlayer(){
   // Завод создаётся первым и независимо от остальных объектов мира.
   const factoryChildrenBefore=new Set(world.children);
   let factory=null;
-  try{factory=makeFactory(player.factoryLevel||1)}
+  try{factory=makeFactory()}
   catch(factoryError){
     console.error('[render] Detailed factory construction failed:',factoryError);
     for(const child of [...world.children])if(!factoryChildrenBefore.has(child))world.remove(child);
@@ -3651,7 +3646,7 @@ function drawPlayer(){
   // Сохраняем лавку даже при сбое отдельной декоративной детали в подробной модели.
   const marketChildrenBefore=new Set(world.children);
   let market=null;
-  try{market=makeMarket(player.marketLevel||1)}
+  try{market=makeMarket()}
   catch(marketError){
     console.error('[render] Detailed market construction failed; using safe storefront:',marketError);
     for(const child of [...world.children])if(!marketChildrenBefore.has(child))world.remove(child);
@@ -3681,7 +3676,6 @@ function drawPlayer(){
     market.updateMatrixWorld(true);
     buildingObjects.push(market);
   }
-    lastBuildingSignature=buildingSignature;
   }
   if(plotSignature!==lastPlotSignature){
     for(const t of treeObjects)disposeObject3D(t);
