@@ -1565,6 +1565,20 @@ function makeFactory(level=1){
  // Keep the factory in the back-right corner while fully inside the playable plots and mobile camera frame.
  const g=group(world,9.35,0,-8.8);
  const brick=mat(0x9b5943),brickLight=mat(0xb96c50),darkMetal=mat(0x39474a),metal=mat(0x657477),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
+ // Отдельное заводское остекление: спокойные отражения не затрагивают окна главного дома.
+ const factoryGlassCanvas=document.createElement('canvas');factoryGlassCanvas.width=128;factoryGlassCanvas.height=128;
+ const factoryGlassCtx=factoryGlassCanvas.getContext('2d');
+ const factoryGlassGradient=factoryGlassCtx.createLinearGradient(0,0,128,128);
+ factoryGlassGradient.addColorStop(0,'#718894');factoryGlassGradient.addColorStop(.38,'#a9bec2');
+ factoryGlassGradient.addColorStop(.62,'#627d89');factoryGlassGradient.addColorStop(1,'#405b68');
+ factoryGlassCtx.fillStyle=factoryGlassGradient;factoryGlassCtx.fillRect(0,0,128,128);
+ factoryGlassCtx.fillStyle='rgba(255,255,255,.18)';factoryGlassCtx.beginPath();
+ factoryGlassCtx.moveTo(10,0);factoryGlassCtx.lineTo(27,0);factoryGlassCtx.lineTo(104,128);factoryGlassCtx.lineTo(87,128);factoryGlassCtx.closePath();factoryGlassCtx.fill();
+ const factoryGlassTexture=new THREE.CanvasTexture(factoryGlassCanvas);
+ factoryGlassTexture.colorSpace=THREE.SRGBColorSpace;
+ factoryGlassTexture.wrapS=factoryGlassTexture.wrapT=THREE.ClampToEdgeWrapping;
+ factoryGlassTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const factoryGlass=factoryGlass.clone();factoryGlass.map=factoryGlassTexture;factoryGlass.roughness=.28;factoryGlass.metalness=.1;factoryGlass.needsUpdate=true;
  // Subtle repeating masonry relief gives the factory brickwork individual courses and mortar joints.
  const brickCanvas=document.createElement('canvas');brickCanvas.width=brickCanvas.height=256;
  const brickCtx=brickCanvas.getContext('2d');
@@ -1755,7 +1769,7 @@ function makeFactory(level=1){
    // Наружная деревянная рама и внутренний светлый откос.
    box(g,1.12,1.16,.13,x,2.55,-2.91,M.wood,false);
    box(g,.9,.86,.045,x,2.58,-2.965,windowGlow,false);
-   box(g,.86,.82,.055,x,2.58,-3.005,M.glass,false);
+   box(g,.86,.82,.055,x,2.58,-3.005,factoryGlass,false);
    // Перекладины делят стекло на четыре отдельные панели.
    box(g,.075,.84,.065,x,2.58,-3.055,M.gold,false);
    box(g,.86,.075,.065,x,2.58,-3.055,M.gold,false);
@@ -1791,7 +1805,7 @@ function makeFactory(level=1){
      const face=side*3.69;
      box(g,.14,.98,1.18,face,2.48,z,M.stone2,false);
      box(g,.07,.78,.96,face+side*.085,2.48,z,M.wood,false);
-     box(g,.045,.68,.84,face+side*.13,2.48,z,M.glass,false);
+     box(g,.045,.68,.84,face+side*.13,2.48,z,factoryGlass,false);
      // Четыре секции остекления и узкая наружная металлическая рамка.
      box(g,.055,.7,.065,face+side*.17,2.48,z,M.gold,false);
      box(g,.055,.065,.86,face+side*.17,2.48,z,M.gold,false);
