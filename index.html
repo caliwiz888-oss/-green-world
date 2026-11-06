@@ -2497,16 +2497,11 @@ function makeFlowerBed(x,z){
  }
 }
 function makeWorldDecor(){
- // Keep the courtyard paths and perimeter fence.
- for(let i=0;i<13;i++){
-   const z=-4.1+i*1.45;
-   box(world,1.35,.14,1.35,-3,.04,z,M.stone2,false);
-   box(world,1.35,.14,1.35,-1.5,.04,z,M.stone2,false);
- }
- for(let i=0;i<8;i++){
-   const x=-10+i*1.4;
-   box(world,1.2,.14,1.2,x,.03,1,M.stone2,false);
-   box(world,1.2,.14,1.2,x,.03,2.4,M.stone2,false);
+ // Straight, centered stone approach: manor entrance -> courtyard -> bridge centerline.
+ for(let i=0;i<10;i++){
+   const z=4.85+i*1.35;
+   box(world,1.35,.14,1.35,-.675,.04,z,M.stone2,false);
+   box(world,1.35,.14,1.35,.675,.04,z,M.stone2,false);
  }
  for(let i=0;i<17;i++){
    const p=-14+i*1.75;
