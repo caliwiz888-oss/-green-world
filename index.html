@@ -3437,6 +3437,19 @@ function makeWorldLandscape(){
      const plaqueCore=sphere(world,.052,x,bridgeDeckY(z)+.47,z+endFace*.296,bridgeStoneMid,false);
      plaqueCore.scale.set(1,.9,.35);plaqueCore.castShadow=false;plaqueCore.receiveShadow=false;
    }
+   // Recessed granite panels rhythmically detail the outer deck fascia between balusters.
+   for(let i=0;i<12;i++){
+     const z=bridgeStartZ+.28+(bridgeLength-.56)*(i+.5)/12;
+     const y=bridgeDeckY(z);
+     const panelFrame=box(world,.038,.19,.235,x+(x<0?-.025:.025),y+.19,z,bridgeStoneLight);
+     panelFrame.castShadow=false;panelFrame.receiveShadow=false;
+     const panelRecess=box(world,.042,.135,.178,x+(x<0?-.048:.048),y+.19,z,bridgeStoneDark);
+     panelRecess.castShadow=false;panelRecess.receiveShadow=false;
+     const panelInset=box(world,.045,.075,.105,x+(x<0?-.073:.073),y+.19,z,bridgeStoneMid);
+     panelInset.castShadow=false;panelInset.receiveShadow=false;
+     const panelBoss=sphere(world,.035,x+(x<0?-.099:.099),y+.19,z,bridgeStoneLight,false);
+     panelBoss.scale.set(.32,1,.82);panelBoss.castShadow=false;panelBoss.receiveShadow=false;
+   }
    const railPoints=[];for(let i=0;i<=32;i++){const z=bridgeStartZ+bridgeLength*i/32;railPoints.push(new THREE.Vector3(x,bridgeDeckY(z)+.79,z));}
    const railCurve=new THREE.CatmullRomCurve3(railPoints);
    // A slim continuous stringcourse finishes the outer edge of the arched deck.
