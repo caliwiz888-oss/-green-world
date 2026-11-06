@@ -376,6 +376,25 @@ function makeHouse(){
      manorRoofCtx.fillStyle='rgba(20,25,32,.09)';manorRoofCtx.fillRect(x+62,y+2,1,10);
    }
  }
+ // Тонкая неоднородность отдельных кровельных пластин: мягкие минеральные оттенки без геометрических накладок.
+ for(let row=0;row<16;row++){
+   const y=row*16,offset=(row%2)*32;
+   for(let x=offset-64;x<256;x+=64){
+     const tone= row*7+Math.floor(x/16)*11;
+     const alpha=.035+(tone%5)*.008;
+     manorRoofCtx.fillStyle=tone%2?'rgba(210,220,218,'+alpha+')':'rgba(35,43,51,'+alpha+')';
+     manorRoofCtx.fillRect(x+3,y+3,58,9);
+     manorRoofCtx.fillStyle='rgba(255,255,255,.055)';
+     manorRoofCtx.fillRect(x+5,y+3,52,1);
+   }
+ }
+ // Едва заметное зерно металла смягчает повторяемость текстуры при близком обзоре.
+ for(let i=0;i<520;i++){
+   const x=(i*73+19)%256,y=(i*151+37)%256;
+   const alpha=.018+(i%4)*.006;
+   manorRoofCtx.fillStyle=i%2?'rgba(255,255,255,'+alpha+')':'rgba(18,25,31,'+alpha+')';
+   manorRoofCtx.fillRect(x,y,1,1);
+ }
  const manorRoofTexture=new THREE.CanvasTexture(manorRoofCanvas);
  manorRoofTexture.colorSpace=THREE.SRGBColorSpace;
  manorRoofTexture.wrapS=manorRoofTexture.wrapT=THREE.RepeatWrapping;
