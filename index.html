@@ -306,7 +306,7 @@ function makeHouse(){
  masonryTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const masonryBump=masonryTexture.clone();masonryBump.colorSpace=THREE.NoColorSpace;masonryBump.needsUpdate=true;
  for(const material of [houseStone,houseStoneTrim]){
-   material.map=masonryTexture;material.bumpMap=masonryBump;material.bumpScale=.018;material.needsUpdate=true;
+   material.map=masonryTexture;material.bumpMap=masonryBump;material.bumpScale=.024;material.needsUpdate=true;
  }
  // Main manor: broad stone body, raised plinth and detailed gabled roof.
  box(g,10,4.5,8,0,2.25,0,houseStone);
@@ -1524,7 +1524,7 @@ function makeFactory(level=1){
  brickTexture.repeat.set(2,1.5);
  brickTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const brickBump=brickTexture.clone();brickBump.colorSpace=THREE.NoColorSpace;brickBump.needsUpdate=true;
- brick.map=brickTexture;brick.bumpMap=brickBump;brick.bumpScale=.045;brick.needsUpdate=true;
+ brick.map=brickTexture;brick.bumpMap=brickBump;brick.bumpScale=.055;brick.needsUpdate=true;
  // Gentle warm interior lighting gives the factory glazing a believable evening glow.
  warmLight(g,-1.8,2.65,1.35,.8,8);warmLight(g,1.8,2.65,1.35,.8,8);
  // Каменная площадка перед промышленным входом связывает фасад с территорией.
