@@ -2375,6 +2375,29 @@ function makeFactory(){
  factoryWindowFrameTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const factoryWindowFrameBump=factoryWindowFrameTexture.clone();factoryWindowFrameBump.colorSpace=THREE.NoColorSpace;factoryWindowFrameBump.needsUpdate=true;
  const factoryWindowFrameMaterial=new THREE.MeshStandardMaterial({color:0xffffff,map:factoryWindowFrameTexture,bumpMap:factoryWindowFrameBump,bumpScale:.018,roughness:.79,metalness:.015});
+ // Шлифованный металл оконных переплётов: отдельный клон золотого материала сохраняет исходный оттенок.
+ const factoryWindowMetalCanvas=document.createElement('canvas');factoryWindowMetalCanvas.width=128;factoryWindowMetalCanvas.height=128;
+ const factoryWindowMetalCtx=factoryWindowMetalCanvas.getContext('2d');
+ factoryWindowMetalCtx.fillStyle='#b9a77f';factoryWindowMetalCtx.fillRect(0,0,128,128);
+ for(let i=0;i<220;i++){
+   const y=(i*37+3)%128,x=(i*53+11)%128,len=10+(i*17)%105;
+   factoryWindowMetalCtx.strokeStyle=i%3===0?'rgba(48,43,31,.13)':'rgba(255,255,255,.16)';
+   factoryWindowMetalCtx.lineWidth=.45+(i%3)*.25;
+   factoryWindowMetalCtx.beginPath();factoryWindowMetalCtx.moveTo(x,y);factoryWindowMetalCtx.lineTo(Math.min(127,x+len),y+.15);factoryWindowMetalCtx.stroke();
+ }
+ const factoryWindowMetalTexture=new THREE.CanvasTexture(factoryWindowMetalCanvas);
+ factoryWindowMetalTexture.colorSpace=THREE.SRGBColorSpace;
+ factoryWindowMetalTexture.wrapS=factoryWindowMetalTexture.wrapT=THREE.RepeatWrapping;
+ factoryWindowMetalTexture.repeat.set(1,2);
+ factoryWindowMetalTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const factoryWindowMetalBump=factoryWindowMetalTexture.clone();factoryWindowMetalBump.colorSpace=THREE.NoColorSpace;factoryWindowMetalBump.needsUpdate=true;
+ const factoryWindowMetalMaterial=M.gold.clone();
+ factoryWindowMetalMaterial.map=factoryWindowMetalTexture;
+ factoryWindowMetalMaterial.bumpMap=factoryWindowMetalBump;
+ factoryWindowMetalMaterial.bumpScale=.008;
+ factoryWindowMetalMaterial.roughness=.43;
+ factoryWindowMetalMaterial.metalness=.58;
+ factoryWindowMetalMaterial.needsUpdate=true;
  // Тонкая патина и направленная шлифовка существующих бронзовых карнизов без изменения их оттенка.
  const factoryCorniceCanvas=document.createElement('canvas');factoryCorniceCanvas.width=128;factoryCorniceCanvas.height=128;
  const factoryCorniceCtx=factoryCorniceCanvas.getContext('2d');
@@ -2501,8 +2524,8 @@ function makeFactory(){
      box(g,.1,.18,.16,x+dx,3.28,2.86,M.gold,false);
      box(g,.1,.18,.16,x+dx,1.82,2.86,M.gold,false);
    }
-   box(g,.07,.78,.06,x,2.58,2.96,M.gold,false);
-   box(g,.78,.07,.06,x,2.58,2.96,M.gold,false);
+   box(g,.07,.78,.06,x,2.58,2.96,factoryWindowMetalMaterial,false);
+   box(g,.78,.07,.06,x,2.58,2.96,factoryWindowMetalMaterial,false);
    for(const dx of [-.42,.42]){
      box(g,.16,.16,.18,x+dx,1.78,2.88,M.stone2,false);
    }
@@ -2516,8 +2539,8 @@ function makeFactory(){
    box(g,.9,.86,.045,x,2.58,-2.88,windowGlow,false);
    box(g,.86,.82,.055,x,2.58,-3.005,factoryGlass,false);
    // Перекладины делят стекло на четыре отдельные панели.
-   box(g,.075,.84,.065,x,2.58,-3.055,M.gold,false);
-   box(g,.86,.075,.065,x,2.58,-3.055,M.gold,false);
+   box(g,.075,.84,.065,x,2.58,-3.055,factoryWindowMetalMaterial,false);
+   box(g,.86,.075,.065,x,2.58,-3.055,factoryWindowMetalMaterial,false);
    // Каменный наличник и выступающий подоконник повторяют стиль переднего фасада.
    box(g,1.38,.14,.24,x,3.2,-2.91,M.stone2,false);
    box(g,1.38,.14,.26,x,1.88,-2.91,M.stone2,false);
