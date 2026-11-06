@@ -2866,9 +2866,9 @@ function makeWorldDecor(){
     const outline=[[-.5,-.42],[-.42,-.5],[.42,-.5],[.5,-.42],[.5,.42],[.42,.5],[-.42,.5],[-.5,.42]];
     for(let row=0;row<rows;row++){
       for(let col=0;col<cols;col++){
-        const stagger=row%2?.5:0;
-        const x=startX+col*pitchX+(staggerAxis==='x'?stagger*pitchX:0);
-        const z=startZ+row*pitchZ+(staggerAxis==='z'?stagger*pitchZ:0);
+        const stagger=staggerAxis==='z'?col%2:row%2;
+        const x=startX+col*pitchX+(staggerAxis==='x'?stagger*.5*pitchX:0);
+        const z=startZ+row*pitchZ+(staggerAxis==='z'?stagger*.5*pitchZ:0);
         const shadeBase=(row+col)%2===0?.84:.43;
         const shade=shadeBase+((row*13+col*17)%6)*.018;
         const variation=((row*3+col*7)%5)*.012;
