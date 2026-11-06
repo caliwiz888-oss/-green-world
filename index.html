@@ -2272,59 +2272,36 @@ function makeWorldDecor(){
   // Открытая территория без забора. Каменная дорожка идёт от порога дома прямо к мосту.
   // var исключает TDZ для материалов дорожки при повторном/раннем вызове декораций.
   var sidePathBase=mat(0xd7c49e,.9),sidePathTile=mat(0xe8ddc5,.92),sidePathJoint=mat(0xbba985,.95);
-  for(let i=0;i<21;i++){
-    const z=-10.5+i*1.35;
-    box(world,1.35,.14,1.35,-.675,.04,z,M.stone2,false);
-    box(world,1.35,.14,1.35,.675,.04,z,M.stone2,false);
-  }
-  // Непрерывный подход к крыльцу главного дома: продлеваем центральную дорожку до нижней ступени.
-  box(world,2.85,.16,3.35,0,.045,-8.85,sidePathBase,false);
-  for(let ix=0;ix<3;ix++)for(let iz=0;iz<3;iz++){
-    box(world,.92,.04,1.02,-.92+ix*.92,.145,-9.86+iz*1.02,ix%2?sidePathTile:M.stone2,false);
-  }
-  // Сплошные поперечные стыки убирают зазоры между боковыми ветками и центральной дорогой.
-  box(world,1.15,.16,2.1,-1.85,.045,-4.55,sidePathBase,false);
-  box(world,1.15,.16,2.1,1.85,.045,-4.55,sidePathBase,false);
-  // Соединительные дорожки связывают входы лавки и завода с центральной дорогой у дома.
-  // Левая ветка подходит к передней площадке торговой лавки.
-  box(world,9.1,.16,2.05,-5.55,.035,-4.55,sidePathBase,false);
-  for(let ix=0;ix<9;ix++)for(let iz=0;iz<2;iz++){
-    box(world,.96,.035,.94,-9.55+ix*1.0,.132,-5.075+iz*.99,ix%2?sidePathTile:M.stone,false);
-  }
-  // Правая ветка подходит к передней площадке завода.
-  box(world,10.1,.16,2.05,6.55,.035,-4.55,sidePathBase,false);
-  for(let ix=0;ix<10;ix++)for(let iz=0;iz<2;iz++){
-    box(world,.96,.035,.94,1.95+ix*1.0,.132,-5.075+iz*.99,ix%2?sidePathTile:M.stone,false);
-  }
-  // Каменные краевые вставки завершают обе дорожки.
-  for(const x of [-10.1,-1.0,1.5,11.6]){
-    for(const z of [-5.62,-3.48])box(world,.12,.08,.12,x,.15,z,sidePathJoint,false);
-  }
-  // Единая выровненная дорожная система: одинаковая высота плит, ровные края и непрерывные стыки.
-  // Центральная дорога имеет постоянную ширину и точно совпадает с осью главного дома и моста.
-  for(let row=0;row<28;row++){
-    const z=-10.02+row*.88;
+  // Единая дорожная система без дублирующихся оснований и наложенных друг на друга плит.
+  // Центральная дорога: ровная ось от крыльца главного дома к мосту, одинаковая ширина по всей длине.
+  const roadBase=mat(0xcdbb98,.96);
+  box(world,3.9,.12,24.2,0,.035,2.05,roadBase,false);
+  for(let row=0;row<26;row++){
+    const z=-9.35+row*.94;
     for(let col=0;col<4;col++){
-      const x=-1.425+col*.95;
-      box(world,.93,.06,.86,x,.15,z,(row+col)%3===0?sidePathTile:M.stone,false);
+      const x=-1.44+col*.96;
+      box(world,.935,.07,.915,x,.13,z,(row+col)%4===0?sidePathTile:M.stone2,false);
     }
   }
-  // Плавный прямой спуск от уровня каменного моста к ровной дороге участка.
-  for(let row=0;row<6;row++){
-    const z=14.3+row*.6;
-    const rampY=.12+(z-14)/3.6*.9;
-    box(world,4.8,.16,.62,0,rampY-.08,z,sidePathBase,false);
-    for(let col=0;col<4;col++){
-      const x=-1.815+col*1.21;
-      box(world,1.18,.06,.56,x,rampY+.03,z,(row+col)%3===0?sidePathTile:M.stone,false);
-    }
-  }
-  // Поперечная дорога к лавке и заводу проходит строго по одной горизонтали.
-  for(let col=0;col<24;col++){
-    const x=-10.325+col*.95;
+  // Ровная поперечная ветка соединяет вход лавки, главный дом и завод без смещения по высоте.
+  box(world,24.9,.12,1.95,.0,.035,-4.55,roadBase,false);
+  for(let col=0;col<26;col++){
+    const x=-12.0+col*.96;
     for(let row=0;row<2;row++){
-      const z=-5.00+row*.90;
-      box(world,.93,.06,.88,x,.15,z,(col+row)%3===0?sidePathTile:M.stone,false);
+      const z=-5.015+row*.93;
+      box(world,.935,.07,.905,x,.13,z,(col+row)%4===0?sidePathTile:M.stone2,false);
+    }
+  }
+  // Широкий прямой переход плавно поднимается от участка к началу каменного моста.
+  // Высота каждого ряда вычисляется по профилю моста, без ступенчатых скачков.
+  for(let row=0;row<6;row++){
+    const z=14.25+row*.58;
+    const t=row/5;
+    const y=.16+.78*t;
+    box(world,4.0,.14,.61,0,y-.07,z,roadBase,false);
+    for(let col=0;col<4;col++){
+      const x=-1.44+col*.96;
+      box(world,.935,.065,.575,x,y+.015,z,(row+col)%4===0?sidePathTile:M.stone2,false);
     }
   }
   // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проём оставлен для дороги с моста.
