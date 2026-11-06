@@ -2893,7 +2893,7 @@ function makeWorldDecor(){
     geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
     geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
     geometry.setIndex(indices);geometry.computeVertexNormals();
-    const material=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.96,metalness:0,vertexColors:true,bumpMap:surfaceMaps.stone,bumpScale:.018,side:THREE.DoubleSide});
+    const material=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.98,metalness:0,vertexColors:true,side:THREE.DoubleSide});
     const mesh=new THREE.Mesh(geometry,material);mesh.castShadow=false;mesh.receiveShadow=false;world.add(mesh);
   }
   // Центральная дорога: те же гранитные камни 0.428 × 0.535 м, что и на мосту.
@@ -2935,7 +2935,7 @@ function makeWorldDecor(){
   const rampStartZ=13.93,rampLastRowZ=17.32;
   const rampHeight=z=>.1475;
   for(let row=0;row<7;row++){
-    const z=rampStartZ+row*.565,deckY=rampHeight(z);
+    const z=rampStartZ+row*.571,deckY=rampHeight(z);
     for(const side of [-1,1]){
       const x=side*1.965;
       box(world,.18,.085,.46,x,deckY-.0325,z,roadEdgeMat,false);
@@ -2943,7 +2943,7 @@ function makeWorldDecor(){
     }
   }
   // Бело-серая гранитная кладка заканчивается до начала сплошного настила моста.
-  addRoadGranite(10,7,-2.025,rampStartZ,.45,.565,.428,.535,rampHeight,'x');
+  addRoadGranite(10,7,-2.025,rampStartZ,.45,.571,.428,.535,rampHeight,'x');
   // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проём оставлен для дороги с моста.
   const fenceMat=mat(0x817967),fenceCap=mat(0xb0a38a),fenceJoint=mat(0x6b6252);
   for(let p=-14;p<=14;p+=1.75){
@@ -4470,7 +4470,7 @@ function makeWorldLandscape(){
  // Arched stone bridge: a gently crowned deck, sculpted ribs and curved balustrades.
  const bridgeChildrenStart=world.children.length;
  const bridgeStartZ=17.6,bridgeEndZ=26.8,bridgeLength=bridgeEndZ-bridgeStartZ;
- const bridgeDeckY=z=>.1475+.5*Math.sin(Math.PI*(z-bridgeStartZ)/bridgeLength);
+ const bridgeDeckY=z=>.1475;
  // Три согласованных оттенка серого гранита вместо однотонного белого камня.
  const bridgeStoneDark=new THREE.MeshStandardMaterial({color:0x687276,roughness:.96,metalness:0});
  const bridgeStoneMid=new THREE.MeshStandardMaterial({color:0x858d8e,map:surfaceMaps.stone,roughness:.95,metalness:0});
@@ -4552,12 +4552,12 @@ function makeWorldLandscape(){
  settGeometry.setAttribute('color',new THREE.Float32BufferAttribute(settColors,3));
  settGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(settUvs,2));
  settGeometry.setIndex(settIndices);settGeometry.computeVertexNormals();
- const settMaterial=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.96,metalness:0,vertexColors:true,bumpMap:surfaceMaps.stone,bumpScale:.018,side:THREE.DoubleSide});
+ const settMaterial=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.98,metalness:0,vertexColors:true,side:THREE.DoubleSide});
  const bridgeSetts=new THREE.Mesh(settGeometry,settMaterial);
  bridgeSetts.castShadow=false;bridgeSetts.receiveShadow=false;world.add(bridgeSetts);
  // Two substantial masonry arch ribs beneath the deck.
  const bridgeRibMaterial=bridgeStoneDark;
- for(const x of [-1.72,1.72]){
+ for(const x of [-2.55,2.55]){
    const ribPoints=[];for(let i=0;i<=36;i++){const t=i/36,z=bridgeStartZ+.18+(bridgeLength-.36)*t,archY=.31+.57*Math.pow(2*t-1,2);ribPoints.push(new THREE.Vector3(x,archY,z));}
    const ribCurve=new THREE.CatmullRomCurve3(ribPoints);
    const rib=new THREE.Mesh(new THREE.TubeGeometry(ribCurve,72,.19,8,false),bridgeRibMaterial);rib.castShadow=false;rib.receiveShadow=false;world.add(rib);
