@@ -2349,7 +2349,27 @@ function makeFactory(){
  // Матовая хвойно-зелёная фальцевая кровля связывает завод с архитектурой главного дома и лавки.
  const roofMetal=new THREE.MeshStandardMaterial({color:0x34483a,map:roofTexture,bumpMap:roofBump,bumpScale:.016,roughness:.7,metalness:.24});
  // Отдельные материалы ворот и карнизов склада: тёплое дерево и состаренная бронза.
- const factoryDoorMaterial=new THREE.MeshStandardMaterial({color:0x76513b,roughness:.82,metalness:.025});
+ // Направленный микрорельеф существующих деревянных ворот без изменения их оттенка.
+ const factoryDoorBumpCanvas=document.createElement('canvas');factoryDoorBumpCanvas.width=128;factoryDoorBumpCanvas.height=128;
+ const factoryDoorBumpCtx=factoryDoorBumpCanvas.getContext('2d');
+ factoryDoorBumpCtx.fillStyle='#858585';factoryDoorBumpCtx.fillRect(0,0,128,128);
+ for(let i=0;i<150;i++){
+   const y=(i*29+7)%128,x=(i*47+13)%128,len=14+(i*31)%108;
+   const shade=i%3===0? 'rgba(255,255,255,.17)':'rgba(20,14,10,.16)';
+   factoryDoorBumpCtx.strokeStyle=shade;factoryDoorBumpCtx.lineWidth=.45+(i%4)*.3;
+   factoryDoorBumpCtx.beginPath();factoryDoorBumpCtx.moveTo(x,y);factoryDoorBumpCtx.lineTo(Math.min(127,x+len),y+(i%5-2)*.22);factoryDoorBumpCtx.stroke();
+ }
+ for(let i=0;i<8;i++){
+   const x=12+(i*19)%104,y=10+(i*31)%108;
+   factoryDoorBumpCtx.strokeStyle='rgba(24,16,10,.22)';factoryDoorBumpCtx.lineWidth=1.1;
+   factoryDoorBumpCtx.beginPath();factoryDoorBumpCtx.ellipse(x,y,4.2,1.25,.04,0,Math.PI*2);factoryDoorBumpCtx.stroke();
+ }
+ const factoryDoorBump=new THREE.CanvasTexture(factoryDoorBumpCanvas);
+ factoryDoorBump.colorSpace=THREE.NoColorSpace;
+ factoryDoorBump.wrapS=factoryDoorBump.wrapT=THREE.RepeatWrapping;
+ factoryDoorBump.repeat.set(1,1);
+ factoryDoorBump.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const factoryDoorMaterial=new THREE.MeshStandardMaterial({color:0x76513b,bumpMap:factoryDoorBump,bumpScale:.026,roughness:.78,metalness:.025});
  // Локальная фактура деревянных рам заводских окон: направленные волокна и мягкий рельеф.
  const factoryWindowFrameCanvas=document.createElement('canvas');factoryWindowFrameCanvas.width=128;factoryWindowFrameCanvas.height=128;
  const factoryWindowFrameCtx=factoryWindowFrameCanvas.getContext('2d');
