@@ -4599,6 +4599,24 @@ function makeWorldLandscape(){
      sphere(world,.07,x+(j-1)*.13,.78+(j%2)*.2,z+(j%2)*.1,reedTip,false);
    }
  }
+ // Мелкая галька и низкие прибрежные травы создают плавный переход от берега к воде.
+ const shorePebbleMats=[0xb7b29c,0x8f9789,0xd0c7ad].map(color=>new THREE.MeshStandardMaterial({color,roughness:.97}));
+ const shoreGrassMats=[0x66894a,0x8ba65c,0x526f40].map(color=>new THREE.MeshStandardMaterial({color,roughness:.98}));
+ for(const [x,z,s] of [[-22,19.65,.7],[-17,19.7,.5],[-12,19.65,.62],[-7,19.7,.42],[3,19.68,.55],[10,19.7,.46],[16,19.68,.6],[22,19.65,.65],[-19,24.8,.5],[-12,24.82,.62],[-4,24.8,.48],[5,24.82,.58],[13,24.8,.46],[20,24.82,.62]]){
+   for(let k=0;k<3;k++){
+     const pebbleMesh=new THREE.Mesh(new THREE.SphereGeometry(.19,10,7),shorePebbleMats[k]);
+     pebbleMesh.position.set(x+(k-1)*.22,.075,z+(k%2)*.13);
+     pebbleMesh.scale.set(s*(.7+k*.12),.28,s*(.42+k*.08));
+     pebbleMesh.rotation.y=k*.8;pebbleMesh.castShadow=false;pebbleMesh.receiveShadow=false;world.add(pebbleMesh);
+   }
+ }
+ for(const [x,z] of [[-20,19.75],[-15,19.8],[-5,19.78],[4,19.8],[12,19.78],[20,19.75],[-17,24.72],[-8,24.75],[2,24.72],[10,24.75],[18,24.72]]){
+   for(let k=0;k<4;k++){
+     const blade=new THREE.Mesh(new THREE.ConeGeometry(.075,.48+(k%2)*.16,5),shoreGrassMats[k%3]);
+     blade.position.set(x+(k-1.5)*.12,.24,z+(k%2)*.11);
+     blade.rotation.z=(k-1.5)*.16;blade.castShadow=false;blade.receiveShadow=false;world.add(blade);
+   }
+ }
  for(const [x,z] of [[-18,21.2],[-8,23.1],[9,21.6],[18,23.4]]){
    const glint=box(world,1.15,.025,.12,x,.09,z,waterGlint,false);glint.rotation.y=.12;riverMotionObjects.push({mesh:glint,baseX:x,baseZ:z,phase:x*.7,speed:.13,range:.28,baseLength:1.15});
  }
