@@ -2860,25 +2860,24 @@ function makeWorldDecor(){
   // Центральная дорога: ровная ось от крыльца главного дома к мосту, одинаковая ширина по всей длине.
   const roadBase=mat(0x68675f,.98);
   box(world,3.9,.12,24.2,0,.035,2.05,roadBase,false);
-  // Новый узор: спокойное поле из светлого камня с редкими поперечными графитово-оливковыми полосами.
-  // Смещение каждого второго ряда сохраняет натуральную перевязку кладки.
+  // Классическая перевязка: ряды смещены на половину кирпича; тёмный камень используется редко как акцент, не клетками.
   for(let row=0;row<52;row++){
     const z=-9.72+row*.47,offset=row%2?.285:0;
     for(let col=0;col<6;col++){
       const x=-1.425+col*.57+offset;
-      const brick=(row+col)%2===0?roadBrickLight:roadBrickDark;
+      const brick=(row*3+col)%8===0?roadBrickDark:roadBrickLight;
       box(world,.515,.105,.425,x,.1475,z,brick,false);
     }
   }
   // Поперечная дорога проходит ровно от внутренней грани левого забора до внутренней грани правого.
   // Ширина 30 метров и центр X=1.25 точно соответствуют боковым сторонам ограждения (-14 и 16.5).
   box(world,30.0,.12,1.95,1.25,.035,-4.55,roadBase,false);
-  // На поперечной дороге акцентные камни образуют редкие продольные полосы, продолжая общий узор.
+  // Поперечная дорога продолжает перевязку кладки; редкие тёмные вставки не образуют шахматный рисунок.
   for(let col=0;col<55;col++){
     const x=-13.46+col*.545;
     for(let row=0;row<3;row++){
       const z=-5.10+row*.55+(col%2?.275:0);
-      const brick=(col+row)%2===0?roadBrickLight:roadBrickDark;
+      const brick=(col*3+row)%8===0?roadBrickDark:roadBrickLight;
       box(world,.515,.105,.495,x,.1475,z,brick,false);
     }
   }
@@ -2936,7 +2935,7 @@ function makeWorldDecor(){
     box(world,4.0,.12,.48,0,deckY-.06,z,roadBase,false);
     for(let col=0;col<7;col++){
       const x=-1.71+col*.57+(row%2?.285:0);
-      const brick=(row+col)%2===0?roadBrickLight:roadBrickDark;
+      const brick=(row*3+col)%9===0?roadBrickDark:roadBrickLight;
       box(world,.53,.09,.49,x,deckY+.005,z,brick,false);
     }
   }
