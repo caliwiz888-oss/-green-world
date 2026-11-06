@@ -830,6 +830,8 @@ function makeHouse(){
      for(const ex of [-.48,.48]){
        box(t,.055,.075,.27,ex,2.66,z*1.075,towerDetailStone,false);
      }
+     // Узкая латунная инкрустация подчёркивает переднюю грань каменной полки.
+     box(t,.58,.018,.018,0,2.68,z*1.218,towerGoldMaterial,false);
      // Два компактных каменных кронштейна дают подоконнику читаемую опору и мягкую глубину.
      for(const bx of [-.31,.31]){
        box(t,.13,.13,.19,bx,2.53,z*1.085,towerDetailStone,false);
