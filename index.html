@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261106-150202';
+const GREEN_WORLD_BUILD_ID = '20261106-151000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1501,9 +1501,9 @@ function makeMarket(){
  const marketGlass=M.glass.clone();
  const g=group(world,-10.8,0,-8.5);g.rotation.y=0;g.scale.setScalar(1.2);
  const timber=mat(0x765039,.78),timberLight=mat(0xa8794e,.72);
- const roof=new THREE.MeshStandardMaterial({color:0x8b4938,roughness:.76,metalness:.035});
- const roofEdge=new THREE.MeshStandardMaterial({color:0x4e2925,roughness:.82,metalness:.025});
- const roofAccent=new THREE.MeshStandardMaterial({color:0xc17a54,roughness:.72,metalness:.04});
+ const roof=new THREE.MeshStandardMaterial({color:0x477a4b,roughness:.76,metalness:.035});
+ const roofEdge=new THREE.MeshStandardMaterial({color:0x294a31,roughness:.82,metalness:.025});
+ const roofAccent=new THREE.MeshStandardMaterial({color:0x8eae70,roughness:.72,metalness:.04});
  const counter=mat(0xd2c2a0,.82),dark=mat(0x35443d,.72);
  const warm=new THREE.MeshStandardMaterial({color:0xe8bd78,emissive:0x8a4b18,emissiveIntensity:.2,roughness:.7});
  // Низкое каменное основание и широкая торговая площадка.
@@ -4260,7 +4260,7 @@ function drawPlayer(){
     for(const child of [...world.children])if(!marketChildrenBefore.has(child))world.remove(child);
     const fallback=group(world,-10.8,0,-8.5);
     fallback.scale.setScalar(1.2);
-    const shopWall=mat(0xd6c7a8),shopTimber=mat(0x70472d),shopRoof=new THREE.MeshStandardMaterial({color:0x8b4938,roughness:.76,metalness:.035}),shopTrim=mat(0xc8b898);
+    const shopWall=mat(0xd6c7a8),shopTimber=mat(0x70472d),shopRoof=new THREE.MeshStandardMaterial({color:0x477a4b,roughness:.76,metalness:.035}),shopTrim=mat(0xc8b898);
     box(fallback,5.4,2.8,4.4,0,1.4,0,shopWall);
     box(fallback,5.65,.24,4.65,0,2.86,0,M.gold);
     box(fallback,5.1,2.45,.18,0,1.42,2.22,shopTimber);
