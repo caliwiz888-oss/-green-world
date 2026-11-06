@@ -2302,6 +2302,19 @@ function makeFactory(){
  for(let x=12;x<256;x+=32){
    roofCtx.fillStyle='rgba(35,47,49,.12)';roofCtx.fillRect(x,0,1,128);
    roofCtx.fillStyle='rgba(255,255,255,.13)';roofCtx.fillRect(x+2,0,1,128);
+   const seamShade=roofCtx.createLinearGradient(x-3,0,x+5,0);
+   seamShade.addColorStop(0,'rgba(24,37,32,0)');
+   seamShade.addColorStop(.38,'rgba(24,37,32,.035)');
+   seamShade.addColorStop(.68,'rgba(255,255,255,.045)');
+   seamShade.addColorStop(1,'rgba(24,37,32,0)');
+   roofCtx.fillStyle=seamShade;roofCtx.fillRect(x-3,0,8,128);
+ }
+ // Едва заметные длинные полосы подчёркивают направление проката без новых накладных деталей.
+ for(let i=0;i<42;i++){
+   const x=(i*59+31)%256,y=(i*37+13)%128,len=28+(i*17)%66;
+   roofCtx.strokeStyle=i%2?'rgba(255,255,255,.028)':'rgba(20,32,27,.025)';
+   roofCtx.lineWidth=.55;
+   roofCtx.beginPath();roofCtx.moveTo(x,y);roofCtx.lineTo(x,Math.min(127,y+len));roofCtx.stroke();
  }
  // Мягкие продольные следы прокатки и редкое зерно металла делают скаты менее однородными.
  // Рисунок детерминированный и остаётся частью одной текстуры — без мерцающих накладных деталей.
@@ -2323,7 +2336,7 @@ function makeFactory(){
  roofTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const roofBump=roofTexture.clone();roofBump.colorSpace=THREE.NoColorSpace;roofBump.needsUpdate=true;
  // Матовая хвойно-зелёная фальцевая кровля связывает завод с архитектурой главного дома и лавки.
- const roofMetal=new THREE.MeshStandardMaterial({color:0x34483a,map:roofTexture,bumpMap:roofBump,bumpScale:.015,roughness:.72,metalness:.22});
+ const roofMetal=new THREE.MeshStandardMaterial({color:0x34483a,map:roofTexture,bumpMap:roofBump,bumpScale:.016,roughness:.7,metalness:.24});
  // Отдельные материалы ворот и карнизов склада: тёплое дерево и состаренная бронза.
  const factoryDoorMaterial=new THREE.MeshStandardMaterial({color:0x76513b,roughness:.82,metalness:.025});
  const factoryCorniceMaterial=new THREE.MeshStandardMaterial({color:0x76664e,roughness:.78,metalness:.12});
