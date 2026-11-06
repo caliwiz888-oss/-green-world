@@ -4780,8 +4780,15 @@ function makeWorldLandscape(){
   const leafyCrownBatches=leafyMaterials.map((material,species)=>
     new THREE.InstancedMesh(leafyCrownGeometries[species],material,leafyTreeData.length*6)
   );
+  // Мелкие листовые пучки поверх крупных объёмов: крона читается как листва, а не как гладкий шар.
+  const leafClusterGeometry=new THREE.SphereGeometry(1,8,6);
+  const leafClusterBatches=leafyMaterials.map(material=>
+    new THREE.InstancedMesh(leafClusterGeometry,material,leafyTreeData.length*30)
+  );
+  const secondaryBranchBatch=new THREE.InstancedMesh(new THREE.CylinderGeometry(.012,.038,1,7,1),leafyBranchMat,leafyTreeData.length*6);
+  const secondaryBirchBranchBatch=new THREE.InstancedMesh(new THREE.CylinderGeometry(.012,.034,1,7,1),birchTrunkMat,leafyTreeData.length*6);
   const leafyDummy=new THREE.Object3D();
-  let branchIndex=0,birchBranchIndex=0,birchMarkIndex=0;
+  let branchIndex=0,birchBranchIndex=0,birchMarkIndex=0,secondaryBranchIndex=0,secondaryBirchBranchIndex=0;
   for(let i=0;i<leafyTreeData.length;i++){
     const tree=leafyTreeData[i],h=tree.h,species=tree.species;
     const isBirch=species===1;
@@ -4800,6 +4807,19 @@ function makeWorldLandscape(){
       leafyDummy.rotation.set(Math.sin(angle)*.68,0,Math.cos(angle)*.68);
       leafyDummy.updateMatrix();
       (isBirch?birchBranchBatch:branchBatch).setMatrixAt(isBirch?birchBranchIndex++:branchIndex++,leafyDummy.matrix);
+    }
+    // Тонкие боковые ветви отходят от основных и поддерживают крону по всей высоте.
+    for(let b=0;b<6;b++){
+      const angle=i*.57+b*Math.PI/3+.28;
+      const y=h*(.43+(b%3)*.105);
+      const len=h*(.14+(b%2)*.025);
+      leafyDummy.position.set(tree.x+Math.cos(angle)*len*.31,y,tree.z+Math.sin(angle)*len*.31);
+      leafyDummy.scale.set(.62,len,.62);
+      leafyDummy.rotation.set(Math.sin(angle)*.78,0,Math.cos(angle)*.78);
+      leafyDummy.updateMatrix();
+      (isBirch?secondaryBirchBranchBatch:secondaryBranchBatch).setMatrixAt(
+        isBirch?secondaryBirchBranchIndex++:secondaryBranchIndex++,leafyDummy.matrix
+      );
     }
     if(isBirch){
       // Небольшие тёмные отметины помогают белой коре берёзы выглядеть натуральнее.
@@ -4833,8 +4853,24 @@ function makeWorldLandscape(){
       leafyDummy.rotation.set(.04*((i+lobe)%3),angle,.035*((i+lobe)%4));
       leafyDummy.updateMatrix();leafyCrownBatches[species].setMatrixAt(i*6+lobe,leafyDummy.matrix);
     }
+    // Тридцать небольших листовых пучков с разным размером и направлением на каждом дереве.
+    for(let leaf=0;leaf<30;leaf++){
+      const a=leaf*2.399963+i*.37;
+      const vertical=((leaf*7)%29)/29*2-1;
+      const radial=Math.sqrt(1-vertical*vertical);
+      const spread=species===1?.62:species===2?1.02:.82;
+      const crownY=h*.76+vertical*(species===1?.78:.63);
+      const leafX=tree.x+Math.cos(a)*radial*spread;
+      const leafZ=tree.z+Math.sin(a)*radial*spread;
+      leafyDummy.position.set(leafX,crownY,leafZ);
+      const size=.105+((leaf*13+i*3)%7)*.012;
+      leafyDummy.scale.set(size*(species===1?.82:1.15),size*.62,size);
+      leafyDummy.rotation.set((leaf%5)*.19,a,(leaf%7-3)*.12);
+      leafyDummy.updateMatrix();
+      leafClusterBatches[species].setMatrixAt(i*30+leaf,leafyDummy.matrix);
+    }
   }
-  for(const batch of [leafyTrunkBatch,birchTrunkBatch,branchBatch,birchBranchBatch,birchMarkBatch,...leafyCrownBatches]){
+  for(const batch of [leafyTrunkBatch,birchTrunkBatch,branchBatch,birchBranchBatch,secondaryBranchBatch,secondaryBirchBranchBatch,birchMarkBatch,...leafyCrownBatches,...leafClusterBatches]){
     batch.instanceMatrix.needsUpdate=true;
     batch.castShadow=false;batch.receiveShadow=false;world.add(batch);
   }
