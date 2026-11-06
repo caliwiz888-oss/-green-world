@@ -2299,6 +2299,14 @@ function makeWorldDecor(){
       box(world,.38,.045,.38,x,.99,p,fenceJoint,false);
     }
   }
+  // Соединительные секции закрывают зазоры правых переднего и заднего углов.
+  for(const z of [-14,14]){
+    box(world,2.5,.55,.42,15.25,.27,z,fenceMat,false);
+    box(world,.58,.86,.58,16.5,.43,z,fenceMat,false);
+    box(world,.72,.13,.72,16.5,.91,z,fenceCap,false);
+    box(world,.38,.045,.38,16.5,.99,z,fenceJoint,false);
+  }
+
   // Входные столбы по краям центральной дорожки.
   for(const x of [-3.5,3.5]){
     box(world,.72,1.05,.72,x,.525,14,fenceMat,false);
