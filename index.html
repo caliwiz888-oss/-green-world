@@ -2479,6 +2479,17 @@ function makeWorldDecor(){
     const sideCore=sphere(world,.045,faceX+side*.085,1.43,13.99,fenceLightTrim,.85);
     sideCore.scale.set(.32,1,.72);
     sideCore.castShadow=false;sideCore.receiveShadow=false;
+    // Парные боковые каннелюры и ступенчатая рамка добавляют глубину боковым фасадам.
+    for(const z of [13.86,14.12]){
+      box(world,.052,.48,.035,faceX+side*.058,1.43,z,fenceBaseTrim,false);
+      box(world,.058,.40,.018,faceX+side*.075,1.43,z,fenceLightTrim,false);
+    }
+    box(world,.058,.035,.34,faceX+side*.06,1.66,13.99,fenceRelief,false);
+    box(world,.058,.035,.34,faceX+side*.06,1.20,13.99,fenceRelief,false);
+    // Небольшой центральный кабошон повторяет мотив главного герба арки.
+    const sideCabochon=sphere(world,.075,faceX+side*.09,1.43,13.99,fenceCap,.9);
+    sideCabochon.scale.set(.28,.72,1.15);
+    sideCabochon.castShadow=false;sideCabochon.receiveShadow=false;
     // Капитель и база получают непрерывный профиль и на боковой грани.
     for(const [y,h,depth,material] of [
       [.43,.035,.82,fenceBaseTrim],
