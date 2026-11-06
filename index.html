@@ -2350,6 +2350,31 @@ function makeFactory(){
  const roofMetal=new THREE.MeshStandardMaterial({color:0x34483a,map:roofTexture,bumpMap:roofBump,bumpScale:.016,roughness:.7,metalness:.24});
  // Отдельные материалы ворот и карнизов склада: тёплое дерево и состаренная бронза.
  const factoryDoorMaterial=new THREE.MeshStandardMaterial({color:0x76513b,roughness:.82,metalness:.025});
+ // Локальная фактура деревянных рам заводских окон: направленные волокна и мягкий рельеф.
+ const factoryWindowFrameCanvas=document.createElement('canvas');factoryWindowFrameCanvas.width=128;factoryWindowFrameCanvas.height=128;
+ const factoryWindowFrameCtx=factoryWindowFrameCanvas.getContext('2d');
+ const factoryWindowFrameGradient=factoryWindowFrameCtx.createLinearGradient(0,0,128,0);
+ factoryWindowFrameGradient.addColorStop(0,'#65442f');factoryWindowFrameGradient.addColorStop(.24,'#886044');
+ factoryWindowFrameGradient.addColorStop(.52,'#755039');factoryWindowFrameGradient.addColorStop(.78,'#91694a');factoryWindowFrameGradient.addColorStop(1,'#60412f');
+ factoryWindowFrameCtx.fillStyle=factoryWindowFrameGradient;factoryWindowFrameCtx.fillRect(0,0,128,128);
+ for(let i=0;i<95;i++){
+   const y=(i*37+9)%128,x=(i*19+5)%128,len=18+(i*23)%100;
+   factoryWindowFrameCtx.strokeStyle=i%3===0?'rgba(38,23,15,.19)':'rgba(235,194,145,.13)';
+   factoryWindowFrameCtx.lineWidth=.45+(i%3)*.35;
+   factoryWindowFrameCtx.beginPath();factoryWindowFrameCtx.moveTo(x,y);factoryWindowFrameCtx.lineTo(Math.min(127,x+len),y+(i%5-2)*.18);factoryWindowFrameCtx.stroke();
+ }
+ for(let i=0;i<7;i++){
+   const x=14+(i*17)%100,y=12+(i*29)%104;
+   factoryWindowFrameCtx.strokeStyle='rgba(42,25,16,.2)';factoryWindowFrameCtx.lineWidth=1;
+   factoryWindowFrameCtx.beginPath();factoryWindowFrameCtx.ellipse(x,y,3.5,1.1,.08,0,Math.PI*2);factoryWindowFrameCtx.stroke();
+ }
+ const factoryWindowFrameTexture=new THREE.CanvasTexture(factoryWindowFrameCanvas);
+ factoryWindowFrameTexture.colorSpace=THREE.SRGBColorSpace;
+ factoryWindowFrameTexture.wrapS=factoryWindowFrameTexture.wrapT=THREE.RepeatWrapping;
+ factoryWindowFrameTexture.repeat.set(1,1);
+ factoryWindowFrameTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const factoryWindowFrameBump=factoryWindowFrameTexture.clone();factoryWindowFrameBump.colorSpace=THREE.NoColorSpace;factoryWindowFrameBump.needsUpdate=true;
+ const factoryWindowFrameMaterial=new THREE.MeshStandardMaterial({color:0xffffff,map:factoryWindowFrameTexture,bumpMap:factoryWindowFrameBump,bumpScale:.018,roughness:.79,metalness:.015});
  // Тонкая патина и направленная шлифовка существующих бронзовых карнизов без изменения их оттенка.
  const factoryCorniceCanvas=document.createElement('canvas');factoryCorniceCanvas.width=128;factoryCorniceCanvas.height=128;
  const factoryCorniceCtx=factoryCorniceCanvas.getContext('2d');
@@ -2464,7 +2489,7 @@ function makeFactory(){
  }
  // Lit multi-pane factory windows on both long walls.
  for(const x of [-2.35,2.35]){
-   box(g,1.05,1.05,.14,x,2.55,2.75,M.wood);
+   box(g,1.05,1.05,.14,x,2.55,2.75,factoryWindowFrameMaterial,false);
    box(g,.82,.78,.08,x,2.58,2.85,windowGlow);
    box(g,.1,.84,.08,x,2.58,2.91,M.gold,false);
    box(g,.86,.1,.08,x,2.58,2.91,M.gold,false);
