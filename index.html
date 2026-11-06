@@ -2906,18 +2906,41 @@ function makeFactory(){
    // A continuous narrow cap sheds water and visually closes the base course.
    box(g,.25,.07,5.16,side*3.8,.69,0,factoryPlinthStone,false);
  }
+ // Локальная фактура для уже существующих каменных поясов и оконных акцентов завода.
+ const factoryBandStone=M.stone2.clone();
+ const factoryBandCanvas=document.createElement('canvas');factoryBandCanvas.width=128;factoryBandCanvas.height=128;
+ const factoryBandCtx=factoryBandCanvas.getContext('2d');
+ factoryBandCtx.fillStyle='#aeb0aa';factoryBandCtx.fillRect(0,0,128,128);
+ for(let i=0;i<46;i++){
+   const y=(i*29+7)%128;
+   factoryBandCtx.strokeStyle=i%4===0?'rgba(53,59,53,.09)':'rgba(255,255,255,.10)';
+   factoryBandCtx.lineWidth=.45+(i%3)*.3;
+   factoryBandCtx.beginPath();factoryBandCtx.moveTo(0,y);factoryBandCtx.lineTo(128,y+((i%5)-2)*.22);factoryBandCtx.stroke();
+ }
+ for(let i=0;i<420;i++){
+   const x=(i*53+17)%128,y=(i*31+11)%128;
+   factoryBandCtx.fillStyle=i%2?'rgba(49,56,49,.075)':'rgba(255,255,255,.10)';
+   factoryBandCtx.fillRect(x,y,1,1);
+ }
+ const factoryBandTexture=new THREE.CanvasTexture(factoryBandCanvas);
+ factoryBandTexture.colorSpace=THREE.SRGBColorSpace;
+ factoryBandTexture.wrapS=factoryBandTexture.wrapT=THREE.RepeatWrapping;
+ factoryBandTexture.repeat.set(2.2,.8);
+ factoryBandTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const factoryBandBump=factoryBandTexture.clone();factoryBandBump.colorSpace=THREE.NoColorSpace;factoryBandBump.needsUpdate=true;
+ factoryBandStone.map=factoryBandTexture;factoryBandStone.bumpMap=factoryBandBump;factoryBandStone.bumpScale=.012;factoryBandStone.needsUpdate=true;
  // Боковые каменные пояса связывают окна и кирпичные простенки в цельную архитектурную композицию.
  for(const side of [-1,1]){
    for(const y of [1.68,3.28]){
-     box(g,.16,.12,5.12,side*3.76,y,0,M.stone2,false);
+     box(g,.16,.12,5.12,side*3.76,y,0,factoryBandStone,false);
      box(g,.18,.035,5.16,side*3.79,y+.075,0,M.gold,false);
    }
    // Каменные замковые акценты над боковыми окнами и небольшие опорные консоли под ними.
    for(const z of [-1.38,1.38]){
-     box(g,.2,.18,.24,side*3.79,3.18,z,M.stone2,false);
+     box(g,.2,.18,.24,side*3.79,3.18,z,factoryBandStone,false);
      box(g,.12,.1,.14,side*3.91,3.24,z,M.gold,false);
      for(const dz of [-.38,.38]){
-       box(g,.18,.12,.16,side*3.79,1.78,z+dz,M.stone2,false);
+       box(g,.18,.12,.16,side*3.79,1.78,z+dz,factoryBandStone,false);
        sphere(g,.03,side*3.9,1.79,z+dz,M.gold,.8);
      }
    }
