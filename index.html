@@ -2499,34 +2499,13 @@ function makeFlowerBed(x,z){
  }
 }
 function makeWorldDecor(){
- // Straight, centered stone approach: manor entrance -> courtyard -> bridge centerline.
- for(let i=0;i<10;i++){
-   const z=4.85+i*1.35;
-   box(world,1.35,.14,1.35,-.675,.04,z,M.stone2,false);
-   box(world,1.35,.14,1.35,.675,.04,z,M.stone2,false);
- }
- for(let i=0;i<17;i++){
-   const p=-14+i*1.75;
-   box(world,1.25,.55,.42,p,.27,-14,M.stone2,false);
-   box(world,1.25,.55,.42,p,.27,14,M.stone2,false);
-   box(world,.42,.55,1.25,-14,.27,p,M.stone2,false);
-   box(world,.42,.55,1.25,14,.27,p,M.stone2,false);
- }
- // Subtle masonry piers and capstones give the perimeter fence a finished rhythm.
- const pierMat=mat(0xbeb294),capMat=mat(0xe0d4b8),jointMat=mat(0x9f9276);
- for(let p=-14;p<=14;p+=3.5){
-   for(const z of [-14,14]){
-     box(world,.58,.86,.58,p,.43,z,pierMat,false);
-     box(world,.72,.13,.72,p,.91,z,capMat,false);
-     box(world,.38,.045,.38,p,.99,z,jointMat,false);
-   }
-   for(const x of [-14,14]){
-     box(world,.58,.86,.58,x,.43,p,pierMat,false);
-     box(world,.72,.13,.72,x,.91,p,capMat,false);
-     box(world,.38,.045,.38,x,.99,p,jointMat,false);
-   }
- }
- // Fountain, entrance arch, lamps and crop beds are omitted.
+  // Открытая территория без забора. Каменная дорожка идёт от порога дома прямо к мосту.
+  for(let i=0;i<21;i++){
+    const z=-10.5+i*1.35;
+    box(world,1.35,.14,1.35,-.675,.04,z,M.stone2,false);
+    box(world,1.35,.14,1.35,.675,.04,z,M.stone2,false);
+  }
+  // Fountain, entrance arch, lamps and crop beds are omitted.
  // Low ornamental ground cover and natural stone clusters around the outer border.
  const shrubMat=mat(0x477f3d),rockMat=mat(0x8b8979);
  for(const [x,z,scale] of [[-17,-10,1.2],[-18,7,1.1],[17,-8,1.25],[18,8,1.15],[-12,18,1],[12,18,1]]){
