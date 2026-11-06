@@ -2268,9 +2268,9 @@ function makeFactory(){
  brickTexture.repeat.set(2,1.5);
  brickTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const brickBump=brickTexture.clone();brickBump.colorSpace=THREE.NoColorSpace;brickBump.needsUpdate=true;
- brick.map=brickTexture;brick.bumpMap=brickBump;brick.bumpScale=.05;brick.needsUpdate=true;
+ brick.map=brickTexture;brick.bumpMap=brickBump;brick.bumpScale=.052;brick.roughness=.86;brick.needsUpdate=true;
  // Кирпичные выступающие опоры получают ту же кладочную фактуру, чтобы фасад читался единым материалом.
- brickLight.map=brickTexture;brickLight.bumpMap=brickBump;brickLight.bumpScale=.043;brickLight.needsUpdate=true;
+ brickLight.map=brickTexture;brickLight.bumpMap=brickBump;brickLight.bumpScale=.045;brickLight.roughness=.83;brickLight.needsUpdate=true;
  // Gentle warm interior lighting gives the factory glazing a believable evening glow.
  warmLight(g,-1.8,2.65,1.35,.8,8);warmLight(g,1.8,2.65,1.35,.8,8);
  // Каменная площадка перед промышленным входом связывает фасад с территорией.
