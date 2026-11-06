@@ -820,6 +820,13 @@ function makeHouse(){
        box(t,.012,.018,1.76,side*1.081,y,0,towerMortarMaterial,false);
      }
    }
+   // Короткие вертикальные стыки создают спокойную перевязку каменных блоков.
+   for(const joint of [{x:-.38,y:1.57},{x:.38,y:4.95}]){
+     for(const side of [-1,1]){
+       box(t,.012,.62,.012,joint.x,joint.y,side*1.083,towerMortarMaterial,false);
+       box(t,.012,.62,.012,side*1.083,joint.y,joint.x,towerMortarMaterial,false);
+     }
+   }
    // Stone window surrounds and a crisp sill on each tower face.
    // Corner stone dressings and a continuous upper cornice sharpen each tower.
    for(const sx of [-1,1]){
