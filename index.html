@@ -3713,17 +3713,16 @@ function makeWorldDecor(){
     const x=side==="right"?16.02:-13.52;
     const sign=side==="right"?1:-1;
     for(let cz=-10.5;cz<=10.5;cz+=3.5){
-      const front=cz-1.48,back=cz+1.48,baseY=1.43,apexY=2.62;
-      for(const pz of [front,back]){
-        // Массивные квадратные каменные столбы; арка проходит ровно по центру пролёта между ними.
-        box(world,.34,1.08,.34,x,1.77,pz,fenceBaseTrim,false);
-        box(world,.43,.13,.43,x,2.375,pz,fenceLightTrim,false);
-        box(world,.29,.12,.29,x,2.50,pz,fenceRelief,false);
-        const finial=new THREE.Mesh(new THREE.BoxGeometry(.22,.16,.22),fenceLightTrim);
-        finial.position.set(x,2.64,pz);
-        finial.castShadow=false;finial.receiveShadow=false;world.add(finial);
+      // Соседние арки сходятся на общей оси квадратных опор, образуя отдельные пролёты без щелей.
+      const front=cz-1.75,back=cz+1.75,baseY=1.43,apexY=2.62;
+      const pillarPositions=cz===-10.5?[front,back]:[back];
+      for(const pz of pillarPositions){
+        // Полноразмерный квадратный каменный столб начинается прямо от земли и доходит до пят арки.
+        box(world,.46,1.43,.46,x,.715,pz,fenceBaseTrim,false);
+        box(world,.56,.14,.56,x,1.43,pz,fenceLightTrim,false);
+        box(world,.38,.08,.38,x,1.54,pz,fenceRelief,false);
       }
-      // Симметричный свод расположен в средней плоскости между квадратными столбами.
+      // Каждая арка занимает собственную секцию и опирается на общие квадратные столбы.
       addFenceArc(archProfile(front,back,baseY,apexY,x,'z'),fenceLightTrim,.055);
       addFenceArc(archProfile(front+.17,back-.17,baseY+.035,apexY-.19,x+sign*.035,'z'),fenceBaseTrim,.027);
       addFenceArc(archProfile(front+.31,back-.31,baseY+.055,apexY-.34,x-sign*.035,'z'),fenceRelief,.018);
