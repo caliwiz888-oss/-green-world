@@ -222,7 +222,23 @@ const API=window.GREEN_WORLD_API_URL;
 let token='';
 let cameraRadius=60,cameraHeight=30;
 let buildingObjects=[];
-const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,78,175);
+const scene=new THREE.Scene();
+// Мягкий процедурный небосвод: градиент от насыщенного голубого к светлому горизонту с едва заметными облачными вуалями.
+const skyCanvas=document.createElement('canvas');skyCanvas.width=1024;skyCanvas.height=512;
+const skyCtx=skyCanvas.getContext('2d');
+const skyGradient=skyCtx.createLinearGradient(0,0,0,512);
+skyGradient.addColorStop(0, '#4f91bd');skyGradient.addColorStop(.34, '#79b4d5');
+skyGradient.addColorStop(.68, '#b8d8df');skyGradient.addColorStop(1, '#dce8d7');
+skyCtx.fillStyle=skyGradient;skyCtx.fillRect(0,0,1024,512);
+for(let i=0;i<15;i++){
+ const x=(i*173+61)%1024,y=95+(i*47)%235,w=95+(i*31)%155,h=9+(i%4)*4;
+ const cloud=skyCtx.createLinearGradient(x,y-h,x,y+h);
+ cloud.addColorStop(0,'rgba(255,255,255,0)');cloud.addColorStop(.5,'rgba(255,255,255,.105)');cloud.addColorStop(1,'rgba(255,255,255,0)');
+ skyCtx.fillStyle=cloud;skyCtx.beginPath();skyCtx.ellipse(x,y,w,h,(i%7-3)*.035,0,Math.PI*2);skyCtx.fill();
+}
+const skyTexture=new THREE.CanvasTexture(skyCanvas);skyTexture.colorSpace=THREE.SRGBColorSpace;
+skyTexture.mapping=THREE.EquirectangularReflectionMapping;scene.background=skyTexture;
+scene.fog=new THREE.Fog(0xb8d8df,78,175);
 const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,4.5,140);
 // Умеренно близкая near-плоскость и ограниченный far-диапазон повышают точность стандартного depth buffer на мобильных GPU.
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});
