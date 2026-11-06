@@ -2559,6 +2559,15 @@ function makeWorldLandscape(){
    alpineRockCtx.fillStyle=i%3===0?'rgba(221,229,211,.09)':'rgba(32,49,45,.055)';
    alpineRockCtx.beginPath();alpineRockCtx.ellipse(x,y,rx,ry,(i%7-3)*.12,0,Math.PI*2);alpineRockCtx.fill();
  }
+ // Светлые выветренные минеральные пятна смягчают переходы между тёмными скальными слоями.
+ for(let i=0;i<20;i++){
+   const x=(i*47+23)%128,y=(i*31+17)%128,rx=3+(i*5)%8,ry=1+(i*3)%4;
+   const g=alpineRockCtx.createRadialGradient(x,y,0,x,y,rx);
+   g.addColorStop(0,i%3===0?'rgba(196,211,204,.13)':'rgba(225,229,214,.085)');
+   g.addColorStop(1,'rgba(225,229,214,0)');
+   alpineRockCtx.fillStyle=g;alpineRockCtx.beginPath();
+   alpineRockCtx.ellipse(x,y,rx,ry,(i%6-3)*.13,0,Math.PI*2);alpineRockCtx.fill();
+ }
  const alpineRockTexture=new THREE.CanvasTexture(alpineRockCanvas);
  alpineRockTexture.colorSpace=THREE.SRGBColorSpace;
  alpineRockTexture.wrapS=alpineRockTexture.wrapT=THREE.RepeatWrapping;
