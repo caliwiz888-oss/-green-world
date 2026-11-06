@@ -3246,6 +3246,29 @@ function makeWorldDecor(){
     box(world,.70,.15,28.4,x,1.10,0,fenceLightTrim,false);
     box(world,.74,.09,28.4,x,1.20,0,fenceBaseTrim,false);
   }
+  // Рельефная облицовка нижнего цоколя: отдельные известняковые блоки с тонкими швами.
+  // Сегментация подчёркивает массивное основание, не меняя высоту и периметр ограды.
+  for(const z of [-14,14]){
+    const faceZ=z+(z<0?-.365:.365);
+    const spans=z===14?[[-14,-3.8],[3.8,16.5]]:[[-14,16.5]];
+    for(const [start,end] of spans){
+      for(let x=start+.88;x<end-.35;x+=1.75){
+        box(world,1.42,.105,.045,x,.115,faceZ,fenceLightTrim,false);
+        box(world,1.28,.055,.055,x,.115,faceZ+(z<0?-.025:.025),fenceRelief,false);
+        box(world,.025,.075,.06,x-.70,.115,faceZ+(z<0?-.03:.03),fenceBaseTrim,false);
+        box(world,.025,.075,.06,x+.70,.115,faceZ+(z<0?-.03:.03),fenceBaseTrim,false);
+      }
+    }
+  }
+  for(const x of [-14,16.5]){
+    const faceX=x+(x<0?-.365:.365);
+    for(let z=-12.25;z<=12.25;z+=1.75){
+      box(world,.045,.105,1.42,faceX,.115,z,fenceLightTrim,false);
+      box(world,.055,.055,1.28,faceX+(x<0?-.025:.025),.115,z,fenceRelief,false);
+      box(world,.06,.075,.025,faceX+(x<0?-.03:.03),.115,z-.70,fenceBaseTrim,false);
+      box(world,.06,.075,.025,faceX+(x<0?-.03:.03),.115,z+.70,fenceBaseTrim,false);
+    }
+  }
   // Тонкие фаски верхнего карниза по всему периметру ограды; въездная арка остаётся свободной.
   for(const [start,end] of [[-14,-3.6],[3.6,16.5]]){
     const length=end-start,center=(start+end)/2;
