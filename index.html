@@ -356,7 +356,7 @@ function makeHouse(){
  const glassTexture=new THREE.CanvasTexture(glassCanvas);glassTexture.colorSpace=THREE.SRGBColorSpace;
  glassTexture.wrapS=glassTexture.wrapT=THREE.ClampToEdgeWrapping;
  glassTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- const manorGlass=manorGlass.clone();manorGlass.map=glassTexture;manorGlass.roughness=.24;manorGlass.metalness=.12;manorGlass.needsUpdate=true;
+ const manorGlass=M.glass.clone();manorGlass.map=glassTexture;manorGlass.roughness=.24;manorGlass.metalness=.12;manorGlass.needsUpdate=true;
  // Main manor: broad stone body, raised plinth and detailed gabled roof.
  box(g,10,4.5,8,0,2.25,0,houseStone);
  box(g,10.5,.38,8.5,0,4.55,0,houseStoneTrim);
