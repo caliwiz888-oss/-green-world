@@ -1385,6 +1385,16 @@ function makeHouse(){
    box(g,.68,.12,8.98,x,.52,0,housePlinthCap,false);
  }
 
+ // Четыре массивных угловых камня связывают цоколь с вертикальными углами фасада.
+ for(const x of [-5.12,5.12])for(const z of [-4.12,4.12]){
+   box(g,.78,.16,.78,x,.66,z,housePlinthCap,false);
+   box(g,.66,.22,.66,x,.85,z,housePlinthBase,false);
+   box(g,.72,.075,.72,x,.995,z,housePlinthCap,false);
+   box(g,.48,.035,.48,x,1.05,z,manorFacadeTrim,false);
+   box(g,.018,.19,.54,x-.22,.85,z+.01,houseStoneTrim,false);
+   box(g,.54,.19,.018,x,.85,z-.22,houseStoneTrim,false);
+ }
+
   return disableCastShadows(g);
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
