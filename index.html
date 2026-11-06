@@ -2930,10 +2930,10 @@ function makeWorldDecor(){
       box(world,.025,.018,.195,x,.18,z,roadEdgeTop,false);
     }
   }
-  // Стык подъёма с мостом: последний ряд заканчивается перед настилом, без наложения поверхностей.
-  // Семь рядов от Z=13.93 до Z=17.32; последний камень заканчивается у начала настила Z=17.6.
+  // Стык подъёма с мостом: дорожное полотно и начало настила выставлены на одну высоту.
+  // Семь рядов от Z=13.93 до Z=17.32; подъезд и начало настила имеют одинаковую отметку.
   const rampStartZ=13.93,rampLastRowZ=17.32;
-  const rampHeight=z=>.16+.86*Math.max(0,Math.min(1,(z-rampStartZ)/(rampLastRowZ-rampStartZ)));
+  const rampHeight=z=>.1475;
   for(let row=0;row<7;row++){
     const z=rampStartZ+row*.565,deckY=rampHeight(z);
     for(const side of [-1,1]){
@@ -4470,7 +4470,7 @@ function makeWorldLandscape(){
  // Arched stone bridge: a gently crowned deck, sculpted ribs and curved balustrades.
  const bridgeChildrenStart=world.children.length;
  const bridgeStartZ=17.6,bridgeEndZ=26.8,bridgeLength=bridgeEndZ-bridgeStartZ;
- const bridgeDeckY=z=>1.02+.5*Math.sin(Math.PI*(z-bridgeStartZ)/bridgeLength);
+ const bridgeDeckY=z=>.1475+.5*Math.sin(Math.PI*(z-bridgeStartZ)/bridgeLength);
  // Три согласованных оттенка серого гранита вместо однотонного белого камня.
  const bridgeStoneDark=new THREE.MeshStandardMaterial({color:0x687276,roughness:.96,metalness:0});
  const bridgeStoneMid=new THREE.MeshStandardMaterial({color:0x858d8e,map:surfaceMaps.stone,roughness:.95,metalness:0});
