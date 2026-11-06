@@ -2338,6 +2338,40 @@ function makeWorldDecor(){
     box(world,.50,.055,.50,16.5,1.45,z,fenceJoint,false);
   }
 
+  // Центральная каменная арка входа: стоит в одной плоскости с передним забором и оставляет свободный проход для дороги с моста.
+  const entranceGateShape=new THREE.Shape();
+  entranceGateShape.moveTo(-2.9,0);
+  entranceGateShape.lineTo(-2.9,3.05);
+  entranceGateShape.quadraticCurveTo(-2.9,4.05,0,4.05);
+  entranceGateShape.quadraticCurveTo(2.9,4.05,2.9,3.05);
+  entranceGateShape.lineTo(2.9,0);
+  entranceGateShape.closePath();
+  const entranceGateOpening=new THREE.Path();
+  entranceGateOpening.moveTo(-2.12,0);
+  entranceGateOpening.lineTo(-2.12,2.62);
+  entranceGateOpening.quadraticCurveTo(-2.12,3.25,0,3.25);
+  entranceGateOpening.quadraticCurveTo(2.12,3.25,2.12,2.62);
+  entranceGateOpening.lineTo(2.12,0);
+  entranceGateOpening.closePath();
+  entranceGateShape.holes.push(entranceGateOpening);
+  const entranceGateGeometry=new THREE.ExtrudeGeometry(entranceGateShape,{depth:.48,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.055,bevelThickness:.055});
+  const entranceGate=new THREE.Mesh(entranceGateGeometry,fenceMat);
+  entranceGate.position.set(0,.02,13.76);
+  entranceGate.castShadow=true;entranceGate.receiveShadow=true;world.add(entranceGate);
+  // Светлый каменный контур, замковый камень и основания визуально связывают арку с увеличенными столбами забора.
+  for(const x of [-2.52,2.52]){
+    box(world,.88,.2,.72,x,.16,13.72,fenceBaseTrim,false);
+    box(world,.82,.13,.76,x,3.08,13.72,fenceCap,false);
+    box(world,.96,.12,.78,x,3.2,13.72,fenceBaseTrim,false);
+  }
+  box(world,.58,.28,.62,0,4.03,13.7,fenceCap,false);
+  box(world,.82,.1,.7,0,4.2,13.7,fenceBaseTrim,false);
+  // Небольшие рельефные камни по фасаду арки.
+  for(const x of [-2.52,2.52]){
+    for(const y of [.72,1.48,2.24]){
+      box(world,.12,.34,.055,x,y,14.255,fenceLightTrim,false);
+    }
+  }
   // Декоративная каменная отделка ограждения: цоколь, карниз и рельефные панели.
   const fenceBaseTrim=mat(0x98896f),fenceLightTrim=mat(0xe8dcc1),fenceRelief=mat(0xcbbd9e),fenceShadow=mat(0x887b65);
   // Непрерывный нижний цоколь и верхний каменный карниз по четырём сторонам.
