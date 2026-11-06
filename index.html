@@ -658,7 +658,7 @@ function makeHouse(){
  // Тёплая светлая терракота с медным подтоном для основной кровли главного дома.
   manorRoofMaterial.color.setHex(0xd18b60);
  manorRoofMaterial.roughness=.82;manorRoofMaterial.metalness=.035;
- manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.009;manorRoofMaterial.roughness=.7;manorRoofMaterial.metalness=.2;manorRoofMaterial.needsUpdate=true;
+ manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.009;manorRoofMaterial.roughness=.82;manorRoofMaterial.metalness=.035;manorRoofMaterial.needsUpdate=true;
  // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
  const roofL=box(g,3.95,.34,8.9,-1.93,5.72,0,manorRoofMaterial);roofL.rotation.z=.58;
  const roofR=box(g,3.95,.34,8.9,1.43,5.72,0,manorRoofMaterial);roofR.rotation.z=-.58;
