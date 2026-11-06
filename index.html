@@ -2670,6 +2670,12 @@ function makeWorldLandscape(){
    snowCtx.beginPath();snowCtx.moveTo(x+2,y-1.1);
    snowCtx.quadraticCurveTo(x+len*.48,y+curve-1.7,x+len+2,y+curve*.35-1);snowCtx.stroke();
  }
+ // Мелкие рассеянные кристаллические отблески добавляют снежной поверхности тонкую зернистость без эффекта блёсток.
+ for(let i=0;i<34;i++){
+   const x=(i*47+21)%128,y=(i*71+15)%128,r=.28+(i%3)*.16;
+   snowCtx.fillStyle=i%5===0?'rgba(111,145,158,.075)':'rgba(255,255,255,.17)';
+   snowCtx.beginPath();snowCtx.arc(x,y,r,0,Math.PI*2);snowCtx.fill();
+ }
  const snowTexture=new THREE.CanvasTexture(snowCanvas);snowTexture.colorSpace=THREE.SRGBColorSpace;
  snowTexture.wrapS=snowTexture.wrapT=THREE.RepeatWrapping;snowTexture.repeat.set(1.2,1.2);
  snowTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
