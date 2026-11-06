@@ -705,6 +705,20 @@ function makeHouse(){
    manorRoofCtx.moveTo(x,y);manorRoofCtx.lineTo(Math.min(255,x+len),y+.35);
    manorRoofCtx.stroke();
  }
+ // Микрозерно и редкие минеральные следы уточняют поверхность кровельных пластин без изменения их рисунка.
+ for(let i=0;i<520;i++){
+   const x=(i*73+29)%256,y=(i*137+17)%256;
+   const light=i%4===0;
+   manorRoofCtx.fillStyle=light?'rgba(235,242,242,.075)':'rgba(18,28,36,.055)';
+   manorRoofCtx.fillRect(x,y,1+(i%2),1);
+ }
+ for(let i=0;i<48;i++){
+   const x=(i*53+11)%252,y=(i*97+7)%252,len=4+(i*11)%15;
+   manorRoofCtx.strokeStyle=i%5===0?'rgba(230,238,239,.07)':'rgba(25,35,43,.045)';
+   manorRoofCtx.lineWidth=.45+(i%2)*.2;
+   manorRoofCtx.beginPath();manorRoofCtx.moveTo(x,y);
+   manorRoofCtx.quadraticCurveTo(x+len*.45,y-.6,x+len,y+.25);manorRoofCtx.stroke();
+ }
  const manorRoofTexture=new THREE.CanvasTexture(manorRoofCanvas);
  manorRoofTexture.colorSpace=THREE.SRGBColorSpace;
  manorRoofTexture.wrapS=manorRoofTexture.wrapT=THREE.RepeatWrapping;
@@ -715,7 +729,7 @@ function makeHouse(){
  // Светлый благородный серо-голубой оттенок кровли для контраста с тёплым фасадом.
   manorRoofMaterial.color.setHex(0x718b9a);
  manorRoofMaterial.roughness=.82;manorRoofMaterial.metalness=.035;
- manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.009;manorRoofMaterial.roughness=.82;manorRoofMaterial.metalness=.035;manorRoofMaterial.needsUpdate=true;
+ manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.011;manorRoofMaterial.roughness=.82;manorRoofMaterial.metalness=.035;manorRoofMaterial.needsUpdate=true;
  // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
  const roofL=box(g,3.95,.34,8.9,-1.93,5.72,0,manorRoofMaterial);roofL.rotation.z=.58;
  const roofR=box(g,3.95,.34,8.9,1.43,5.72,0,manorRoofMaterial);roofR.rotation.z=-.58;
