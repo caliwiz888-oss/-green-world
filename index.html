@@ -2357,6 +2357,22 @@ function makeWorldLandscape(){
  }
  const hillMat=mat(0x668f58),hillLight=mat(0x82a968),mountain=mat(0x71877b),snow=mat(0xe5eee5),water=new THREE.MeshPhysicalMaterial({color:0x4aa9c5,roughness:.2,metalness:.08,transparent:true,opacity:.82});
  // Тонкая минеральная фактура на основных горных склонах: без новых геометрических накладок.
+ // Мелкая природная фактура на дальних зелёных склонах — только через карту материала.
+ const foothillCanvas=document.createElement('canvas');foothillCanvas.width=foothillCanvas.height=128;
+ const foothillCtx=foothillCanvas.getContext('2d');
+ const foothillImage=foothillCtx.createImageData(128,128);
+ for(let y=0;y<128;y++)for(let x=0;x<128;x++){
+   const v=126+Math.round(9*Math.sin(x*.12+y*.035)+6*Math.sin(y*.19-x*.06)+((x*13+y*7)%9)-4);
+   const k=(y*128+x)*4;foothillImage.data[k]=v;foothillImage.data[k+1]=v;foothillImage.data[k+2]=v;foothillImage.data[k+3]=255;
+ }
+ foothillCtx.putImageData(foothillImage,0,0);
+ foothillCtx.strokeStyle='rgba(65,91,57,.12)';foothillCtx.lineWidth=1;
+ for(let y=10;y<128;y+=23){foothillCtx.beginPath();foothillCtx.moveTo(0,y);foothillCtx.quadraticCurveTo(64,y-5,128,y+4);foothillCtx.stroke();}
+ const foothillTexture=new THREE.CanvasTexture(foothillCanvas);
+ foothillTexture.colorSpace=THREE.SRGBColorSpace;foothillTexture.wrapS=foothillTexture.wrapT=THREE.RepeatWrapping;
+ foothillTexture.repeat.set(2,1);foothillTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const foothillBump=foothillTexture.clone();foothillBump.colorSpace=THREE.NoColorSpace;foothillBump.needsUpdate=true;
+ for(const m of [hillMat,hillLight]){m.map=foothillTexture;m.bumpMap=foothillBump;m.bumpScale=.035;m.roughness=.96;m.needsUpdate=true;}
  const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=128;alpineRockCanvas.height=128;
  const alpineRockCtx=alpineRockCanvas.getContext('2d');
  const alpineRockPixels=alpineRockCtx.createImageData(128,128);
