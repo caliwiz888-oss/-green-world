@@ -2275,6 +2275,22 @@ function makeWorldDecor(){
     box(world,1.35,.14,1.35,-.675,.04,z,M.stone2,false);
     box(world,1.35,.14,1.35,.675,.04,z,M.stone2,false);
   }
+  // Соединительные дорожки связывают входы лавки и завода с центральной дорогой у дома.
+  const sidePathBase=mat(0xd7c49e,.9),sidePathTile=mat(0xe8ddc5,.92),sidePathJoint=mat(0xbba985,.95);
+  // Левая ветка подходит к передней площадке торговой лавки.
+  box(world,9.1,.16,2.05,-5.55,.035,-4.55,sidePathBase,false);
+  for(let ix=0;ix<9;ix++)for(let iz=0;iz<2;iz++){
+    box(world,.96,.035,.94,-9.55+ix*1.0,.132,-5.075+iz*.99,ix%2?sidePathTile:M.stone,false);
+  }
+  // Правая ветка подходит к передней площадке завода.
+  box(world,10.1,.16,2.05,6.55,.035,-4.55,sidePathBase,false);
+  for(let ix=0;ix<10;ix++)for(let iz=0;iz<2;iz++){
+    box(world,.96,.035,.94,1.95+ix*1.0,.132,-5.075+iz*.99,ix%2?sidePathTile:M.stone,false);
+  }
+  // Каменные краевые вставки завершают обе дорожки.
+  for(const x of [-10.1,-1.0,1.5,11.6]){
+    for(const z of [-5.62,-3.48])box(world,.12,.08,.12,x,.15,z,sidePathJoint,false);
+  }
   // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проём оставлен для дороги с моста.
   const fenceMat=mat(0xbeb294),fenceCap=mat(0xe0d4b8),fenceJoint=mat(0x9f9276);
   for(let p=-14;p<=14;p+=1.75){
