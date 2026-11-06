@@ -2385,6 +2385,28 @@ function makeWorldDecor(){
     const seam=new THREE.Mesh(new THREE.TubeGeometry(seamCurve,1,.018,6,false),fenceShadow);
     seam.castShadow=false;seam.receiveShadow=false;world.add(seam);
   }
+  // Отдельные клиновидные каменные блоки по лицу свода: каждый сегмент имеет собственную грань и небольшой шов.
+  for(let i=0;i<13;i++){
+    const a0=Math.PI-i*Math.PI/13+.012;
+    const a1=Math.PI-(i+1)*Math.PI/13-.012;
+    const stoneShape=new THREE.Shape();
+    const steps=5;
+    for(let j=0;j<=steps;j++){
+      const a=a0+(a1-a0)*j/steps;
+      const x=2.82*Math.cos(a),y=gateCenterY+2.82*Math.sin(a);
+      if(j===0) stoneShape.moveTo(x,y); else stoneShape.lineTo(x,y);
+    }
+    for(let j=steps;j>=0;j--){
+      const a=a0+(a1-a0)*j/steps;
+      stoneShape.lineTo(2.20*Math.cos(a),gateCenterY+2.20*Math.sin(a));
+    }
+    stoneShape.closePath();
+    const stoneGeometry=new THREE.ExtrudeGeometry(stoneShape,{depth:.045,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.012,bevelThickness:.012,curveSegments:5});
+    const archStone=new THREE.Mesh(stoneGeometry,i%2===0?fenceRelief:fenceMat);
+    archStone.position.z=gateFrontZ+.055;
+    archStone.castShadow=false;archStone.receiveShadow=false;world.add(archStone);
+  }
+  // Тонкий светлый кант на лицевых гранях подчёркивает отдельные каменные клинья без изменения проёма.
   // Парные рустованные пилоны с базами, вертикальными каннелюрами и резными капителями.
   for(const x of [-2.56,2.56]){
     box(world,.92,.24,.78,x,.16,13.98,fenceBaseTrim,false);
