@@ -762,6 +762,11 @@ function makeHouse(){
    box(t,.075,.12,2.24,1.09,.13,0,towerDetailStone,false);
    box(t,.075,.12,2.24,-1.09,.13,0,towerDetailStone,false);
    box(t,2.35,.22,2.35,0,5.82,0,houseStoneTrim);
+   // Тонкая фасадная линия подчёркивает верхнюю кромку каменного карниза по всему периметру.
+   for(const side of [-1,1]){
+     box(t,2.12,.016,.016,0,5.875,side*1.183,towerDetailStone,false);
+     box(t,.016,.016,2.12,side*1.183,5.875,0,towerDetailStone,false);
+   }
    // Два тонких каменных пояса под верхним карнизом подчёркивают переход к шатру.
    for(const y of [5.66,5.76]){
      box(t,2.28,.045,.075,0,y,1.105,towerDetailStone,false);
