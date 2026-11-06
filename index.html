@@ -710,7 +710,7 @@ function makeHouse(){
  box(g,9.72,.055,.18,0,3.98,4.09,M.gold,false);
  // Reflective inset glazing and delicate muntins give the front windows real depth.
  for(const x of [-3.25,3.25]){
-  box(g,1.02,1.12,.045,x,2.72,4.205,windowInterior,false);
+  box(g,1.02,1.12,.045,x,2.72,4.14,windowInterior,false);
   box(g,1.02,1.12,.045,x,2.72,4.245,manorGlass,false);
   box(g,.055,1.08,.055,x,2.72,4.29,M.gold,false);
   box(g,.98,.055,.055,x,2.72,4.29,M.gold,false);
@@ -743,7 +743,7 @@ function makeHouse(){
  for(const side of [-1,1]){
    for(const z of [-1.35,1.35]){
      const x=side*5.075;
-     box(g,.055,1.22,1.08,x,2.72,z,windowInterior,false);
+     box(g,.055,1.22,1.08,x-side*.08,2.72,z,windowInterior,false);
      box(g,.075,1.12,.98,x+side*.045,2.72,z,manorGlass,false);
      // Четыре отдельных стеклянных секции в каждом окне.
      box(g,.09,1.16,.065,x+side*.09,2.72,z,houseStoneTrim,false);
@@ -1248,7 +1248,7 @@ function makeHouse(){
  // Rear elevation: matching framed windows and stone beltwork complete the manor from every view.
  for(const x of [-3.25,0,3.25]){
    box(g,1.22,1.42,.18,x,2.72,-4.14,M.wood);
-   box(g,.94,1.12,.045,x,2.72,-4.205,windowInterior,false);
+   box(g,.94,1.12,.045,x,2.72,-4.10,windowInterior,false);
    box(g,.94,1.12,.12,x,2.72,-4.26,manorGlass);
    box(g,.12,1.18,.14,x,2.72,-4.34,M.gold,false);
    box(g,1.02,.1,.14,x,2.72,-4.34,M.gold,false);
@@ -1454,7 +1454,7 @@ function makeMarket(level=1){
  // A softly illuminated interior display gives the shop windows depth and a lived-in feel.
  const shopGlow=new THREE.MeshStandardMaterial({color:0xe8b96f,emissive:0x8a4b18,emissiveIntensity:.24,roughness:.72});
  const displayWood=mat(0x80502f,.78);
- box(g,3.38,.96,.035,0,1.65,2.255,shopGlow,false);
+ box(g,3.38,.96,.035,0,1.65,2.18,shopGlow,false);
  for(const y of [1.22,1.82]){
    box(g,3.18,.075,.24,0,y,2.29,displayWood,false);
    box(g,3.22,.035,.25,0,y+.055,2.29,M.gold,false);
@@ -1678,7 +1678,7 @@ function makeMarket(level=1){
  // Rear and side elevations: matching framed glazing keeps the shop detailed from every angle.
  for(const x of [-1.55,1.55]){
    box(g,1.05,1.18,.14,x,1.62,-2.24,M.wood);
-   box(g,.82,.92,.045,x,1.62,-2.295,windowInterior,false);
+   box(g,.82,.92,.045,x,1.62,-2.195,windowInterior,false);
    box(g,.82,.92,.08,x,1.62,-2.34,marketGlass);
    box(g,.1,.98,.1,x,1.62,-2.4,M.gold,false);
    box(g,.88,.08,.1,x,1.62,-2.4,M.gold,false);
@@ -1687,7 +1687,7 @@ function makeMarket(level=1){
  }
  for(const side of [-1,1]){
    box(g,.16,1.12,1.15,side*2.72,1.68,0,M.wood);
-   box(g,.1,.86,.88,side*2.775,1.68,0,windowInterior,false);
+   box(g,.1,.86,.88,side*2.68,1.68,0,windowInterior,false);
    box(g,.1,.86,.88,side*2.82,1.68,0,marketGlass);
    box(g,.12,1.0,.12,side*2.9,1.68,0,M.gold,false);
    box(g,.12,.12,1.05,side*2.9,1.68,0,M.gold,false);
@@ -2104,7 +2104,7 @@ function makeFactory(level=1){
  for(const x of [-2.35,2.35]){
    // Наружная деревянная рама и внутренний светлый откос.
    box(g,1.12,1.16,.13,x,2.55,-2.91,M.wood,false);
-   box(g,.9,.86,.045,x,2.58,-2.965,windowGlow,false);
+   box(g,.9,.86,.045,x,2.58,-2.88,windowGlow,false);
    box(g,.86,.82,.055,x,2.58,-3.005,factoryGlass,false);
    // Перекладины делят стекло на четыре отдельные панели.
    box(g,.075,.84,.065,x,2.58,-3.055,M.gold,false);
