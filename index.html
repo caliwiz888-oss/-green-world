@@ -4626,6 +4626,25 @@ function makeWorldLandscape(){
    const fall=box(world,.22,2.6,.72,25.2,-1.0,z,water,false);
    fall.rotation.z=-.08;
  }
+ // Narrow translucent highlights and foam threads make each cascade read as moving water.
+ const fallHighlightMat=new THREE.MeshBasicMaterial({color:0xe5f5f1,transparent:true,opacity:.58,depthWrite:false});
+ const fallFoamMat=new THREE.MeshBasicMaterial({color:0xc9e8e4,transparent:true,opacity:.42,depthWrite:false});
+ for(const z of [20.9,22.2,23.5]){
+   for(const [dx,dy,len] of [[-.065,.12,1.65],[-.015,-.18,2.05],[.045,.04,1.35],[.075,-.32,.92]]){
+     const streak=box(world,.026,len,.018,25.2+dx,-1.0+dy,z+.375,fallHighlightMat,false);
+     streak.rotation.z=-.08+(dx*1.2);
+   }
+   for(const [dx,dz,s] of [[-.12,-.34,.13],[.02,-.39,.17],[.13,-.3,.11]]){
+     const spray=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),fallFoamMat);
+     spray.position.set(25.2+dx,-2.12,z+dz);
+     spray.scale.set(s,.07,s*.72);
+     spray.castShadow=false;spray.receiveShadow=false;world.add(spray);
+   }
+ }
+ const waterfallPoolFoam=new THREE.Mesh(new THREE.SphereGeometry(1,12,8),fallFoamMat);
+ waterfallPoolFoam.position.set(25.38,-2.14,22.2);
+ waterfallPoolFoam.scale.set(1.18,.045,1.72);
+ waterfallPoolFoam.castShadow=false;waterfallPoolFoam.receiveShadow=false;world.add(waterfallPoolFoam);
  box(world,3.8,.18,5.4,25.4,-2.25,22.2,water,false);
 }
 window.GREEN_WORLD_STARTUP_STAGE='building-world';
