@@ -246,7 +246,7 @@ window.GREEN_WORLD_STARTUP_STAGE='webgl-ready';
 window.GREEN_WORLD_RENDER_DIAGNOSTICS={reversedDepthBuffer:!!renderer.capabilities.reversedDepthBuffer,webgl2:renderer.capabilities.isWebGL2,pixelRatio:renderer.getPixelRatio(),threeRevision:THREE.REVISION};
 console.info('[GREEN WORLD] Render diagnostics',window.GREEN_WORLD_RENDER_DIAGNOSTICS);
 // Используем стандартный буфер глубины для стабильной совместимости с WebGL в Android Telegram WebView.
-renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;renderer.useLegacyLights=false;renderer.setClearColor(0x9acbe8,1);
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=false;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;renderer.useLegacyLights=false;renderer.setClearColor(0x9acbe8,1);
 // Мягкое небесное заполнение сохраняет детали в тенях на фасадах, листве и горном рельефе.
 scene.add(new THREE.HemisphereLight(0xeaf7ff,0x5a7447,2.2));
 scene.add(new THREE.AmbientLight(0xffffff,.3));
@@ -255,6 +255,8 @@ const sun=new THREE.DirectionalLight(0xfff1d9,3.35);sun.position.set(-28,42,24);
 const fill=new THREE.DirectionalLight(0xe1edda,.9);fill.position.set(24,18,-22);scene.add(fill);
 // Холодный контровой дневной свет мягко отделяет силуэты зданий, мост и листву от дальнего пейзажа без теневых карт.
 const atmosphereRim=new THREE.DirectionalLight(0xc9e3f5,.34);atmosphereRim.position.set(-24,15,-32);atmosphereRim.castShadow=false;scene.add(atmosphereRim);
+// Мягкий отражённый свет с уровня окружения подчёркивает рельеф дорожек, камня, травы и фасадов.
+const worldBounce=new THREE.DirectionalLight(0xffe8c9,.22);worldBounce.position.set(18,7,30);worldBounce.castShadow=false;scene.add(worldBounce);
 const mat=(c,r=.82)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.025});
 const windowInterior=new THREE.MeshStandardMaterial({color:0xffdca0,emissive:0xb87932,emissiveIntensity:.2,roughness:.42});
 const M={grass:mat(0x78a94f,.9),grass2:mat(0x699747,.92),soil:mat(0x98734a,.96),path:mat(0xd7bd8d,.88),stone:new THREE.MeshStandardMaterial({color:0xe8ddc5,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x91483a,roughness:.78,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0xb8644c,roughness:.74,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x397b3c,roughness:.92,metalness:0,sheen:.34,sheenColor:0x91b86b,sheenRoughness:.88}),leaf2:new THREE.MeshPhysicalMaterial({color:0x5a9a48,roughness:.91,metalness:0,sheen:.42,sheenColor:0xc0d98a,sheenRoughness:.86}),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xd6b45d,roughness:.34,metalness:.58}),glass:new THREE.MeshStandardMaterial({color:0x9bdde1,roughness:.3,metalness:.04,emissive:0x102b34,emissiveIntensity:.06,transparent:false,opacity:1,depthWrite:true})};
