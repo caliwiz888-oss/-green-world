@@ -363,6 +363,19 @@ function makeSurfaceTexture(kind,seed){
    ctx.moveTo(x,y);ctx.quadraticCurveTo(x+len*.48,y+drift,x+len,y+drift*.35);ctx.stroke();
   }
  }
+ if(kind==='roof'){
+  // Низкоконтрастные дуги повторяют ритм черепицы, не превращая материал в плоский узор.
+  for(let row=-1;row<18;row++){
+   const y=row*48+24,offset=(row%2)*24;
+   for(let col=-1;col<18;col++){
+    const x=col*48+offset+24;
+    ctx.strokeStyle='rgba(75,35,29,.12)';ctx.lineWidth=1.6;
+    ctx.beginPath();ctx.moveTo(x-21,y-17);ctx.quadraticCurveTo(x,y-23,x+21,y-17);ctx.stroke();
+    ctx.strokeStyle='rgba(255,218,190,.10)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(x-18,y-15);ctx.quadraticCurveTo(x,y-19,x+18,y-15);ctx.stroke();
+   }
+  }
+ }
  if(kind==='soil'){
   // Тонкие вытянутые песчинки и следы грунта делают дорожки менее плоскими.
   for(let i=0;i<240;i++){
