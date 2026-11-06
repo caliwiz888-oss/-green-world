@@ -1520,6 +1520,18 @@ function makeMarket(){
    box(g,.06,.78,1.35,x+side*.11,1.72,-.72,marketGlass,false);
    box(g,.08,.08,1.48,x+side*.16,2.15,-.72,M.gold,false);
    box(g,.08,.08,1.48,x+side*.16,1.29,-.72,M.gold,false);
+   // Рельефная деревянная рама и переплёты бокового окна.
+   box(g,.105,.91,1.53,x+side*.19,1.72,-.72,timber,false);
+   box(g,.045,.78,1.35,x+side*.255,1.72,-.72,marketGlass,false);
+   for(const z of [-1.39,-.72,-.05]){
+     box(g,.055,.84,.055,x+side*.29,1.72,z,timberLight,false);
+   }
+   for(const y of [1.29,2.15]){
+     box(g,.055,.055,1.43,x+side*.29,y,-.72,roofEdge,false);
+   }
+   box(g,.24,.09,1.62,x+side*.22,1.20,-.72,M.stone2,false);
+   box(g,.19,.045,1.55,x+side*.24,1.255,-.72,M.gold,false);
+   box(g,.22,.075,1.58,x+side*.21,2.24,-.72,timberLight,false);
    // Наружные вертикальные пилястры обрамляют боковые пролёты павильона.
    for(const z of [-1.82,0,1.82]){
      box(g,.09,1.88,.13,x+side*.13,1.55,z,timberLight,false);
