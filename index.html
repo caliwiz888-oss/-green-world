@@ -303,6 +303,17 @@ function makeHouse(){
    masonryCtx.fillStyle=i%3===0?'rgba(70,70,70,'+alpha+')':'rgba(255,255,255,'+alpha+')';
    masonryCtx.fillRect(px,py,1+(i%3),1);
  }
+ // Едва заметные минеральные прожилки известняка смягчают повторяемость крупных блоков.
+ for(let i=0;i<180;i++){
+   const px=(i*109+31)%256,py=(i*67+23)%256;
+   const warm=i%4===0;
+   masonryCtx.strokeStyle=warm?'rgba(151,126,96,.10)':'rgba(255,255,255,.12)';
+   masonryCtx.lineWidth=1;
+   masonryCtx.beginPath();
+   masonryCtx.moveTo(px,py);
+   masonryCtx.lineTo(px+2+(i%5),py+((i%3)-1));
+   masonryCtx.stroke();
+ }
  masonryCtx.strokeStyle='#777777';masonryCtx.lineWidth=3;
  for(let row=0;row<8;row++){
    const y=row*32,offset=row%2?32:0;
