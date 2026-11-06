@@ -4620,89 +4620,100 @@ function makeWorldLandscape(){
  rollingHills.position.set(0,.015,-24.5);
  rollingHills.receiveShadow=false;rollingHills.castShadow=false;world.add(rollingHills);
  // Пологие холмы формируют естественный переход от игровой площадки к горному хребту.
- // Новая архитектура: выразительные скульптурные альпийские вершины.
- // Каждая гора имеет асимметричный профиль, скальные рёбра и отдельные снежные уступы.
- const alpineRockDark=new THREE.Color(0x454943);
- const alpineRockMid=new THREE.Color(0x716b60);
- const alpineRockLight=new THREE.Color(0x999080);
- const alpineRockWarm=new THREE.Color(0x827565);
- const alpineSnow=new THREE.Color(0xe9efeb);
- const alpineSnowShade=new THREE.Color(0xc7d4d0);
- const mountainSpecs=[
-   {x:-28,z:-39.5,h:14.8,rx:9.2,rz:8.2,lean:-1.1,seed:1.2},
-   {x:-15.7,z:-42.2,h:19.2,rx:10.2,rz:9.4,lean:.8,seed:2.7},
-   {x:-2.5,z:-44.0,h:23.2,rx:11.4,rz:10.1,lean:-.55,seed:4.1},
-   {x:11.2,z:-42.0,h:18.6,rx:10.1,rz:9.1,lean:1.0,seed:5.6},
-   {x:25.2,z:-39.0,h:15.2,rx:9.0,rz:8.0,lean:-.8,seed:7.3}
+ // Фотореалистичная природная горная гряда: единый эродированный массив, а не отдельные геометрические пики.
+ // Профиль формируют широкие тектонические складки, седловины, боковые отроги и ледниковые кулуары.
+ const naturalRockShadow=new THREE.Color(0x414744);
+ const naturalRockBase=new THREE.Color(0x686b64);
+ const naturalRockSun=new THREE.Color(0x928a7b);
+ const naturalScree=new THREE.Color(0xaaa18f);
+ const naturalSnow=new THREE.Color(0xe9efec);
+ const naturalSnowBlue=new THREE.Color(0xbfcfce);
+ const naturalNX=224,naturalNZ=92;
+ const naturalPositions=[],naturalColors=[],naturalIndices=[];
+ const naturalXMin=-42,naturalXMax=42,naturalZMin=-53,naturalZMax=-26;
+ const naturalPeaks=[
+   [-30,14.8,8.5],[-17,19.2,9.2],[-3.2,22.8,10.4],[11.5,18.8,9.2],[27,15.2,8.4]
  ];
- const ringLevels=[0,.13,.29,.48,.67,.83,.94];
- const ringRadii=[1,.91,.75,.56,.37,.19,.075];
- const alpineMeshes=[];
- for(let m=0;m<mountainSpecs.length;m++){
-   const spec=mountainSpecs[m];
-   const segments=24,positions=[],colors=[],indices=[];
-   const summitX=spec.x+spec.lean*.42;
-   const summitZ=spec.z-.55;
-   for(let r=0;r<ringLevels.length;r++){
-     const level=ringLevels[r],baseRadius=ringRadii[r];
-     for(let a=0;a<segments;a++){
-       const angle=a/segments*Math.PI*2;
-       const ridgeWave=1+.105*Math.sin(angle*3+spec.seed)+.065*Math.cos(angle*5-spec.seed*.7)+.035*Math.sin(angle*7+spec.seed*1.8);
-       const shoulder=1+.08*Math.sin(angle*2+spec.seed+r*.7);
-       const radial=baseRadius*ridgeWave*shoulder;
-       const x=spec.x+Math.cos(angle)*spec.rx*radial+spec.lean*level*level;
-       const z=spec.z+Math.sin(angle)*spec.rz*radial-.55*level;
-       const brokenFace=(Math.sin(angle*4+spec.seed+r*1.9)+Math.cos(angle*7-spec.seed))*.22;
-       const y=spec.h*level+brokenFace*(1-level*.45);
-       positions.push(x,y,z);
-       const exposure=THREE.MathUtils.clamp(.5+.22*Math.cos(angle-2.25)+.12*Math.sin(angle*3+spec.seed),.12,.92);
-       const rock=alpineRockDark.clone().lerp(alpineRockMid,exposure).lerp(alpineRockLight,Math.max(0,exposure-.48)*.7);
-       if(Math.sin(angle*2+spec.seed)> .48) rock.lerp(alpineRockWarm,.16);
-       const snowAmount=THREE.MathUtils.smoothstep(level,.69,.91);
-       const snowFace=THREE.MathUtils.clamp(snowAmount*(.82+.18*Math.sin(angle*3+spec.seed)),0,1);
-       const faceColor=rock.lerp(alpineSnowShade,snowFace*.58).lerp(alpineSnow,snowFace*.42);
-       colors.push(faceColor.r,faceColor.g,faceColor.b);
+ const naturalSmooth=(a,b,v)=>{const t=THREE.MathUtils.clamp((v-a)/(b-a),0,1);return t*t*(3-2*t);};
+ const naturalNoise=(x,z)=>{
+   return Math.sin(x*.31+z*.17)*.42+
+     Math.sin(x*.73-z*.39)*.22+
+     Math.cos(x*1.17+z*.91)*.12+
+     Math.sin(x*2.05+z*1.63)*.055+
+     Math.cos(x*3.7-z*2.8)*.025;
+ };
+ for(let iz=0;iz<=naturalNZ;iz++){
+   const z=naturalZMin+(naturalZMax-naturalZMin)*iz/naturalNZ;
+   for(let ix=0;ix<=naturalNX;ix++){
+     const x=naturalXMin+(naturalXMax-naturalXMin)*ix/naturalNX;
+     const crestZ=-40.1+1.25*Math.sin(x*.105)+.62*Math.sin(x*.27)+.24*Math.sin(x*.61);
+     const cross=z-crestZ;
+     let ridgeProfile=3.2;
+     for(let p=0;p<naturalPeaks.length;p++){
+       const [px,height,width]=naturalPeaks[p];
+       const dx=(x-px)/width;
+       ridgeProfile+=height*Math.exp(-.5*dx*dx);
      }
-   }
-   for(let r=0;r<ringLevels.length-1;r++){
-     for(let a=0;a<segments;a++){
-       const next=(a+1)%segments;
-       const p=r*segments+a,q=r*segments+next,u=(r+1)*segments+a,v=(r+1)*segments+next;
-       if((a+r+m)%2===0) indices.push(p,u,q,q,u,v);
-       else indices.push(p,u,v,p,v,q);
+     // Глубокие естественные седловины между высокими участками гребня.
+     for(const [vx,depth,width] of [[-23,2.2,2.1],[-10,2.8,2.3],[5,2.1,2.4],[20,2.6,2.2]]){
+       ridgeProfile-=depth*Math.exp(-.5*Math.pow((x-vx)/width,2));
      }
+     const mainRidge=ridgeProfile*Math.exp(-.5*Math.pow(cross/7.4,2));
+     const sideRidges=ridgeProfile*.29*Math.exp(-.5*Math.pow((Math.abs(cross)-10.2)/4.4,2));
+     const broadShoulder=2.2*Math.exp(-.5*Math.pow(cross/15.5,2));
+     // Длинные размытые эрозионные кулуары прорезают передние склоны.
+     let gullies=0;
+     for(const [gx,phase,width,depth] of [[-27,.2,1.25,2.1],[-16,1.1,1.5,2.7],[-4,2.2,1.3,2.4],[9,.7,1.6,2.2],[23,1.8,1.4,2.5]]){
+       const channelX=gx+Math.sin(cross*.12+phase)*1.15;
+       gullies+=depth*Math.exp(-.5*Math.pow((x-channelX)/width,2))*Math.exp(-.5*Math.pow((cross-2)/12,2));
+     }
+     const fine=naturalNoise(x,z);
+     const brokenRock=(Math.sin(x*.43+cross*.31)+Math.cos(x*.19-cross*.47))*.34;
+     const frontFade=naturalSmooth(-53,-43,z);
+     const backFade=1-naturalSmooth(-31,-26,z);
+     const sideFade=naturalSmooth(0,7,42-Math.abs(x));
+     const edgeFade=frontFade*backFade*sideFade;
+     const height=Math.max(0,(mainRidge+sideRidges+broadShoulder-gullies+fine*.68+brokenRock*.42)*edgeFade);
+     naturalPositions.push(x,height,z);
+     naturalColors.push(0,0,0);
    }
-   const summitIndex=positions.length/3;
-   positions.push(summitX,spec.h*1.015,summitZ);
-   const summitColor=alpineSnow.clone();
-   colors.push(summitColor.r,summitColor.g,summitColor.b);
-   const last=(ringLevels.length-1)*segments;
-   for(let a=0;a<segments;a++) indices.push(last+a,summitIndex,last+(a+1)%segments);
-   const geometry=new THREE.BufferGeometry();
-   geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
-   geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
-   geometry.setIndex(indices);
-   geometry.computeVertexNormals();
-   const mountain=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({
-     color:0xffffff,vertexColors:true,roughness:.96,metalness:0,flatShading:true,side:THREE.DoubleSide
-   }));
-   mountain.castShadow=false;mountain.receiveShadow=false;
-   world.add(mountain);alpineMeshes.push(mountain);
  }
- // Низкий общий каменный цоколь соединяет массивы в цельную горную гряду.
- const alpineBaseGeometry=new THREE.PlaneGeometry(76,15,76,20);
- const basePos=alpineBaseGeometry.attributes.position;
- for(let i=0;i<basePos.count;i++){
-   const x=basePos.getX(i),z=basePos.getY(i);
-   basePos.setZ(i,.55+Math.sin(x*.19+z*.13)*.24+Math.cos(x*.31-z*.11)*.13);
+ for(let iz=0;iz<naturalNZ;iz++){
+   for(let ix=0;ix<naturalNX;ix++){
+     const a=iz*(naturalNX+1)+ix,b=a+1,c=a+naturalNX+1,d=c+1;
+     if((ix+iz)%2===0) naturalIndices.push(a,c,b,b,c,d);
+     else naturalIndices.push(a,c,d,a,d,b);
+   }
  }
- alpineBaseGeometry.computeVertexNormals();
- const alpineBase=new THREE.Mesh(alpineBaseGeometry,new THREE.MeshStandardMaterial({
-   color:0x66645c,roughness:1,flatShading:true,side:THREE.DoubleSide
+ const naturalGeometry=new THREE.BufferGeometry();
+ naturalGeometry.setAttribute('position',new THREE.Float32BufferAttribute(naturalPositions,3));
+ naturalGeometry.setAttribute('color',new THREE.Float32BufferAttribute(naturalColors,3));
+ naturalGeometry.setIndex(naturalIndices);
+ naturalGeometry.computeVertexNormals();
+ const naturalNormals=naturalGeometry.attributes.normal;
+ const naturalColorAttribute=naturalGeometry.attributes.color;
+ for(let i=0;i<naturalGeometry.attributes.position.count;i++){
+   const x=naturalPositions[i*3],y=naturalPositions[i*3+1],z=naturalPositions[i*3+2];
+   const slope=naturalNormals.getY(i);
+   const grain=naturalNoise(x*1.7,z*1.7);
+   const sunExposure=THREE.MathUtils.clamp(.5+.22*Math.sin(x*.13-z*.08)+.18*(1-slope),.12,.9);
+   const rock=naturalRockShadow.clone().lerp(naturalRockBase,sunExposure).lerp(naturalRockSun,Math.max(0,sunExposure-.42)*.65);
+   const scree=naturalSmooth(2.8,6.5,y)*THREE.MathUtils.clamp((slope-.42)*1.7,0,1)*.22;
+   rock.lerp(naturalScree,scree);
+   // Снег лежит пятнами на высоких полках и пологих участках, а не ровной белой полосой.
+   const snowline=naturalSmooth(11.8+grain*1.8,19.5+grain*2.4,y);
+   const snowCoverage=THREE.MathUtils.clamp(snowline*(.72+.22*Math.sin(x*.37+z*.21)+.12*Math.cos(x*.71-z*.32)),0,1);
+   const snowOnSlope=THREE.MathUtils.clamp((slope-.12)*1.7,0,1);
+   const snowAmount=snowCoverage*snowOnSlope;
+   rock.lerp(naturalSnowBlue,snowAmount*.34).lerp(naturalSnow,snowAmount*.66);
+   naturalColorAttribute.setXYZ(i,rock.r,rock.g,rock.b);
+ }
+ naturalColorAttribute.needsUpdate=true;
+ const naturalMountain=new THREE.Mesh(naturalGeometry,new THREE.MeshStandardMaterial({
+   color:0xffffff,vertexColors:true,roughness:.99,metalness:0,flatShading:false,
+   bumpMap:alpineRockBump,bumpScale:.052,side:THREE.DoubleSide
  }));
- alpineBase.rotation.x=-Math.PI/2;
- alpineBase.position.set(0,.02,-46.2);
- alpineBase.castShadow=false;alpineBase.receiveShadow=false;world.add(alpineBase);
+ naturalMountain.castShadow=false;naturalMountain.receiveShadow=false;world.add(naturalMountain);
  // Far blue-grey peaks sit behind the main range, giving the horizon a true layered-distance effect.
  const farRockBack=mat(0x858178),farSnowBack=mat(0xcbd9d6);
  // Дальние вершины используют те же минеральные и снежные карты, что и основной хребет.
