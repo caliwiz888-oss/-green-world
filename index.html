@@ -390,9 +390,10 @@ for(const m of [M.wood,M.wood2])m.map=surfaceMaps.wood;
 for(const m of [M.roof,M.roof2])m.map=surfaceMaps.roof;
 // Микрорельеф материалов: неглубокие неровности делают камень, дерево и черепицу объёмнее.
 const surfaceBumps=[
- [M.grass,surfaceMaps.grass,.026],[M.grass2,surfaceMaps.grass,.026],
- [M.soil,surfaceMaps.soil,.065],[M.stone,surfaceMaps.stone,.045],
- [M.stone2,surfaceMaps.stone,.038],[M.wood,surfaceMaps.wood,.032],
+ // Микрорельеф травы и грунта чуть выразительнее, но остаётся мягким на больших плоскостях.
+ [M.grass,surfaceMaps.grass,.032],[M.grass2,surfaceMaps.grass,.032],
+ [M.soil,surfaceMaps.soil,.072],[M.stone,surfaceMaps.stone,.052],
+ [M.stone2,surfaceMaps.stone,.044],[M.wood,surfaceMaps.wood,.032],
  [M.wood2,surfaceMaps.wood,.028],[M.roof,surfaceMaps.roof,.022],
  [M.roof2,surfaceMaps.roof,.022]
 ];
