@@ -871,6 +871,10 @@ function makeHouse(){
      for(const ax of [-.31,.31]){
        box(t,.12,.055,.055,ax,3.91,z*1.17,towerDetailStone,false);
      }
+     // Каменные накладки на концах перемычки подчёркивают её опирание на стойки.
+     for(const headX of [-.37,.37]){
+       box(t,.105,.065,.018,headX,3.99,z*1.15,towerDetailStone,false);
+     }
      // Небольшой центральный замковый камень завершает верх окна и связывает раму с кладкой.
      box(t,.24,.18,.22,0,4.13,z*1.075,towerDetailStone,false);
      sphere(t,.045,0,4.25,z*1.13,towerGoldMaterial,.85);
