@@ -3413,7 +3413,15 @@ function makeWorldLandscape(){
       // Larger carved granite medallions give the balusters a stronger, monumental profile.
       const boss=box(world,.145,.145,.034,x,y+.37,z+.145,bridgeStoneDark);boss.rotation.z=Math.PI/4;boss.castShadow=false;boss.receiveShadow=false;
       const bossCore=box(world,.06,.06,.038,x,y+.37,z+.173,bridgeStoneLight);bossCore.rotation.z=Math.PI/4;bossCore.castShadow=false;bossCore.receiveShadow=false;
+      // Matching rear medallion makes the balustrade detailed from either side of the bridge.
+      const rearBoss=box(world,.145,.145,.034,x,y+.37,z-.145,bridgeStoneDark);rearBoss.rotation.z=Math.PI/4;rearBoss.castShadow=false;rearBoss.receiveShadow=false;
+      const rearBossCore=box(world,.06,.06,.038,x,y+.37,z-.173,bridgeStoneLight);rearBossCore.rotation.z=Math.PI/4;rearBossCore.castShadow=false;rearBossCore.receiveShadow=false;
       const cap=sphere(world,.18,x,y+.8,z,bridgeStoneMid,false);cap.scale.set(.8,.74,.8);cap.castShadow=false;cap.receiveShadow=false;
+      // Two fine circular carved bands finish each rounded baluster cap.
+      for(const ringY of [y+.735,y+.79]){
+        const ring=new THREE.Mesh(new THREE.TorusGeometry(.132,.012,6,18),bridgeStoneLight);
+        ring.rotation.x=Math.PI/2;ring.position.set(x,ringY,z);ring.castShadow=false;ring.receiveShadow=false;world.add(ring);
+      }
    }
    // Broad end piers anchor the parapets with restrained carved stone caps.
    for(const z of [bridgeStartZ+.16,bridgeEndZ-.16]){
