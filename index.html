@@ -4628,6 +4628,8 @@ function makeWorldLandscape(){
  const geoScree=new THREE.Color(0xb0a590);
  const geoSnow=new THREE.Color(0xeaf0ed);
  const geoSnowShade=new THREE.Color(0xbfcfce);
+ // Совместимость со старыми участками сцены, которые могли ссылаться на прежний материал снега.
+ const farSnowShade=mat(0xbfcfce);
  const geoSmooth=(a,b,v)=>{const t=THREE.MathUtils.clamp((v-a)/(b-a),0,1);return t*t*(3-2*t);};
  const geoNoise=(x,z)=>{
    return Math.sin(x*.37+z*.23)*.42+
