@@ -3256,16 +3256,46 @@ function makeWorldLandscape(){
    world.add(sparkle);
    riverSparkles.push({mesh:sparkle,material:sparkleMat,phase,speed:.34+(i%5)*.13,z,phase2:i*1.91});
  }
- // Stone bridge crossing the river, with parapets and evenly spaced balusters.
+ // Arched stone bridge: a gently crowned deck, sculpted ribs and curved balustrades.
  const bridgeChildrenStart=world.children.length;
- box(world,4.8,.62,9.2,0,.78,22.2,M.stone2);
- box(world,4.45,.16,8.9,0,1.16,22.2,M.stone);
- for(const x of [-2.15,2.15]){
-   box(world,.24,.82,9.1,x,1.55,22.2,M.stone2);
-   for(let z=18.4;z<=26.1;z+=1.1)box(world,.18,.55,.18,x,1.95,z,M.stone);
-   box(world,.28,.16,9.2,x,2.25,22.2,M.stone);
+ const bridgeStartZ=17.6,bridgeEndZ=26.8,bridgeLength=bridgeEndZ-bridgeStartZ;
+ const bridgeDeckY=z=>1.02+.5*Math.sin(Math.PI*(z-bridgeStartZ)/bridgeLength);
+ const bridgeDeckGeometry=new THREE.BufferGeometry();
+ const bridgeSegments=48,bridgeAcross=12,bridgeVerts=[],bridgeIndices=[];
+ const bridgeRow=(layer)=>{for(let iz=0;iz<=bridgeSegments;iz++){const z=bridgeStartZ+bridgeLength*iz/bridgeSegments,y=bridgeDeckY(z)-(layer?.28:0);for(let ix=0;ix<=bridgeAcross;ix++){const x=-2.4+4.8*ix/bridgeAcross;bridgeVerts.push(x,y,z);}}};
+ bridgeRow(0);bridgeRow(1);
+ const bridgeGrid=(base,reverse=false)=>{for(let iz=0;iz<bridgeSegments;iz++)for(let ix=0;ix<bridgeAcross;ix++){const p=base+iz*(bridgeAcross+1)+ix,q=p+bridgeAcross+1;if(reverse)bridgeIndices.push(p,q,p+1,p+1,q,q+1);else bridgeIndices.push(p,p+1,q,p+1,q+1,q);}};
+ bridgeGrid(0);bridgeGrid((bridgeSegments+1)*(bridgeAcross+1),true);
+ const bridgeTopCount=(bridgeSegments+1)*(bridgeAcross+1);
+ for(let iz=0;iz<bridgeSegments;iz++){const l=iz*(bridgeAcross+1),r=l+bridgeAcross+1,lb=bridgeTopCount+l,rb=lb+bridgeAcross+1;bridgeIndices.push(l,lb,r,l,lb,lb+bridgeAcross+1);bridgeIndices.push(r,r+bridgeAcross+1,lb,r+bridgeAcross+1,rb,lb); }
+ for(let ix=0;ix<bridgeAcross;ix++){const p=ix,q=p+1,lb=bridgeTopCount+p;bridgeIndices.push(p,q,lb,q,lb+1,lb);const e=bridgeSegments*(bridgeAcross+1)+ix,eb=bridgeTopCount+e;bridgeIndices.push(e,eb,e+1,e+1,eb,eb+1);}
+ bridgeDeckGeometry.setAttribute('position',new THREE.Float32BufferAttribute(bridgeVerts,3));bridgeDeckGeometry.setIndex(bridgeIndices);bridgeDeckGeometry.computeVertexNormals();
+ const bridgeDeck=new THREE.Mesh(bridgeDeckGeometry,new THREE.MeshStandardMaterial({color:0xc8bda5,roughness:.9,metalness:0}));bridgeDeck.castShadow=false;bridgeDeck.receiveShadow=false;world.add(bridgeDeck);
+ // Fine transverse joints follow the arch instead of forming a flat striped surface.
+ const bridgeJointPoints=[];
+ for(let i=1;i<18;i++){const z=bridgeStartZ+bridgeLength*i/18,y=bridgeDeckY(z)+.009;bridgeJointPoints.push(new THREE.Vector3(-2.28,y,z),new THREE.Vector3(2.28,y,z));}
+ const bridgeJointGeometry=new THREE.BufferGeometry().setFromPoints(bridgeJointPoints);
+ const bridgeJoints=new THREE.LineSegments(bridgeJointGeometry,new THREE.LineBasicMaterial({color:0x918875,transparent:true,opacity:.32}));bridgeJoints.frustumCulled=false;world.add(bridgeJoints);
+ // Two substantial masonry arch ribs beneath the deck.
+ const bridgeRibMaterial=new THREE.MeshStandardMaterial({color:0x9e927b,roughness:.94});
+ for(const x of [-1.72,1.72]){
+   const ribPoints=[];for(let i=0;i<=36;i++){const t=i/36,z=bridgeStartZ+.18+(bridgeLength-.36)*t,archY=.31+.57*Math.pow(2*t-1,2);ribPoints.push(new THREE.Vector3(x,archY,z));}
+   const ribCurve=new THREE.CatmullRomCurve3(ribPoints);
+   const rib=new THREE.Mesh(new THREE.TubeGeometry(ribCurve,72,.19,8,false),bridgeRibMaterial);rib.castShadow=false;rib.receiveShadow=false;world.add(rib);
+   for(const z of [bridgeStartZ+.12,bridgeEndZ-.12]){const pier=box(world,.58,.78,.58,x,.52,z,M.stone2);pier.castShadow=false;pier.receiveShadow=false;}
  }
- for(const bridgePart of world.children.slice(bridgeChildrenStart))if(bridgePart.isMesh)bridgePart.castShadow=false;
+ // Repeated stone balusters and continuous curved handrails.
+ for(const x of [-2.18,2.18]){
+   for(let i=0;i<=12;i++){
+     const z=bridgeStartZ+.28+(bridgeLength-.56)*i/12,y=bridgeDeckY(z);
+     const post=box(world,.2,.56,.2,x,y+.31,z,M.stone2);post.castShadow=false;post.receiveShadow=false;
+     const cap=sphere(world,.14,x,y+.62,z,M.stone,false);cap.scale.set(.72,.7,.72);cap.castShadow=false;cap.receiveShadow=false;
+   }
+   const railPoints=[];for(let i=0;i<=32;i++){const z=bridgeStartZ+bridgeLength*i/32;railPoints.push(new THREE.Vector3(x,bridgeDeckY(z)+.79,z));}
+   const railCurve=new THREE.CatmullRomCurve3(railPoints);
+   const handrail=new THREE.Mesh(new THREE.TubeGeometry(railCurve,64,.115,8,false),new THREE.MeshStandardMaterial({color:0xd9cfb8,roughness:.82}));handrail.castShadow=false;handrail.receiveShadow=false;world.add(handrail);
+ }
+ for(const bridgePart of world.children.slice(bridgeChildrenStart)){if(bridgePart.isMesh){bridgePart.castShadow=false;bridgePart.receiveShadow=false;}}
  // Natural riverbank detail: smooth stones, reeds and shallow-water highlights.
  const bankStone=mat(0x9a9b87),reedMat=mat(0x78964c),reedTip=mat(0xb6b56d),waterGlint=mat(0xa9e5e7);
  for(const [x,z,s] of [[-23,18.8,.8],[-19,19.1,.55],[-14,19,.7],[-9,19.15,.48],[7,19,.62],[13,19.1,.72],[19,18.9,.55],[23,19,.8],[-21,25.4,.6],[-15,25.2,.5],[-6,25.35,.72],[8,25.3,.55],[16,25.25,.7],[22,25.4,.58]]){
