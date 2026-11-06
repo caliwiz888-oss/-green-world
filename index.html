@@ -1611,6 +1611,37 @@ function makeMarket(){
  const roof=new THREE.MeshStandardMaterial({color:0x34483a,roughness:.84,metalness:.015});
  const roofEdge=new THREE.MeshStandardMaterial({color:0x202e25,roughness:.88,metalness:.01});
  const roofAccent=new THREE.MeshStandardMaterial({color:0x52664d,roughness:.84,metalness:.01});
+ // Едва заметная фактура окрашенного кровельного покрытия: мелкое зерно и спокойные продольные полосы без новых деталей.
+ const marketRoofCanvas=document.createElement('canvas');marketRoofCanvas.width=512;marketRoofCanvas.height=512;
+ const marketRoofCtx=marketRoofCanvas.getContext('2d');
+ const marketRoofImage=marketRoofCtx.createImageData(512,512);
+ let marketRoofSeed=19427;
+ const marketRoofRand=()=>{marketRoofSeed=(marketRoofSeed*1664525+1013904223)>>>0;return marketRoofSeed/4294967296};
+ for(let y=0;y<512;y++)for(let x=0;x<512;x++){
+   const grain=(marketRoofRand()-.5)*13+Math.sin(y*.16)*1.2;
+   const v=Math.max(0,Math.min(255,238+grain)),p=(y*512+x)*4;
+   marketRoofImage.data[p]=v;marketRoofImage.data[p+1]=v;marketRoofImage.data[p+2]=v;marketRoofImage.data[p+3]=255;
+ }
+ marketRoofCtx.putImageData(marketRoofImage,0,0);
+ for(let y=64;y<512;y+=128){
+   marketRoofCtx.fillStyle='rgba(45,58,46,.055)';marketRoofCtx.fillRect(0,y,512,1.5);
+   marketRoofCtx.fillStyle='rgba(255,255,255,.065)';marketRoofCtx.fillRect(0,y+2,512,1);
+ }
+ for(let i=0;i<180;i++){
+   const x=marketRoofRand()*512,y=marketRoofRand()*512;
+   marketRoofCtx.fillStyle=marketRoofRand()>.5?'rgba(255,255,255,.07)':'rgba(32,43,34,.045)';
+   marketRoofCtx.fillRect(x,y,.6+marketRoofRand()*1.2,.6+marketRoofRand()*1.2);
+ }
+ const marketRoofTexture=new THREE.CanvasTexture(marketRoofCanvas);
+ marketRoofTexture.colorSpace=THREE.SRGBColorSpace;
+ marketRoofTexture.wrapS=marketRoofTexture.wrapT=THREE.RepeatWrapping;
+ marketRoofTexture.repeat.set(1.35,1.35);
+ marketRoofTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const marketRoofBump=marketRoofTexture.clone();marketRoofBump.colorSpace=THREE.NoColorSpace;marketRoofBump.needsUpdate=true;
+ for(const material of [roof,roofEdge,roofAccent]){
+   material.map=marketRoofTexture;material.bumpMap=marketRoofBump;
+   material.bumpScale=material===roof?.012:.008;material.needsUpdate=true;
+ }
  const counter=mat(0xd2c2a0,.82),dark=mat(0x35443d,.72);
  const warm=new THREE.MeshStandardMaterial({color:0xe8bd78,emissive:0x8a4b18,emissiveIntensity:.2,roughness:.7});
  // Низкое каменное основание и широкая торговая площадка.
