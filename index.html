@@ -184,10 +184,12 @@ const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,.1,320);
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});
 window.GREEN_WORLD_STARTUP_STAGE='webgl-ready';
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.16;renderer.useLegacyLights=false;renderer.setClearColor(0x9acbe8,1);
-scene.add(new THREE.HemisphereLight(0xeaf7ff,0x526b3d,2.15));
-scene.add(new THREE.AmbientLight(0xffffff,.28));
+// Мягкое небесное заполнение сохраняет детали в тенях на фасадах, листве и горном рельефе.
+scene.add(new THREE.HemisphereLight(0xeaf7ff,0x5a7447,2.2));
+scene.add(new THREE.AmbientLight(0xffffff,.3));
 const sun=new THREE.DirectionalLight(0xfff1d9,3.35);sun.position.set(-28,42,24);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-30;sun.shadow.camera.right=30;sun.shadow.camera.top=30;sun.shadow.camera.bottom=-30;sun.shadow.bias=-0.00012;sun.shadow.normalBias=.018;sun.shadow.radius=3;scene.add(sun);
-const fill=new THREE.DirectionalLight(0xd6edff,.82);fill.position.set(24,18,-22);scene.add(fill);
+// Нейтрально-тёплый отражённый свет делает теневые стороны объектов читаемее без потери солнечного контраста.
+const fill=new THREE.DirectionalLight(0xe1edda,.9);fill.position.set(24,18,-22);scene.add(fill);
 const mat=(c,r=.82)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.025});
 const windowInterior=new THREE.MeshStandardMaterial({color:0xffdca0,emissive:0xb87932,emissiveIntensity:.2,roughness:.42});
 const M={grass:mat(0x78a94f,.9),grass2:mat(0x699747,.92),soil:mat(0x98734a,.96),path:mat(0xd7bd8d,.88),stone:new THREE.MeshStandardMaterial({color:0xe8ddc5,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x91483a,roughness:.78,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0xb8644c,roughness:.74,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:mat(0x397b3c,.9),leaf2:mat(0x5a9a48,.9),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xd6b45d,roughness:.34,metalness:.58}),glass:new THREE.MeshPhysicalMaterial({color:0x9bdde1,roughness:.16,metalness:.08,clearcoat:.72,clearcoatRoughness:.12,reflectivity:.72,emissive:0x102b34,emissiveIntensity:.08,transparent:true,opacity:.52,depthWrite:false})};
