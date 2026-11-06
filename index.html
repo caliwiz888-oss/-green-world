@@ -2955,6 +2955,23 @@ function makeFactory(){
 
  // Задние водостоки отводят воду с кровли и визуально завершают оба угла кирпичного корпуса.
  const rearDrain=mat(0x59676a,.5);
+ rearDrain.metalness=.32;rearDrain.roughness=.58;
+ const rearDrainCanvas=document.createElement('canvas');rearDrainCanvas.width=128;rearDrainCanvas.height=128;
+ const rearDrainCtx=rearDrainCanvas.getContext('2d');
+ rearDrainCtx.fillStyle='#929a98';rearDrainCtx.fillRect(0,0,128,128);
+ for(let i=0;i<76;i++){
+   const x=(i*37+11)%128;
+   rearDrainCtx.strokeStyle=i%4===0?'rgba(34,45,44,.12)':'rgba(255,255,255,.11)';
+   rearDrainCtx.lineWidth=i%3===0?1:.5;
+   rearDrainCtx.beginPath();rearDrainCtx.moveTo(x,0);rearDrainCtx.lineTo(x,128);rearDrainCtx.stroke();
+ }
+ const rearDrainTexture=new THREE.CanvasTexture(rearDrainCanvas);
+ rearDrainTexture.colorSpace=THREE.SRGBColorSpace;
+ rearDrainTexture.wrapS=rearDrainTexture.wrapT=THREE.RepeatWrapping;
+ rearDrainTexture.repeat.set(1,2);
+ rearDrainTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const rearDrainBump=rearDrainTexture.clone();rearDrainBump.colorSpace=THREE.NoColorSpace;rearDrainBump.needsUpdate=true;
+ rearDrain.map=rearDrainTexture;rearDrain.bumpMap=rearDrainBump;rearDrain.bumpScale=.008;rearDrain.needsUpdate=true;
  for(const side of [-1,1]){
    const x=side*3.34,z=-3.02;
    cylinder(g,.062,.062,3.18,x,2.18,z,rearDrain,12);
