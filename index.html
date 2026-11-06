@@ -2859,7 +2859,7 @@ function makeWorldDecor(){
   // Основание в тон тёмному камню; контраст мягкий, без чисто белого и чёрного.
   // Центральная дорога: ровная ось от крыльца главного дома к берегу, одинаковая ширина по всей длине.
   const roadBase=mat(0x42494c,.98);
-  box(world,3.9,.12,34.0,0,.035,3.0,roadBase,false);
+  box(world,3.9,.12,27.92,0,.035,4.24,roadBase,false);
   // Единая брусчатка дорожек: форма, фаски, раскладка, оттенки и минеральная фактура.
   function addRoadGranite(cols,rows,x0,z0,pitchX,pitchZ,width,depth,heightAt,staggerAxis,skipTile=null){
     const positions=[],colors=[],uvs=[],indices=[];
@@ -2897,7 +2897,7 @@ function makeWorldDecor(){
     const mesh=new THREE.Mesh(geometry,material);mesh.castShadow=false;mesh.receiveShadow=false;world.add(mesh);
   }
   // Гранитная дорога непрерывно проходит через арочный въезд и продолжается за пределы забора.
-  addRoadGranite(9,52,-1.8,-9.72,.45,.565,.428,.535,()=>.1475,'x');
+  addRoadGranite(9,50,-1.8,-9.72,.45,.565,.428,.535,()=>.1475,'x');
   // Поперечная дорога выложена теми же камнями, без смены материала или рисунка.
   addRoadGranite(67,3,-13.95,-5.115,.45,.565,.428,.535,()=>.1475,'z',(x)=>Math.abs(x)<2.25);
   // Тёмный контур и каменные бордюры подчёркивают геометрию всех основных дорожек.
@@ -2907,11 +2907,11 @@ function makeWorldDecor(){
   // Продольные бордюры центральной дорожки: непрерывная тёмная внешняя линия и светлая фаска.
   for(const side of [-1,1]){
     const x=side*1.965;
-    box(world,.19,.13,34.15,x,.105,3.0,roadEdgeMat,false);
-    box(world,.075,.035,34.08,x-side*.012,.184,3.0,roadEdgeTop,false);
-    box(world,.025,.018,33.7,x-side*.105,.169,3.0,roadEdgeInlay,false);
+    box(world,.19,.13,28.07,x,.105,4.24,roadEdgeMat,false);
+    box(world,.075,.035,28.0,x-side*.012,.184,4.24,roadEdgeTop,false);
+    box(world,.025,.018,27.62,x-side*.105,.169,4.24,roadEdgeInlay,false);
     // Частые поперечные швы превращают край в аккуратную кладку из отдельных камней.
-    for(let i=0;i<16;i++){
+    for(let i=0;i<15;i++){
       const z=-9.15+i*1.86;
       box(world,.195,.018,.025,x,.18,z,roadEdgeTop,false);
     }
