@@ -2458,6 +2458,34 @@ function makeWorldDecor(){
       box(world,.12,.035,.05,x+side*.37,2.76,14.425,fenceLightTrim,false);
     }
   }
+  // Боковые фасады пилонов: архитектурные панели видны и при косом ракурсе камеры.
+  for(const side of [-1,1]){
+    const faceX=side*3.035;
+    box(world,.035,.72,.48,faceX,1.43,13.99,fenceBaseTrim,false);
+    box(world,.045,.60,.36,faceX+side*.018,1.43,13.99,fenceMat,false);
+    // Рамка боковой панели.
+    for(const y of [1.08,1.78]){
+      box(world,.065,.035,.52,faceX+side*.025,y,13.99,fenceLightTrim,false);
+    }
+    for(const z of [13.75,14.23]){
+      box(world,.065,.72,.035,faceX+side*.025,1.43,z,fenceLightTrim,false);
+    }
+    const sideDiamond=box(world,.055,.22,.22,faceX+side*.052,1.43,13.99,fenceRelief,false);
+    sideDiamond.rotation.x=Math.PI/4;
+    const sideCore=sphere(world,.045,faceX+side*.085,1.43,13.99,fenceLightTrim,.85);
+    sideCore.scale.set(.32,1,.72);
+    sideCore.castShadow=false;sideCore.receiveShadow=false;
+    // Капитель и база получают непрерывный профиль и на боковой грани.
+    for(const [y,h,depth,material] of [
+      [.43,.035,.82,fenceBaseTrim],
+      [.49,.025,.84,fenceLightTrim],
+      [2.34,.035,.88,fenceBaseTrim],
+      [2.40,.025,.90,fenceLightTrim],
+      [2.68,.055,.94,fenceBaseTrim]
+    ]){
+      box(world,.055,h,depth,faceX+side*.035,y,13.99,material,false);
+    }
+  }
   // Выразительный замковый камень и небольшой герб над вершиной свода.
   const gateKeystone=box(world,.62,.76,.22,0,5.02,14.34,fenceCap,false);
   gateKeystone.rotation.z=Math.PI/4;
