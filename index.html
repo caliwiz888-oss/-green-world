@@ -3284,6 +3284,18 @@ function makeWorldLandscape(){
    const edgeCurve=new THREE.CatmullRomCurve3(edgePoints);
    const edge=new THREE.Mesh(new THREE.TubeGeometry(edgeCurve,48,.105,8,false),bridgeEdgeMaterial);edge.castShadow=false;edge.receiveShadow=false;world.add(edge);
  }
+ // Individually dressed granite fascia stones finish both exposed deck edges.
+ // Their shallow joints follow the bridge crown and give the slab a believable masonry thickness.
+ for(const side of [-1,1]){
+   for(let i=0;i<22;i++){
+     const z=bridgeStartZ+.24+i*(bridgeLength-.48)/21;
+     const slope=.5*Math.PI/bridgeLength*Math.cos(Math.PI*(z-bridgeStartZ)/bridgeLength);
+     const fascia=box(world,.13,.22,.385,side*2.405,bridgeDeckY(z)-.145,z,i%3===0?bridgeStoneLight:bridgeStoneMid);
+     fascia.rotation.x=-Math.atan(slope);fascia.castShadow=false;fascia.receiveShadow=false;
+     const joint=box(world,.136,.226,.012,side*2.405,bridgeDeckY(z)-.145,z+.198,bridgeStoneDark);
+     joint.rotation.x=-Math.atan(slope);joint.castShadow=false;joint.receiveShadow=false;
+   }
+ }
  // Individual staggered granite setts replace the old transverse stripe lines.
  // The dark bed remains visible only in the narrow joints, like real cobblestone paving.
  bridgeDeckMaterial.color.setHex(0x50595d);
