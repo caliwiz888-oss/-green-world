@@ -269,7 +269,7 @@ scene.add(new THREE.AmbientLight(0xffffff,.3));
 const sun=new THREE.DirectionalLight(0xfff1d9,3.35);sun.position.set(-28,42,24);sun.castShadow=false;scene.add(sun);
 // Нейтрально-тёплый отражённый свет делает теневые стороны объектов читаемее без потери солнечного контраста.
 const fill=new THREE.DirectionalLight(0xe1edda,.9);fill.position.set(24,18,-22);scene.add(fill);
-// Холодный контровой дневной свет мягко отделяет силуэты зданий, мост и листву от дальнего пейзажа без теневых карт.
+// Холодный контровой дневной свет мягко отделяет силуэты зданий и листву от дальнего пейзажа без теневых карт.
 const atmosphereRim=new THREE.DirectionalLight(0xc9e3f5,.34);atmosphereRim.position.set(-24,15,-32);atmosphereRim.castShadow=false;scene.add(atmosphereRim);
 // Мягкий отражённый свет с уровня окружения подчёркивает рельеф дорожек, камня, травы и фасадов.
 const worldBounce=new THREE.DirectionalLight(0xffe8c9,.22);worldBounce.position.set(18,7,30);worldBounce.castShadow=false;scene.add(worldBounce);
@@ -440,7 +440,7 @@ const world=group(scene,0,0,0);
 box(world,76,.55,76,0,-.42,0,M.grass,false);
 box(world,26,.12,26,0,-.08,0,M.grass2,false);
 function makeHouse(){
- // Центрируем главный вход строго по оси центральной дорожки и моста.
+ // Центрируем главный вход строго по оси центральной дорожки.
  const g=group(world,0,0,-14);
  // Индивидуальная фактура светлого тесаного камня главного дома: тонкие швы и мягкая неоднородность.
  const houseStone=M.stone.clone(),houseStoneTrim=M.stone2.clone();
@@ -2931,7 +2931,7 @@ function makeWorldDecor(){
     }
   }
   // Дорога заканчивается у берега; подъездной настил и конструкции моста отсутствуют.
-  // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проём оставлен для дороги с моста.
+  // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проход оставлен открытым к берегу.
   const fenceMat=mat(0x817967),fenceCap=mat(0xb0a38a),fenceJoint=mat(0x6b6252);
   for(let p=-14;p<=14;p+=1.75){
     for(const z of [-14,14]){
