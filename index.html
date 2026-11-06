@@ -2866,7 +2866,7 @@ function makeWorldDecor(){
     const z=-9.72+row*.47,offset=row%2?.285:0;
     for(let col=0;col<6;col++){
       const x=-1.425+col*.57+offset;
-      const brick=row%5===4?roadBrickDark:roadBrickLight;
+      const brick=(row+col)%2===0?roadBrickLight:roadBrickDark;
       box(world,.515,.105,.425,x,.1475,z,brick,false);
     }
   }
@@ -2878,7 +2878,7 @@ function makeWorldDecor(){
     const x=-13.46+col*.545;
     for(let row=0;row<3;row++){
       const z=-5.10+row*.55+(col%2?.275:0);
-      const brick=col%6===5?roadBrickDark:roadBrickLight;
+      const brick=(col+row)%2===0?roadBrickLight:roadBrickDark;
       box(world,.515,.105,.495,x,.1475,z,brick,false);
     }
   }
@@ -2936,7 +2936,7 @@ function makeWorldDecor(){
     box(world,4.0,.12,.48,0,deckY-.06,z,roadBase,false);
     for(let col=0;col<7;col++){
       const x=-1.71+col*.57+(row%2?.285:0);
-      const brick=row%3===2?roadBrickDark:roadBrickLight;
+      const brick=(row+col)%2===0?roadBrickLight:roadBrickDark;
       box(world,.53,.09,.49,x,deckY+.005,z,brick,false);
     }
   }
