@@ -1560,9 +1560,28 @@ function makeFactory(level=1){
    box(g,.28,.08,.32,x,3.64,2.83,M.gold,false);
    box(g,.3,.12,.26,x,3.52,2.78,M.stone,false);
  }
+ // Тонкая направленная фактура окрашенного металла делает скаты крыши менее плоскими.
+ const roofCanvas=document.createElement('canvas');roofCanvas.width=256;roofCanvas.height=128;
+ const roofCtx=roofCanvas.getContext('2d');
+ roofCtx.fillStyle='#a0a7a6';roofCtx.fillRect(0,0,256,128);
+ for(let y=0;y<128;y++){
+   const shade=150+((y*7)%17);
+   roofCtx.fillStyle='rgba('+shade+','+(shade+5)+','+(shade+4)+',.16)';
+   roofCtx.fillRect(0,y,256,1);
+ }
+ for(let x=12;x<256;x+=32){
+   roofCtx.fillStyle='rgba(35,47,49,.12)';roofCtx.fillRect(x,0,1,128);
+   roofCtx.fillStyle='rgba(255,255,255,.13)';roofCtx.fillRect(x+2,0,1,128);
+ }
+ const roofTexture=new THREE.CanvasTexture(roofCanvas);
+ roofTexture.colorSpace=THREE.SRGBColorSpace;
+ roofTexture.wrapS=roofTexture.wrapT=THREE.RepeatWrapping;
+ roofTexture.repeat.set(2,1);
+ roofTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const roofMetal=new THREE.MeshStandardMaterial({color:0xffffff,map:roofTexture,roughness:.52,metalness:.48});
  // Tall pitched roof with a crisp ridge, dark eaves and metal seams.
- const roofA=box(g,3.95,.3,5.85,-1.48,4.72,0,darkMetal);roofA.rotation.z=.34;
- const roofB=box(g,3.95,.3,5.85,1.48,4.72,0,metal);roofB.rotation.z=-.34;
+ const roofA=box(g,3.95,.3,5.85,-1.48,4.72,0,roofMetal);roofA.rotation.z=.34;
+ const roofB=box(g,3.95,.3,5.85,1.48,4.72,0,roofMetal);roofB.rotation.z=-.34;
  box(g,.2,.28,5.9,0,5.38,0,M.gold);
  for(let i=0;i<7;i++)box(g,.055,.08,5.55,-3+i,4.95,0,M.stone2,false);
  // Конёк оставлен цельным: сегментные накладки и торцевые колпачки удалены во избежание пересечений.
