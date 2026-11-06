@@ -940,6 +940,30 @@ function makeHouse(){
        box(t,.035,.035,.58,face+sign*.065,3.18,0,towerMetal,false);
      }
    }
+     // Резные каменные наличники и замковый камень подчёркивают арочную форму окон.
+     if(front){
+       box(t,.12,1.38,.16,-.48,3.22,face+sign*.055,towerTrimMaterial,false);
+       box(t,.12,1.38,.16,.48,3.22,face+sign*.055,towerTrimMaterial,false);
+       box(t,.78,.13,.18,0,4.16,face+sign*.06,towerTrimMaterial,false);
+       box(t,.2,.22,.19,0,4.22,face+sign*.08,towerStoneMaterial,false);
+       box(t,.76,.12,.18,0,2.30,face+sign*.06,towerTrimMaterial,false);
+       box(t,.68,.035,.19,0,2.22,face+sign*.08,towerMetal,false);
+       for(const sx of [-.48,.48]){
+         box(t,.2,.12,.18,sx,2.42,face+sign*.06,towerTrimMaterial,false);
+         sphere(t,.035,sx,2.34,face+sign*.1,towerMetal,.8);
+       }
+     }else{
+       box(t,.16,1.38,.12,face+sign*.055,3.22,-.48,towerTrimMaterial,false);
+       box(t,.16,1.38,.12,face+sign*.055,3.22,.48,towerTrimMaterial,false);
+       box(t,.18,.13,.78,face+sign*.06,4.16,0,towerTrimMaterial,false);
+       box(t,.19,.22,.2,face+sign*.08,4.22,0,towerStoneMaterial,false);
+       box(t,.18,.12,.76,face+sign*.06,2.30,0,towerTrimMaterial,false);
+       box(t,.19,.035,.68,face+sign*.08,2.22,0,towerMetal,false);
+       for(const sz of [-.48,.48]){
+         box(t,.18,.12,.2,face+sign*.06,2.42,sz,towerTrimMaterial,false);
+         sphere(t,.1,face+sign*.1,2.34,sz,towerMetal,.8);
+       }
+     }
    // Восьмигранный шатёр с широким каменным карнизом и тонким металлическим кантом.
    cylinder(t,1.48,1.48,.18,0,5.94,0,towerTrimMaterial,8);
    cylinder(t,1.43,1.43,.055,0,6.055,0,towerMetal,8);
