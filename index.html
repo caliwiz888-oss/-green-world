@@ -3199,6 +3199,15 @@ function makeWorldLandscape(){
    foam.position.set(x,.112,z);foam.scale.set(len,.012,.055+(i%2)*.018);foam.rotation.y=(i%5-2)*.035;world.add(foam);
    riverFoamObjects.push({mesh:foam,material:foamMat,baseX:x,baseZ:z,phase:i*.91,speed:.19+(i%4)*.035,drift:.42+(i%3)*.18});
  }
+ // Мягкие цветные отражения неба и зелёных берегов дробятся на отдельные движущиеся дорожки.
+ const riverReflectionColors=[0xc8e8e8,0xd8eee2,0x9fc9a6,0xb8d9d2];
+ for(let i=0;i<12;i++){
+   const x=-22+(i*4.05),z=20.05+(i%4)*1.12,len=.48+(i%4)*.19;
+   const reflectionMat=new THREE.MeshBasicMaterial({color:riverReflectionColors[i%riverReflectionColors.length],transparent:true,opacity:.12,depthWrite:false});
+   const reflection=new THREE.Mesh(new THREE.BoxGeometry(len,.007,.045+(i%3)*.018),reflectionMat);
+   reflection.position.set(x,.106,z);reflection.rotation.y=(i%5-2)*.035;world.add(reflection);
+   riverMotionObjects.push({mesh:reflection,baseX:x,baseZ:z,phase:i*1.53,speed:.12+(i%4)*.025,range:.3+(i%3)*.12,baseLength:len});
+ }
  // Stone bridge crossing the river, with parapets and evenly spaced balusters.
  box(world,4.8,.62,9.2,0,.78,22.2,M.stone2);
  box(world,4.45,.16,8.9,0,1.16,22.2,M.stone);
