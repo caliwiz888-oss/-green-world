@@ -2356,6 +2356,18 @@ function makeWorldLandscape(){
    wisp.position.set(x,y,z);wisp.scale.set(sx,sy,sz);wisp.rotation.z=rz;world.add(wisp);
  }
  const hillMat=mat(0x668f58),hillLight=mat(0x82a968),mountain=mat(0x71877b),snow=mat(0xe5eee5),water=new THREE.MeshPhysicalMaterial({color:0x4aa9c5,roughness:.2,metalness:.08,transparent:true,opacity:.82});
+ // Едва заметная направленная фактура речной поверхности — без изменения русла и берегов.
+ const waterCanvas=document.createElement('canvas');waterCanvas.width=128;waterCanvas.height=128;
+ const waterCtx=waterCanvas.getContext('2d');waterCtx.fillStyle='#b9d9d5';waterCtx.fillRect(0,0,128,128);
+ for(let i=0;i<46;i++){
+   const y=(i*29)%128,x=(i*47)%128,len=12+(i*17)%38;
+   waterCtx.strokeStyle=i%3===0?'rgba(255,255,255,.24)':'rgba(48,116,132,.075)';
+   waterCtx.lineWidth=.35+(i%3)*.22;waterCtx.beginPath();
+   waterCtx.moveTo(x,y);waterCtx.quadraticCurveTo(x+len*.48,y-1.2+(i%5)*.45,x+len,y+.4);waterCtx.stroke();
+ }
+ const waterTexture=new THREE.CanvasTexture(waterCanvas);waterTexture.colorSpace=THREE.SRGBColorSpace;
+ waterTexture.wrapS=waterTexture.wrapT=THREE.RepeatWrapping;waterTexture.repeat.set(2,1);
+ waterTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();water.map=waterTexture;water.roughness=.24;water.needsUpdate=true;
  // Тонкая минеральная фактура на основных горных склонах: без новых геометрических накладок.
  // Мелкая природная фактура на дальних зелёных склонах — только через карту материала.
  const foothillCanvas=document.createElement('canvas');foothillCanvas.width=foothillCanvas.height=128;
