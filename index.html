@@ -773,6 +773,8 @@ function makeHouse(){
        sphere(t,.035,sx*1.265,6.09,sz*1.265,towerGoldMaterial,.85);
      }
    }
+   // Тонкий светлый кант подчёркивает нижний край металлического шатра.
+   cylinder(t,1.735,1.735,.028,0,6.16,0,towerDetailStone,4);
    cone(t,1.72,2.55,0,7.18,0,towerRoofMaterial,4);
    // Три тонких горизонтальных фальца подчёркивают ярусность металлического шатра.
    const towerRoofSeam=towerRoofMaterial.clone();
