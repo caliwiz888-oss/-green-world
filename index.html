@@ -350,6 +350,8 @@ function cone(parent,r,h,x,y,z,material,n=4){const o=new THREE.Mesh(new THREE.Co
 function cylinder(parent,r1,r2,h,x,y,z,material,n=12){const o=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,Math.max(n,16)),material);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
 function sphere(parent,r,x,y,z,material,sy=1){const o=new THREE.Mesh(new THREE.SphereGeometry(r,24,18),material);o.position.set(x,y,z);o.scale.y=sy;o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
 function group(parent,x,y,z){const g=new THREE.Group();g.position.set(x,y,z);parent.add(g);return g}
+// У выбранных крупных построек отключаем только отбрасывание теней, сохраняя освещение и материалы.
+function disableCastShadows(root){root.traverse(object=>{if(object.isMesh)object.castShadow=false});return root}
 function warmLight(parent,x,y,z,intensity=0.65,distance=5){const light=new THREE.PointLight(0xffc978,intensity,distance,2);light.position.set(x,y,z);light.castShadow=false;parent.add(light);return light}
 const world=group(scene,0,0,0);
 box(world,76,.55,76,0,-.42,0,M.grass,false);
@@ -1429,7 +1431,7 @@ function makeHouse(){
  for(let ix=0;ix<5;ix++)for(let iz=0;iz<2;iz++){
    box(g,.96,.035,.62,-1.92+ix*.96,.112,4.58+iz*.66,ix%2?M.stone:M.stone2,false);
  }
- return g;
+ return disableCastShadows(g);
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
 function makeTree(x,z,kind='apple',mature=false){
@@ -1870,7 +1872,7 @@ function makeMarket(level=1){
    box(g,.12,.1,.22,px,.2,pz+.22,M.stone2,false);
  }
 
-  return g;
+  return disableCastShadows(g);
 }
 
 function makeFactory(level=1){
@@ -2547,7 +2549,7 @@ function makeFactory(level=1){
    cylinder(g,.068,.068,.28,x,.52,z+.12,rearDrain,12).rotation.x=Math.PI/2;
    box(g,.18,.12,.2,x,.36,z+.24,M.stone2,false);
  }
-return g;
+return disableCastShadows(g);
 }
 function makeGardenBed(x,z){
  const b=group(world,x,0,z);
@@ -3255,6 +3257,7 @@ function makeWorldLandscape(){
    riverSparkles.push({mesh:sparkle,material:sparkleMat,phase,speed:.34+(i%5)*.13,z,phase2:i*1.91});
  }
  // Stone bridge crossing the river, with parapets and evenly spaced balusters.
+ const bridgeChildrenStart=world.children.length;
  box(world,4.8,.62,9.2,0,.78,22.2,M.stone2);
  box(world,4.45,.16,8.9,0,1.16,22.2,M.stone);
  for(const x of [-2.15,2.15]){
@@ -3262,6 +3265,7 @@ function makeWorldLandscape(){
    for(let z=18.4;z<=26.1;z+=1.1)box(world,.18,.55,.18,x,1.95,z,M.stone);
    box(world,.28,.16,9.2,x,2.25,22.2,M.stone);
  }
+ for(const bridgePart of world.children.slice(bridgeChildrenStart))if(bridgePart.isMesh)bridgePart.castShadow=false;
  // Natural riverbank detail: smooth stones, reeds and shallow-water highlights.
  const bankStone=mat(0x9a9b87),reedMat=mat(0x78964c),reedTip=mat(0xb6b56d),waterGlint=mat(0xa9e5e7);
  for(const [x,z,s] of [[-23,18.8,.8],[-19,19.1,.55],[-14,19,.7],[-9,19.15,.48],[7,19,.62],[13,19.1,.72],[19,18.9,.55],[23,19,.8],[-21,25.4,.6],[-15,25.2,.5],[-6,25.35,.72],[8,25.3,.55],[16,25.25,.7],[22,25.4,.58]]){
