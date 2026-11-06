@@ -3361,6 +3361,11 @@ function makeWorldLandscape(){
      const foot=box(world,.37,.15,.37,x,y+.085,z,bridgeStoneMid);foot.castShadow=false;foot.receiveShadow=false;
       const post=box(world,.27,.62,.27,x,y+.36,z,bridgeStoneLight);post.castShadow=false;post.receiveShadow=false;
       const collar=box(world,.34,.14,.34,x,y+.66,z,bridgeStoneMid);collar.castShadow=false;collar.receiveShadow=false;
+      // Fine incised belt courses make each enlarged baluster read as a carved granite column.
+      const beltFront=box(world,.215,.018,.012,x,y+.535,z+.139,bridgeStoneDark);beltFront.castShadow=false;beltFront.receiveShadow=false;
+      const beltSide=box(world,.012,.018,.215,x+(x<0?-.139:.139),y+.535,z,bridgeStoneDark);beltSide.castShadow=false;beltSide.receiveShadow=false;
+      const beltHighlight=box(world,.22,.012,.014,x,y+.552,z+.14,bridgeStoneLight);beltHighlight.castShadow=false;beltHighlight.receiveShadow=false;
+      const beltSideHighlight=box(world,.014,.012,.22,x+(x<0?-.14:.14),y+.552,z,bridgeStoneLight);beltSideHighlight.castShadow=false;beltSideHighlight.receiveShadow=false;
       // Larger carved granite medallions give the balusters a stronger, monumental profile.
       const boss=box(world,.145,.145,.034,x,y+.37,z+.145,bridgeStoneDark);boss.rotation.z=Math.PI/4;boss.castShadow=false;boss.receiveShadow=false;
       const bossCore=box(world,.06,.06,.038,x,y+.37,z+.173,bridgeStoneLight);bossCore.rotation.z=Math.PI/4;bossCore.castShadow=false;bossCore.receiveShadow=false;
