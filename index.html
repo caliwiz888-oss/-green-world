@@ -693,7 +693,7 @@ function makeHouse(){
  const towerStoneMaterial=houseStone.clone();
  towerStoneMaterial.color.setHex(0xe2ded4);towerStoneMaterial.roughness=.92;towerStoneMaterial.bumpScale=.03;towerStoneMaterial.needsUpdate=true;
  // Спокойный сатинированный металл объединяет латунные пояса, крепления и навершия башен.
- const towerGoldMaterial=towerGoldMaterial.clone();
+ const towerGoldMaterial=M.gold.clone();
  towerGoldMaterial.color.setHex(0xd6b36b);towerGoldMaterial.metalness=.78;towerGoldMaterial.roughness=.3;towerGoldMaterial.needsUpdate=true;
  // Two corner towers with separate steep roofs and golden finials.
  for(const x of [-4.35,4.35]){
