@@ -2448,7 +2448,7 @@ function makeWorldDecor(){
       box(world,.12,.48,.095,p-.74,.68,z+(z<0?-.045:.045),fenceShadow,false);
       box(world,.12,.48,.095,p+.74,.68,z+(z<0?-.045:.045),fenceShadow,false);
       // Дополнительная тонкая рамка и центральный ромб на каждой каменной панели.
-      const faceZ=z+(z<0?-.105:.105);
+      const faceZ=z+(z<0?-.14:.14);
       box(world,1.18,.035,.035,p,.91,faceZ,fenceLightTrim,false);
       box(world,1.18,.035,.035,p,.45,faceZ,fenceBaseTrim,false);
       const panelBoss=box(world,.16,.16,.045,p,.68,faceZ,fenceCap,false);
@@ -2460,7 +2460,7 @@ function makeWorldDecor(){
       box(world,.095,.07,1.24,x+(x<0?-.045:.045),.68,p,fenceLightTrim,false);
       box(world,.095,.48,.12,x+(x<0?-.045:.045),.68,p-.74,fenceShadow,false);
       box(world,.095,.48,.12,x+(x<0?-.045:.045),.68,p+.74,fenceShadow,false);
-      const faceX=x+(x<0?-.105:.105);
+      const faceX=x+(x<0?-.14:.14);
       box(world,.035,.035,1.18,faceX,.91,p,fenceLightTrim,false);
       box(world,.035,.035,1.18,faceX,.45,p,fenceBaseTrim,false);
       const sideBoss=box(world,.045,.16,.16,faceX,.68,p,fenceCap,false);
