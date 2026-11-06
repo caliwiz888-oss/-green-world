@@ -2470,6 +2470,15 @@ function makeWorldLandscape(){
    waterCtx.bezierCurveTo(x+len*.28,y+curve*.3,x+len*.68,y-curve*.45,x+len,y+curve*.15);
    waterCtx.stroke();
  }
+ // Мелкая разрозненная рябь добавляет воде масштаб и живую фактуру, не создавая сплошного узора.
+ for(let i=0;i<18;i++){
+   const x=(i*31+6)%128,y=(i*47+18)%128,len=4+(i*5)%10;
+   waterCtx.strokeStyle=i%4===0?'rgba(255,255,255,.16)':'rgba(53,119,132,.07)';
+   waterCtx.lineWidth=.35+(i%3)*.16;waterCtx.beginPath();
+   waterCtx.moveTo(x,y);
+   waterCtx.quadraticCurveTo(x+len*.5,y-.55+(i%3)*.35,x+len,y+.15);
+   waterCtx.stroke();
+ }
  const waterTexture=new THREE.CanvasTexture(waterCanvas);waterTexture.colorSpace=THREE.SRGBColorSpace;
  waterTexture.wrapS=waterTexture.wrapT=THREE.RepeatWrapping;waterTexture.repeat.set(2,1);
  waterTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();water.map=waterTexture;water.roughness=.24;water.needsUpdate=true;
