@@ -52,27 +52,17 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
  <div class="brand">GREEN WORLD<small>НОВЫЙ ЖИВОЙ МИР · 3D</small></div>
  <div class="wallet">
   <div class="metric"><b id="coins">—</b><span>GREEN COIN</span></div>
-  <div class="metric"><b id="apples">—</b><span>ЯБЛОКИ</span></div>
-  <div class="metric"><b id="level">—</b><span>УРОВЕНЬ</span></div>
  </div>
 </header>
 
 <button class="menu" id="menu-open" aria-label="Меню">☰</button>
 
-<nav id="dock">
- <button class="action" id="plant">ПОСАДИТЬ</button>
- <button class="action" id="water">ПОЛИТЬ</button>
- <button class="action" id="harvest">СОБРАТЬ ВСЁ</button>
- <button class="action" id="sell">ПРОДАТЬ</button>
-</nav>
+
 <div id="toast"></div>
 <div id="login"><div class="login-card"><h1>GREEN WORLD</h1><p>Новый мир готовится к открытию. Войди через Telegram, чтобы создать своё хозяйство и сохранить прогресс.</p><button class="smallbtn" id="retry-login">ПОДКЛЮЧИТЬ TELEGRAM</button><p id="login-error"></p></div></div>
 <div id="shade"><div class="panel">
- <div class="head"><h2>Управление хозяйством</h2><button class="close" id="menu-close">×</button></div>
- <div class="section"><h3>Посадка деревьев</h3><div class="line"><span>Выбери дерево</span><select id="tree-type"><option value="apple">Яблоня · 100 GC</option><option value="peach">Персик · 300 GC</option><option value="cherry">Вишня · 700 GC</option><option value="pear">Груша · 1 200 GC</option><option value="orange">Апельсин · 2 000 GC</option><option value="mango">Манго · 3 500 GC</option></select></div><div class="line"><span id="plot-hint">Выбери свободный участок на карте</span><button class="smallbtn" id="plant-menu">ПОСАДИТЬ</button></div></div>
+ <div class="head"><h2>Управление</h2><button class="close" id="menu-close">×</button></div>
  <div class="section"><h3>Ежедневный подарок</h3><div class="line"><span id="daily-info">Проверяем награду…</span><button class="smallbtn" id="daily-claim">ПОЛУЧИТЬ</button></div></div>
- <div class="section"><h3>Склад урожая</h3><div class="line"><span>Яблоки</span><b id="inventory-apples">0</b></div><div class="line"><span>Другие фрукты</span><b id="inventory-fruit">—</b></div><div class="line"><span>Продукция завода</span><b id="inventory-processed">—</b></div>
- <div class="line"><select id="process-fruit-type"><option value="apple">Яблоки</option><option value="peach">Персики</option><option value="cherry">Вишня</option><option value="pear">Груши</option><option value="orange">Апельсины</option><option value="mango">Манго</option></select><select id="process-kind"><option value="juice">Сок</option><option value="jam">Варенье</option></select></div><button class="smallbtn" id="process-fruit">ПЕРЕРАБОТАТЬ</button></div>
 </div></div>
 <script>window.GREEN_WORLD_API_URL='https://green-world-api-mx3v.onrender.com';</script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -161,9 +151,9 @@ try {
 window.GREEN_WORLD_STARTUP_STAGE='three-loaded';
 const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
-let token='',busy=false,player=null,daily=null,selected=null;
-let cameraRadius=55,cameraHeight=31,pointer=null,dragged=false;
-let plots=[],treeObjects=[],buildingObjects=[],lastPlotSignature='';
+let token='',busy=false,player=null,daily=null;
+let cameraRadius=55,cameraHeight=31;
+let buildingObjects=[];
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x9acbe8);scene.fog=new THREE.Fog(0x9acbe8,78,175);
 const camera=new THREE.PerspectiveCamera(52,innerWidth/innerHeight,3.5,130);
 // Более близкая near-плоскость и ограниченный far-диапазон повышают точность depth buffer и уменьшают z-fighting на мобильных GPU.
@@ -1422,27 +1412,6 @@ function makeHouse(){
  return disableCastShadows(g);
 }
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
-function makeTree(x,z,kind='apple',mature=false){
- const g=group(world,x,0,z);cylinder(g,.13,.25,1.65,0,.82,0,M.trunk,10);
- const colors={apple:0x438b42,peach:0x6e9c45,cherry:0x367b4a,pear:0x679947,orange:0x4b8a3d,mango:0x398044};
- // Natural branching gives each fruit tree a fuller, more convincing silhouette.
- for(const side of [-1,1]){
-  const branch=cylinder(g,.055,.105,.9,side*.31,1.38,0,M.trunk,7);
-  branch.rotation.z=side*.62;branch.rotation.x=side*.18;
- }
- sphere(g,.82,0,1.82,0,mat(colors[kind]||0x438b42),1.08);
- sphere(g,.58,.53,2.03,.1,M.leaf2);sphere(g,.58,-.53,2.02,-.1,M.leaf);
- sphere(g,.43,.08,2.42,.04,M.leaf2,.92);
- sphere(g,.4,.78,1.78,-.05,M.leaf,.95);
- sphere(g,.4,-.76,1.8,.08,M.leaf2,.95);
- const fruit=mature?(kind==='apple'?0xd94335:kind==='peach'?0xf0a06a:kind==='cherry'?0xb32239:kind==='pear'?0xb3c84b:kind==='orange'?0xe88c27:0xe8b23c):0x79a94a;
- for(let i=0;i<8;i++){
-  const a=i*Math.PI/4,rad=i%2?.72:.58,y=1.78+(i%3)*.27;
-  const f=sphere(g,mature?.12:.065,Math.cos(a)*rad,y,Math.sin(a)*rad,mat(fruit),1);
-  if(mature&&kind==='cherry'){const stem=cylinder(g,.018,.018,.12,Math.cos(a)*rad,y+.1,Math.sin(a)*rad,M.trunk,5);stem.rotation.z=.25}
- }
- return g;
-}
 function makeMarket(){
  // Витрины лавки используют собственный материал: marketGlass локален внутри makeHouse.
  const marketGlass=M.glass.clone();
@@ -3542,9 +3511,8 @@ window.GREEN_WORLD_STARTUP_STAGE='building-world';
 makeWorldDecor();makeWorldLandscape();
 window.GREEN_WORLD_STARTUP_STAGE='world-built';
 const tileGeo=new THREE.BoxGeometry(1.28,.16,1.28);
-const tiles=[];
 for(let x=0;x<20;x++)for(let z=0;z<20;z++){
- const i=x*20+z;const tile=new THREE.Mesh(tileGeo,(x+z)%2?M.grass:M.grass2);tile.position.set((x-9.5)*1.45,-.03,(z-9.5)*1.45);tile.receiveShadow=true;tile.userData.plotIndex=i;world.add(tile);tiles.push(tile);
+ const i=x*20+z;const tile=new THREE.Mesh(tileGeo,(x+z)%2?M.grass:M.grass2);tile.position.set((x-9.5)*1.45,-.03,(z-9.5)*1.45);tile.receiveShadow=true;world.add(tile);
 }
 const sharedWorldMaterials=new Set([...Object.values(M),windowInterior]);
 // Материалы-клоны зданий используют те же карты поверхности, что и общий мир.
@@ -3596,24 +3564,13 @@ function disposeObject3D(root){
  for(const material of materials)material.dispose();
  if(root.parent)root.parent.remove(root);
 }
-const plotRipeMaterial=mat(0x8fbd55),plotGrowingMaterial=mat(0x719a49);
 function clearDynamic(){
- for(const t of treeObjects)disposeObject3D(t);
- treeObjects=[];
  for(const b of buildingObjects)disposeObject3D(b);
  buildingObjects=[];
 }
-function unlocked(i){const level=Math.max(1,Number(player?.landLevel)||1),side=[0,6,10,14,18,20][level],start=Math.floor((20-side)/2),x=Math.floor(i/20),z=i%20;return x>=start&&x<start+side&&z>=start&&z<start+side}
 function drawPlayer(){
   if(!player)return;
   // Здания — постоянная декоративная часть мира, не связанная с состоянием игрока.
-  const plotSignature=JSON.stringify((player.plots||[])
-    .map(p=>[p.index,p.type||'apple',!!p.grown])
-    .sort((a,b)=>a[0]-b[0]));
-  if(plotSignature===lastPlotSignature){
-    updateHud();
-    return;
-  }
   // Дом, завод и лавка — постоянные объекты мира. Не пересоздаём их при
   // обновлениях участков или повторной загрузке данных игрока: это исключает
   // удаление и повторное создание фасадов/окон/крыш во время работы игры.
@@ -3677,52 +3634,18 @@ function drawPlayer(){
     buildingObjects.push(market);
   }
   }
-  if(plotSignature!==lastPlotSignature){
-    for(const t of treeObjects)disposeObject3D(t);
-    treeObjects=[];
-    const map=new Map((player.plots||[]).map(p=>[p.index,p]));
-  // Ошибка дерева, дома или рынка больше не прерывает создание завода.
-  for(const p of player.plots||[]){
-    try{
-      const x=(Math.floor(p.index/20)-9.5)*1.45,z=(p.index%20-9.5)*1.45;
-      const tree=makeTree(x,z,p.type||'apple',!!p.grown);
-      tree.scale.setScalar(.72);treeObjects.push(tree);
-    }catch(treeError){console.error('[render] Tree construction failed:',treeError)}
-  }
-  for(let i=0;i<400;i++){
-    try{
-      const p=map.get(i);
-      tiles[i].material=p?(p.grown?plotRipeMaterial:plotGrowingMaterial):((Math.floor(i/20)+i%20)%2?M.grass:M.grass2);
-      tiles[i].material.needsUpdate=true;
-    }catch(tileError){console.error('[render] Plot tile update failed:',tileError)}
-  }
-    lastPlotSignature=plotSignature;
-  }
-  try{updateHud()}catch(hudError){console.error('[render] HUD update failed:',hudError)}
+  updateHud();
 }
-function updateHud(){if(!player)return;$('coins').textContent=Number(player.coins||0).toLocaleString('ru-RU');$('apples').textContent=Number(player.apples||0).toLocaleString('ru-RU');$('level').textContent=player.playerLevel||1;$('inventory-apples').textContent=player.apples||0;$('inventory-fruit').textContent=Object.entries(player.fruitInventory||{}).filter(([,v])=>v>0).map(([k,v])=>k+': '+v).join(' · ')||'Пока пусто';$('inventory-processed').textContent=Object.entries(player.processedInventory||{}).filter(([,v])=>v>0).map(([k,v])=>k+': '+v).join(' · ')||'Пока пусто';}
+function updateHud(){if(!player)return;$('coins').textContent=Number(player.coins||0).toLocaleString('ru-RU');}
 function applyPlayer(p){player=p;$('login').style.display='none';try{drawPlayer()}catch(e){console.error('[render] World drawing failed:',e);$('login-error').textContent='Ошибка отображения мира: '+(e?.message||e)}}
 async function request(path,body=null,retry=true){const opts={method:body===null?'GET':'POST',credentials:'include',headers:{'Content-Type':'application/json'}};if(token)opts.headers.Authorization='Bearer '+token;if(body!==null)opts.body=JSON.stringify(body);let res=await fetch(API+path,opts);if(res.status===401&&retry&&!['/api/auth/telegram','/api/auth/refresh'].includes(path)){const rr=await fetch(API+'/api/auth/refresh',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'}});if(rr.ok){token=(await rr.json()).accessToken;return request(path,body,false)}}const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Ошибка сервера '+res.status);return data}
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2600)}
 async function action(path,body,msg){if(busy)return;busy=true;try{const data=await request(path,body);if(data.player)applyPlayer(data.player);toast(msg||'Сохранено');return true}catch(e){toast(e.message||'Ошибка');return false}finally{busy=false}}
 async function login(){const tg=window.Telegram?.WebApp;const initData=tg?.initData||'';if(!initData){$('login-error').textContent='Открой игру из Telegram-бота, чтобы войти.';return}try{tg.ready();tg.expand();$('login-error').textContent='Подключаем аккаунт…';const data=await request('/api/auth/telegram',{initData},false);token=data.accessToken;applyPlayer(data.player);await loadDaily()}catch(e){$('login-error').textContent='Не удалось войти: '+e.message}}
 async function loadDaily(){try{daily=await request('/api/game/daily-reward');$('daily-info').textContent=daily.claimedToday?'Сегодня уже получено':'День '+daily.day+' · '+daily.reward+' GC';$('daily-claim').disabled=!!daily.claimedToday;$('daily-claim').textContent=daily.claimedToday?'ПОЛУЧЕНО':'ПОЛУЧИТЬ'}catch(e){$('daily-info').textContent=e.message}}
-function setSelected(i){selected=i}
-function plant(){if(selected===null){toast('Сначала выбери участок на карте');return}if(!unlocked(selected)){toast('Этот участок пока недоступен');return}const type=$('tree-type').value;action('/api/game/plant',{plotIndex:selected,treeType:type},'Дерево посажено')}
-function water(){if(selected===null){toast('Выбери дерево на карте');return}action('/api/game/water',{plotIndex:selected},'Дерево полито · рост ускорен')}
-$('plant').onclick=plant;$('plant-menu').onclick=plant;$('water').onclick=()=>{if(selected===null){toast('Выбери дерево на карте');return}action('/api/game/water',{plotIndex:selected},'Дерево полито')};
-$('harvest').onclick=()=>action('/api/game/harvest-all',{},'Урожай собран');$('sell').onclick=()=>action('/api/game/sell',{},'Урожай продан');
-
-
 $('daily-claim').onclick=async()=>{await action('/api/game/daily-reward/claim',{},'Ежедневный подарок получен');await loadDaily()};
-$('process-fruit').onclick=()=>action('/api/game/process',{fruitType:$('process-fruit-type').value,kind:$('process-kind').value},'Продукция изготовлена');
 $('menu-open').onclick=()=>$('shade').classList.add('open');$('menu-close').onclick=()=>$('shade').classList.remove('open');$('shade').addEventListener('click',e=>{if(e.target===$('shade'))$('shade').classList.remove('open')});
 function cameraPosition(){camera.position.set(0,cameraHeight,cameraRadius);camera.lookAt(0,.8,-1.5)}
-const ray=new THREE.Raycaster(),mouse=new THREE.Vector2();
-renderer.domElement.addEventListener('pointerdown',e=>{pointer={x:e.clientX,y:e.clientY,id:e.pointerId};dragged=false});
-renderer.domElement.addEventListener('pointermove',e=>{if(!pointer||pointer.id!==e.pointerId)return;const dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;if(Math.abs(dx)+Math.abs(dy)>5)dragged=true});
-renderer.domElement.addEventListener('pointerup',e=>{if(!pointer||pointer.id!==e.pointerId)return;if(!dragged){const r=renderer.domElement.getBoundingClientRect();mouse.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height*2-1));ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects(tiles,false);if(hits.length){const i=hits[0].object.userData.plotIndex;setSelected(i);if(!unlocked(i))toast('Этот участок пока недоступен')}}pointer=null});
-renderer.domElement.addEventListener('pointercancel',()=>pointer=null);
 
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
 // Плавное течение реки: сдвигаем карту бликов по руслу, сохраняя непрерывность текстуры.
