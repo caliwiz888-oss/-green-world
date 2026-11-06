@@ -3688,10 +3688,11 @@ function makeWorldDecor(){
       for(let cx=start+1.8;cx<end-1.35;cx+=3.5){
         const left=cx-1.48,right=cx+1.48,baseY=1.43,apexY=2.62;
         for(const px of [left,right]){
-          box(world,.17,.62,.17,px,1.52,z,fenceBaseTrim,false);
-          box(world,.23,.075,.23,px,1.87,z,fenceLightTrim,false);
+          // Квадратные опорные столбики подняты выше и доходят ближе к своду арки.
+          box(world,.17,.98,.17,px,1.82,z,fenceBaseTrim,false);
+          box(world,.25,.085,.25,px,2.34,z,fenceLightTrim,false);
           const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.135,0),fenceRelief);
-          finial.position.set(px,2.00,z);finial.scale.set(.82,1.3,.82);
+          finial.position.set(px,2.47,z);finial.scale.set(.82,1.3,.82);
           finial.castShadow=false;finial.receiveShadow=false;world.add(finial);
         }
         addFenceArc(archProfile(left,right,baseY,apexY,z),fenceLightTrim,.055);
@@ -3713,10 +3714,11 @@ function makeWorldDecor(){
     for(let cz=-10.5;cz<=10.5;cz+=3.5){
       const front=cz-1.48,back=cz+1.48,baseY=1.43,apexY=2.62;
       for(const pz of [front,back]){
-        box(world,.17,.62,.17,x,1.52,pz,fenceBaseTrim,false);
-        box(world,.23,.075,.23,x,1.87,pz,fenceLightTrim,false);
+        // Такие же высокие квадратные опоры на боковых сторонах ограды.
+        box(world,.17,.98,.17,x,1.82,pz,fenceBaseTrim,false);
+        box(world,.25,.085,.25,x,2.34,pz,fenceLightTrim,false);
         const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.135,0),fenceRelief);
-        finial.position.set(x,2.00,pz);finial.scale.set(.82,1.3,.82);
+        finial.position.set(x,2.47,pz);finial.scale.set(.82,1.3,.82);
         finial.castShadow=false;finial.receiveShadow=false;world.add(finial);
       }
       addFenceArc(archProfile(front,back,baseY,apexY,x,'z'),fenceLightTrim,.055);
