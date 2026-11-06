@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261106-151600';
+const GREEN_WORLD_BUILD_ID = '20261106-151800';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -4311,6 +4311,18 @@ function drawPlayer(){
     box(fallback,5.1,2.45,.18,0,1.42,2.22,shopTimber);
     box(fallback,3.65,1.25,.12,0,1.65,2.34,M.glass);
     box(fallback,3.38,.96,.035,0,1.65,2.255,windowInterior,false);
+    // Noticeable matching display trim for the safe fallback storefront.
+    box(fallback,3.82,.16,.2,0,2.34,2.39,shopTimber,false);
+    box(fallback,3.9,.045,.23,0,2.435,2.4,M.gold,false);
+    box(fallback,3.82,.13,.2,0,.94,2.39,shopTrim,false);
+    box(fallback,3.9,.04,.23,0,.855,2.4,M.gold,false);
+    for(const x of [-1.78,-.9,0,.9,1.78]){
+      box(fallback,.055,.24,.07,x,2.34,2.52,M.gold,false);
+      box(fallback,.055,.24,.07,x,.94,2.52,M.gold,false);
+    }
+    // Raised central sign surround and matching corner caps.
+    box(fallback,2.35,.12,.18,0,2.98,2.38,shopTrim,false);
+    box(fallback,2.42,.04,.2,0,3.06,2.39,M.gold,false);
     for(const x of [-2.35,-1.25,0,1.25,2.35])box(fallback,.13,2.5,.22,x,1.42,2.4,M.gold);
     box(fallback,1.1,2.25,.22,0,1.35,2.48,shopTimber);
     box(fallback,6.2,.25,6.2,0,3.85,0,shopRoof);
