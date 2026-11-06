@@ -2270,7 +2270,8 @@ function makeFlowerBed(x,z){
 }
 function makeWorldDecor(){
   // Открытая территория без забора. Каменная дорожка идёт от порога дома прямо к мосту.
-  const sidePathBase=mat(0xd7c49e,.9),sidePathTile=mat(0xe8ddc5,.92),sidePathJoint=mat(0xbba985,.95);
+  // var исключает TDZ для материалов дорожки при повторном/раннем вызове декораций.
+  var sidePathBase=mat(0xd7c49e,.9),sidePathTile=mat(0xe8ddc5,.92),sidePathJoint=mat(0xbba985,.95);
   for(let i=0;i<21;i++){
     const z=-10.5+i*1.35;
     box(world,1.35,.14,1.35,-.675,.04,z,M.stone2,false);
