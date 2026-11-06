@@ -45,6 +45,25 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 @media(min-width:700px){#dock{width:540px;left:50%;right:auto;transform:translateX(-50%);bottom:18px}.action{min-height:58px;font-size:12px}#shade{align-items:center}}
 @media(max-width:360px){.wallet{gap:5px;padding:6px}.metric{min-width:38px}.metric b{font-size:14px}.brand{font-size:12px;padding:8px}.action{font-size:10px;min-height:48px}#dock{gap:5px;padding:6px}}
 
+
+/* Green Farm wallet plaque — paired with the left HUD */
+#walletHud{position:fixed;z-index:6;top:calc(env(safe-area-inset-top,0px) + 1px);right:1px;display:flex;align-items:center;gap:5px;height:44px;max-width:calc(100vw - 2px);padding:2px 3px 2px 6px;border:2px solid #e9c56e;border-radius:14px;background:linear-gradient(180deg,#81512d 0%,#4b2b19 48%,#2d1a12 100%);box-shadow:0 2px 0 #3b2416,0 4px 10px #172b1c66,inset 0 2px 2px #ffe6a0,inset 0 -2px 3px #1c100b;color:#fff4d7}
+.walletHudMetric{display:flex;align-items:center;gap:4px;min-width:0;height:100%;padding:0 3px;color:#fff1cf;text-shadow:0 1px 2px #24140d}
+.walletHudIcon{font-size:22px;line-height:1;filter:drop-shadow(0 1px 1px #1c100b)}
+.walletHudText{display:flex;flex-direction:column;min-width:0;line-height:1.05;white-space:nowrap}
+.walletHudValue{font-size:14px;font-weight:1000}
+.walletHudLabel{font-size:8px;font-weight:900;letter-spacing:.25px;color:#f4dfb2}
+.walletHudDivider{width:1px;height:25px;background:linear-gradient(transparent,#e9c56e,transparent);opacity:.9}
+#walletPlus{flex:0 0 34px;width:34px;height:34px;border-radius:50%;border:2px solid #e5bd59;background:linear-gradient(145deg,#6e9b38,#315c20 70%,#24451b);box-shadow:0 1px 0 #3a2413,inset 0 2px 3px #eaffb1;color:#fff7d8;font-size:27px;font-weight:900;line-height:26px;text-shadow:0 2px 3px #203714;cursor:pointer}
+#walletBuyShade{display:none;position:fixed;z-index:16;inset:0;background:#102016a8;align-items:center;justify-content:center;padding:20px}
+#walletBuyShade.open{display:flex}
+#walletBuyPanel{width:min(320px,92vw);padding:18px;border:2px solid #e8c16c;border-radius:20px;background:linear-gradient(155deg,#81512d,#382116);box-shadow:0 10px 30px #0008;color:#fff1cf;text-align:center}
+#walletBuyPanel h2{margin:0 0 8px;font-size:18px}
+#walletBuyPanel p{font-size:12px;line-height:1.4;color:#f4dfb2}
+.walletBuyAction{display:block;width:100%;margin-top:9px;padding:10px;border:1px solid #e6cf8e;border-radius:11px;background:linear-gradient(#8cc85d,#397b36);color:white;font-weight:900;font-size:12px}
+#walletBuyClose{margin-top:12px;padding:8px 18px;border:1px solid #e6cf8e;border-radius:10px;background:#4b3425;color:#fff1cf;font-weight:800}
+@media(max-width:360px){#walletHud{height:40px;gap:2px;padding-left:3px;padding-right:2px;border-radius:13px}.walletHudMetric{gap:2px;padding:0 1px}.walletHudIcon{font-size:18px}.walletHudValue{font-size:12px}.walletHudLabel{font-size:7px;letter-spacing:0}.walletHudDivider{height:22px}#walletPlus{width:30px;height:30px;flex-basis:30px;font-size:24px;line-height:22px}}
+
 /* Green Farm level plaque */
 #farmHud{position:fixed;z-index:6;top:calc(env(safe-area-inset-top,0px) + 1px);left:1px;display:flex;align-items:center;gap:0;max-width:calc(100vw - 2px);height:44px;padding:2px 8px 2px 2px;border:2px solid #e9c56e;border-radius:14px;background:linear-gradient(180deg,#81512d 0%,#4b2b19 48%,#2d1a12 100%);box-shadow:0 2px 0 #3b2416,0 4px 10px #172b1c66,inset 0 2px 2px #ffe6a0,inset 0 -2px 3px #1c100b;color:#fff4d7;pointer-events:auto}
 #farmMenuButton{flex:0 0 34px;width:34px;height:34px;border-radius:50%;border:2px solid #e5bd59;background:linear-gradient(145deg,#6e9b38,#315c20 70%,#24451b);box-shadow:0 1px 0 #3a2413,inset 0 2px 3px #eaffb1;color:#fff7d8;font-size:20px;font-weight:900;line-height:1;text-shadow:0 2px 3px #203714;cursor:pointer}
@@ -66,9 +85,19 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
  <button id="farmMenuButton" type="button" aria-label="Открыть меню" title="Меню">☰</button>
  <div id="farmHudInfo"><div id="farmHudTitle">🍀 GREEN FARM</div><div id="farmHudLevel">Уровень · Ур. 1 · ✨ 0 XP</div></div>
 </div>
+
+<div id="walletHud" aria-label="Баланс GREEN COIN и собранные яблоки">
+ <div class="walletHudMetric"><span class="walletHudIcon" aria-hidden="true">🪙</span><span class="walletHudText"><b class="walletHudValue" id="greenCoinCount">100</b><span class="walletHudLabel">GREEN COIN</span></span></div>
+ <span class="walletHudDivider" aria-hidden="true"></span>
+ <div class="walletHudMetric"><span class="walletHudIcon" aria-hidden="true">🍎</span><span class="walletHudText"><b class="walletHudValue" id="appleCount">0</b><span class="walletHudLabel">ЯБЛОКИ</span></span></div>
+ <button id="walletPlus" type="button" aria-label="Покупка монет и донат" title="Покупка и донат">+</button>
+</div>
+<div id="walletBuyShade" role="dialog" aria-modal="true" aria-label="Покупка и донат"><div id="walletBuyPanel"><h2>GREEN FARM</h2><p>Покупка GREEN COIN и поддержка игры</p><button class="walletBuyAction" id="buyCoinsButton" type="button">Купить GREEN COIN</button><button class="walletBuyAction" id="donateButton" type="button">Поддержать игру · Донат</button><button id="walletBuyClose" type="button">Закрыть</button></div></div>
 <div id="farmMenuShade" role="dialog" aria-modal="true" aria-label="Меню Green Farm"><div id="farmMenuPanel"><h2>GREEN FARM</h2><p>Уровень игрока: 1</p><p>Опыт: 0 XP</p><button id="farmMenuClose" type="button">Продолжить игру</button></div></div>
 <script>
 (()=>{const open=document.getElementById('farmMenuButton'),shade=document.getElementById('farmMenuShade'),close=document.getElementById('farmMenuClose');if(!open||!shade||!close)return;open.addEventListener('click',()=>shade.classList.add('open'));close.addEventListener('click',()=>shade.classList.remove('open'));shade.addEventListener('click',e=>{if(e.target===shade)shade.classList.remove('open')});document.addEventListener('keydown',e=>{if(e.key==='Escape')shade.classList.remove('open')});})();
+
+(()=>{const plus=document.getElementById('walletPlus'),shade=document.getElementById('walletBuyShade'),close=document.getElementById('walletBuyClose'),buy=document.getElementById('buyCoinsButton'),donate=document.getElementById('donateButton');if(!plus||!shade||!close)return;plus.addEventListener('click',()=>shade.classList.add('open'));close.addEventListener('click',()=>shade.classList.remove('open'));shade.addEventListener('click',e=>{if(e.target===shade)shade.classList.remove('open')});document.addEventListener('keydown',e=>{if(e.key==='Escape')shade.classList.remove('open')});const notice=()=>{const toast=document.getElementById('toast');if(toast){toast.textContent='Платёжная система пока не подключена';toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2600)}};buy&&buy.addEventListener('click',notice);donate&&donate.addEventListener('click',notice);})();
 </script>
 
 <div id="login"><div class="login-card"><h1>GREEN WORLD</h1><p>Новый мир готовится к открытию. Войди через Telegram, чтобы открыть 3D-мир.</p><button class="smallbtn" id="retry-login">ПОДКЛЮЧИТЬ TELEGRAM</button><p id="login-error"></p></div></div>
