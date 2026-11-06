@@ -3270,11 +3270,11 @@ function makeWorldLandscape(){
  for(let iz=0;iz<bridgeSegments;iz++){const l=iz*(bridgeAcross+1),r=l+bridgeAcross+1,lb=bridgeTopCount+l,rb=lb+bridgeAcross+1;bridgeIndices.push(l,lb,r,l,lb,lb+bridgeAcross+1);bridgeIndices.push(r,r+bridgeAcross+1,lb,r+bridgeAcross+1,rb,lb); }
  for(let ix=0;ix<bridgeAcross;ix++){const p=ix,q=p+1,lb=bridgeTopCount+p;bridgeIndices.push(p,q,lb,q,lb+1,lb);const e=bridgeSegments*(bridgeAcross+1)+ix,eb=bridgeTopCount+e;bridgeIndices.push(e,eb,e+1,e+1,eb,eb+1);}
  bridgeDeckGeometry.setAttribute('position',new THREE.Float32BufferAttribute(bridgeVerts,3));bridgeDeckGeometry.setIndex(bridgeIndices);bridgeDeckGeometry.computeVertexNormals();
- const bridgeDeckMaterial=new THREE.MeshStandardMaterial({color:0xd0c5ae,map:surfaceMaps.stone,roughness:.92,metalness:0});
+ const bridgeDeckMaterial=new THREE.MeshStandardMaterial({color:0x747d80,map:surfaceMaps.stone,roughness:.96,metalness:0});
  const bridgeDeckBump=surfaceMaps.stone.clone();bridgeDeckBump.colorSpace=THREE.NoColorSpace;bridgeDeckBump.repeat.set(1.4,2.2);bridgeDeckBump.needsUpdate=true;bridgeDeckMaterial.bumpMap=bridgeDeckBump;bridgeDeckMaterial.bumpScale=.055;
  const bridgeDeck=new THREE.Mesh(bridgeDeckGeometry,bridgeDeckMaterial);bridgeDeck.castShadow=false;bridgeDeck.receiveShadow=false;world.add(bridgeDeck);
  // Subtle stone edge courses give the deck a finished, hand-built silhouette.
- const bridgeEdgeMaterial=new THREE.MeshStandardMaterial({color:0xb5a88f,map:surfaceMaps.stone,roughness:.94});
+ const bridgeEdgeMaterial=new THREE.MeshStandardMaterial({color:0x92999a,map:surfaceMaps.stone,roughness:.96});
  for(const x of [-2.43,2.43]){
    const edgePoints=[];for(let i=0;i<=24;i++){const z=bridgeStartZ+bridgeLength*i/24;edgePoints.push(new THREE.Vector3(x,bridgeDeckY(z)+.035,z));}
    const edgeCurve=new THREE.CatmullRomCurve3(edgePoints);
@@ -3284,7 +3284,7 @@ function makeWorldLandscape(){
  const bridgeJointPoints=[];
  for(let i=1;i<18;i++){const z=bridgeStartZ+bridgeLength*i/18,y=bridgeDeckY(z)+.009;bridgeJointPoints.push(new THREE.Vector3(-2.28,y,z),new THREE.Vector3(2.28,y,z));}
  const bridgeJointGeometry=new THREE.BufferGeometry().setFromPoints(bridgeJointPoints);
- const bridgeJoints=new THREE.LineSegments(bridgeJointGeometry,new THREE.LineBasicMaterial({color:0x918875,transparent:true,opacity:.32}));bridgeJoints.frustumCulled=false;world.add(bridgeJoints);
+ const bridgeJoints=new THREE.LineSegments(bridgeJointGeometry,new THREE.LineBasicMaterial({color:0x41494c,transparent:true,opacity:.38}));bridgeJoints.frustumCulled=false;world.add(bridgeJoints);
  // Two substantial masonry arch ribs beneath the deck.
  const bridgeRibMaterial=new THREE.MeshStandardMaterial({color:0x9e927b,roughness:.94});
  for(const x of [-1.72,1.72]){
