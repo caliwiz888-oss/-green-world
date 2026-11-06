@@ -70,28 +70,7 @@ function auth(req,res,next) {
     req.playerId = String(payload.sub); next();
   } catch { res.status(401).json({error:'Authentication required'}); }
 }
-const state = p => ({
-  coins:p.coins,
-  landLevel:Math.min(5,Number(p.land_level)||1),
-  unlockedPlots:[0,36,100,196,324,400][Math.min(5,Math.max(1,Number(p.land_level)||1))]
-});
-async function mutate(req,res,fn) {
-  const c=await db.connect();
-  try {
-    await c.query('BEGIN');
-    const q=await c.query('SELECT * FROM players WHERE telegram_id=$1 FOR UPDATE',[req.playerId]);
-    if(!q.rowCount) { await c.query('ROLLBACK'); return res.status(404).json({error:'Player not found'}); }
-    const result=await fn(c,q.rows[0]);
-    await c.query('COMMIT');
-    return res.json(result);
-  } catch(e) {
-    await c.query('ROLLBACK');
-    return res.status(e.status||500).json({error:e.publicMessage||'Game action failed'});
-  } finally { c.release(); }
-}
-function reject(status,message) { const e=new Error(message);e.status=status;e.publicMessage=message;throw e; }
-async function loadState(c,id) { const q=await c.query('SELECT * FROM players WHERE telegram_id=$1',[id]);return state(q.rows[0]); }
-
+const state = () => ({});
 app.get('/health',(_req,res)=>res.json({ok:true,service:'green-world-api'}));
 
 app.post('/api/auth/telegram',(req,res,next)=>{
@@ -170,43 +149,6 @@ app.get('/api/me',auth,async(req,res)=>{
   }
 });
 
-app.get('/api/game/daily-reward',auth,async(req,res)=>{
-  try {
-    const q=await db.query(`SELECT
-      COALESCE(last_daily_claim = CURRENT_DATE,FALSE) AS claimed_today,
-      CASE WHEN last_daily_claim = CURRENT_DATE - 1 THEN daily_streak + 1 ELSE 1 END AS next_streak
-      FROM players WHERE telegram_id=$1`,[req.playerId]);
-    if(!q.rowCount) return res.status(404).json({error:'Player not found'});
-    const rewards=[10,15,20,25,30,40,100];
-    const day=((Number(q.rows[0].next_streak)-1)%7)+1;
-    res.json({claimedToday:Boolean(q.rows[0].claimed_today),day,reward:rewards[day-1]});
-  } catch(error) { console.error('Daily reward status failed:',error); res.status(500).json({error:'Could not load daily reward'}); }
-});
-app.post('/api/game/daily-reward/claim',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const q=await c.query(`SELECT
-    COALESCE(last_daily_claim = CURRENT_DATE,FALSE) AS claimed_today,
-    CASE WHEN last_daily_claim = CURRENT_DATE - 1 THEN daily_streak + 1 ELSE 1 END AS next_streak
-    FROM players WHERE telegram_id=$1`,[req.playerId]);
-  if(!q.rowCount) reject(404,'Player not found');
-  if(q.rows[0].claimed_today) reject(409,'Daily reward already claimed today');
-  const rewards=[10,15,20,25,30,40,100];
-  const day=((Number(q.rows[0].next_streak)-1)%7)+1;
-  const reward=rewards[day-1];
-  await c.query('UPDATE players SET coins=coins+$2,last_daily_claim=CURRENT_DATE,daily_streak=$3,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,reward,day]);
-  return {player:await loadState(c,req.playerId),claimedToday:true,day,reward};
-}));
-app.post('/api/game/expand-land',auth,(req,res)=>mutate(req,res,async(c,p)=>{
-  const level=Math.min(5,Math.max(1,Number(p.land_level)||1));
-  if(level>=5) reject(409,'All land is already unlocked');
-  const costs=[0,500,1500,3500,7000];
-  const cost=costs[level];
-  if(Number(p.coins)<cost) reject(409,'Not enough Green Coin');
-  await c.query('UPDATE players SET coins=coins-$2,land_level=land_level+1,updated_at=NOW() WHERE telegram_id=$1',[req.playerId,cost]);
-  return {player:await loadState(c,req.playerId),unlockedPlots:[0,36,100,196,324,400][level+1]};
-}));
 app.use((err,_req,res,_next)=>{console.error(err.message);res.status(500).json({error:'Internal server error'});});
 const port=Number(process.env.PORT||3000);
-db.query("ALTER TABLE players ADD COLUMN IF NOT EXISTS land_level INTEGER NOT NULL DEFAULT 1")
-.then(()=>db.query("UPDATE players SET land_level=GREATEST(COALESCE(land_level,1),1)"))
-.then(()=>app.listen(port,()=>console.log('GREEN WORLD API listening on '+port)))
-.catch(error=>{console.error('Database migration failed:',error);process.exit(1);});
+app.listen(port,()=>console.log('GREEN WORLD API listening on '+port));
