@@ -1544,7 +1544,7 @@ function makeMarket(){
  for(const [cx,angle] of [[-1.35,.42],[1.35,-.42]]){
    const courses=group(g,cx,3.85,0);courses.rotation.z=angle;
    for(const z of [-1.92,-1.28,-.64,0,.64,1.28,1.92]){
-     box(courses,2.82,.04,.055,0,.145,z,M.roof2,false);
+     // Убраны поперечные рейки: их нижняя грань совпадала с верхней плоскостью ската (точный z-fighting).
    }
    // Separate overlapping ceramic shingles create a finer handmade roof surface.
    for(let row=0;row<6;row++){
@@ -1560,7 +1560,7 @@ function makeMarket(){
    }
    // Тонкие продольные фальцы разделяют черепицу на ровные панели.
    for(const x of [-.98,-.33,.33,.98]){
-     box(courses,.035,.035,4.72,x,.145,0,M.roof,false);
+     // Продольные накладки удалены вместе с рейками: кровля остаётся цельной, без близких параллельных поверхностей.
    }
    // Небольшие металлические фиксаторы завершают края кровельных рядов.
    for(const z of [-2.12,2.12]){
