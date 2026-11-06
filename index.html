@@ -1580,6 +1580,8 @@ function makeMarket(){
  const marketGlass=M.glass.clone();
  const g=group(world,-10.8,0,-8.5);g.rotation.y=0;g.scale.setScalar(1.2);
  const timber=mat(0x765039,.78),timberLight=mat(0xa8794e,.72);
+ const marketBeamMaterial=timber.clone();
+ marketBeamMaterial.roughness=.7;marketBeamMaterial.bumpScale=.028;marketBeamMaterial.color.multiplyScalar(1.035);marketBeamMaterial.needsUpdate=true;
  // Локальная карта древесины лавки: тонкие продольные волокна и мягкие годичные слои без изменения геометрии.
  const marketWoodCanvas=document.createElement('canvas');marketWoodCanvas.width=512;marketWoodCanvas.height=512;
  const marketWoodCtx=marketWoodCanvas.getContext('2d');
@@ -1950,7 +1952,7 @@ function makeMarket(){
  }
  // Открытая нижняя сторона кровли получает деревянный каркас, видимый из торгового зала.
  for(const z of [-2.48,0,2.48]){
-   box(g,5.72,.105,.15,0,3.16,z,timber,false);
+   box(g,5.72,.105,.15,0,3.16,z,marketBeamMaterial,false);
    box(g,5.76,.035,.17,0,3.225,z,roofAccent,false);
    for(const x of [-2.72,-1.82,-.91,0,.91,1.82,2.72]){
      box(g,.11,.13,.19,x,3.16,z,roofEdge,false);
@@ -1958,7 +1960,7 @@ function makeMarket(){
  }
  // Продольные балки замыкают потолочную решётку по бокам павильона.
  for(const x of [-2.48,2.48]){
-   box(g,.15,.105,5.72,x,3.16,0,timber,false);
+   box(g,.15,.105,5.72,x,3.16,0,marketBeamMaterial,false);
    box(g,.17,.035,5.76,x,3.225,0,roofAccent,false);
    for(const z of [-2.72,-1.82,-.91,.91,1.82,2.72]){
      box(g,.19,.13,.11,x,3.16,z,roofEdge,false);
