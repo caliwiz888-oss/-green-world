@@ -70,6 +70,11 @@ function auth(req,res,next) {
     req.playerId = String(payload.sub); next();
   } catch { res.status(401).json({error:'Authentication required'}); }
 }
+const state = p => ({
+  coins:p.coins,
+  landLevel:Math.min(5,Number(p.land_level)||1),
+  unlockedPlots:[0,36,100,196,324,400][Math.min(5,Math.max(1,Number(p.land_level)||1))]
+});
 async function mutate(req,res,fn) {
   const c=await db.connect();
   try {
