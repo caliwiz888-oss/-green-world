@@ -2472,6 +2472,11 @@ function makeWorldLandscape(){
  }
  // A distant secondary alpine ridge adds atmospheric depth behind the main snow peaks.
  const farRock=mat(0x879b94),farShadow=mat(0x7b918b),farSnow=mat(0xdce8e3);
+ // Та же минеральная карта на дальнем хребте, но с меньшей силой рельефа из-за атмосферной перспективы.
+ for(const m of [farRock,farShadow]){
+   m.map=alpineRockTexture;m.bumpMap=alpineRockBump;m.bumpScale=.038;
+   m.roughness=.97;m.needsUpdate=true;
+ }
  for(const [x,z,h,r] of [[-31,-49,9,8],[-19,-54,12,10],[-5,-57,10,9],[11,-55,13,11],[28,-49,8,7]]){
    cone(world,r,h,x,h*.47,z,farRock,8);
    cone(world,r*.72,h*.34,x-.35,h*.72,z-.12,farShadow,7);
