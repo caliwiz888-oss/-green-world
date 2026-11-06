@@ -1528,8 +1528,9 @@ function makeHouse(){
  }
 
   // Парадная каменная лестница связывает портик с передней площадкой; ступени понижаются к двору.
-  const manorStepStone=mat(0x89877d,.88);
-  const manorStepEdge=mat(0xb0aa98,.82);
+  const manorStepStone=mat(0x555b5b,.9);
+  const manorStepEdge=mat(0x858b88,.86);
+  const manorStepSide=mat(0x707875,.9);
   for(const step of [
     {z:5.43,y:.24,h:.24,d:.42},
     {z:5.88,y:.16,h:.16,d:.42},
@@ -1537,11 +1538,11 @@ function makeHouse(){
   ]){
     box(g,3.42,step.h,step.d,0,step.y,step.z,manorStepStone,false);
     box(g,3.46,.045,step.d+.035,0,step.y+step.h/2+.012,step.z,manorStepEdge,false);
-    box(g,3.18,.025,.045,0,step.y+step.h/2+.038,step.z+step.d/2-.025,M.stone2,false);
+    box(g,3.18,.025,.045,0,step.y+step.h/2+.038,step.z+step.d/2-.025,manorStepEdge,false);
   }
   // Низкие боковые щёки лестницы и массивные торцевые блоки завершают вход.
   for(const x of [-1.82,1.82]){
-    box(g,.28,.42,1.38,x,.22,5.91,houseStoneTrim,false);
+    box(g,.28,.42,1.38,x,.22,5.91,manorStepSide,false);
     box(g,.36,.12,.5,x,.46,5.34,manorStepEdge,false);
     box(g,.36,.12,.5,x,.12,6.47,manorStepEdge,false);
     for(const z of [5.48,6.34]){
