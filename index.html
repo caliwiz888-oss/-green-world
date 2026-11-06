@@ -4764,6 +4764,44 @@ function makeWorldLandscape(){
     }
   }
   const leafyTrunkMat=mat(0x604832,.98),birchTrunkMat=mat(0xd9d2bd,.96);
+  // Процедурная кора: вертикальные волокна, трещинки и отдельные пятна берёзовой коры.
+  const barkCanvas=document.createElement('canvas');barkCanvas.width=256;barkCanvas.height=512;
+  const barkCtx=barkCanvas.getContext('2d');
+  barkCtx.fillStyle='#72543a';barkCtx.fillRect(0,0,256,512);
+  for(let line=0;line<115;line++){
+    const x=(line*73+19)%256,w=1+(line*7%5),alpha=.035+(line%6)*.012;
+    barkCtx.strokeStyle=line%3===0?'rgba(35,23,15,'+alpha+')':'rgba(205,164,111,'+alpha+')';
+    barkCtx.lineWidth=w;barkCtx.beginPath();barkCtx.moveTo(x,0);
+    barkCtx.bezierCurveTo(x+(line%7-3)*2,150,x+(line%5-2)*3,340,x+(line%9-4)*2,512);barkCtx.stroke();
+  }
+  for(let mark=0;mark<48;mark++){
+    const x=(mark*47+13)%256,y=(mark*109+31)%512;
+    barkCtx.fillStyle='rgba(32,22,15,'+(0.08+(mark%4)*.025)+')';
+    barkCtx.beginPath();barkCtx.ellipse(x,y,1.2+(mark%3),5+(mark%7),.08,0,Math.PI*2);barkCtx.fill();
+  }
+  const barkTexture=new THREE.CanvasTexture(barkCanvas);barkTexture.colorSpace=THREE.SRGBColorSpace;
+  barkTexture.wrapS=THREE.RepeatWrapping;barkTexture.wrapT=THREE.RepeatWrapping;barkTexture.repeat.set(2,1);
+  barkTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+  const barkBump=barkTexture.clone();barkBump.colorSpace=THREE.NoColorSpace;barkBump.needsUpdate=true;
+  leafyTrunkMat.map=barkTexture;leafyTrunkMat.bumpMap=barkBump;leafyTrunkMat.bumpScale=.075;leafyTrunkMat.roughness=.98;leafyTrunkMat.needsUpdate=true;
+  const birchCanvas=document.createElement('canvas');birchCanvas.width=256;birchCanvas.height=512;
+  const birchCtx=birchCanvas.getContext('2d');birchCtx.fillStyle='#e5dfcc';birchCtx.fillRect(0,0,256,512);
+  for(let streak=0;streak<90;streak++){
+    const x=(streak*61+17)%256,y=(streak*83+23)%512;
+    birchCtx.strokeStyle='rgba(105,91,75,'+(0.12+(streak%5)*.035)+')';
+    birchCtx.lineWidth=1+(streak%3);birchCtx.beginPath();birchCtx.moveTo(x,y);
+    birchCtx.lineTo(x+(streak%7-3)*2,y+2+(streak%9)*2);birchCtx.stroke();
+  }
+  for(let patch=0;patch<38;patch++){
+    const x=(patch*67+29)%256,y=(patch*137+41)%512;
+    birchCtx.fillStyle='rgba(48,43,37,'+(0.34+(patch%4)*.1)+')';
+    birchCtx.beginPath();birchCtx.ellipse(x,y,4+(patch%5)*2,1.2+(patch%3),.05,0,Math.PI*2);birchCtx.fill();
+  }
+  const birchTexture=new THREE.CanvasTexture(birchCanvas);birchTexture.colorSpace=THREE.SRGBColorSpace;
+  birchTexture.wrapS=THREE.RepeatWrapping;birchTexture.wrapT=THREE.RepeatWrapping;birchTexture.repeat.set(2,1);
+  birchTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+  const birchBump=birchTexture.clone();birchBump.colorSpace=THREE.NoColorSpace;birchBump.needsUpdate=true;
+  birchTrunkMat.map=birchTexture;birchTrunkMat.bumpMap=birchBump;birchTrunkMat.bumpScale=.055;birchTrunkMat.roughness=.97;birchTrunkMat.needsUpdate=true;
   const leafyBranchMat=mat(0x59432f,.99),birchMarkMat=mat(0x65594a,.99);
   const leafyMaterials=[mat(0x5d874b,.98),mat(0x789b5c,.98),mat(0x4d7546,.99)];
   const leafyTrunkBatch=new THREE.InstancedMesh(new THREE.CylinderGeometry(.075,.17,1,12,4),leafyTrunkMat,leafyTreeData.length);
