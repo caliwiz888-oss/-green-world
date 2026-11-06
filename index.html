@@ -809,6 +809,8 @@ function makeHouse(){
    }
    for(const z of [-1.09,1.09]){
      box(t,.82,.12,.2,0,3.98,z*1.035,towerDetailStone);
+     // Узкая верхняя фаска завершает каменную перемычку окна.
+     box(t,.9,.025,.22,0,4.055,z*1.045,towerStoneMaterial,false);
      // Тонкие внутренние фаски придают каменному обрамлению окна дополнительную глубину.
      box(t,.66,.035,.035,0,3.88,z*1.145,towerStoneMaterial,false);
      box(t,.66,.035,.035,0,4.075,z*1.145,towerStoneMaterial,false);
