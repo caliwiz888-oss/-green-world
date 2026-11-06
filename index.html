@@ -2459,6 +2459,32 @@ function makeWorldDecor(){
   keystoneMedallion.castShadow=false;keystoneMedallion.receiveShadow=false;world.add(keystoneMedallion);
   const keystoneCore=sphere(world,.052,0,5.02,14.592,fenceCap,.9);
   keystoneCore.scale.z=.32;keystoneCore.castShadow=false;keystoneCore.receiveShadow=false;
+  // Симметричные каменные завитки обрамляют герб и визуально завершают вершину арки.
+  for(const side of [-1,1]){
+    const scrollPoints=[
+      new THREE.Vector3(side*.19,5.68,14.43),
+      new THREE.Vector3(side*.38,5.72,14.445),
+      new THREE.Vector3(side*.49,5.86,14.445),
+      new THREE.Vector3(side*.43,5.99,14.445),
+      new THREE.Vector3(side*.29,5.98,14.445)
+    ];
+    const scrollCurve=new THREE.CatmullRomCurve3(scrollPoints);
+    const scroll=new THREE.Mesh(new THREE.TubeGeometry(scrollCurve,28,.035,8,false),fenceBaseTrim);
+    scroll.castShadow=false;scroll.receiveShadow=false;world.add(scroll);
+    const scrollBud=sphere(world,.075,side*.29,5.98,14.445,fenceLightTrim,.9);
+    scrollBud.scale.set(1,.72,.42);scrollBud.castShadow=false;scrollBud.receiveShadow=false;
+    for(let j=0;j<3;j++){
+      const leaf=sphere(world,.085,side*(.25+j*.075),5.73+j*.085,14.45,fenceRelief,.9);
+      leaf.scale.set(1.35,.48,.34);
+      leaf.rotation.z=side*(.45+j*.18);
+      leaf.castShadow=false;leaf.receiveShadow=false;
+    }
+  }
+  // Небольшие латунные точки фиксируют четыре угла центральной ромбовидной вставки.
+  for(const sx of [-1,1]) for(const sy of [-1,1]){
+    const stud=cylinder(world,.027,.027,.025,sx*.115,5.02+sy*.115,14.57,M.gold,10);
+    stud.rotation.x=Math.PI/2;stud.castShadow=false;stud.receiveShadow=false;world.add(stud);
+  }
   box(world,.76,.055,.30,0,5.57,14.14,fenceBaseTrim,false);
   box(world,.58,.045,.26,0,5.63,14.14,fenceLightTrim,false);
   // Латунные медальоны на пилонах и тонкий поясок соединяют арку с архитектурой ограды.
