@@ -3420,9 +3420,25 @@ function makeWorldLandscape(){
      const pier=box(world,.42,.82,.46,x,bridgeDeckY(z)+.41,z,bridgeStoneMid);pier.castShadow=false;pier.receiveShadow=false;
      const pierCap=box(world,.56,.16,.58,x,bridgeDeckY(z)+.9,z,bridgeStoneLight);pierCap.castShadow=false;pierCap.receiveShadow=false;
      const pierTop=sphere(world,.19,x,bridgeDeckY(z)+1.04,z,bridgeStoneMid,false);pierTop.scale.set(.82,.72,.82);pierTop.castShadow=false;pierTop.receiveShadow=false;
+     // Recessed-looking diamond plaques decorate the outward faces of the monumental end piers.
+     const endFace=z< (bridgeStartZ+bridgeEndZ)/2?-1:1;
+     const plaque=box(world,.235,.235,.035,x,bridgeDeckY(z)+.47,z+endFace*.244,bridgeStoneDark);
+     plaque.rotation.z=Math.PI/4;plaque.castShadow=false;plaque.receiveShadow=false;
+     const plaqueInset=box(world,.145,.145,.042,x,bridgeDeckY(z)+.47,z+endFace*.268,bridgeStoneLight);
+     plaqueInset.rotation.z=Math.PI/4;plaqueInset.castShadow=false;plaqueInset.receiveShadow=false;
+     const plaqueCore=sphere(world,.052,x,bridgeDeckY(z)+.47,z+endFace*.296,bridgeStoneMid,false);
+     plaqueCore.scale.set(1,.9,.35);plaqueCore.castShadow=false;plaqueCore.receiveShadow=false;
    }
    const railPoints=[];for(let i=0;i<=32;i++){const z=bridgeStartZ+bridgeLength*i/32;railPoints.push(new THREE.Vector3(x,bridgeDeckY(z)+.79,z));}
    const railCurve=new THREE.CatmullRomCurve3(railPoints);
+   // A slim continuous stringcourse finishes the outer edge of the arched deck.
+   const fasciaPoints=[];for(let i=0;i<=40;i++){
+     const z=bridgeStartZ+bridgeLength*i/40;
+     fasciaPoints.push(new THREE.Vector3(x+(x<0?-.19:.19),bridgeDeckY(z)+.055,z));
+   }
+   const fasciaCurve=new THREE.CatmullRomCurve3(fasciaPoints);
+   const fasciaLine=new THREE.Mesh(new THREE.TubeGeometry(fasciaCurve,80,.027,7,false),bridgeStoneLight);
+   fasciaLine.castShadow=false;fasciaLine.receiveShadow=false;world.add(fasciaLine);
    const handrail=new THREE.Mesh(new THREE.TubeGeometry(railCurve,64,.16,10,false),new THREE.MeshStandardMaterial({color:0x858d8e,roughness:.9,metalness:0}));handrail.castShadow=false;handrail.receiveShadow=false;world.add(handrail);
    // Twin fine granite mouldings run along the handrail, like a carefully dressed stone coping.
    for(const side of [-1,1]){
