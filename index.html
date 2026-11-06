@@ -4617,10 +4617,10 @@ function makeWorldLandscape(){
    facet.position.set(x,y,z);facet.scale.set(sx,sy,sz);world.add(facet);
  }
  // Layered alpine range: overlapping faceted peaks create a varied skyline and visible depth.
- const peaks=[[-23,-31,14,7.8],[-13,-36,18,9.4],[-2,-39,21,10.2],[10,-36,18,9.2],[22,-31,14,7.5]];
+ const peaks=[[-25,-30,12.5,6.9],[-18,-34,16.5,8.1],[-10,-38,19,8.8],[-2,-40,22,9.5],[7,-39,18.5,8.3],[16,-35,16,8.1],[24,-30,12,6.7]];
  for(let i=0;i<peaks.length;i++){
    const [x,z,h,r]=peaks[i];
-   cone(world,r,h,x,h*.48,z,mountain,10);
+   const summit=cone(world,r,h,x,h*.48,z,mountain,8);summit.rotation.y=(i%2?-.13:.11);summit.scale.set(i%3===0?1.08:1,.98,i%2?1.12:.94);
    // Darker lower rock bands and lighter exposed upper shoulders break up the plain cone silhouette.
    const lower=cone(world,r*.88,h*.43,x,h*.27,z+.16,mat(0x3b261a),9);
    lower.scale.set(1,.94,1);
@@ -4642,7 +4642,7 @@ function makeWorldLandscape(){
    m.roughness=.97;m.needsUpdate=true;
  }
  farSnow.map=snowTexture;farSnow.bumpMap=snowBump;farSnow.bumpScale=.009;farSnow.roughness=.99;farSnow.needsUpdate=true;
- for(const [x,z,h,r] of [[-31,-49,9,8],[-19,-54,12,10],[-5,-57,10,9],[11,-55,13,11],[28,-49,8,7]]){
+ for(const [x,z,h,r] of [[-33,-48,8,7],[-23,-52,11,9],[-13,-56,9,7.5],[-3,-59,12,10],[9,-57,10,8],[20,-53,12,9],[31,-48,8,6.5]]){
    cone(world,r,h,x,h*.47,z,farRock,8);
    cone(world,r*.72,h*.34,x-.35,h*.72,z-.12,farShadow,7);
    cone(world,r*.28,h*.18,x+.18,h*.88,z-.2,farSnow,7);
@@ -4715,7 +4715,7 @@ function makeWorldLandscape(){
  // Дальние вершины используют те же минеральные и снежные карты, что и основной хребет.
  farRockBack.map=alpineRockTexture;farRockBack.bumpMap=alpineRockBump;farRockBack.bumpScale=.032;farRockBack.roughness=.98;farRockBack.needsUpdate=true;
  farSnowBack.map=snowTexture;farSnowBack.bumpMap=snowBump;farSnowBack.bumpScale=.008;farSnowBack.roughness=.99;farSnowBack.needsUpdate=true;
- for(const [x,z,h,r] of [[-29,-49,9,7],[-18,-54,12,8],[-5,-57,10,7],[9,-55,13,8],[23,-51,10,7],[32,-47,8,6]]){
+ for(const [x,z,h,r] of [[-34,-48,7,6],[-24,-53,10,7],[-14,-57,8,6],[-3,-60,11,8],[9,-58,9,7],[21,-54,11,7.5],[32,-48,7,5.5]]){
    cone(world,r,h,x,h*.46,z,farRockBack,8);
    cone(world,r*.38,h*.31,x-.35,h*.79,z+.12,farSnowBack,7);
  }
