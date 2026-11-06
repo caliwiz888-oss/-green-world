@@ -2654,6 +2654,7 @@ let riverSurfaceMesh=null;
 const riverMotionObjects=[];
 const riverRingObjects=[];
 const riverFoamObjects=[];
+const riverCurrentObjects=[];
 function makeWorldLandscape(){
  // A soft vertex-coloured sky dome replaces the flat horizon with a natural blue-to-haze gradient.
  const skyGeo=new THREE.SphereGeometry(148,40,24);
@@ -3211,6 +3212,19 @@ function makeWorldLandscape(){
    reflection.position.set(x,.106,z);reflection.rotation.y=(i%5-2)*.035;world.add(reflection);
    riverMotionObjects.push({mesh:reflection,baseX:x,baseZ:z,phase:i*1.53,speed:.12+(i%4)*.025,range:.3+(i%3)*.12,baseLength:len});
  }
+ // Редкие вытянутые блики движутся строго по течению, а не покачиваются на месте.
+ const currentStreakColors=[0xeafff8,0xc8eee8,0xf5fff9];
+ for(let i=0;i<9;i++){
+   const len=.42+(i%4)*.17;
+   const streakMat=new THREE.MeshBasicMaterial({color:currentStreakColors[i%currentStreakColors.length],transparent:true,opacity:.2,depthWrite:false});
+   const streak=new THREE.Mesh(new THREE.BoxGeometry(len,.008,.026+(i%3)*.012),streakMat);
+   const z=19.55+(i*17%52)/10;
+   const phase=(i*6.17)%50;
+   streak.position.set(-25+phase,.119,z);
+   streak.rotation.y=(i%5-2)*.018;
+   world.add(streak);
+   riverCurrentObjects.push({mesh:streak,material:streakMat,phase,speed:.72+(i%4)*.19,baseZ:z,length:len,offset:i*.9});
+ }
  // Stone bridge crossing the river, with parapets and evenly spaced balusters.
  box(world,4.8,.62,9.2,0,.78,22.2,M.stone2);
  box(world,4.45,.16,8.9,0,1.16,22.2,M.stone);
@@ -3365,7 +3379,7 @@ renderer.domElement.addEventListener('pointercancel',()=>pointer=null);
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}addEventListener('resize',resize);
 // Плавное течение реки: сдвигаем карту бликов по руслу, сохраняя непрерывность текстуры.
 const riverFlowClock=new THREE.Clock();
-cameraPosition();function animate(){requestAnimationFrame(animate);const flowDelta=Math.min(riverFlowClock.getDelta(),.05),flowTime=riverFlowClock.elapsedTime;if(riverWaterTexture){riverWaterTexture.offset.x=(riverWaterTexture.offset.x+flowDelta*(.14+.012*Math.sin(flowTime*.21)))%1;riverWaterTexture.offset.y=(riverWaterTexture.offset.y+flowDelta*(.002+.0005*Math.sin(flowTime*.17)))%1;}if(riverSurfaceMesh){const p=riverSurfaceMesh.geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i);const wave=Math.sin(x*.34-flowTime*1.15+z*.22)*.012+Math.sin(x*.17-flowTime*.72-z*.48)*.009+Math.sin(z*.9+flowTime*.48)*.004;p.setZ(i,wave);}p.needsUpdate=true;riverSurfaceMesh.geometry.computeVertexNormals();}for(const item of riverMotionObjects){const wave=Math.sin(flowTime*item.speed+item.phase);item.mesh.position.x=item.baseX+Math.sin(flowTime*item.speed*.72+item.phase)*item.range;item.mesh.position.y=.092+Math.max(0,wave)*.018;const pulse=.78+.22*Math.sin(flowTime*item.speed*1.8+item.phase);item.mesh.scale.x=pulse;item.mesh.material.opacity=item.baseLength<.6?.13+.16*(.5+.5*wave):.12+.12*(.5+.5*wave)}for(const ring of riverRingObjects){const cycle=(flowTime*ring.speed+ring.phase)%(Math.PI*2),progress=(1-Math.cos(cycle))*.5;const radius=.12+progress*.72;ring.mesh.position.x=ring.baseX+Math.sin(flowTime*.31+ring.phase)*.12;ring.mesh.position.z=ring.baseZ+Math.cos(flowTime*.27+ring.phase)*.1;ring.mesh.scale.set(radius,1,radius*.72);ring.material.opacity=.2*(1-progress)}for(const foam of riverFoamObjects){const drift=(flowTime*foam.speed+foam.phase)%(Math.PI*2);foam.mesh.position.x=foam.baseX+Math.sin(drift)*foam.drift;foam.mesh.position.y=.108+Math.max(0,Math.sin(drift*1.35+foam.phase))*.012;foam.mesh.position.z=foam.baseZ+Math.cos(drift*.7)*.16;const pulse=.68+.32*Math.sin(drift*1.6);foam.mesh.scale.x=(.22+(foam.phase%3)*.06)*pulse;foam.mesh.scale.z=(.055+(foam.phase%2)*.018)*(.88+.12*Math.cos(drift));foam.material.opacity=.045+.11*(.5+.5*Math.sin(drift+foam.phase))}renderer.render(scene,camera)}animate();
+cameraPosition();function animate(){requestAnimationFrame(animate);const flowDelta=Math.min(riverFlowClock.getDelta(),.05),flowTime=riverFlowClock.elapsedTime;if(riverWaterTexture){riverWaterTexture.offset.x=(riverWaterTexture.offset.x+flowDelta*(.14+.012*Math.sin(flowTime*.21)))%1;riverWaterTexture.offset.y=(riverWaterTexture.offset.y+flowDelta*(.002+.0005*Math.sin(flowTime*.17)))%1;}if(riverSurfaceMesh){const p=riverSurfaceMesh.geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i);const wave=Math.sin(x*.34-flowTime*1.15+z*.22)*.014+Math.sin(x*.17-flowTime*.72-z*.48)*.01+Math.sin(z*.9+flowTime*.48)*.0045+Math.sin(x*.105-flowTime*.52+z*.13)*.006;p.setZ(i,wave);}p.needsUpdate=true;riverSurfaceMesh.geometry.computeVertexNormals();}for(const current of riverCurrentObjects){const x=-25+((current.phase+flowTime*current.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,4.2);current.mesh.position.x=x;current.mesh.position.y=.116+Math.sin(flowTime*1.7+current.offset)*.003;current.mesh.position.z=current.baseZ+Math.sin(flowTime*.62+current.offset)*.045;current.material.opacity=(.035+.19*fade)*(.82+.18*Math.sin(flowTime*1.25+current.offset));}for(const item of riverMotionObjects){const wave=Math.sin(flowTime*item.speed+item.phase);item.mesh.position.x=item.baseX+Math.sin(flowTime*item.speed*.72+item.phase)*item.range;item.mesh.position.y=.092+Math.max(0,wave)*.018;const pulse=.78+.22*Math.sin(flowTime*item.speed*1.8+item.phase);item.mesh.scale.x=pulse;item.mesh.material.opacity=item.baseLength<.6?.13+.16*(.5+.5*wave):.12+.12*(.5+.5*wave)}for(const ring of riverRingObjects){const cycle=(flowTime*ring.speed+ring.phase)%(Math.PI*2),progress=(1-Math.cos(cycle))*.5;const radius=.12+progress*.72;ring.mesh.position.x=ring.baseX+Math.sin(flowTime*.31+ring.phase)*.12;ring.mesh.position.z=ring.baseZ+Math.cos(flowTime*.27+ring.phase)*.1;ring.mesh.scale.set(radius,1,radius*.72);ring.material.opacity=.2*(1-progress)}for(const foam of riverFoamObjects){const drift=(flowTime*foam.speed+foam.phase)%(Math.PI*2);foam.mesh.position.x=foam.baseX+Math.sin(drift)*foam.drift;foam.mesh.position.y=.108+Math.max(0,Math.sin(drift*1.35+foam.phase))*.012;foam.mesh.position.z=foam.baseZ+Math.cos(drift*.7)*.16;const pulse=.68+.32*Math.sin(drift*1.6);foam.mesh.scale.x=(.22+(foam.phase%3)*.06)*pulse;foam.mesh.scale.z=(.055+(foam.phase%2)*.018)*(.88+.12*Math.cos(drift));foam.material.opacity=.045+.11*(.5+.5*Math.sin(drift+foam.phase))}renderer.render(scene,camera)}animate();
 window.GREEN_WORLD_STARTUP_STAGE='renderer-running';
 window.GREEN_WORLD_MODULE_READY=true;window.GREEN_WORLD_STARTUP_STAGE='module-ready';window.dispatchEvent(new Event('green-world-renderer-ready'));
 window.addEventListener('green-world-auth',event=>{
