@@ -2633,6 +2633,16 @@ function makeWorldLandscape(){
    g.addColorStop(1,'rgba(255,255,255,0)');
    snowCtx.fillStyle=g;snowCtx.beginPath();snowCtx.ellipse(x,y,rx,ry,(i%5-2)*.12,0,Math.PI*2);snowCtx.fill();
  }
+ // Тонкие парные следы ветрового переноса снега добавляют направленность поверхности без изменения снежных контуров.
+ for(let i=0;i<10;i++){
+   const x=(i*31+8)%128,y=(i*43+17)%128,len=17+(i*7)%24,curve=((i*5)%7)-3;
+   snowCtx.lineCap='round';snowCtx.strokeStyle='rgba(104,137,151,.055)';
+   snowCtx.lineWidth=.65+(i%2)*.25;snowCtx.beginPath();snowCtx.moveTo(x,y);
+   snowCtx.quadraticCurveTo(x+len*.48,y+curve,x+len,y+curve*.35);snowCtx.stroke();
+   snowCtx.strokeStyle='rgba(255,255,255,.095)';snowCtx.lineWidth=.55;
+   snowCtx.beginPath();snowCtx.moveTo(x+2,y-1.1);
+   snowCtx.quadraticCurveTo(x+len*.48,y+curve-1.7,x+len+2,y+curve*.35-1);snowCtx.stroke();
+ }
  const snowTexture=new THREE.CanvasTexture(snowCanvas);snowTexture.colorSpace=THREE.SRGBColorSpace;
  snowTexture.wrapS=snowTexture.wrapT=THREE.RepeatWrapping;snowTexture.repeat.set(1.2,1.2);
  snowTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
