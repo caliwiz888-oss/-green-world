@@ -916,6 +916,19 @@ function makeHouse(){
    }
    for(const y of [1.02,5.55])cylinder(t,1.25,1.25,.075,0,y,0,towerTrimMaterial,8);
    cylinder(t,1.34,1.34,.2,0,5.68,0,towerTrimMaterial,8);
+   // Два тонких каменных пояса делят высокий ствол на аккуратные ярусы.
+   for(const y of [1.42,4.92]){
+     cylinder(t,1.245,1.245,.065,0,y,0,towerTrimMaterial,8);
+     cylinder(t,1.258,1.258,.022,0,y-.052,0,towerRoofLine,8);
+   }
+   // Небольшие угловые камни повторяют восьмигранный ритм кладки на двух уровнях.
+   for(const y of [1.78,4.58]){
+     for(let a=0;a<8;a++){
+       const ang=Math.PI/8+a*Math.PI/4;
+       const quoin=box(t,.19,.24,.12,Math.cos(ang)*1.205,y,Math.sin(ang)*1.205,towerTrimMaterial,false);
+       quoin.rotation.y=-ang;
+     }
+   }
    cylinder(t,1.28,1.28,.055,0,5.81,0,towerRoofLine,8);
    // Высокие окна с тёмным стеклом, светлым обрамлением и мягкой арочной верхушкой.
    for(const axis of ["front","back","left","right"]){
