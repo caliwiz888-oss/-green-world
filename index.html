@@ -2522,8 +2522,8 @@ function makeFactory(){
  // Keep the factory in its approved back-right position and inside the camera frame.
  // Отодвинут немного назад, чтобы фасадная линия совпадала с главным домом.
  const g=group(world,11.8,0,-9.61);
- // Новая палитра завода: тёплая песочная кладка, глубокий хвойный металл и мягкая латунь.
- const brick=mat(0x927b65),brickLight=mat(0xb29a7e),darkMetal=mat(0x26372f),metal=mat(0x52665b),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
+ // Единая палитра: светлый известняк, сланцево-синяя кровля и бронзовый металл.
+ const brick=mat(0xcbbb9e),brickLight=mat(0xe4d5b8),darkMetal=mat(0x34495e),metal=mat(0x607d98),windowGlow=new THREE.MeshStandardMaterial({color:0xf6d58a,emissive:0x9c672b,emissiveIntensity:.28,roughness:.35});
  // Отдельное заводское остекление: спокойные отражения не затрагивают окна главного дома.
  const factoryGlassCanvas=document.createElement('canvas');factoryGlassCanvas.width=128;factoryGlassCanvas.height=128;
  const factoryGlassCtx=factoryGlassCanvas.getContext('2d');
@@ -2701,8 +2701,8 @@ function makeFactory(){
  roofTexture.repeat.set(2,1);
  roofTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const roofBump=roofTexture.clone();roofBump.colorSpace=THREE.NoColorSpace;roofBump.needsUpdate=true;
- // Матовая хвойно-зелёная фальцевая кровля связывает завод с архитектурой главного дома и лавки.
- const roofMetal=new THREE.MeshStandardMaterial({color:0x34483a,map:roofTexture,bumpMap:roofBump,bumpScale:.016,roughness:.7,metalness:.24});
+ // Матовая сланцево-синяя кровля повторяет утверждённую гамму главного дома и лавки.
+ const roofMetal=new THREE.MeshStandardMaterial({color:0x526d88,map:roofTexture,bumpMap:roofBump,bumpScale:.016,roughness:.7,metalness:.24});
  // Отдельные материалы ворот и карнизов склада: тёплое дерево и состаренная бронза.
  // Направленный микрорельеф существующих деревянных ворот без изменения их оттенка.
  const factoryDoorBumpCanvas=document.createElement('canvas');factoryDoorBumpCanvas.width=128;factoryDoorBumpCanvas.height=128;
@@ -4711,9 +4711,9 @@ function makeWorldDecor(){
   }
   // Decorative entrance arch is built above; continue with natural ground-cover details.
  // Low ornamental ground cover and natural stone clusters around the outer border.
- const shrubMat=mat(0x477f3d),rockMat=mat(0x8b8979);
+ const shrubMat=mat(0x718765),rockMat=mat(0x9b9586);
  // Кустарники собраны из перекрывающихся округлых ярусов листвы с несколькими природными оттенками.
- const shrubMaterials=[0x477f3d,0x568b43,0x699b4d,0x3f7339].map(color=>new THREE.MeshStandardMaterial({color,roughness:.96}));
+ const shrubMaterials=[0x718765,0x829674,0x91a27b,0x62795b].map(color=>new THREE.MeshStandardMaterial({color,roughness:.96}));
  const shrubGeometry=new THREE.SphereGeometry(1,14,10);
  for(const [x,z,scale] of [[-17,-10,1.2],[17,-8,1.25],[18,8,1.15],[-12,18,1],[12,18,1]]){
    const clusters=[
@@ -4750,7 +4750,7 @@ function makeWorldDecor(){
    }
  }
  // Small natural ground-cover clusters soften the transition from the fenced farm to the hills.
- const grassA=mat(0x5b8e43),grassB=mat(0x7da653),pebble=mat(0xb2a98f);
+ const grassA=mat(0x82966c),grassB=mat(0x9baa7b),pebble=mat(0xb9ae95);
  for(const [x,z,s] of [[-16,-18,.9],[-20,-12,.8],[-16,4,.75],[-20,12,.95],[16,-18,.85],[20,-11,.9],[16,5,.8],[20,12,.95],[-12,17,.7],[12,17,.8]]){
    for(let k=0;k<4;k++){
      const blade=cone(world,.12*s,.55*s,x+(k-1.5)*.16*s,.27*s,z+((k%2)-.5)*.12*s,k%2?grassA:grassB,5);
@@ -4797,7 +4797,7 @@ function makeWorldLandscape(){
    const wisp=new THREE.Mesh(new THREE.SphereGeometry(1,20,8),cirrusMat);
    wisp.position.set(x,y,z);wisp.scale.set(sx,sy,sz);wisp.rotation.z=rz;world.add(wisp);
  }
- const hillMat=mat(0x668f58),hillLight=mat(0x82a968),mountain=mat(0x625f58),snow=mat(0xe5eee5),water=new THREE.MeshPhysicalMaterial({color:0x4aa9c5,roughness:.19,metalness:.055,clearcoat:.48,clearcoatRoughness:.2,reflectivity:.68,transparent:true,opacity:.84});
+ const hillMat=mat(0x748d68),hillLight=mat(0x91a77d),mountain=mat(0x625f58),snow=mat(0xe5eee5),water=new THREE.MeshPhysicalMaterial({color:0x4aa9c5,roughness:.19,metalness:.055,clearcoat:.48,clearcoatRoughness:.2,reflectivity:.68,transparent:true,opacity:.84});
  // Едва заметная направленная фактура речной поверхности — без изменения русла и берегов.
  const waterCanvas=document.createElement('canvas');waterCanvas.width=128;waterCanvas.height=128;
  const waterCtx=waterCanvas.getContext('2d');const waterBase=waterCtx.createLinearGradient(0,0,0,128);waterBase.addColorStop(0,'#c5e4df');waterBase.addColorStop(.48,'#a8d2d4');waterBase.addColorStop(1,'#78b8c8');waterCtx.fillStyle=waterBase;waterCtx.fillRect(0,0,128,128);
@@ -5563,7 +5563,7 @@ function makeWorldLandscape(){
    riverSparkles.push({mesh:sparkle,material:sparkleMat,phase,speed:.34+(i%5)*.13,z,phase2:i*1.91});
  }
  // Natural riverbank detail: smooth stones, reeds and shallow-water highlights.
- const bankStone=mat(0x9a9b87),reedMat=mat(0x78964c),reedTip=mat(0xb6b56d),waterGlint=mat(0xa9e5e7);
+ const bankStone=mat(0xa49c88),reedMat=mat(0x84966a),reedTip=mat(0xb9b27a),waterGlint=mat(0xa9e5e7);
  for(const [x,z,s] of [[-23,18.8,.8],[-19,19.1,.55],[-14,19,.7],[-9,19.15,.48],[7,19,.62],[13,19.1,.72],[19,18.9,.55],[23,19,.8],[-21,25.4,.6],[-15,25.2,.5],[-6,25.35,.72],[8,25.3,.55],[16,25.25,.7],[22,25.4,.58]]){
    const stone=sphere(world,1,x,.12,z,bankStone,false);stone.scale.set(s,.55,s*.72);
  }
@@ -5576,7 +5576,7 @@ function makeWorldLandscape(){
  }
  // Мелкая галька и низкие прибрежные травы создают плавный переход от берега к воде.
  const shorePebbleMats=[0xb7b29c,0x8f9789,0xd0c7ad].map(color=>new THREE.MeshStandardMaterial({color,roughness:.97}));
- const shoreGrassMats=[0x66894a,0x8ba65c,0x526f40].map(color=>new THREE.MeshStandardMaterial({color,roughness:.98}));
+ const shoreGrassMats=[0x82966c,0x9baa7b,0x6e825e].map(color=>new THREE.MeshStandardMaterial({color,roughness:.98}));
  for(const [x,z,s] of [[-22,19.65,.7],[-17,19.7,.5],[-12,19.65,.62],[-7,19.7,.42],[3,19.68,.55],[10,19.7,.46],[16,19.68,.6],[22,19.65,.65],[-19,24.8,.5],[-12,24.82,.62],[-4,24.8,.48],[5,24.82,.58],[13,24.8,.46],[20,24.82,.62]]){
    for(let k=0;k<3;k++){
      const pebbleMesh=new THREE.Mesh(new THREE.SphereGeometry(.19,14,10),shorePebbleMats[k]);
