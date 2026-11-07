@@ -3675,7 +3675,7 @@ function makeWorldDecor(){
   // приподнято на 2 мм относительно главной брусчатки, чтобы исключить Z-fighting.
   addRoadGranite(67,3,-13.95,-5.115,.45,.565,.428,.535,()=>.1495,'z');
   // Тёмный контур и каменные бордюры подчёркивают геометрию всех основных дорожек.
-  const roadEdgeMat=mat(0x30383b,.96);
+  const roadEdgeMat=mat(0x20282b,.94);
   const roadEdgeTop=mat(0x687174,.92);
   const roadEdgeInlay=mat(0xd9ddda,.94);
   // Левый бордюр создаётся один раз; правый — его точная зеркальная копия без отличий в деталях.
@@ -3696,15 +3696,15 @@ function makeWorldDecor(){
   world.add(rightRoadBorder);
   // Окантовка горизонтальной дороги разделена в точках примыкания к главной дороге:
   // линии доходят до её боковых кромок, но не проходят поперёк проезжей части.
-  const crossRoadEdgeSegments=[[-14.0,-1.87],[1.87,16.5]];
+  const crossRoadEdgeSegments=[[-14.0,-2.085],[2.085,16.5]];
   for(const side of [-1,1]){
     const z=-4.55+side*.99;
     for(const [x0,x1] of crossRoadEdgeSegments){
       const length=x1-x0,center=(x0+x1)*.5;
       // Цельное основание каждого плеча дороги.
-      box(world,length,.10,.20,center,.205,z,roadEdgeMat,false);
-      box(world,length-.08,.035,.092,center,.267,z-side*.012,roadEdgeTop,false);
-      box(world,length-.28,.018,.032,center,.258,z-side*.105,roadEdgeInlay,false);
+      box(world,length,.12,.24,center,.215,z,roadEdgeMat,false);
+      box(world,length-.04,.045,.12,center,.292,z-side*.012,roadEdgeTop,false);
+      box(world,length-.22,.022,.038,center,.286,z-side*.105,roadEdgeInlay,false);
       // Швы равномерно распределены отдельно на каждом плече и не попадают в перекрёсток.
       const seams=Math.max(2,Math.floor(length/1.81));
       for(let i=1;i<seams;i++){
