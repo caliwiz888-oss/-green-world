@@ -3975,36 +3975,7 @@ function makeHouse(){
    rib.rotation.z=Math.sin(a)*.22;rib.rotation.x=Math.cos(a)*.22;
   }
  }
- // Цветочные каменные ящики расположены непосредственно под поднятыми окнами,
- // как на эталоне; короткие кронштейны поддерживают выступающую плиту.
- for(const x of [-2.05,2.05]){
-  const y=2.04;
-  box(center,.78,.14,.36,x,y,2.70,stone);
-  box(center,.82,.055,.38,x,y+.09,2.72,gold);
-  box(center,.66,.055,.34,x,y+.15,2.73,cream);
-  for(const bx of [-.25,.25]){
-   const bracket=box(center,.10,.22,.12,x+bx,y-.11,2.62,stone,false);
-   bracket.rotation.z=bx<0?-.22:.22;
-  }
-  for(let j=0;j<8;j++){
-   const px=x-.30+j*.085;
-   sphere(center,.065,px,y+.20,2.80,green,.76);
-   sphere(center,.070,px,y+.29,2.82,j%3===0?lilac:(j%2?white:pink),.82);
-  }
-  // Низкое декоративное ограждение мини-балкона перед цветочным ящиком.
-  box(center,.78,.045,.045,x,y+.18,2.96,bronze,false);
-  box(center,.78,.035,.045,x,y+.37,2.96,gold,false);
-  for(let j=0;j<9;j++){
-   const bx=x-.34+j*.085;
-   box(center,.025,.18,.035,bx,y+.275,2.96,gold,false);
-   if(j%2===0)sphere(center,.035,bx,y+.39,2.96,gold,.82);
-  }
-  // Каменные консоли под выступающей балконной плитой.
-  for(const bx of [-.27,.27]){
-   const corbel=box(center,.10,.22,.16,x+bx,y-.08,2.79,cream,false);
-   corbel.rotation.z=bx<0?-.20:.20;
-  }
- }
+  // Фасадные цветочные ящики под окнами удалены по запросу.
  // Каменная отделка боковых стен: угловые русты и непрерывные пояса
  // продолжают архитектуру фасада по всему объёму дома.
  for(const side of [-1,1]){
