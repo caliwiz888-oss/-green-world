@@ -402,6 +402,15 @@ function makeSurfaceTexture(kind,seed){
    ctx.fillStyle=rand()>.5?'rgba(191,177,112,.035)':'rgba(63,91,49,.04)';
    ctx.beginPath();ctx.ellipse(x,y,rx,ry,(rand()-.5)*.8,0,Math.PI*2);ctx.fill();
   }
+  // Полупрозрачные цветовые переходы имитируют разную плотность и влажность дернины без изменения рельефа.
+  for(let i=0;i<52;i++){
+   const x=rand()*size,y=rand()*size,rx=9+rand()*25,ry=5+rand()*15;
+   const tint=rand()>.5?'rgba(91,132,57,.075)':'rgba(202,190,112,.065)';
+   const glow=ctx.createRadialGradient(x,y,1,x,y,Math.max(rx,ry));
+   glow.addColorStop(0,tint);glow.addColorStop(.62,tint.replace(/\\.0?\d+\\)/,'.018)'));glow.addColorStop(1,'rgba(120,140,80,0)');
+   ctx.save();ctx.translate(x,y);ctx.scale(rx/Math.max(rx,ry),ry/Math.max(rx,ry));
+   ctx.fillStyle=glow;ctx.beginPath();ctx.arc(0,0,Math.max(rx,ry),0,Math.PI*2);ctx.fill();ctx.restore();
+  }
  }
  if(kind==='stone'){
   // Мелкие минеральные включения и редкие мягкие прожилки оживляют камень и мощение.
