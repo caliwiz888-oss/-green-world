@@ -1121,6 +1121,16 @@ function makeHouse(){
        quoin.rotation.y=-ang;
      }
    }
+   // Тонкие швы на гранях подчёркивают блочную каменную кладку башен.
+   const towerMortar=mat(0xaaa69d,.97);
+   for(let a=0;a<8;a++){
+     const ang=Math.PI/8+a*Math.PI/4;
+     const radius=1.226;
+     for(const y of [2.18,3.12,4.06]){
+       const seam=box(t,.72,.012,.018,Math.cos(ang)*radius,y,Math.sin(ang)*radius,towerMortar,false);
+       seam.rotation.y=-ang;
+     }
+   }
    cylinder(t,1.28,1.28,.055,0,5.81,0,towerRoofLine,8);
    // Высокие окна с тёмным стеклом, светлым обрамлением и мягкой арочной верхушкой.
    for(const axis of ["front","back","left","right"]){
