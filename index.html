@@ -1271,6 +1271,21 @@ function makeHouse(){
      course.castShadow=false;course.receiveShadow=false;
      t.add(course);
    }
+   // Короткие межплиточные стыки на каждой грани создают рисунок укладки сланца.
+   // Стыки смещены через ряд, чтобы не образовывать непрерывную сетку.
+   const roofJointMaterial=new THREE.MeshStandardMaterial({color:0x657780,roughness:.98,metalness:0});
+   for(let a=0;a<8;a++){
+     const ang=Math.PI/8+a*Math.PI/4;
+     for(let row=0;row<5;row++){
+       const y=6.87+row*.29;
+       const radius=1.38*(8.56-y)/2.48;
+       const tangentOffset=row%2===0?-.19:.19;
+       const px=Math.cos(ang)*radius-Math.sin(ang)*tangentOffset;
+       const pz=Math.sin(ang)*radius+Math.cos(ang)*tangentOffset;
+       const joint=box(t,.22,.012,.018,px,y,pz,roofJointMaterial,false);
+       joint.rotation.y=-ang;
+     }
+   }
    // Небольшие металлические наконечники на вершинах граней связывают рёбра с коньком.
    for(let a=0;a<8;a++){
      const ang=Math.PI/8+a*Math.PI/4;
