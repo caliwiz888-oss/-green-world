@@ -5307,11 +5307,16 @@ function makeWorldLandscape(){
      const erosion=Math.sin(erosionPhase)*.012+
        Math.sin(erosionPhase*2.7+u*8)*.0045;
      const erosionMask=peakSmooth(.14,.38,h/height)*(1-peakSmooth(.9,.99,Math.abs(across)));
+     // Прерывистые пологие уступы повторяют направление пластов, но не образуют ровных искусственных террас.
+     const shelfPhase=h*1.55+u*2.4+across*.9+.13*Math.sin(u*17+across*11);
+     const shelfBreak=Math.pow(Math.max(0,Math.sin(shelfPhase)),8);
+     const shelfMask=peakSmooth(.2,.42,h/height)*(1-peakSmooth(.76,.94,Math.abs(across)));
+     const fracturedShelf=(shelfBreak-.055)*height*.009*shelfMask;
      // Небольшие веера осыпи у основания стен и под кулуарами, без округлых бугров.
      const screeNoise=Math.sin(u*37+across*21)*Math.sin(u*17-across*31);
      const screeFan=Math.pow(Math.max(0,1-Math.abs(u*1.15+.18*Math.sin(across*8))),2)*
        peakSmooth(.08,.2,Math.abs(across))*(1-peakSmooth(.42,.68,Math.abs(across)));
-     h=Math.max(0,(h+(strata+ledge+ribRelief+height*erosion*erosionMask+screeNoise*.012*screeFan)*peakSmooth(.08,.3,cross))*peakSmooth(.015,.24,1-Math.abs(u)));
+     h=Math.max(0,(h+(strata+ledge+ribRelief+height*erosion*erosionMask+fracturedShelf+screeNoise*.012*screeFan)*peakSmooth(.08,.3,cross))*peakSmooth(.015,.24,1-Math.abs(u)));
      pos.setZ(i,h);
    }
    geometry.computeVertexNormals();
