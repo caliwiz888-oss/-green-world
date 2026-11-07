@@ -3893,49 +3893,49 @@ function makeHouse(){
  // с утопленным тимпаном, несколькими профилями и круглым бирюзовым витражом.
  const pedShape=new THREE.Shape();pedShape.moveTo(-3.08,0);pedShape.lineTo(0,1.78);pedShape.lineTo(3.08,0);pedShape.closePath();
  const ped=new THREE.Mesh(new THREE.ExtrudeGeometry(pedShape,{depth:.34,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.055,bevelThickness:.04}),ivory);
- ped.position.set(0,4.42,2.32);ped.castShadow=false;ped.receiveShadow=false;g.add(ped);
+ ped.position.set(0,4.42,2.02);ped.castShadow=false;ped.receiveShadow=false;g.add(ped);
  const insetShape=new THREE.Shape();insetShape.moveTo(-2.62,.12);insetShape.lineTo(0,1.52);insetShape.lineTo(2.62,.12);insetShape.closePath();
  const inset=new THREE.Mesh(new THREE.ShapeGeometry(insetShape),cream);
- inset.position.set(0,4.48,2.68);inset.castShadow=false;inset.receiveShadow=false;g.add(inset);
+ inset.position.set(0,4.48,2.38);inset.castShadow=false;inset.receiveShadow=false;g.add(inset);
  for(const side of [-1,1]){
   // Наружный профиль повторяет полный скат каменного фронтона:
   // длина рассчитана по его вершине (0; 6.20) и основанию (+/-3.08; 4.42).
-  const beam=box(g,3.56,.18,.30,side*1.54,5.31,2.72,cream);
+  const beam=box(g,3.56,.18,.30,side*1.54,5.31,2.38,cream);
   beam.rotation.z=side===-1?.52:-.52;
   // Внутренний профиль точно повторяет меньший скат утопленной панели.
-  const inner=box(g,2.97,.07,.24,side*1.31,5.18,2.75,stone);
+  const inner=box(g,2.97,.07,.24,side*1.31,5.18,2.41,stone);
   inner.rotation.z=side===-1?.49:-.49;
  }
- box(g,6.32,.16,.42,0,4.48,2.48,cream);
+ box(g,6.32,.16,.42,0,4.48,2.18,cream);
  // Золотую горизонтальную полосу под фронтоном убрали.
  // Круглый витраж расположен вертикально на передней плоскости фронтона.
- const roseOuter=cylinder(g,.48,.48,.14,0,5.39,2.83,gold,48);
+ const roseOuter=cylinder(g,.48,.48,.14,0,5.39,2.45,gold,48);
  roseOuter.rotation.x=Math.PI/2;
- sphere(g,.38,0,5.39,2.92,tealLight,.96);
- const roseInner=cylinder(g,.29,.29,.05,0,5.39,2.97,gold,48);
+ sphere(g,.38,0,5.39,2.49,tealLight,.96);
+ const roseInner=cylinder(g,.29,.29,.05,0,5.39,2.54,gold,48);
  roseInner.rotation.x=Math.PI/2;
  // Золотые импосты витража лежат в той же вертикальной плоскости.
- box(g,.045,.65,.035,0,5.39,3.01,gold,false);
- box(g,.55,.045,.035,0,5.39,3.01,gold,false);
+ box(g,.045,.65,.035,0,5.39,2.58,gold,false);
+ box(g,.55,.045,.035,0,5.39,2.58,gold,false);
  // Усиленный декор фронтона по крупному плану эталона: три профиля,
  // золотая линия вдоль скатов и симметричные каменные/золотые акценты.
  // Дополнительные накладки идут по всей длине наружного ската фронтона.
- const gableLeft=box(g,3.56,.10,.20,-1.54,5.31,2.88,cream,false);
+ const gableLeft=box(g,3.56,.10,.20,-1.54,5.31,2.46,cream,false);
  gableLeft.rotation.z=.52;
- const gableRight=box(g,3.56,.10,.20,1.54,5.31,2.88,cream,false);
+ const gableRight=box(g,3.56,.10,.20,1.54,5.31,2.46,cream,false);
  gableRight.rotation.z=-.52;
  // Золотые полосы вдоль скатов фронтона удалены.
  // Ряд небольших рельефных медальонов под круглым витражом.
  for(const x of [-2.35,-1.88,-1.41,-.94,-.47,.47,.94,1.41,1.88,2.35]){
-  sphere(g,.075,x,4.68,2.91,gold,.86);
-  sphere(g,.035,x,4.68,2.97,cream,.88);
+  sphere(g,.075,x,4.68,2.49,gold,.86);
+  sphere(g,.035,x,4.68,2.55,cream,.88);
  }
  // Каменное обрамление круглого витража и аккуратный золотой внешний обод.
- const roseStoneRing=cylinder(g,.58,.58,.10,0,5.39,2.78,cream,64);
+ const roseStoneRing=cylinder(g,.58,.58,.10,0,5.39,2.40,cream,64);
  roseStoneRing.rotation.x=Math.PI/2;
- const roseGoldRing=cylinder(g,.52,.52,.055,0,5.39,2.90,gold,64);
+ const roseGoldRing=cylinder(g,.52,.52,.055,0,5.39,2.52,gold,64);
  roseGoldRing.rotation.x=Math.PI/2;
- const roseBronzeRing=cylinder(g,.45,.45,.035,0,5.39,2.94,bronze,64);
+ const roseBronzeRing=cylinder(g,.45,.45,.035,0,5.39,2.56,bronze,64);
  roseBronzeRing.rotation.x=Math.PI/2;
  // Главная двускатная кровля: широкие сланцевые скаты, выступающие свесы и конёк.
  const roofMat=new THREE.MeshStandardMaterial({color:0x29445f,roughness:.78,metalness:.025,side:THREE.DoubleSide});
