@@ -3833,14 +3833,14 @@ function makeHouse(){
  }
  // Новая центральная крыша: большой стеклянный купол на каменном основании.
  // Купол расположен строго по центру главного корпуса и не затрагивает башни.
- const domeBaseY=4.43,domeRadius=1.92,domeHeight=1.58,domeZ=-.08;
+ const domeBaseY=4.58,domeRadius=2.05,domeHeight=1.68,domeZ=-.08;
  cylinder(center,2.02,2.02,.16,0,domeBaseY-.03,domeZ,stone,n);
  cylinder(center,1.98,1.98,.075,0,domeBaseY+.065,domeZ,cream,n);
  cylinder(center,1.91,1.91,.045,0,domeBaseY+.125,domeZ,gold,n);
  // Прозрачная голубовато-бирюзовая стеклянная оболочка купола.
  const domeGlass=new THREE.MeshPhysicalMaterial({
   color:0x9bdde2,roughness:.12,metalness:.06,
-  transparent:true,opacity:.43,transmission:.32,thickness:.12,
+  transparent:true,opacity:.62,transmission:.05,thickness:.08,
   ior:1.46,side:THREE.DoubleSide,depthWrite:false,
   emissive:0x16434a,emissiveIntensity:.08
  });
