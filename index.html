@@ -1161,6 +1161,28 @@ function makeHouse(){
        seam.rotation.y=-ang;
      }
    }
+   // Короткие вертикальные растворные швы создают перевязку каменных блоков.
+   // Они размещены в простенках между поясами и не проходят по оконным проёмам.
+   for(let a=0;a<8;a++){
+     const ang=Math.PI/8+a*Math.PI/4;
+     const radius=1.228;
+     const offset=a%2===0?-.22:.22;
+     for(const y of [1.96,4.43]){
+       const seam=box(t,.012,.34,.02,
+         Math.cos(ang)*radius+Math.cos(ang)*offset,
+         y,
+         Math.sin(ang)*radius+Math.sin(ang)*offset,
+         towerMortar,false);
+       seam.rotation.y=-ang;
+     }
+   }
+   // Небольшие светлые фаски на гранях смягчают переход от ствола к верхнему карнизу.
+   for(let a=0;a<8;a++){
+     const ang=Math.PI/8+a*Math.PI/4;
+     const radius=1.345;
+     const edge=box(t,.34,.035,.035,Math.cos(ang)*radius,5.72,Math.sin(ang)*radius,towerTrimMaterial,false);
+     edge.rotation.y=-ang;
+   }
    cylinder(t,1.28,1.28,.055,0,5.81,0,towerRoofLine,8);
    // Высокие окна с тёмным стеклом, светлым обрамлением и мягкой арочной верхушкой.
    for(const axis of ["front","back","left","right"]){
