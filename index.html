@@ -1527,6 +1527,18 @@ function makeHouse(){
    box(g,.12,1.5,.28,x-.76,2.7,4.2,houseStoneTrim);
    box(g,.12,1.5,.28,x+.76,2.7,4.2,houseStoneTrim);
  }
+ // Тонкие каменные сандрики над главными окнами: капельник и центральный замковый блок.
+ // Детали вынесены перед фасадом, не заходят в оконные проёмы и не отбрасывают тени.
+ for(const x of [-3.25,3.25]){
+   const hood=box(g,1.82,.075,.38,x,3.68,4.31,houseStoneTrim,false);
+   hood.castShadow=false;hood.receiveShadow=false;
+   const keystone=box(g,.24,.22,.4,x,3.81,4.32,houseStoneTrim,false);
+   keystone.castShadow=false;keystone.receiveShadow=false;
+   for(const dx of [-.88,.88]){
+     const endBlock=box(g,.16,.13,.36,x+dx,3.75,4.3,houseStoneTrim,false);
+     endBlock.castShadow=false;endBlock.receiveShadow=false;
+   }
+ }
  // Recessed side windows with stone surrounds on both long walls.
  for(const side of [-1,1]){
    for(const z of [-2.55,0,2.55]){
