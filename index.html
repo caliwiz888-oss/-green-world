@@ -3973,7 +3973,7 @@ function makeWorldDecor(){
  // Кустарники собраны из перекрывающихся округлых ярусов листвы с несколькими природными оттенками.
  const shrubMaterials=[0x718765,0x829674,0x91a27b,0x62795b].map(color=>new THREE.MeshStandardMaterial({color,roughness:.96}));
  const shrubGeometry=new THREE.SphereGeometry(1,14,10);
- for(const [x,z,scale] of [[-17,-10,1.2],[17,-8,1.25],[18,8,1.15],[-12,18,1],[12,18,1]]){
+ for(const [x,z,scale] of [[-17,-10,1.2],[18,8,1.15],[-12,18,1],[12,18,1]]){
    const clusters=[
      [0,.43,0,.67,.53,.66,0],
      [-.34,.38,.12,.47,.43,.48,1],
