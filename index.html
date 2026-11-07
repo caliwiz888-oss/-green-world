@@ -3831,6 +3831,63 @@ function makeHouse(){
  for(let i=0;i<5;i++){
   box(center,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,cream);
  }
+ // Новая центральная крыша: большой стеклянный купол на каменном основании.
+ // Купол расположен строго по центру главного корпуса и не затрагивает башни.
+ const domeBaseY=4.43,domeRadius=1.92,domeHeight=1.58,domeZ=-.08;
+ cylinder(center,2.02,2.02,.16,0,domeBaseY-.03,domeZ,stone,n);
+ cylinder(center,1.98,1.98,.075,0,domeBaseY+.065,domeZ,cream,n);
+ cylinder(center,1.91,1.91,.045,0,domeBaseY+.125,domeZ,gold,n);
+ // Прозрачная голубовато-бирюзовая стеклянная оболочка купола.
+ const domeGlass=new THREE.MeshPhysicalMaterial({
+  color:0x9bdde2,roughness:.12,metalness:.06,
+  transparent:true,opacity:.43,transmission:.32,thickness:.12,
+  ior:1.46,side:THREE.DoubleSide,depthWrite:false,
+  emissive:0x16434a,emissiveIntensity:.08
+ });
+ const domeShell=new THREE.Mesh(
+  new THREE.SphereGeometry(1,64,32,0,Math.PI*2,0,Math.PI/2),
+  domeGlass
+ );
+ domeShell.position.set(0,domeBaseY+.12,domeZ);
+ domeShell.scale.set(domeRadius,domeHeight,domeRadius);
+ domeShell.castShadow=false;domeShell.receiveShadow=false;center.add(domeShell);
+ // Радиальные металлические рёбра делят стекло на высокие отдельные секции.
+ for(let j=0;j<20;j++){
+  const a=j*Math.PI*2/20,points=[];
+  for(let k=0;k<=28;k++){
+   const theta=.035+k*(Math.PI/2-.035)/28;
+   const r=domeRadius*Math.sin(theta);
+   points.push(new THREE.Vector3(
+    Math.cos(a)*r,
+    domeBaseY+.12+domeHeight*Math.cos(theta),
+    domeZ+Math.sin(a)*r
+   ));
+  }
+  const rib=new THREE.Mesh(
+   new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),40,.018,8,false),
+   gold
+  );
+  rib.castShadow=false;rib.receiveShadow=false;center.add(rib);
+ }
+ // Тонкие горизонтальные обручи подчёркивают округлую форму стеклянного купола.
+ for(const theta of [.38,.72,1.08,1.38]){
+  const ringRadius=domeRadius*Math.sin(theta);
+  const ring=new THREE.Mesh(
+   new THREE.TorusGeometry(ringRadius,.014,8,96),
+   bronze
+  );
+  ring.rotation.x=Math.PI/2;
+  ring.position.set(0,domeBaseY+.12+domeHeight*Math.cos(theta),domeZ);
+  ring.castShadow=false;ring.receiveShadow=false;center.add(ring);
+ }
+ // Небольшой стеклянный фонарь и золотой навершие на вершине купола.
+ cylinder(center,.19,.19,.12,0,domeBaseY+domeHeight+.13,domeZ,stone,n);
+ const domeLantern=new THREE.Mesh(
+  new THREE.SphereGeometry(.19,24,16,0,Math.PI*2,0,Math.PI/2),domeGlass
+ );
+ domeLantern.position.set(0,domeBaseY+domeHeight+.19,domeZ);
+ domeLantern.scale.y=.72;domeLantern.castShadow=false;center.add(domeLantern);
+ sphere(center,.075,0,domeBaseY+domeHeight+.34,domeZ,gold,.9);
  // Центральный фронтон и его декор удалены по просьбе пользователя.
  // Центральная двускатная крыша удалена по просьбе пользователя.
  // Две башни по утверждённому эталону: выразительное каменное основание,
