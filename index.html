@@ -3898,24 +3898,24 @@ function makeHouse(){
      new THREE.CylinderGeometry(.73,.73,.09,64),
      stone
     );
-    platform.position.set(0,balconyY,0);
+    platform.position.set(0,balconyY,1.0);
     platform.castShadow=false;platform.receiveShadow=false;t.add(platform);
     const rim=new THREE.Mesh(
      new THREE.CylinderGeometry(.75,.75,.0375,64),
      cream
     );
-    rim.position.set(0,balconyY+.0625,0);
+    rim.position.set(0,balconyY+.0625,1.0);
     rim.castShadow=false;rim.receiveShadow=false;t.add(rim);
     const goldBand=new THREE.Mesh(
      new THREE.TorusGeometry(.73,.0175,8,64),
      gold
     );
     goldBand.rotation.x=Math.PI/2;
-    goldBand.position.set(0,balconyY+.09,0);
+    goldBand.position.set(0,balconyY+.09,1.0);
     goldBand.castShadow=false;goldBand.receiveShadow=false;t.add(goldBand);
     // Миниатюрные балясины и поручень по окружности балкона.
     for(let j=0;j<40;j++){
-     const a=j*Math.PI/20,px=Math.sin(a)*.67,pz=Math.cos(a)*.67;
+     const a=j*Math.PI/20,px=Math.sin(a)*.67,pz=1.0+Math.cos(a)*.67;
      cylinder(t,.021,.026,.17,px,balconyY+.195,pz,cream,10);
      sphere(t,.0275,px,balconyY+.285,pz,gold,.75);
     }
@@ -3924,11 +3924,11 @@ function makeHouse(){
      gold
     );
     rail.rotation.x=Math.PI/2;
-    rail.position.set(0,balconyY+.295,0);
+    rail.position.set(0,balconyY+.295,1.0);
     rail.castShadow=false;rail.receiveShadow=false;t.add(rail);
     // Небольшие цветочные кашпо вдоль передней части балкона.
     for(let j=0;j<7;j++){
-     const a=-1.05+j*.35,px=Math.sin(a)*.67,pz=Math.cos(a)*.67;
+     const a=-1.05+j*.35,px=Math.sin(a)*.67,pz=1.0+Math.cos(a)*.67;
      box(t,.08,.05,.07,px,balconyY+.12,pz,stone,false);
      sphere(t,.03,px,balconyY+.19,pz,green,.78);
      sphere(t,.0325,px,balconyY+.235,pz,j%3===0?lilac:(j%2?white:pink),.82);
