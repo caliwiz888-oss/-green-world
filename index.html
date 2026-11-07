@@ -3603,6 +3603,11 @@ function makeWorldDecor(){
         );
         voussoir.castShadow=false;voussoir.receiveShadow=false;world.add(voussoir);
       }
+      // Выделенный замковый камень в вершине каждой арки завершает кладку.
+      const crownZ=bridgeStart+((span+.5)/3)*bridgeLength;
+      const keystone=box(world,.48,.29,.34,side*1.91,.69,crownZ,
+        voussoirMaterials[(span+1)%voussoirMaterials.length],false);
+      keystone.rotation.x=-Math.atan(bridgeSlope((span+.5)/3));
     }
     // Массивные простенки между пролётами формируют цельный каменный мост.
     for(let support=0;support<=3;support++){
