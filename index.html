@@ -3965,9 +3965,9 @@ function makeHouse(){
  const goldRoof=new THREE.MeshStandardMaterial({color:0xd8ad54,roughness:.28,metalness:.78});
  const goldDark=new THREE.MeshStandardMaterial({color:0x9b6c2c,roughness:.34,metalness:.72});
  // Каменный цоколь крыши с тонким золотым поясом.
- box(center,8.02,.20,5.98,0,roofY-.10,roofZ,stone);
- box(center,7.88,.09,5.84,0,roofY+.025,roofZ,cream);
- box(center,7.72,.055,5.68,0,roofY+.095,roofZ,goldRoof);
+ box(center,6.62,.14,4.62,0,roofY-.10,roofZ,stone);
+ box(center,6.48,.07,4.48,0,roofY+.005,roofZ,cream);
+ box(center,6.32,.045,4.32,0,roofY+.062,roofZ,goldRoof);
  function buildChineseRoofTier(cfg){
   const {baseY,peakY,halfX,halfZ,ridgeHalfX,curl,rows,cols}=cfg;
   function point(side,t,u,offset=0){
@@ -4050,14 +4050,14 @@ function makeHouse(){
   }
  }
  // Нижний широкий ярус нависает над стенами, как крыша китайского дворца.
- buildChineseRoofTier({baseY:roofY,peakY:6.12,halfX:3.96,halfZ:2.96,ridgeHalfX:2.08,curl:.40,rows:13,cols:22});
+ buildChineseRoofTier({baseY:roofY,peakY:5.92,halfX:3.28,halfZ:2.28,ridgeHalfX:1.72,curl:.28,rows:12,cols:22});
  // Второй, меньший ярус поднимается над первым и завершает дворцовый силуэт.
- buildChineseRoofTier({baseY:5.66,peakY:7.32,halfX:2.66,halfZ:1.98,ridgeHalfX:1.38,curl:.27,rows:11,cols:18});
+ buildChineseRoofTier({baseY:5.48,peakY:6.72,halfX:2.18,halfZ:1.58,ridgeHalfX:1.12,curl:.20,rows:10,cols:18});
  // Декоративные золотые подвесы под углами верхнего яруса.
  for(const sx of [-1,1])for(const sz of [-1,1]){
-  const x=sx*2.66,z=roofZ+sz*1.98;
-  cylinder(center,.045,.035,.22,x,5.48,z,goldDark,12);
-  sphere(center,.065,x,5.34,z,goldRoof,.9);
+  const x=sx*2.18,z=roofZ+sz*1.58;
+  cylinder(center,.035,.028,.16,x,5.34,z,goldDark,12);
+  sphere(center,.05,x,5.22,z,goldRoof,.9);
  }
  // Центральный фронтон и его декор удалены по просьбе пользователя.
  // Центральная двускатная крыша удалена по просьбе пользователя.
