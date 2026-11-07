@@ -5329,8 +5329,11 @@ function makeWorldLandscape(){
      const rock=peakRockDark.clone().lerp(peakRockMid,illumination).lerp(peakRockSun,Math.max(0,sunFacing-.42)*.5);
      // Линия снега слегка меняется по рельефу, как на настоящих ветреных склонах.
      // Ветровая кромка снега неровная: карнизы нависают над подветренными уступами.
-     const windRidge=.045*Math.sin(u*17+v*8)+.027*Math.sin(u*39-v*23)+.018*Math.sin(u*71+v*31);
-     const localSnowline=snowline+height*(windRidge+.012*Math.sin(u*113+v*67));
+     const windRidge=.045*Math.sin(u*17+v*8)+.027*Math.sin(u*39-v*23)+.018*Math.sin(u*71+v*31)+.009*Math.sin(u*29+across*17)+.006*Math.sin(u*57-v*31);
+     // Небольшие ветровые выемки чередуются с накоплением снега в защищённых складках рельефа.
+     const leeSnowPocket=Math.max(0,-Math.sin(u*14+across*6+.35*Math.sin(u*27)));
+     const exposedSnowRidge=Math.max(0,Math.sin(u*22-across*8));
+     const localSnowline=snowline+height*(windRidge+.012*Math.sin(u*113+v*67)+.012*exposedSnowRidge-.009*leeSnowPocket);
      const snowSlope=THREE.MathUtils.clamp((up-.005)*1.75,0,1);
      const snowAmount=peakSmooth(localSnowline,height*.96,h)*snowSlope;
      // Снежные языки повторяют направление кулуаров и обтекают выступающие скальные рёбра.
