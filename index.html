@@ -943,7 +943,7 @@ function makeHouse(){
  }
  // Front and rear triangular gables beneath the roof ridge.
  const makeGable=(z)=>{
-   const shape=new THREE.Shape();shape.moveTo(-3.15,4.72);shape.lineTo(3.15,4.72);shape.lineTo(-.25,6.82);shape.closePath();
+   const shape=new THREE.Shape();shape.moveTo(-3.15,4.74);shape.lineTo(3.15,4.74);shape.lineTo(-.25,6.82);shape.closePath();
    const mesh=new THREE.Mesh(new THREE.ShapeGeometry(shape),houseStoneTrim);mesh.position.z=z;mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);
  };
  makeGable(3.98);makeGable(-4.06);
