@@ -3697,7 +3697,7 @@ function makeWorldDecor(){
   // Тёмные боковые линии поперечной дороги обрамляют плиточное мощение по всей ширине двора.
   for(const side of [-1,1]){
     const z=-4.55+side*.99;
-    for(const segment of [{x:-8.1,length:11.7},{x:9,length:13.5}]){
+    for(const segment of [{x:-8.125,length:11.75},{x:9.375,length:14.25}]){
       box(world,segment.length,.13,.19,segment.x,.105,z,roadEdgeMat,false);
       box(world,segment.length-.07,.035,.075,segment.x,.184,z-side*.012,roadEdgeTop,false);
       box(world,segment.length-.45,.018,.025,segment.x,.169,z-side*.105,roadEdgeInlay,false);
