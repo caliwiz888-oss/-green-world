@@ -5214,15 +5214,15 @@ function makeWorldLandscape(){
    riverMotionObjects.push({mesh:spark,baseX:x,baseZ:z,phase:i*1.37,speed:.24+(i%5)*.045,range:.35+(i%4)*.16,baseLength:len});
  }
  // Круговые волны расходятся от тихих точек на поверхности и постепенно растворяются.
- for(let i=0;i<6;i++){
-   const x=-17+i*6.6,z=20.4+(i%3)*1.25;
+ for(let i=0;i<9;i++){
+   const x=-20+i*5,z=20.25+(i%4)*1.15;
    const ringMat=new THREE.MeshBasicMaterial({color:0xe5fbf4,transparent:true,opacity:.22,depthWrite:false,side:THREE.DoubleSide});
    const ring=new THREE.Mesh(new THREE.TorusGeometry(1,.012,5,40),ringMat);
    ring.rotation.x=-Math.PI/2;ring.position.set(x,.112,z);ring.scale.set(.08,1,.08);world.add(ring);
    riverRingObjects.push({mesh:ring,material:ringMat,baseX:x,baseZ:z,phase:i*.71,speed:.22+(i%3)*.035});
  }
  // Дополнительные круги ряби возникают в разных местах и расходятся по поверхности.
- const eddyPoints=[[-20,20.3],[-14,23.8],[-8,21.1],[-2,24.1],[5,20.2],[11,23.6],[17,21.4],[22,24.2],[-5,22.8],[14,19.9]];
+ const eddyPoints=[[-20,20.3],[-14,23.8],[-8,21.1],[-2,24.1],[5,20.2],[11,23.6],[17,21.4],[22,24.2],[-5,22.8],[14,19.9],[-17,22.1],[-11,24.6],[2,22.5],[9,20.9],[19,23.2]];
  for(let i=0;i<eddyPoints.length;i++){
    const [x,z]=eddyPoints[i];
    const eddyMat=new THREE.MeshBasicMaterial({color:i%3===0?0xf4fff9:0xccebe4,transparent:true,opacity:.16,depthWrite:false,side:THREE.DoubleSide});
@@ -5240,16 +5240,16 @@ function makeWorldLandscape(){
    riverMotionObjects.push({mesh:reflection,baseX:x,baseZ:z,phase:i*1.19,speed:.17+(i%4)*.025,range:.22+(i%3)*.1,baseLength:len});
  }
  // Мелкие мягкие пенистые блики скользят по течению и растворяются, не образуя сплошной белой полосы.
- for(let i=0;i<10;i++){
-   const x=-21+(i*4.55),z=19.65+(i%4)*1.42,len=.22+(i%3)*.12;
+ for(let i=0;i<14;i++){
+   const x=-23+(i*3.45),z=19.65+(i%5)*1.15,len=.22+(i%3)*.12;
    const foamMat=new THREE.MeshBasicMaterial({color:0xf2fff7,transparent:true,opacity:.13,depthWrite:false});
    const foam=new THREE.Mesh(new THREE.SphereGeometry(.5,12,8),foamMat);
    foam.position.set(x,.112,z);foam.scale.set(len,.012,.055+(i%2)*.018);foam.rotation.y=(i%5-2)*.035;world.add(foam);
    riverFoamObjects.push({mesh:foam,material:foamMat,baseX:x,baseZ:z,phase:i*.91,speed:.19+(i%4)*.035,drift:.42+(i%3)*.18});
  }
  // Небольшие пенистые язычки закручиваются и распадаются по течению.
- for(let i=0;i<14;i++){
-   const x=-21+(i*7.15)%42,z=19.55+(i*17%52)/10;
+ for(let i=0;i<20;i++){
+   const x=-22+(i*5.15)%44,z=19.55+(i*17%52)/10;
    const foamMat=new THREE.MeshBasicMaterial({color:0xe9faf2,transparent:true,opacity:.1,depthWrite:false});
    const foam=new THREE.Mesh(new THREE.SphereGeometry(.5,10,7),foamMat);
    foam.position.set(x,.119,z);foam.scale.set(.18+(i%3)*.07,.012,.045+(i%2)*.018);
@@ -5280,7 +5280,7 @@ function makeWorldLandscape(){
  }
  // Изогнутые тонкие гребни ряби скользят по воде отдельными струями.
  const flowRibbonColors=[0xf4fff9,0xd4f4ed,0xb8e6e2];
- for(let i=0;i<7;i++){
+ for(let i=0;i<10;i++){
    const curvePoints=[];
    for(let k=0;k<=8;k++){
      const t=k/8;
@@ -5296,7 +5296,7 @@ function makeWorldLandscape(){
  }
  // Дополнительные вытянутые струи создают заметное непрерывное движение воды вдоль русла.
  const driftColors=[0xeafff8,0xc5eee7,0xf7fff9,0xaedbd8];
- for(let i=0;i<26;i++){
+ for(let i=0;i<34;i++){
    const len=.32+(i%5)*.16;
    const driftMat=new THREE.MeshBasicMaterial({color:driftColors[i%driftColors.length],transparent:true,opacity:.16,depthWrite:false});
    const drift=new THREE.Mesh(new THREE.BoxGeometry(len,.009,.025+(i%3)*.012),driftMat);
@@ -5308,7 +5308,7 @@ function makeWorldLandscape(){
  }
  // Низкие бегущие гребни волн: изогнутые линии скользят по воде и мягко меняют высоту.
  const crestColors=[0xd9f5ed,0xf3fff9,0xb9e5df];
- for(let i=0;i<18;i++){
+ for(let i=0;i<28;i++){
    const points=[];
    for(let k=0;k<=8;k++){
      const t=k/8;
@@ -5325,7 +5325,7 @@ function makeWorldLandscape(){
  }
  // Мелкие солнечные искры на воде: редкие точки света дрейфуют и мерцают на разных участках.
  const sparkleGeo=new THREE.SphereGeometry(.065,10,7);
- for(let i=0;i<15;i++){
+ for(let i=0;i<24;i++){
    const sparkleMat=new THREE.MeshBasicMaterial({color:i%4===0?0xffffff:0xd9fff7,transparent:true,opacity:.12,depthWrite:false});
    const sparkle=new THREE.Mesh(sparkleGeo,sparkleMat);
    const phase=(i*11.7+3)%50,z=19.35+(i*19%57)/10;
@@ -5676,7 +5676,7 @@ scene.traverse(object=>{
    material.needsUpdate=true;
  }
 });
-cameraPosition();function animate(){requestAnimationFrame(animate);const flowDelta=Math.min(riverFlowClock.getDelta(),.05),flowTime=riverFlowClock.elapsedTime;if(riverWaterTexture){riverWaterTexture.offset.x=(riverWaterTexture.offset.x+flowDelta*(.19+.025*Math.sin(flowTime*.21)))%1;riverWaterTexture.offset.y=(riverWaterTexture.offset.y+flowDelta*(.012+.004*Math.sin(flowTime*.17)))%1;}if(riverSurfaceMesh){const p=riverSurfaceMesh.geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i);const wave=Math.sin(x*.34-flowTime*1.58+z*.22)*.024+Math.sin(x*.17-flowTime*1.06-z*.48)*.017+Math.sin(z*.9+flowTime*.82)*.007+Math.sin(x*.105-flowTime*.82+z*.13)*.009+Math.sin(x*.48-flowTime*1.24-z*.31)*.005;p.setZ(i,wave);}p.needsUpdate=true;riverSurfaceMesh.geometry.computeVertexNormals();}for(const sparkle of riverSparkles){const x=-25+((sparkle.phase+flowTime*sparkle.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,5.5);const pulse=.45+.55*(.5+.5*Math.sin(flowTime*2.4+sparkle.phase2));sparkle.mesh.position.x=x;sparkle.mesh.position.y=.145+Math.sin(flowTime*1.6+sparkle.phase2)*.006;sparkle.mesh.position.z=sparkle.z+Math.sin(flowTime*.9+sparkle.phase2)*.065;sparkle.material.opacity=(.025+.22*fade)*pulse;sparkle.mesh.scale.x=(1.1+.7*pulse);}for(const ribbon of riverFlowRibbons){const x=-25+((ribbon.phase+flowTime*ribbon.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,4.8);ribbon.mesh.position.x=x;ribbon.mesh.position.y=.128+Math.sin(flowTime*1.8+ribbon.offset)*.004;ribbon.mesh.position.z=ribbon.z+Math.sin(flowTime*.7+ribbon.offset)*.055;ribbon.material.opacity=(.025+.19*fade)*(.78+.22*Math.sin(flowTime*1.35+ribbon.offset));}for(const current of riverCurrentObjects){const x=-25+((current.phase+flowTime*current.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,4.2);current.mesh.position.x=x;current.mesh.position.y=.116+Math.sin(flowTime*1.7+current.offset)*.003;current.mesh.position.z=current.baseZ+Math.sin(flowTime*.62+current.offset)*.045;current.material.opacity=(.035+.19*fade)*(.82+.18*Math.sin(flowTime*1.25+current.offset));}for(const item of riverMotionObjects){const wave=Math.sin(flowTime*item.speed+item.phase);item.mesh.position.x=item.baseX+Math.sin(flowTime*item.speed*.72+item.phase)*item.range;item.mesh.position.y=.092+Math.max(0,wave)*.018;const pulse=.78+.22*Math.sin(flowTime*item.speed*1.8+item.phase);item.mesh.scale.x=pulse;item.mesh.material.opacity=item.baseLength<.6?.13+.16*(.5+.5*wave):.12+.12*(.5+.5*wave)}for(const ring of riverRingObjects){const cycle=(flowTime*ring.speed+ring.phase)%(Math.PI*2),progress=(1-Math.cos(cycle))*.5;const radius=.12+progress*.72;ring.mesh.position.x=ring.baseX+Math.sin(flowTime*.31+ring.phase)*.12;ring.mesh.position.z=ring.baseZ+Math.cos(flowTime*.27+ring.phase)*.1;ring.mesh.scale.set(radius,1,radius*.72);ring.material.opacity=.2*(1-progress)}for(const foam of riverFoamObjects){const drift=(flowTime*foam.speed+foam.phase)%(Math.PI*2);foam.mesh.position.x=foam.baseX+Math.sin(drift)*foam.drift;foam.mesh.position.y=.108+Math.max(0,Math.sin(drift*1.35+foam.phase))*.012;foam.mesh.position.z=foam.baseZ+Math.cos(drift*.7)*.16;const pulse=.68+.32*Math.sin(drift*1.6);foam.mesh.scale.x=(.22+(foam.phase%3)*.06)*pulse;foam.mesh.scale.z=(.055+(foam.phase%2)*.018)*(.88+.12*Math.cos(drift));foam.material.opacity=.045+.11*(.5+.5*Math.sin(drift+foam.phase))}for(const streak of riverDriftStreaks){const travel=(streak.phase+flowTime*streak.speed)%50;const edge=Math.min(travel,50-travel);const fade=THREE.MathUtils.smoothstep(edge,0,5.2);const pulse=.72+.28*Math.sin(flowTime*2.1+streak.offset);streak.mesh.position.x=-25+travel;streak.mesh.position.y=.137+Math.sin(flowTime*1.45+streak.offset)*.004;streak.mesh.position.z=streak.z+Math.sin(flowTime*.72+streak.offset)*.035;streak.mesh.scale.x=.82+.38*pulse;streak.material.opacity=(.035+.19*fade)*pulse;}for(const crest of riverWaveCrests){const travel=(crest.phase+flowTime*crest.speed)%50;const edge=Math.min(travel,50-travel);const fade=THREE.MathUtils.smoothstep(edge,0,5.5);const swell=Math.sin(flowTime*1.7+crest.offset);crest.mesh.position.x=-25+travel;crest.mesh.position.y=.145+Math.max(0,swell)*.012;crest.mesh.position.z=crest.z+Math.sin(flowTime*.83+crest.offset)*.06;crest.mesh.rotation.y=Math.sin(flowTime*.55+crest.offset)*.035;crest.material.opacity=(.018+.16*fade)*(.68+.32*(.5+.5*swell));}renderer.render(scene,camera)}animate();
+cameraPosition();function animate(){requestAnimationFrame(animate);const flowDelta=Math.min(riverFlowClock.getDelta(),.05),flowTime=riverFlowClock.elapsedTime;if(riverWaterTexture){riverWaterTexture.offset.x=(riverWaterTexture.offset.x+flowDelta*(.19+.025*Math.sin(flowTime*.21)))%1;riverWaterTexture.offset.y=(riverWaterTexture.offset.y+flowDelta*(.012+.004*Math.sin(flowTime*.17)))%1;}if(riverSurfaceMesh){const p=riverSurfaceMesh.geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i);const wave=Math.sin(x*.34-flowTime*1.72+z*.22)*.031+Math.sin(x*.17-flowTime*1.18-z*.48)*.022+Math.sin(z*.9+flowTime*.94)*.009+Math.sin(x*.105-flowTime*.91+z*.13)*.012+Math.sin(x*.48-flowTime*1.36-z*.31)*.007;p.setZ(i,wave);}p.needsUpdate=true;riverSurfaceMesh.geometry.computeVertexNormals();}for(const sparkle of riverSparkles){const x=-25+((sparkle.phase+flowTime*sparkle.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,5.5);const pulse=.45+.55*(.5+.5*Math.sin(flowTime*2.4+sparkle.phase2));sparkle.mesh.position.x=x;sparkle.mesh.position.y=.145+Math.sin(flowTime*1.6+sparkle.phase2)*.006;sparkle.mesh.position.z=sparkle.z+Math.sin(flowTime*.9+sparkle.phase2)*.065;sparkle.material.opacity=(.025+.22*fade)*pulse;sparkle.mesh.scale.x=(1.1+.7*pulse);}for(const ribbon of riverFlowRibbons){const x=-25+((ribbon.phase+flowTime*ribbon.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,4.8);ribbon.mesh.position.x=x;ribbon.mesh.position.y=.128+Math.sin(flowTime*1.8+ribbon.offset)*.004;ribbon.mesh.position.z=ribbon.z+Math.sin(flowTime*.7+ribbon.offset)*.055;ribbon.material.opacity=(.025+.19*fade)*(.78+.22*Math.sin(flowTime*1.35+ribbon.offset));}for(const current of riverCurrentObjects){const x=-25+((current.phase+flowTime*current.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,4.2);current.mesh.position.x=x;current.mesh.position.y=.116+Math.sin(flowTime*1.7+current.offset)*.003;current.mesh.position.z=current.baseZ+Math.sin(flowTime*.62+current.offset)*.045;current.material.opacity=(.035+.19*fade)*(.82+.18*Math.sin(flowTime*1.25+current.offset));}for(const item of riverMotionObjects){const wave=Math.sin(flowTime*item.speed+item.phase);item.mesh.position.x=item.baseX+Math.sin(flowTime*item.speed*.72+item.phase)*item.range;item.mesh.position.y=.092+Math.max(0,wave)*.018;const pulse=.78+.22*Math.sin(flowTime*item.speed*1.8+item.phase);item.mesh.scale.x=pulse;item.mesh.material.opacity=item.baseLength<.6?.13+.16*(.5+.5*wave):.12+.12*(.5+.5*wave)}for(const ring of riverRingObjects){const cycle=(flowTime*ring.speed+ring.phase)%(Math.PI*2),progress=(1-Math.cos(cycle))*.5;const radius=.12+progress*.72;ring.mesh.position.x=ring.baseX+Math.sin(flowTime*.31+ring.phase)*.12;ring.mesh.position.z=ring.baseZ+Math.cos(flowTime*.27+ring.phase)*.1;ring.mesh.scale.set(radius,1,radius*.72);ring.material.opacity=.2*(1-progress)}for(const foam of riverFoamObjects){const drift=(flowTime*foam.speed+foam.phase)%(Math.PI*2);foam.mesh.position.x=foam.baseX+Math.sin(drift)*foam.drift;foam.mesh.position.y=.108+Math.max(0,Math.sin(drift*1.35+foam.phase))*.012;foam.mesh.position.z=foam.baseZ+Math.cos(drift*.7)*.16;const pulse=.68+.32*Math.sin(drift*1.6);foam.mesh.scale.x=(.22+(foam.phase%3)*.06)*pulse;foam.mesh.scale.z=(.055+(foam.phase%2)*.018)*(.88+.12*Math.cos(drift));foam.material.opacity=.045+.11*(.5+.5*Math.sin(drift+foam.phase))}for(const streak of riverDriftStreaks){const travel=(streak.phase+flowTime*streak.speed)%50;const edge=Math.min(travel,50-travel);const fade=THREE.MathUtils.smoothstep(edge,0,5.2);const pulse=.72+.28*Math.sin(flowTime*2.1+streak.offset);streak.mesh.position.x=-25+travel;streak.mesh.position.y=.137+Math.sin(flowTime*1.45+streak.offset)*.004;streak.mesh.position.z=streak.z+Math.sin(flowTime*.72+streak.offset)*.035;streak.mesh.scale.x=.82+.38*pulse;streak.material.opacity=(.035+.19*fade)*pulse;}for(const crest of riverWaveCrests){const travel=(crest.phase+flowTime*crest.speed)%50;const edge=Math.min(travel,50-travel);const fade=THREE.MathUtils.smoothstep(edge,0,5.5);const swell=Math.sin(flowTime*1.7+crest.offset);crest.mesh.position.x=-25+travel;crest.mesh.position.y=.145+Math.max(0,swell)*.012;crest.mesh.position.z=crest.z+Math.sin(flowTime*.83+crest.offset)*.06;crest.mesh.rotation.y=Math.sin(flowTime*.55+crest.offset)*.035;crest.material.opacity=(.018+.16*fade)*(.68+.32*(.5+.5*swell));}renderer.render(scene,camera)}animate();
 window.GREEN_WORLD_STARTUP_STAGE='renderer-running';
 window.GREEN_WORLD_MODULE_READY=true;window.GREEN_WORLD_STARTUP_STAGE='module-ready';window.dispatchEvent(new Event('green-world-renderer-ready'));
 window.addEventListener('green-world-auth',event=>{
