@@ -3192,7 +3192,12 @@ function makeWorldLandscape(){
    const insideX=Math.max(-14.40-x,0,x-16.40);
    const insideZ=Math.max(-21.10-worldZ,0,worldZ-14.02);
    const outsideDistance=Math.hypot(insideX,insideZ);
-   const flatten=1-smooth01(outsideDistance/1.8);
+   // За ограждением оставляем свободную ровную полосу, чтобы холмы не заходили
+   // на нижнюю часть каменных столбов и кованых секций забора.
+   const fenceClearance=1.25;
+   const reliefTransition=2.60;
+   const reliefDistance=Math.max(0,outsideDistance-fenceClearance);
+   const flatten=1-smooth01(reliefDistance/reliefTransition);
    height*=1-flatten;
    hillPositions.setZ(i,height);
    const shade=THREE.MathUtils.clamp(.5+height*.09+Math.sin(x*.16+z*.12)*.055,.28,.92);
