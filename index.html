@@ -3849,11 +3849,11 @@ function makeWorldDecor(){
     const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.14,0),fenceGoldLight);
     finial.position.set(x,baseY+2.69,z);finial.scale.set(.82,1.35,.82);fenceNoShadow(finial);fenceGroup.add(finial);
   };
-  const fenceBay=(x1,z1,x2,z2,baseY=0)=>{
+  const fenceBay=(x1,z1,x2,z2,baseY=0,faceOffset=0)=>{
     const dx=x2-x1,dz=z2-z1,length=Math.hypot(dx,dz);
     if(length<.3)return;
     const angle=Math.atan2(dz,dx),cx=(x1+x2)/2,cz=(z1+z2)/2;
-    const panel=new THREE.Group();panel.position.set(cx,baseY,cz);panel.rotation.y=-angle;fenceGroup.add(panel);
+    const panel=new THREE.Group();panel.position.set(cx,baseY,cz);panel.rotation.y=-angle+faceOffset;fenceGroup.add(panel);
     fenceNoShadow(box(panel,length-.12,.105,.105,0,.62,0,fenceIron,false));
     fenceNoShadow(box(panel,length-.12,.105,.105,0,1.92,0,fenceIron,false));
     fenceNoShadow(box(panel,length-.12,.035,.12,0,2.00,0,fenceGold,false));
@@ -3887,7 +3887,7 @@ function makeWorldDecor(){
       if(i===count&&options.includeEnd===false)continue;
       const p=points[i];fencePost(p.x,p.z,p.y,options.postFaceAngle||0);
     }
-    for(let i=0;i<count;i++)fenceBay(points[i].x,points[i].z,points[i+1].x,points[i+1].z,(points[i].y+points[i+1].y)/2);
+    for(let i=0;i<count;i++)fenceBay(points[i].x,points[i].z,points[i+1].x,points[i+1].z,(points[i].y+points[i+1].y)/2,options.bayFaceAngle||0);
   };
   // По четыре передние секции с каждой стороны арки; крайние линии совмещены
   // с наружными гранями площадок магазина и завода.
@@ -3903,7 +3903,7 @@ function makeWorldDecor(){
   const sideFenceEndZ=-21.10;
   // Угловые столбы уже создаются передними и задней линиями; боковые пролёты используют их без дублирования.
   fenceRun(frontFenceLeft,frontFenceZ,frontFenceLeft,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:Math.PI/2});
-  fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:-Math.PI/2});
+  fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
   // Задняя линия замыкает обе стороны; все её столбы и пролёты стоят на уровне переднего двора.
   const rearFenceZ=sideFenceEndZ;
   fenceRun(frontFenceLeft,rearFenceZ,frontFenceRight,rearFenceZ,2.37,0,0);
