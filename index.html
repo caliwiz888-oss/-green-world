@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261107-091500';
+const GREEN_WORLD_BUILD_ID = '20261107-091600';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1306,109 +1306,19 @@ function makeHouse(){
      inset.rotation.y=-ang;
      inset.castShadow=false;inset.receiveShadow=false;
    }
-   // Восьмигранный шатёр с широким каменным карнизом и тонким металлическим кантом.
+   // Чистый восьмигранный сланцевый шатёр: один спокойный карниз и гладкие скаты без накладок.
    cylinder(t,1.48,1.48,.18,0,5.94,0,towerTrimMaterial,8);
-   cylinder(t,1.43,1.43,.055,0,6.055,0,towerMetal,8);
-   cylinder(t,1.37,1.37,.045,0,6.105,0,towerRoofLine,8);
    cone(t,1.38,2.48,0,7.32,0,towerRoofMaterial,8);
-   // Восемь тонких рёбер подчёркивают грани шатра, не дробя его силуэт.
-   for(let a=0;a<8;a++){
-     const ang=Math.PI/8+a*Math.PI/4;
-     const rib=box(t,.035,1.92,.045,Math.cos(ang)*.73,7.12,Math.sin(ang)*.73,towerRoofLine,false);
-     rib.rotation.y=-ang;
-   }
-   // Восьмигранные пояса на скатах подчёркивают силуэт шатра и завершают его карниз.
-   for(const y of [6.28,6.48]){
-     const radius=1.38*(8.56-y)/2.48;
-     cylinder(t,radius+.035,radius+.035,.045,0,y,0,towerRoofLine,8);
-   }
-   // Тонкие горизонтальные ряды черепицы повторяют геометрию восьмигранного ската.
-   // Низкий контраст сохраняет спокойный серо-голубой цвет кровли.
-   // Процедурная микрофактура сланца: мягкие минеральные пятна и редкие светлые зёрна.
-   const slateCanvas=document.createElement('canvas');
-   slateCanvas.width=slateCanvas.height=128;
-   const slateCtx=slateCanvas.getContext('2d');
-   slateCtx.fillStyle='#929fa4';slateCtx.fillRect(0,0,128,128);
-   for(let i=0;i<520;i++){
-     const px=(i*47+13)%128,py=(i*83+29)%128;
-     const alpha=.025+((i*19)%35)/1000;
-     slateCtx.fillStyle=i%4===0?'rgba(231,239,239,'+alpha+')':'rgba(37,54,62,'+alpha+')';
-     slateCtx.fillRect(px,py,1+(i%2),1+(i%3===0?1:0));
-   }
-   for(let i=0;i<34;i++){
-     const px=(i*61+17)%128,py=(i*37+11)%128;
-     slateCtx.strokeStyle=i%3===0?'rgba(224,233,234,.09)':'rgba(42,57,64,.07)';
-     slateCtx.lineWidth=.6;
-     slateCtx.beginPath();slateCtx.moveTo(px,py);
-     slateCtx.lineTo(px+3+(i%5),py+((i%3)-1)*.4);slateCtx.stroke();
-   }
-   const slateTexture=new THREE.CanvasTexture(slateCanvas);
-   slateTexture.colorSpace=THREE.SRGBColorSpace;
-   slateTexture.wrapS=slateTexture.wrapT=THREE.RepeatWrapping;
-   slateTexture.repeat.set(2.2,2.2);
-   slateTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
-   const roofCourseMaterial=new THREE.MeshStandardMaterial({
-     color:0x9aaab0,map:slateTexture,bumpMap:slateTexture,bumpScale:.012,
-     roughness:.94,metalness:.01
-   });
-   towerRoofMaterial.map=slateTexture;
-   towerRoofMaterial.bumpMap=slateTexture;
-   towerRoofMaterial.bumpScale=.018;
+   towerRoofMaterial.map=null;
+   towerRoofMaterial.bumpMap=null;
+   towerRoofMaterial.bumpScale=0;
+   towerRoofMaterial.color.setHex(0x879ba4);
+   towerRoofMaterial.roughness=.9;
+   towerRoofMaterial.metalness=.015;
    towerRoofMaterial.needsUpdate=true;
-   for(const y of [6.72,7.02,7.32,7.62,7.92,8.22]){
-     const radius=1.38*(8.56-y)/2.48;
-     const course=new THREE.Mesh(
-       new THREE.CylinderGeometry(radius+.012,radius+.012,.018,8),
-       roofCourseMaterial
-     );
-     course.position.set(0,y,0);
-     course.castShadow=false;course.receiveShadow=false;
-     t.add(course);
-   }
-   // Короткие межплиточные стыки на каждой грани создают рисунок укладки сланца.
-   // Стыки смещены через ряд, чтобы не образовывать непрерывную сетку.
-   const roofJointMaterial=new THREE.MeshStandardMaterial({color:0x657780,roughness:.98,metalness:0});
-   for(let a=0;a<8;a++){
-     const ang=Math.PI/8+a*Math.PI/4;
-     for(let row=0;row<5;row++){
-       const y=6.87+row*.29;
-       const radius=1.38*(8.56-y)/2.48;
-       const tangentOffset=row%2===0?-.19:.19;
-       const px=Math.cos(ang)*radius-Math.sin(ang)*tangentOffset;
-       const pz=Math.sin(ang)*radius+Math.cos(ang)*tangentOffset;
-       const joint=box(t,.22,.012,.018,px,y,pz,roofJointMaterial,false);
-       joint.rotation.y=-ang;
-     }
-   }
-   // Отдельные слегка перекрывающиеся сланцевые плашки делают покрытие читаемым как настоящую кровлю.
-   // Плашки лежат по граням восьмигранного шатра, с разбежкой швов и без дополнительных теней.
-   const slateTileMaterials=[
-     new THREE.MeshStandardMaterial({color:0x9aa8ad,map:slateTexture,bumpMap:slateTexture,bumpScale:.009,roughness:.96,metalness:.005}),
-     new THREE.MeshStandardMaterial({color:0x87979e,map:slateTexture,bumpMap:slateTexture,bumpScale:.009,roughness:.97,metalness:.005}),
-     new THREE.MeshStandardMaterial({color:0xa3afb2,map:slateTexture,bumpMap:slateTexture,bumpScale:.008,roughness:.96,metalness:.005})
-   ];
-   for(let a=0;a<8;a++){
-     const ang=Math.PI/8+a*Math.PI/4;
-     for(let row=0;row<5;row++){
-       const y=6.84+row*.285;
-       const radius=1.38*(8.56-y)/2.48;
-       const stagger=row%2===0?-.16:.16;
-       for(const side of [-1,1]){
-         const tangent=side*.34+stagger;
-         const px=Math.cos(ang)*radius-Math.sin(ang)*tangent;
-         const pz=Math.sin(ang)*radius+Math.cos(ang)*tangent;
-         const tile=box(t,.29,.205,.022,px,y,pz,slateTileMaterials[(a+row+(side>0?1:0))%slateTileMaterials.length],false);
-         tile.rotation.y=-ang;
-         tile.castShadow=false;tile.receiveShadow=false;
-       }
-     }
-   }
-   // Небольшие металлические наконечники на вершинах граней связывают рёбра с коньком.
-   for(let a=0;a<8;a++){
-     const ang=Math.PI/8+a*Math.PI/4;
-     const x=Math.cos(ang)*.96,z=Math.sin(ang)*.96;
-     sphere(t,.055,x,6.58,z,towerMetal,.85);
-   }
+   // Простое аккуратное навершие без дополнительных колец и фасеточных накладок.
+   cylinder(t,.075,.075,.32,0,8.72,0,towerMetal,8);
+   cone(t,.075,.22,0,8.99,0,towerMetal,8);
    // Короткие каменные кронштейны под карнизом повторяют восьмигранный ритм башни.
    for(let a=0;a<8;a++){
      const ang=Math.PI/8+a*Math.PI/4;
