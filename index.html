@@ -3826,54 +3826,7 @@ function makeHouse(){
  for(let i=0;i<5;i++){
   box(center,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,cream);
  }
- // Центральный фронтон — отдельная выразительная каменная композиция,
- // с утопленным тимпаном, несколькими профилями и круглым бирюзовым витражом.
- const pedShape=new THREE.Shape();pedShape.moveTo(-3.08,0);pedShape.lineTo(0,1.78);pedShape.lineTo(3.08,0);pedShape.closePath();
- const ped=new THREE.Mesh(new THREE.ExtrudeGeometry(pedShape,{depth:.34,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.055,bevelThickness:.04}),ivory);
- ped.position.set(0,4.42,2.02);ped.castShadow=false;ped.receiveShadow=false;center.add(ped);
- const insetShape=new THREE.Shape();insetShape.moveTo(-2.62,.12);insetShape.lineTo(0,1.52);insetShape.lineTo(2.62,.12);insetShape.closePath();
- const inset=new THREE.Mesh(new THREE.ShapeGeometry(insetShape),cream);
- inset.position.set(0,4.48,2.38);inset.castShadow=false;inset.receiveShadow=false;center.add(inset);
- for(const side of [-1,1]){
-  // Наружный профиль повторяет полный скат каменного фронтона:
-  // длина рассчитана по его вершине (0; 6.20) и основанию (+/-3.08; 4.42).
-  const beam=box(center,3.56,.18,.30,side*1.54,5.31,2.38,cream);
-  beam.rotation.z=side===-1?.52:-.52;
-  // Внутренний профиль точно повторяет меньший скат утопленной панели.
-  const inner=box(center,2.97,.07,.24,side*1.31,5.18,2.41,stone);
-  inner.rotation.z=side===-1?.49:-.49;
- }
- box(center,6.32,.16,.42,0,4.48,2.18,cream);
- // Золотую горизонтальную полосу под фронтоном убрали.
- // Круглый витраж расположен вертикально на передней плоскости фронтона.
- const roseOuter=cylinder(center,.48,.48,.14,0,5.39,2.45,gold,48);
- roseOuter.rotation.x=Math.PI/2;
- sphere(center,.38,0,5.39,2.49,tealLight,.96);
- const roseInner=cylinder(center,.29,.29,.05,0,5.39,2.54,gold,48);
- roseInner.rotation.x=Math.PI/2;
- // Золотые импосты витража лежат в той же вертикальной плоскости.
- box(center,.045,.65,.035,0,5.39,2.58,gold,false);
- box(center,.55,.045,.035,0,5.39,2.58,gold,false);
- // Усиленный декор фронтона по крупному плану эталона: три профиля,
- // золотая линия вдоль скатов и симметричные каменные/золотые акценты.
- // Дополнительные накладки идут по всей длине наружного ската фронтона.
- const gableLeft=box(center,3.56,.10,.20,-1.54,5.31,2.46,cream,false);
- gableLeft.rotation.z=.52;
- const gableRight=box(center,3.56,.10,.20,1.54,5.31,2.46,cream,false);
- gableRight.rotation.z=-.52;
- // Золотые полосы вдоль скатов фронтона удалены.
- // Ряд небольших рельефных медальонов под круглым витражом.
- for(const x of [-2.35,-1.88,-1.41,-.94,-.47,.47,.94,1.41,1.88,2.35]){
-  sphere(center,.075,x,4.68,2.49,gold,.86);
-  sphere(center,.035,x,4.68,2.55,cream,.88);
- }
- // Каменное обрамление круглого витража и аккуратный золотой внешний обод.
- const roseStoneRing=cylinder(center,.58,.58,.10,0,5.39,2.40,cream,64);
- roseStoneRing.rotation.x=Math.PI/2;
- const roseGoldRing=cylinder(center,.52,.52,.055,0,5.39,2.52,gold,64);
- roseGoldRing.rotation.x=Math.PI/2;
- const roseBronzeRing=cylinder(center,.45,.45,.035,0,5.39,2.56,bronze,64);
- roseBronzeRing.rotation.x=Math.PI/2;
+ // Центральный фронтон и его декор удалены по просьбе пользователя.
  // Центральная двускатная крыша удалена по просьбе пользователя.
  // Две башни по утверждённому эталону: выразительное каменное основание,
  // двухъярусный цилиндрический корпус, балконы с балюстрадами и высокая синяя кровля.
