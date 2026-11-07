@@ -3892,6 +3892,35 @@ function makeHouse(){
    box(t,.66,.10,.25,0,y+.91,1.16,cream);
    box(t,.60,.045,.27,0,y+1.01,1.18,gold);
   }
+  // Полукруглые выступающие балконы под обоими окнами башни — как на утверждённом эталоне.
+  // Передняя дуга обращена во двор; форма повторяет окружность башни.
+  for(const balconyY of [1.02,2.92]){
+   const platform=new THREE.Mesh(
+    new THREE.CylinderGeometry(1.34,1.34,.16,48,1,false,-Math.PI/2,Math.PI),
+    stone
+   );
+   platform.position.set(0,balconyY,0);
+   platform.castShadow=false;platform.receiveShadow=false;t.add(platform);
+   const rim=new THREE.Mesh(
+    new THREE.CylinderGeometry(1.36,1.36,.075,48,1,false,-Math.PI/2,Math.PI),
+    cream
+   );
+   rim.position.set(0,balconyY+.115,0);
+   rim.castShadow=false;rim.receiveShadow=false;t.add(rim);
+   // Изогнутое ограждение только по наружной полукруглой кромке.
+   for(let j=0;j<=16;j++){
+    const a=-Math.PI/2+j*Math.PI/16,px=Math.sin(a)*1.27,pz=Math.cos(a)*1.27;
+    cylinder(t,.035,.042,.34,px,balconyY+.34,pz,cream,10);
+    sphere(t,.045,px,balconyY+.53,pz,gold,.75);
+   }
+   const rail=new THREE.Mesh(
+    new THREE.TorusGeometry(1.27,.045,8,64,Math.PI),
+    gold
+   );
+   rail.rotation.x=Math.PI/2;
+   rail.position.set(0,balconyY+.54,0);
+   rail.castShadow=false;rail.receiveShadow=false;t.add(rail);
+  }
   // Два круглых балконных яруса с каменной плитой, балясинами и золотым поручнем.
   for(const balconyY of [2.12,4.02]){
    cylinder(t,1.08,1.04,.16,0,balconyY,0,stone,n);
