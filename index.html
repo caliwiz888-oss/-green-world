@@ -3635,7 +3635,7 @@ function makeWorldDecor(){
     const positions=[],colors=[],uvs=[],indices=[];
     const outline=[[-.5,-.42],[-.42,-.5],[.42,-.5],[.5,-.42],[.5,.42],[.42,.5],[-.42,.5],[-.5,.42]];
     for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
-      const stagger=staggerAxis==='z'?(col%2)*pitchZ*.5:(row%2)*pitchX*.5;
+      const stagger=staggerAxis==='z'?(col%2)*pitchZ*.5:(row%2?1:-1)*pitchX*.25;
       const x=x0+col*pitchX+(staggerAxis==='x'?stagger:0);
       const z=z0+row*pitchZ+(staggerAxis==='z'?stagger:0);
       if(skipTile&&skipTile(x,z,row,col))continue;
