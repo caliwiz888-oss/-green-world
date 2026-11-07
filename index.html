@@ -5567,10 +5567,11 @@ function makeWorldLandscape(){
  const shoreGrassMats=[0x66894a,0x8ba65c,0x526f40].map(color=>new THREE.MeshStandardMaterial({color,roughness:.98}));
  for(const [x,z,s] of [[-22,19.65,.7],[-17,19.7,.5],[-12,19.65,.62],[-7,19.7,.42],[3,19.68,.55],[10,19.7,.46],[16,19.68,.6],[22,19.65,.65],[-19,24.8,.5],[-12,24.82,.62],[-4,24.8,.48],[5,24.82,.58],[13,24.8,.46],[20,24.82,.62]]){
    for(let k=0;k<3;k++){
-     const pebbleMesh=new THREE.Mesh(new THREE.SphereGeometry(.19,10,7),shorePebbleMats[k]);
-     pebbleMesh.position.set(x+(k-1)*.22,.075,z+(k%2)*.13);
-     pebbleMesh.scale.set(s*(.7+k*.12),.28,s*(.42+k*.08));
-     pebbleMesh.rotation.y=k*.8;pebbleMesh.castShadow=false;pebbleMesh.receiveShadow=false;world.add(pebbleMesh);
+     const pebbleMesh=new THREE.Mesh(new THREE.SphereGeometry(.19,14,10),shorePebbleMats[k]);
+     pebbleMesh.position.set(x+(k-1)*.22,.075+(k%2)*.008,z+(k%2)*.13);
+     pebbleMesh.scale.set(s*(.68+k*.13),.25+(k%2)*.035,s*(.38+k*.1));
+     pebbleMesh.rotation.set((k-1)*.035,k*.8,(k-1)*.045);
+     pebbleMesh.castShadow=false;pebbleMesh.receiveShadow=false;world.add(pebbleMesh);
    }
  }
  for(const [x,z] of [[-20,19.75],[-15,19.8],[-5,19.78],[4,19.8],[12,19.78],[20,19.75],[-17,24.72],[-8,24.75],[2,24.72],[10,24.75],[18,24.72]]){
