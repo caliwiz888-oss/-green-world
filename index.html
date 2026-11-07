@@ -5271,6 +5271,12 @@ function makeWorldLandscape(){
        const spur=Math.exp(-.5*Math.pow((u-spurLine)/(r.width*.58),2))*
          peakSmooth(.22,.46,Math.abs(across))*(1-peakSmooth(.68,.91,Math.abs(across)));
        h+=height*r.raise*.17*spur;
+       // Вторичное узкое ребро подчёркивает контрфорс и постепенно растворяется в нижней части склона.
+       const secondaryLine=spurLine-r.width*.72;
+       const secondaryOffset=(u-secondaryLine)/(r.width*.46);
+       const secondaryRib=Math.exp(-.5*Math.pow(secondaryOffset,2))*
+         peakSmooth(.16,.36,Math.abs(across))*(1-peakSmooth(.7,.9,Math.abs(across)));
+       h+=height*r.raise*.075*secondaryRib;
      }
      // Узкие ледниковые кулуары прорезают стену и разделяют скальные рёбра.
      for(const g of gullies){
@@ -5282,6 +5288,11 @@ function makeWorldLandscape(){
        const channel=(core*.78+shoulder*.22)*
          peakSmooth(.075,.25,Math.abs(across))*(1-peakSmooth(.7,.96,Math.abs(across)));
        h-=height*g.cut*channel;
+       // Низкие боковые губы кулуара имитируют выветренные борта ледникового желоба.
+       const lipDistance=Math.abs(distance-g.width*1.42);
+       const gullyLip=Math.exp(-.5*Math.pow(lipDistance/(g.width*.42),2))*
+         peakSmooth(.13,.32,Math.abs(across))*(1-peakSmooth(.68,.9,Math.abs(across)));
+       h+=height*g.cut*.085*gullyLip;
      }
      // Мелкие диагональные трещины и скальные пласты усиливают природную структуру массива.
       const fracture=(Math.sin(u*47+across*19)*Math.sin(u*17-across*53)+Math.sin(u*91+across*27)*.32);
