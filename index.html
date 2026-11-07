@@ -5783,8 +5783,8 @@ function drawPlayer(){
     for(const x of [-5.05,5.05]){
       for(const y of [.9,1.7,2.5,3.3,4.1])box(fallback,.34,.42,.34,x,y,4.12,fallbackTrim,false);
     }
-    const roofL=box(fallback,3.95,.34,8.9,-1.93,5.72,0,fallbackRoof);roofL.rotation.z=.58;
-    const roofR=box(fallback,3.95,.34,8.9,1.43,5.72,0,fallbackRoof);roofR.rotation.z=-.58;
+    const roofL=box(fallback,3.95,.34,8.08,-1.93,5.72,-.02,fallbackRoof);roofL.rotation.z=.58;
+    const roofR=box(fallback,3.95,.34,8.08,1.43,5.72,-.02,fallbackRoof);roofR.rotation.z=-.58;
     disableCastShadows(fallback);
     buildingObjects.push(fallback);
   }
