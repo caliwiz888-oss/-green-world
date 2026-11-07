@@ -658,7 +658,7 @@ function makeHouse(){
      const lintel=box(t,.92,.13,.2,px,4.0,pz,trim);lintel.rotation.y=angle;
    }
    // Выступающий круглый балкон с золотой балюстрадой.
-   cylinder(t,1.48,.0,.18,0,4.48,0,shadowStone,n);
+   cylinder(t,1.48,1.48,.18,0,4.48,0,shadowStone,n);
    cylinder(t,1.55,1.55,.12,0,4.59,0,trim,n);
    for(let j=0;j<16;j++){const q=j*Math.PI/8;box(t,.075,.42,.075,Math.sin(q)*1.43,4.84,Math.cos(q)*1.43,gold,false);}
    cylinder(t,1.52,1.52,.075,0,5.08,0,gold,n);
