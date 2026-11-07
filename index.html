@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261107-160200';
+const GREEN_WORLD_BUILD_ID = '20261107-181000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -295,7 +295,7 @@ const atmosphereRim=new THREE.DirectionalLight(0xc9e3f5,.34);atmosphereRim.posit
 const worldBounce=new THREE.DirectionalLight(0xffe8c9,.22);worldBounce.position.set(18,7,30);worldBounce.castShadow=false;scene.add(worldBounce);
 const mat=(c,r=.82)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.025,dithering:true});
 const windowInterior=new THREE.MeshStandardMaterial({color:0xffdca0,emissive:0xb87932,emissiveIntensity:.2,roughness:.42,dithering:true});
-const M={grass:mat(0x83a66a,.9),grass2:mat(0x78985f,.92),soil:mat(0x98734a,.96),path:mat(0xe2cfad,.88),stone:new THREE.MeshStandardMaterial({color:0xe8ddc5,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x91483a,roughness:.78,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0xb8644c,roughness:.74,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x397b3c,roughness:.92,metalness:0,sheen:.34,sheenColor:0x91b86b,sheenRoughness:.88}),leaf2:new THREE.MeshPhysicalMaterial({color:0x5a9a48,roughness:.91,metalness:0,sheen:.42,sheenColor:0xc0d98a,sheenRoughness:.86}),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xd6b45d,roughness:.34,metalness:.58}),glass:new THREE.MeshStandardMaterial({color:0x9bdde1,roughness:.3,metalness:.04,emissive:0x102b34,emissiveIntensity:.06,transparent:false,opacity:1,depthWrite:true})};
+const M={grass:mat(0x91a77d,.94),grass2:mat(0x879b75,.95),soil:mat(0x98734a,.96),path:mat(0xe2cfad,.88),stone:new THREE.MeshStandardMaterial({color:0xe8ddc5,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x526d88,roughness:.82,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0x34495e,roughness:.84,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x397b3c,roughness:.92,metalness:0,sheen:.34,sheenColor:0x91b86b,sheenRoughness:.88}),leaf2:new THREE.MeshPhysicalMaterial({color:0x5a9a48,roughness:.91,metalness:0,sheen:.42,sheenColor:0xc0d98a,sheenRoughness:.86}),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xd6b45d,roughness:.34,metalness:.58}),glass:new THREE.MeshStandardMaterial({color:0x9bdde1,roughness:.3,metalness:.04,emissive:0x102b34,emissiveIntensity:.06,transparent:false,opacity:1,depthWrite:true)}};
 
 function makeSurfaceTexture(kind,seed){
  const size=768,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
@@ -595,9 +595,9 @@ function makeHouse(){
  // Материалы цоколя объявляются до первого использования в нижних фасадных филёнках.
  // Раньше const находились ниже по функции, из-за чего makeHouse() падала с ReferenceError (TDZ).
  const housePlinthBase=M.stone2.clone();
- housePlinthBase.color.setHex(0x62635f);
+ housePlinthBase.color.setHex(0x9c8e77);
  const housePlinthCap=M.stone.clone();
- housePlinthCap.color.setHex(0x929087);
+ housePlinthCap.color.setHex(0xd6c7aa);
  const masonryCanvas=document.createElement('canvas');masonryCanvas.width=masonryCanvas.height=256;
  const masonryCtx=masonryCanvas.getContext('2d');
  masonryCtx.fillStyle='#d7d7d7';masonryCtx.fillRect(0,0,256,256);
@@ -920,7 +920,7 @@ function makeHouse(){
  roofRight.rotation.z=-roofSlopeAngle;
 
  // Карнизные балки установлены точно на концах обоих скатов.
- const roofEdgeMaterial=new THREE.MeshStandardMaterial({color:0x704832,roughness:.88,metalness:.02});
+ const roofEdgeMaterial=new THREE.MeshStandardMaterial({color:0x55483b,roughness:.88,metalness:.04});
  for(const side of [-1,1]){
    const edgeX=side<0?roofLeftEaveX:roofRightEaveX;
    const fascia=box(g,.22,.26,roofDepth,edgeX,roofEaveY,roofCenterZ,roofEdgeMaterial,false);
@@ -936,7 +936,7 @@ function makeHouse(){
 
  // Коньковый профиль строго по центральной оси, от фронтона до фронтона.
  const roofRidgeMaterial=M.roof2.clone();
- roofRidgeMaterial.color.setHex(0x493329);roofRidgeMaterial.roughness=.88;roofRidgeMaterial.metalness=.025;roofRidgeMaterial.needsUpdate=true;
+ roofRidgeMaterial.color.setHex(0x34495e);roofRidgeMaterial.roughness=.88;roofRidgeMaterial.metalness=.025;roofRidgeMaterial.needsUpdate=true;
  const ridge=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,roofDepth,16),roofRidgeMaterial);
  ridge.position.set(roofAxisX,roofRidgeY,roofCenterZ);ridge.rotation.x=Math.PI/2;
  ridge.castShadow=false;ridge.receiveShadow=false;g.add(ridge);
