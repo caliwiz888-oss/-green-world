@@ -3619,6 +3619,10 @@ function makeWorldDecor(){
       footingCap.rotation.x=-Math.atan(bridgeSlope(t));
       const pier=box(world,.48,.72,.48,side*1.91,y-.43,z,pierMat,false);
       pier.rotation.x=-Math.atan(bridgeSlope(t));
+      // Три тонких горизонтальных шва подчёркивают крупную кладку опоры, не дробя её на мелкий декор.
+      for(const courseY of [-.66,-.43,-.20]){
+        box(world,.018,.018,.405,side*2.155,y+courseY,z,bridgeStoneShade,false);
+      }
       const pierCap=box(world,.56,.13,.58,side*1.91,y-.055,z,bridgeStoneLight,false);
       pierCap.rotation.x=-Math.atan(bridgeSlope(t));
     }
