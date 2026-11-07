@@ -717,6 +717,16 @@ function makeHouse(){
  glassCtx.fillStyle='rgba(255,255,255,.22)';glassCtx.beginPath();
  glassCtx.moveTo(8,0);glassCtx.lineTo(34,0);glassCtx.lineTo(112,128);glassCtx.lineTo(88,128);glassCtx.closePath();glassCtx.fill();
  glassCtx.fillStyle='rgba(255,255,255,.10)';glassCtx.fillRect(4,0,2,128);
+ // Мягкие отражения неба и едва заметные блики делают оконное стекло глубже.
+ glassCtx.strokeStyle='rgba(235,248,247,.13)';glassCtx.lineWidth=1.2;
+ glassCtx.beginPath();glassCtx.moveTo(18,0);glassCtx.lineTo(70,128);glassCtx.stroke();
+ glassCtx.strokeStyle='rgba(34,58,70,.10)';glassCtx.lineWidth=1;
+ glassCtx.beginPath();glassCtx.moveTo(104,0);glassCtx.lineTo(76,128);glassCtx.stroke();
+ const glassGlow=glassCtx.createRadialGradient(34,26,2,42,34,54);
+ glassGlow.addColorStop(0,'rgba(255,255,255,.16)');
+ glassGlow.addColorStop(1,'rgba(255,255,255,0)');
+ glassCtx.fillStyle=glassGlow;glassCtx.fillRect(0,0,128,128);
+
  const glassTexture=new THREE.CanvasTexture(glassCanvas);glassTexture.colorSpace=THREE.SRGBColorSpace;
  glassTexture.wrapS=glassTexture.wrapT=THREE.ClampToEdgeWrapping;
  glassTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
