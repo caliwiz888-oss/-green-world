@@ -633,6 +633,26 @@ function makeHouse(){
    masonryCtx.beginPath();masonryCtx.moveTo(x,y);
    masonryCtx.quadraticCurveTo(x+len*.45,y-0.6,x+len,y+0.25);masonryCtx.stroke();
  }
+ // Тонкие естественные микротрещины и следы выветривания добавляют камню возраст, не меняя рисунок кладки.
+ for(let i=0;i<38;i++){
+   const row=(i*3+2)%8,offset=row%2?32:0;
+   const x=(i*67+offset+13)%252,y=row*32+7+(i*13)%17;
+   const len=2+(i*5)%6;
+   masonryCtx.strokeStyle=i%4===0?'rgba(151,126,96,.075)':'rgba(55,58,55,.045)';
+   masonryCtx.lineWidth=.45+(i%3)*.18;
+   masonryCtx.beginPath();
+   masonryCtx.moveTo(x,y);
+   masonryCtx.lineTo(x+len*.38,y+.35);
+   masonryCtx.lineTo(x+len,y+((i%3)-1)*.55);
+   masonryCtx.stroke();
+ }
+ // Редкие мягкие потемнения у стыков имитируют минеральную пыль и дождевое вымывание.
+ for(let i=0;i<32;i++){
+   const row=(i*5+3)%8,offset=row%2?32:0;
+   const x=(i*59+offset+5)%254,y=row*32+2+(i*7)%25;
+   masonryCtx.fillStyle=i%3===0?'rgba(128,111,89,.045)':'rgba(49,54,53,.028)';
+   masonryCtx.fillRect(x,y,1+(i%2),2+(i%4));
+ }
  masonryCtx.strokeStyle='#777777';masonryCtx.lineWidth=3;
  for(let row=0;row<8;row++){
    const y=row*32,offset=row%2?32:0;
