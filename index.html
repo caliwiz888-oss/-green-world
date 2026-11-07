@@ -3878,13 +3878,13 @@ function makeHouse(){
    for(const wx of [-.36,.36]){
     const sh=new THREE.Shape();sh.moveTo(-.22,0);sh.lineTo(-.22,.67);sh.absarc(0,.67,.22,Math.PI,0,true);sh.lineTo(.22,0);sh.closePath();
     const frame=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.10,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.02,bevelThickness:.02}),bronze);
-    frame.position.set(wx-.22,y,.94);frame.castShadow=false;frame.receiveShadow=false;t.add(frame);
+    frame.position.set(wx-.22,y,1.08);frame.castShadow=false;frame.receiveShadow=false;t.add(frame);
     const glass=new THREE.Mesh(new THREE.ShapeGeometry(sh),teal);
-    glass.position.set(wx-.22,y,1.05);glass.castShadow=false;glass.receiveShadow=false;t.add(glass);
-    box(t,.035,.88,.035,wx-.22,y+.32,1.08,gold,false);
-    sphere(t,.14,wx-.22,y+.68,1.06,tealLight,.70);
-    box(t,.54,.10,.22,wx-.22,y-.08,.99,cream);
-    box(t,.58,.06,.24,wx-.22,y+.96,.99,gold);
+    glass.position.set(wx-.22,y,1.19);glass.castShadow=false;glass.receiveShadow=false;t.add(glass);
+    box(t,.035,.88,.035,wx-.22,y+.32,1.22,gold,false);
+    sphere(t,.14,wx-.22,y+.68,1.20,tealLight,.70);
+    box(t,.54,.10,.22,wx-.22,y-.08,1.13,cream);
+    box(t,.58,.06,.24,wx-.22,y+.96,1.13,gold);
    }
   }
   // Круглый каменный балкон с широким выносом, точёными балясинами и поручнем.
