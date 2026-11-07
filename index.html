@@ -3874,7 +3874,7 @@ function makeWorldDecor(){
     if(axis==="right") arch.rotation.y=Math.PI/2;
     if(axis==="front") arch.position.set(center,.22,side-fenceDepth/2);
     else if(axis==="back") arch.position.set(center,.22,side-fenceDepth/2);
-    else if(axis==="left") arch.position.set(side-fenceDepth/2,.22,center);
+    else if(axis==="left") arch.position.set(side+fenceDepth/2,.22,center);
     else arch.position.set(side-fenceDepth/2,.22,center);
     fenceNoShadow(arch);world.add(arch);
     fenceBox(axis,side,center,width,.20,.52,.10,fenceStone);
@@ -3933,7 +3933,7 @@ function makeWorldDecor(){
   buildFenceRun("right",16.5,-14,14);
 
   // Центральный въезд — высокая известняковая арка в той же палитре.
-  const gateSpring=2.45,gateOuter=2.95,gateInner=2.12,gateFrontZ=14.42;
+  const gateSpring=2.45,gateOuter=2.95,gateInner=2.12,gateFrontZ=13.98;
   const gateGeometry=new THREE.ExtrudeGeometry(fenceArchShape(gateOuter,gateInner,gateSpring),{depth:.52,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.045,bevelThickness:.035,curveSegments:40});
   const gate=new THREE.Mesh(gateGeometry,fenceStone);
   gate.position.set(0,.02,13.76);fenceNoShadow(gate);world.add(gate);
