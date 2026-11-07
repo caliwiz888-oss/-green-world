@@ -3547,7 +3547,71 @@ function makeWorldDecor(){
       box(world,.025,.018,.195,x,.18,z,roadEdgeTop,false);
     }
   }
-  // Дорога заканчивается у берега; подъездной настил и конструкции моста отсутствуют.
+  // Каменный арочный мост продолжает главную дорогу по той же оси и без ступеньки.
+  // Начало настила точно совпадает с последним рядом гранитной дороги: z=18.2225, y=0.1475.
+  const bridgeStart=18.2225,bridgeEnd=26.1775,bridgeLength=bridgeEnd-bridgeStart;
+  const bridgeDeckMat=mat(0x777f7e,.96),bridgeStone=mat(0xb5b4a6,.97),bridgeStoneLight=mat(0xd0cabb,.96),bridgeStoneShade=mat(0x747c78,.98);
+  const bridgeProfile=(t)=>.1475+.48*Math.pow(Math.sin(Math.PI*t),2);
+  const bridgeSlope=(t)=>.48*Math.PI/bridgeLength*Math.sin(2*Math.PI*t);
+  // Сплошная несущая плита повторяет плавный подъём арки, а её торцы заподлицо с дорогой.
+  for(let row=0;row<20;row++){
+    const t=(row+.5)/20,z=bridgeStart+t*bridgeLength,angle=-Math.atan(bridgeSlope(t));
+    const slab=box(world,4.08,.30,bridgeLength/20+.025,0,bridgeProfile(t)-.15,z,bridgeDeckMat,false);
+    slab.rotation.x=angle;
+  }
+  // Гранитная мостовая продолжает рисунок главной дороги: ровные ряды, без щели на стыке.
+  for(let row=0;row<20;row++){
+    const t=(row+.5)/20,z=bridgeStart+t*bridgeLength,angle=-Math.atan(bridgeSlope(t));
+    for(let col=0;col<9;col++){
+      const x=-1.64+col*.41,shade=(row+col)%2===0;
+      const tile=box(world,.392,.075,bridgeLength/20-.025,x,bridgeProfile(t)+.018,z,shade?roadBrickLight:roadBrickDark,false);
+      tile.rotation.x=angle;
+    }
+  }
+  // Две выразительные каменные арки несут мост над водой; просвет под ними остаётся открытым.
+  const archMat=new THREE.MeshStandardMaterial({color:0xaaa99b,roughness:.98,metalness:0});
+  for(const side of [-1,1]){
+    const archPoints=[];
+    for(let i=0;i<=40;i++){
+      const t=i/40,z=bridgeStart+t*bridgeLength;
+      archPoints.push(new THREE.Vector3(side*1.91,.075+.34*Math.sin(Math.PI*t),z));
+    }
+    const archCurve=new THREE.CatmullRomCurve3(archPoints);
+    const arch=new THREE.Mesh(new THREE.TubeGeometry(archCurve,80,.17,10,false),archMat);
+    arch.castShadow=false;arch.receiveShadow=false;world.add(arch);
+  }
+  // Невысокие каменные парапеты повторяют профиль настила, сохраняя открытый вид на реку.
+  const railMat=new THREE.MeshStandardMaterial({color:0xc1b9a5,roughness:.96,metalness:0});
+  const railCapMat=new THREE.MeshStandardMaterial({color:0xd5cdbb,roughness:.94,metalness:0});
+  for(const side of [-1,1]){
+    for(let row=0;row<20;row++){
+      const t=(row+.5)/20,z=bridgeStart+t*bridgeLength,angle=-Math.atan(bridgeSlope(t));
+      const curb=box(world,.22,.20,bridgeLength/20+.018,side*2.01,bridgeProfile(t)+.09,z,bridgeStoneShade,false);
+      curb.rotation.x=angle;
+    }
+    for(let i=0;i<=8;i++){
+      const t=i/8,z=bridgeStart+t*bridgeLength,y=bridgeProfile(t);
+      const post=box(world,.25,.55,.30,side*2.01,y+.36,z,railMat,false);
+      post.rotation.x=-Math.atan(bridgeSlope(t));
+      const cap=box(world,.34,.10,.38,side*2.01,y+.69,z,railCapMat,false);
+      cap.rotation.x=-Math.atan(bridgeSlope(t));
+    }
+    const railPoints=[];
+    for(let i=0;i<=40;i++){
+      const t=i/40,z=bridgeStart+t*bridgeLength;
+      railPoints.push(new THREE.Vector3(side*2.01,bridgeProfile(t)+.76,z));
+    }
+    const handrail=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(railPoints),80,.085,8,false),railCapMat);
+    handrail.castShadow=false;handrail.receiveShadow=false;world.add(handrail);
+  }
+  // У входа и выхода — цельные каменные устои, плавно связывающие мост с берегами.
+  for(const z of [bridgeStart+.12,bridgeEnd-.12]){
+    for(const side of [-1,1]){
+      box(world,.42,.52,.52,side*1.91,.40,z,bridgeStone,false);
+      box(world,.50,.12,.60,side*1.91,.72,z,bridgeStoneLight,false);
+    }
+  }
+  // Мост начинается ровно в торце главной дороги и выходит на противоположный берег.
   // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проход оставлен открытым к берегу.
   const fenceMat=mat(0xb5a789),fenceCap=mat(0xd0c2a3),fenceJoint=mat(0x747b69);
   for(let p=-14;p<=14;p+=1.75){
