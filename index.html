@@ -2006,8 +2006,8 @@ function makeMarket(){
  const counter=mat(0xd2c2a0,.82),dark=mat(0x35443d,.72);
  const warm=new THREE.MeshStandardMaterial({color:0xe8bd78,emissive:0x8a4b18,emissiveIntensity:.2,roughness:.7});
  // Низкое каменное основание и широкая торговая площадка.
- box(g,5.9,.42,4.85,0,.24,0,M.stone2);
- box(g,5.72,.12,4.68,0,.51,0,M.stone);
+ box(g,5.9,.42,3.9,0,.24,-.35,M.stone2);
+ box(g,5.72,.12,3.78,0,.51,-.35,M.stone);
  // Две передние квадратные колонны стоят по углам фасада и хорошо видны спереди.
  // Задние опоры оставлены тоньше, чтобы не перегружать открытый павильон.
  for(const x of [-2.62,2.62]){
@@ -2037,17 +2037,14 @@ function makeMarket(){
    }
  }
  // Непрерывный тёмный цокольный пояс аккуратно завершает основание по бокам.
- for(const z of [-2.39,2.39]){
+ for(const z of [-2.39]){
    box(g,5.72,.075,.09,0,.57,z,roofEdge,false);
    box(g,5.58,.035,.11,0,.625,z,roofAccent,false);
  }
  for(const x of [-2.91,2.91]){
-   box(g,.09,.075,4.62,x,.57,0,roofEdge,false);
-   box(g,.11,.035,4.48,x,.625,0,roofAccent,false);
+   box(g,.09,.075,3.62,x,.57,-.35,roofEdge,false);
+   box(g,.11,.035,3.48,x,.625,-.35,roofAccent,false);
  }
- // Чёткая тёмная полоса у переднего основания лавки — локальный материал, не зависит от области видимости дорожных материалов.
- const marketBaseBlack=new THREE.MeshBasicMaterial({color:0x080a0b,toneMapped:false});
- box(g,5.72,.04,.10,0,.57,2.47,marketBaseBlack,false);
  // Плоская широкая кровля с выступающим козырьком — главный отличительный силуэт лавки.
  box(g,6.65,.24,6.65,0,3.48,0,roofEdge);
  box(g,6.48,.16,6.48,0,3.66,0,roof);
@@ -5849,13 +5846,13 @@ function drawPlayer(){
     // Matching stone plinth for the fallback storefront, visible around the full building perimeter.
     const fallbackPlinthBase=M.stone2.clone();fallbackPlinthBase.color.setHex(0x626663);fallbackPlinthBase.roughness=.88;
     const fallbackPlinthCap=M.stone.clone();fallbackPlinthCap.color.setHex(0x858982);fallbackPlinthCap.roughness=.82;
-    for(const z of [-2.34,2.34]){
+    for(const z of [-2.34]){
       box(fallback,5.92,.34,.12,0,.225,z,fallbackPlinthBase,false);
       box(fallback,5.98,.075,.17,0,.425,z,fallbackPlinthCap,false);
     }
     for(const x of [-2.96,2.96]){
-      box(fallback,.12,.34,4.58,x,.225,0,fallbackPlinthBase,false);
-      box(fallback,.17,.075,4.64,x,.425,0,fallbackPlinthCap,false);
+      box(fallback,.12,.34,3.58,x,.225,-.38,fallbackPlinthBase,false);
+      box(fallback,.17,.075,3.64,x,.425,-.38,fallbackPlinthCap,false);
     }
     box(fallback,5.4,2.8,4.4,0,1.4,0,shopWall);
     box(fallback,5.65,.24,4.65,0,2.86,0,M.gold);
