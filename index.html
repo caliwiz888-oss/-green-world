@@ -949,9 +949,9 @@ function makeHouse(){
  makeGable(3.98);makeGable(-4.06);
  // Тонкие каменные обрамления скатов фронтона подчёркивают его треугольную форму и отделяют кладку от черепицы.
  for(const [cx,angle] of [[-1.7,.626],[1.2,-.626]]){
-   const verge=box(g,3.62,.13,.16,cx,5.77,4.145,houseStoneTrim,false);
+   const verge=box(g,3.34,.13,.16,cx,5.77,4.145,houseStoneTrim,false);
    verge.rotation.z=angle;
-   const vergeShadow=box(g,3.56,.035,.17,cx,5.69,4.155,M.stone2,false);
+   const vergeShadow=box(g,3.28,.035,.17,cx,5.69,4.155,M.stone2,false);
    vergeShadow.rotation.z=angle;
  }
  // Четыре небольших накладных элемента у переднего края крыши удалены по просьбе пользователя.
