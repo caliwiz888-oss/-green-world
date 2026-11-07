@@ -3737,7 +3737,7 @@ function makeHouse(){
  const n=64;
  // Центральный корпус, фронтон, окна, двери и вся отделка смещаются единым блоком назад;
  // башни с колоннами остаются на своих местах.
- const center=new THREE.Group();center.add(center);center.position.z=-1.0;
+ const center=new THREE.Group();g.add(center);center.position.z=-1.0;
  // Единый высокий каменный цоколь и ступенчатые основания главного корпуса.
  box(center,7.35,.30,5.42,0,.16,0,stone);
  box(center,7.20,.13,5.30,0,.37,0,cream);
