@@ -3822,75 +3822,102 @@ function makeWorldDecor(){
       box(world,.50,.12,.60,side*1.91,.72,z,bridgeStoneLight,false);
     }
   }
-  // Полная замена ограды по утверждённому образцу: светлый известняк, арочные пролёты и шалфейно-оливковые акценты.
-  const fenceStone=mat(0xe4d5b8);
-  const fenceIvory=mat(0xf3e7d1);
-  const fenceSage=mat(0x89916f);
-  const fenceSageLight=mat(0xaab08a);
-  const fenceReliefStone=mat(0xd2c3a4);
-  const fenceDepth=.38;
+  // Ограда по точному цветовому макету: светлые каменные столбы и тёмная кованая решётка с золотыми медальонами.
+  const fenceStone=mat(0xe8dcc4),fenceIvory=mat(0xf5ead5),fenceReliefStone=mat(0xcbb995);
+  const fenceIron=mat(0x242321),fenceIronLight=mat(0x39332d),fenceGold=mat(0xd9a83f),fenceGoldLight=mat(0xf0c85d);
   const fenceNoShadow=mesh=>{mesh.castShadow=false;mesh.receiveShadow=false;return mesh;};
-  const fenceArchShape=(outerR,innerR,springY)=>{
-    const shape=new THREE.Shape();
-    shape.moveTo(-outerR,0);
-    shape.lineTo(-outerR,springY);
-    shape.absarc(0,springY,outerR,Math.PI,0,true);
-    shape.lineTo(outerR,0);
-    shape.closePath();
-    const opening=new THREE.Path();
-    opening.moveTo(-innerR,0);
-    opening.lineTo(-innerR,springY);
-    opening.absarc(0,springY,innerR,Math.PI,0,true);
-    opening.lineTo(innerR,0);
-    opening.closePath();
-    shape.holes.push(opening);
-    return shape;
-  };
-  const fenceBox=(axis,side,center,w,h,d,y,material)=>{
-    let mesh;
-    if(axis==="front"||axis==="back") mesh=box(world,w,h,d,center,y,side,material,false);
-    else mesh=box(world,d,h,w,side,y,center,material,false);
+  const fencePart=(axis,side,u,y,w,h,d,material)=>{
+    const mesh=axis==="front"||axis==="back"
+      ?box(world,w,h,d,u,y,side,material,false)
+      :box(world,d,h,w,side,y,u,material,false);
     return fenceNoShadow(mesh);
   };
-  const fenceArchBand=(axis,side,center,outerR,springY,material,radiusOffset=0)=>{
-    const r=outerR-radiusOffset,points=[];
-    for(let i=0;i<=48;i++){
-      const a=Math.PI-i*Math.PI/48;
-      points.push(new THREE.Vector3(r*Math.cos(a),springY+r*Math.sin(a),0));
-    }
-    const curve=new THREE.CatmullRomCurve3(points);
-    const band=new THREE.Mesh(new THREE.TubeGeometry(curve,96,.035,8,false),material);
-    if(axis==="front") band.position.set(center,0,side+.22);
-    else if(axis==="back") band.position.set(center,0,side-.22);
-    else if(axis==="left"){band.rotation.y=-Math.PI/2;band.position.set(side-.22,0,center);}
-    else {band.rotation.y=Math.PI/2;band.position.set(side+.22,0,center);}
-    fenceNoShadow(band);world.add(band);
+  const fenceFacePoint=(axis,side,u,y,offset)=>{
+    if(axis==="front")return new THREE.Vector3(u,y,side+offset);
+    if(axis==="back")return new THREE.Vector3(u,y,side-offset);
+    if(axis==="left")return new THREE.Vector3(side-offset,y,u);
+    return new THREE.Vector3(side+offset,y,u);
   };
-  const fenceBay=(axis,side,start,end)=>{
-    const width=end-start,outerR=Math.min(width/2,1.75),innerR=outerR-.25,springY=3.05-outerR,center=(start+end)/2;
-    const geometry=new THREE.ExtrudeGeometry(fenceArchShape(outerR,innerR,springY),{depth:fenceDepth,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.025,bevelThickness:.02,curveSegments:32});
-    const arch=new THREE.Mesh(geometry,fenceStone);
-    if(axis==="left") arch.rotation.y=-Math.PI/2;
-    if(axis==="right") arch.rotation.y=Math.PI/2;
-    if(axis==="front") arch.position.set(center,.22,side-fenceDepth/2);
-    else if(axis==="back") arch.position.set(center,.22,side-fenceDepth/2);
-    else if(axis==="left") arch.position.set(side+fenceDepth/2,.22,center);
-    else arch.position.set(side-fenceDepth/2,.22,center);
-    fenceNoShadow(arch);world.add(arch);
-    fenceBox(axis,side,center,width,.20,.52,.10,fenceStone);
-    fenceBox(axis,side,center,width,.055,.56,.27,fenceIvory);
-    fenceArchBand(axis,side,center,outerR,springY,fenceSage,.13);
-    fenceArchBand(axis,side,center,outerR,springY,fenceSageLight,.23);
-    for(let i=1;i<9;i++){
-      const a=Math.PI-i*Math.PI/9;
-      const inner=new THREE.Vector3((outerR-.29)*Math.cos(a),.22+springY+(outerR-.29)*Math.sin(a),0);
-      const outer=new THREE.Vector3((outerR-.035)*Math.cos(a),.22+springY+(outerR-.035)*Math.sin(a),0);
-      const seam=new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(inner,outer),1,.012,5,false),fenceReliefStone);
-      if(axis==="front") seam.position.set(center,0,side+.205);
-      else if(axis==="back") seam.position.set(center,0,side-.205);
-      else if(axis==="left"){seam.rotation.y=-Math.PI/2;seam.position.set(side-.205,0,center);}
-      else {seam.rotation.y=Math.PI/2;seam.position.set(side+.205,0,center);}
-      fenceNoShadow(seam);world.add(seam);
+  const fenceMedallion=(axis,side,u,y)=>{
+    for(const face of [-1,1]){
+      const offset=face*.115;
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(.205,.035,8,28),fenceGold);
+      ring.position.copy(fenceFacePoint(axis,side,u,y,offset));
+      if(axis==="left")ring.rotation.y=-Math.PI/2;
+      if(axis==="right")ring.rotation.y=Math.PI/2;
+      fenceNoShadow(ring);world.add(ring);
+      const core=new THREE.Mesh(new THREE.CircleGeometry(.145,28),fenceIronLight);
+      core.position.copy(fenceFacePoint(axis,side,u,y,offset+(face*.012)));
+      if(axis==="left")core.rotation.y=-Math.PI/2;
+      if(axis==="right")core.rotation.y=Math.PI/2;
+      fenceNoShadow(core);world.add(core);
+      const center=new THREE.Mesh(new THREE.SphereGeometry(.075,12,10),fenceGoldLight);
+      center.position.copy(fenceFacePoint(axis,side,u,y,offset+(face*.025)));
+      center.scale.set(.82,1,.38);fenceNoShadow(center);world.add(center);
+      for(const a of [0,Math.PI/2,Math.PI,Math.PI*1.5]){
+        const dot=new THREE.Mesh(new THREE.SphereGeometry(.027,8,6),fenceGoldLight);
+        const p=fenceFacePoint(axis,side,u+Math.cos(a)*.16,y+Math.sin(a)*.16,offset+(face*.025));
+        dot.position.copy(p);fenceNoShadow(dot);world.add(dot);
+      }
+    }
+  };
+  const fencePostKeys=new Set();
+  const fenceAddPost=(axis,side,u)=>{
+    const key=(axis==="front"||axis==="back"?u.toFixed(2)+","+side:side+","+u.toFixed(2));
+    if(fencePostKeys.has(key))return;
+    fencePostKeys.add(key);
+    fencePart(axis,side,u,.24,.82,.42,.82,fenceReliefStone);
+    fencePart(axis,side,u,.48,.72,.12,.72,fenceIvory);
+    fencePart(axis,side,u,1.38,.62,1.78,.62,fenceStone);
+    fencePart(axis,side,u,2.31,.78,.18,.78,fenceIvory);
+    fencePart(axis,side,u,2.43,.62,.08,.62,fenceGold);
+    fencePart(axis,side,u,2.51,.48,.10,.48,fenceStone);
+    const finial=new THREE.Mesh(new THREE.ConeGeometry(.15,.30,8),fenceGold);
+    if(axis==="front"||axis==="back")finial.position.set(u,2.70,side);
+    else finial.position.set(side,2.70,u);
+    fenceNoShadow(finial);world.add(finial);
+    const finialBall=new THREE.Mesh(new THREE.SphereGeometry(.065,10,8),fenceGoldLight);
+    if(axis==="front"||axis==="back")finialBall.position.set(u,2.87,side);
+    else finialBall.position.set(side,2.87,u);
+    fenceNoShadow(finialBall);world.add(finialBall);
+    for(const face of [-1,1]){
+      const pilaster=fencePart(axis,side,u,1.42,.12,1.42,.045,fenceIvory);
+      if(axis==="front"||axis==="back")pilaster.position.z=side+face*.316;
+      else pilaster.position.x=side+face*.316;
+      const goldLine=fencePart(axis,side,u,1.42,.045,1.18,.025,fenceGold);
+      if(axis==="front"||axis==="back")goldLine.position.z=side+face*.343;
+      else goldLine.position.x=side+face*.343;
+    }
+  };
+  const fenceBay=(axis,side,a,b)=>{
+    const width=b-a,center=(a+b)/2;
+    // Низкий известняковый цоколь и тонкие тёмные горизонтальные ригели.
+    fencePart(axis,side,center,.22,width,.34,.48,fenceStone);
+    fencePart(axis,side,center,.405,width+.04,.075,.54,fenceIvory);
+    fencePart(axis,side,center,.61,width,.105,.13,fenceIronLight);
+    fencePart(axis,side,center,1.67,width,.12,.15,fenceIronLight);
+    fencePart(axis,side,center,1.76,width,.055,.17,fenceGold);
+    // Частые вертикальные кованые прутья с аккуратными наконечниками.
+    const count=Math.max(3,Math.floor(width/.25));
+    for(let i=0;i<=count;i++){
+      const u=a+.12+(width-.24)*i/count;
+      fencePart(axis,side,u,1.13,.075,1.02,.085,fenceIron);
+      if(i%2===0){
+        const tip=new THREE.Mesh(new THREE.SphereGeometry(.052,8,6),fenceGold);
+        if(axis==="front"||axis==="back")tip.position.set(u,1.76,side);
+        else tip.position.set(side,1.76,u);
+        fenceNoShadow(tip);world.add(tip);
+      }
+    }
+    // Центральный золотой медальон и парные кованые завитки.
+    fenceMedallion(axis,side,center,1.13);
+    for(const sign of [-1,1]){
+      const curl=new THREE.Mesh(new THREE.TorusGeometry(.105,.022,6,18,Math.PI*1.55),fenceGold);
+      const p=fenceFacePoint(axis,side,center+sign*.39,1.13,.12);
+      curl.position.copy(p);curl.rotation.z=sign>0?0:Math.PI;
+      if(axis==="left")curl.rotation.y=-Math.PI/2;
+      if(axis==="right")curl.rotation.y=Math.PI/2;
+      fenceNoShadow(curl);world.add(curl);
     }
   };
   const fenceIntervals=(a,b,step=3.5)=>{
@@ -3898,32 +3925,11 @@ function makeWorldDecor(){
     for(let p=a;p<b-.001;){const q=Math.min(p+step,b);result.push([p,q]);p=q;}
     return result;
   };
-  const fencePostKeys=new Set();
-  const fenceAddPost=(axis,side,p)=>{
-    const key=(axis==="front"||axis==="back"?p.toFixed(2)+","+side:side+","+p.toFixed(2));
-    if(fencePostKeys.has(key))return;
-    fencePostKeys.add(key);
-    for(const face of [-1,1]){
-      let post;
-      if(axis==="front"||axis==="back"){
-        post=box(world,.66,2.82,.50,p,1.63,side+face*.22,fenceStone,false);
-        box(world,.78,.14,.62,p,3.08,side+face*.22,fenceIvory,false);
-        box(world,.48,.07,.40,p,3.185,side+face*.22,fenceSage,false);
-        box(world,.10,1.72,.035,p,1.65,side+face*.49,fenceSageLight,false);
-      }else{
-        post=box(world,.50,2.82,.66,side+face*.22,1.63,p,fenceStone,false);
-        box(world,.62,.14,.78,side+face*.22,3.08,p,fenceIvory,false);
-        box(world,.40,.07,.48,side+face*.22,3.185,p,fenceSage,false);
-        box(world,.035,1.72,.10,side+face*.49,1.65,p,fenceSageLight,false);
-      }
-      fenceNoShadow(post);
-    }
-  };
   const buildFenceRun=(axis,side,a,b)=>{
     const intervals=fenceIntervals(a,b);
     for(const span of intervals)fenceBay(axis,side,span[0],span[1]);
     const posts=[a].concat(intervals.map(v=>v[1]));
-    for(const p of posts)fenceAddPost(axis,side,p);
+    for(const u of posts)fenceAddPost(axis,side,u);
   };
   for(const side of [-14,14]){
     if(side===14){buildFenceRun("front",side,-14,-3.8);buildFenceRun("front",side,3.8,16.5);}
@@ -3932,37 +3938,33 @@ function makeWorldDecor(){
   buildFenceRun("left",-14,-14,14);
   buildFenceRun("right",16.5,-14,14);
 
-  // Центральный въезд — высокая известняковая арка в той же палитре.
+  // Центральная парадная арка — светлый камень с золотыми обводками и гербом, как на макете.
   const gateSpring=2.45,gateOuter=2.95,gateInner=2.12,gateFrontZ=13.98;
-  const gateGeometry=new THREE.ExtrudeGeometry(fenceArchShape(gateOuter,gateInner,gateSpring),{depth:.52,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.045,bevelThickness:.035,curveSegments:40});
-  const gate=new THREE.Mesh(gateGeometry,fenceStone);
-  gate.position.set(0,.02,13.76);fenceNoShadow(gate);world.add(gate);
-  const gateBand=(radius,material,tube)=>{
-    const pts=[];
-    for(let i=0;i<=64;i++){
-      const a=Math.PI-i*Math.PI/64;
-      pts.push(new THREE.Vector3(radius*Math.cos(a),.02+gateSpring+radius*Math.sin(a),gateFrontZ+.30));
-    }
-    const curve=new THREE.CatmullRomCurve3(pts);
-    const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,128,tube,8,false),material);
-    fenceNoShadow(mesh);world.add(mesh);
+  const gateShape=(outerR,innerR,springY)=>{
+    const shape=new THREE.Shape();
+    shape.moveTo(-outerR,0);shape.lineTo(-outerR,springY);shape.absarc(0,springY,outerR,Math.PI,0,true);shape.lineTo(outerR,0);shape.closePath();
+    const hole=new THREE.Path();hole.moveTo(-innerR,0);hole.lineTo(-innerR,springY);hole.absarc(0,springY,innerR,Math.PI,0,true);hole.lineTo(innerR,0);hole.closePath();shape.holes.push(hole);
+    return shape;
   };
-  gateBand(2.78,fenceSage,.055);
-  gateBand(2.25,fenceSageLight,.025);
+  const gateGeometry=new THREE.ExtrudeGeometry(gateShape(gateOuter,gateInner,gateSpring),{depth:.52,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.045,bevelThickness:.035,curveSegments:40});
+  const gate=new THREE.Mesh(gateGeometry,fenceStone);gate.position.set(0,.02,13.76);fenceNoShadow(gate);world.add(gate);
+  const gateBand=(radius,material,tube)=>{
+    const pts=[];for(let i=0;i<=64;i++){const a=Math.PI-i*Math.PI/64;pts.push(new THREE.Vector3(radius*Math.cos(a),.02+gateSpring+radius*Math.sin(a),gateFrontZ+.30));}
+    const mesh=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),128,tube,8,false),material);fenceNoShadow(mesh);world.add(mesh);
+  };
+  gateBand(2.78,fenceGold,.055);gateBand(2.25,fenceIvory,.035);
   for(const x of [-2.56,2.56]){
     fenceNoShadow(box(world,.82,.22,.82,x,.13,14.02,fenceReliefStone,false));
     fenceNoShadow(box(world,.76,2.12,.72,x,1.30,14.02,fenceStone,false));
-    for(const dx of [-.23,0,.23])fenceNoShadow(box(world,.045,1.55,.035,x+dx,1.35,14.395,fenceSageLight,false));
     fenceNoShadow(box(world,.98,.16,.88,x,2.48,14.02,fenceIvory,false));
-    fenceNoShadow(box(world,.82,.08,.74,x,2.60,14.02,fenceSage,false));
+    fenceNoShadow(box(world,.82,.08,.74,x,2.60,14.02,fenceGold,false));
+    const finial=new THREE.Mesh(new THREE.ConeGeometry(.16,.30,8),fenceGold);finial.position.set(x,2.79,14.02);fenceNoShadow(finial);world.add(finial);
   }
-  const gateMedallion=new THREE.Mesh(new THREE.OctahedronGeometry(.22,1),fenceSage);
-  gateMedallion.position.set(0,.02+gateSpring+gateOuter-.02,gateFrontZ+.34);
-  gateMedallion.scale.set(.9,1.1,.38);fenceNoShadow(gateMedallion);world.add(gateMedallion);
-  const gateMedallionCore=new THREE.Mesh(new THREE.OctahedronGeometry(.095,1),fenceIvory);
-  gateMedallionCore.position.set(0,.02+gateSpring+gateOuter+.015,gateFrontZ+.40);
-  gateMedallionCore.scale.set(.8,1,.3);fenceNoShadow(gateMedallionCore);world.add(gateMedallionCore);
-// Decorative entrance arch is built above; continue with natural ground-cover details.
+  const gateMedallion=new THREE.Mesh(new THREE.OctahedronGeometry(.28,1),fenceGold);
+  gateMedallion.position.set(0,.02+gateSpring+gateOuter-.02,gateFrontZ+.34);gateMedallion.scale.set(1.25,1.1,.42);fenceNoShadow(gateMedallion);world.add(gateMedallion);
+  const gateMedallionCore=new THREE.Mesh(new THREE.SphereGeometry(.105,12,10),fenceGoldLight);
+  gateMedallionCore.position.set(0,.02+gateSpring+gateOuter+.015,gateFrontZ+.40);fenceNoShadow(gateMedallionCore);world.add(gateMedallionCore);
+  // Decorative entrance arch is built above; continue with natural ground-cover details.
  // Low ornamental ground cover and natural stone clusters around the outer border.
  const shrubMat=mat(0x718765),rockMat=mat(0x9b9586);
  // Кустарники собраны из перекрывающихся округлых ярусов листвы с несколькими природными оттенками.
