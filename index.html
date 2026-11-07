@@ -3979,21 +3979,24 @@ function makeWorldDecor(){
   }
   // Соединительные каменные вставки: без щелей между боковыми устоями арки и крайними столбами ограды.
   for(const side of [-1,1]){
-    const x=side*3.225;
-    fenceNoShadow(box(world,.33,2.16,.78,x,1.42,14.02,fenceStone,false));
-    fenceNoShadow(box(world,.39,.13,.86,x,.30,14.02,fenceIvory,false));
-    fenceNoShadow(box(world,.39,.13,.86,x,2.62,14.02,fenceIvory,false));
-    fenceNoShadow(box(world,.025,1.72,.025,x,1.43,14.425,fenceGold,false));
+    // Короткие каменные крылья портала точно примыкают к крайним квадратным столбам ограды.
+    const x=side*3.235;
+    fenceNoShadow(box(world,.52,2.28,.84,x,1.43,14.02,fenceStone,false));
+    fenceNoShadow(box(world,.58,.14,.92,x,.30,14.02,fenceIvory,false));
+    fenceNoShadow(box(world,.58,.14,.92,x,2.62,14.02,fenceIvory,false));
+    fenceNoShadow(box(world,.045,1.78,.035,x,1.43,14.465,fenceGold,false));
   }
-  // Радиальные швы на каменных блоках дуги — тонкие золотистые разделители по обеим сторонам.
+  // Радиальные швы настоящей каменной кладки по дуге: короткие линии идут от внутреннего контура к внешнему.
   for(const face of [-1,1]){
     const z=gateFrontZ+.515+face*.012;
     for(let i=1;i<13;i++){
       const angle=Math.PI-i*Math.PI/13;
-      const r=2.77;
-      const x=r*Math.cos(angle),y=.02+gateSpring+r*Math.sin(angle);
-      const radial=new THREE.Mesh(new THREE.SphereGeometry(.035,8,6),fenceGold);
-      radial.position.set(x,y,z);radial.scale.set(1,1,.35);fenceNoShadow(radial);world.add(radial);
+      const inner=2.34,outer=2.79;
+      const p1=new THREE.Vector3(inner*Math.cos(angle),.02+gateSpring+inner*Math.sin(angle),z);
+      const p2=new THREE.Vector3(outer*Math.cos(angle),.02+gateSpring+outer*Math.sin(angle),z);
+      const seamCurve=new THREE.LineCurve3(p1,p2);
+      const seam=new THREE.Mesh(new THREE.TubeGeometry(seamCurve,1,.018,6,false),fenceReliefStone);
+      fenceNoShadow(seam);world.add(seam);
     }
   }
   // Центральный замковый камень с выразительным золотым гербом и симметричными завитками.
