@@ -3581,8 +3581,28 @@ function makeWorldDecor(){
         points.push(new THREE.Vector3(side*1.91,y,z));
       }
       const archCurve=new THREE.CatmullRomCurve3(points);
-      const arch=new THREE.Mesh(new THREE.TubeGeometry(archCurve,64,.23,12,false),archMat);
-      arch.castShadow=false;arch.receiveShadow=false;world.add(arch);
+      // Арка собрана из отдельных клиновидных камней, а не выглядит гладкой трубой.
+      // Небольшие швы подчёркивают настоящую каменную кладку и сохраняют цельный силуэт.
+      const voussoirMaterials=[
+        archMat,
+        new THREE.MeshStandardMaterial({color:0xb0ada1,roughness:.99,metalness:0}),
+        new THREE.MeshStandardMaterial({color:0x9c9a8f,roughness:.99,metalness:0})
+      ];
+      const segments=18;
+      for(let block=0;block<segments;block++){
+        const u0=block/segments+.004,u1=(block+1)/segments-.004;
+        const segmentPoints=[];
+        for(let k=0;k<=4;k++){
+          const u=u0+(u1-u0)*k/4;
+          segmentPoints.push(archCurve.getPoint(u));
+        }
+        const segmentCurve=new THREE.CatmullRomCurve3(segmentPoints);
+        const voussoir=new THREE.Mesh(
+          new THREE.TubeGeometry(segmentCurve,8,.235,10,false),
+          voussoirMaterials[(block+span)%voussoirMaterials.length]
+        );
+        voussoir.castShadow=false;voussoir.receiveShadow=false;world.add(voussoir);
+      }
     }
     // Массивные простенки между пролётами формируют цельный каменный мост.
     for(let support=0;support<=3;support++){
