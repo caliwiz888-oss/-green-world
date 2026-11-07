@@ -2346,9 +2346,18 @@ function makeMarket(){
  for(const x of [-1.72,1.72]){
    box(g,.94,.055,.18,x,1.28,1.94,timberLight,false);
    box(g,.98,.025,.2,x,1.245,1.94,roofAccent,false);
-   for(const [dx,color] of [[-.29,0xc86b45],[0,0xd6ae63],[.29,0x6f9865]]){
-     cylinder(g,.075,.085,.18,x+dx,1.405,1.91,mat(color,.58),10);
-     sphere(g,.043,x+dx,1.505,1.91,M.gold,.7);
+   // Товары различаются по силуэту и высоте: небольшая банка, высокая бутылка и коробочка.
+   const displayGoods=[
+     {dx:-.29,color:0xc86b45,r:.066,h:.17,cap:0xd6b779},
+     {dx:0,color:0x6f9da0,r:.052,h:.235,cap:0x394f4d},
+     {dx:.29,color:0x8b9b65,r:.078,h:.145,cap:0xc7b98a}
+   ];
+   for(const item of displayGoods){
+     const productMat=mat(item.color,.48);
+     cylinder(g,item.r*.82,item.r,item.h,x+item.dx,1.3075+item.h/2,1.91,productMat,12);
+     cylinder(g,item.r*.48,item.r*.48,.025,x+item.dx,1.3075+item.h+.0125,1.91,mat(item.cap,.52),12);
+     // Маленькая светлая этикетка подчёркивает товар, не превращаясь в крупную надпись.
+     box(g,item.r*1.18,.035,.012,x+item.dx,1.3075+item.h*.52,1.91+item.r*.91,M.stone,false);
    }
    // Тонкая верхняя полка добавляет глубину торговой экспозиции.
    box(g,.82,.035,.13,x,1.91,1.96,timber,false);
