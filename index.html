@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261107-184500';
+const GREEN_WORLD_BUILD_ID = '20261107-222700';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3993,14 +3993,15 @@ function makeHouse(){
    [4.78,1.10,.12,stone],[4.91,1.14,.10,cream],
    [5.04,1.16,.08,gold]
   ]) cylinder(t,r,r,h,0,y,0,m,n);
-  // Восемь вертикальных каменных рёбер придают цилиндру членение,
-  // как на каменных башнях эталонной усадьбы.
+  // Восемь круглых каменных колонн вместо плоских квадратных рёбер:
+  // цилиндрические стволы, округлые базы и капители повторяют эталон.
   for(let j=0;j<8;j++){
    const a=j*Math.PI/4,px=Math.sin(a)*.985,pz=Math.cos(a)*.985;
-   const pil=box(t,.13,3.92,.16,px,2.72,pz,cream,false);
-   pil.rotation.y=a;
-   box(t,.19,.13,.20,px,.78,pz,stone,false).rotation.y=a;
-   box(t,.19,.12,.20,px,4.67,pz,gold,false).rotation.y=a;
+   cylinder(t,.085,.085,3.92,px,2.72,pz,cream,20);
+   cylinder(t,.135,.135,.16,px,.78,pz,stone,20);
+   cylinder(t,.115,.115,.10,px,.91,pz,cream,20);
+   cylinder(t,.14,.14,.13,px,4.62,pz,stone,20);
+   cylinder(t,.115,.115,.09,px,4.73,pz,cream,20);
   }
   // Два окна на башню: одно нижнее и одно верхнее, с каменным обрамлением.
   for(const y of [1.15,3.05]){
