@@ -906,54 +906,58 @@ function makeHouse(){
   manorRoofMaterial.color.setHex(0x718b9a);
  manorRoofMaterial.roughness=.82;manorRoofMaterial.metalness=.035;
  manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.013;manorRoofMaterial.roughness=.87;manorRoofMaterial.metalness=.02;manorRoofMaterial.needsUpdate=true;
- // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
- const roofL=box(g,3.95,.34,8.04,-1.93,5.72,-.04,manorRoofMaterial);roofL.rotation.z=.58;
- const roofR=box(g,3.95,.34,8.04,1.43,5.72,-.04,manorRoofMaterial);roofR.rotation.z=-.58;
-  // Основные скаты оставлены цельными: убраны накладные ряды и черепица, создававшие мерцание.
- // Карнизные балки вдоль обоих скатов закрывают торцы кровли и подчёркивают её толщину.
- const manorRoofEdgeMaterial=new THREE.MeshStandardMaterial({color:0x704832,roughness:.88,metalness:.02});
-  // Обе карнизные балки одинаковой длины и точно под наружными кромками скатов.
-  // Обе балки совпадают по глубине со скатами: торцы заканчиваются в плоскостях фронтонов.
-  for(const [x,y,angle] of [[-3.55,4.63,.58],[3.09,4.63,-.58]]){
-    const fascia=box(g,.2,.24,8.04,x,y,-.04,manorRoofEdgeMaterial,false);
-   fascia.rotation.z=angle;
-   // Ритмичные резные кронштейны поддерживают длинный карниз главного дома.
-   for(const z of [-3.65,-2.2,-.73,.73,2.2,3.65]){
-     const bracket=box(g,.16,.42,.2,x+(x<0?.12:-.12),y-.2,z,M.stone2,false);
-     bracket.rotation.z=angle;
-     sphere(g,.045,x+(x<0?.24:-.24),y-.34,z,M.gold,.8);
+ // НОВАЯ КРОВЛЯ: единая параметрическая геометрия от общей оси конька.
+ // Одинаковый уклон, толщина, длина и глубина; торцы совпадают с плоскостями фронтонов.
+ const roofDepth=8.04, roofCenterZ=-.04, roofThickness=.30;
+ const roofEaveY=4.74, roofRidgeY=6.82, roofAxisX=-.25;
+ const roofSlopeLength=3.9279, roofSlopeAngle=0.5581;
+ const roofLeftEaveX=-3.5820, roofRightEaveX=3.0820;
+ const roofLeft=box(g,roofSlopeLength,roofThickness,roofDepth,-1.9160,5.7800,roofCenterZ,manorRoofMaterial,false);
+ roofLeft.rotation.z=roofSlopeAngle;
+ const roofRight=box(g,roofSlopeLength,roofThickness,roofDepth,1.4160,5.7800,roofCenterZ,manorRoofMaterial,false);
+ roofRight.rotation.z=-roofSlopeAngle;
+
+ // Карнизные балки установлены точно на концах обоих скатов.
+ const roofEdgeMaterial=new THREE.MeshStandardMaterial({color:0x704832,roughness:.88,metalness:.02});
+ for(const side of [-1,1]){
+   const edgeX=side<0?roofLeftEaveX:roofRightEaveX;
+   const fascia=box(g,.22,.26,roofDepth,edgeX,roofEaveY,roofCenterZ,roofEdgeMaterial,false);
+   fascia.rotation.z=side<0?roofSlopeAngle:-roofSlopeAngle;
+   // Одинаковые опоры с равным шагом на обеих сторонах.
+   for(const z of [-3.35,-2.01,-.67,.67,2.01,3.35]){
+     const bracket=box(g,.17,.36,.18,edgeX+(side<0?.10:-.10),roofEaveY-.20,z,M.stone2,false);
+     bracket.rotation.z=side<0?roofSlopeAngle:-roofSlopeAngle;
+     const cap=sphere(g,.042,edgeX+(side<0?.20:-.20),roofEaveY-.34,z,M.gold,.8);
+     cap.castShadow=false;cap.receiveShadow=false;
    }
  }
- // Коньковая накладка закрывает стык скатов и завершает силуэт крыши.
- const manorRidgeMaterial=M.roof2.clone();
- manorRidgeMaterial.color.setHex(0x493329);
- manorRidgeMaterial.roughness=.88;manorRidgeMaterial.metalness=.025;manorRidgeMaterial.needsUpdate=true;
- const ridge=cylinder(g,.13,.13,8.04,-.25,6.82,-.04,manorRidgeMaterial,12);
- ridge.rotation.x=Math.PI/2;
- // Небольшие латунные стяжки на коньке визуально соединяют секции кровельного покрытия.
- for(const z of [-3.55,-2.15,-.72,.72,2.15,3.55]){
-   const ridgeBand=cylinder(g,.145,.145,.055,-.25,6.82,z,manorRidgeMaterial,16);
-    ridgeBand.rotation.x=Math.PI/2;
- }
- // Compact stone-and-brass ridge finials finish both visible ends of the manor roof.
+
+ // Коньковый профиль строго по центральной оси, от фронтона до фронтона.
+ const roofRidgeMaterial=M.roof2.clone();
+ roofRidgeMaterial.color.setHex(0x493329);roofRidgeMaterial.roughness=.88;roofRidgeMaterial.metalness=.025;roofRidgeMaterial.needsUpdate=true;
+ const ridge=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,roofDepth,16),roofRidgeMaterial);
+ ridge.position.set(roofAxisX,roofRidgeY,roofCenterZ);ridge.rotation.x=Math.PI/2;
+ ridge.castShadow=false;ridge.receiveShadow=false;g.add(ridge);
+
+ // Одинаковые компактные завершения конька на обоих торцах.
  for(const z of [-4.06,3.98]){
-   sphere(g,.16,-.25,6.82,z,houseStoneTrim,.9);
-   // Тонкое латунное кольцо и шейка связывают концевые навершия с коньком.
-   cylinder(g,.14,.14,.045,-.25,6.875,z,M.gold,12);
-   const finial=cylinder(g,.055,.12,.24,-.25,6.99,z,M.gold,8);
-   sphere(g,.075,-.25,7.13,z,M.gold,.85);
+   const base=sphere(g,.13,roofAxisX,roofRidgeY,z,houseStoneTrim,.9);base.castShadow=false;base.receiveShadow=false;
+   const neck=new THREE.Mesh(new THREE.CylinderGeometry(.045,.065,.16,12),M.gold);
+   neck.position.set(roofAxisX,roofRidgeY+.14,z);neck.castShadow=false;neck.receiveShadow=false;g.add(neck);
+   const top=sphere(g,.065,roofAxisX,roofRidgeY+.25,z,M.gold,.9);top.castShadow=false;top.receiveShadow=false;
  }
+
  // Front and rear triangular gables beneath the roof ridge.
  const makeGable=(z)=>{
-   // Треугольник симметричен относительно оси конька и точно совпадает с краями скатов.
-   const shape=new THREE.Shape();shape.moveTo(-3.5820,4.74);shape.lineTo(3.0820,4.74);shape.lineTo(-.25,6.82);shape.closePath();
+   // Фронтон точно следует геометрии новой крыши.
+   const shape=new THREE.Shape();shape.moveTo(roofLeftEaveX,roofEaveY);shape.lineTo(roofRightEaveX,roofEaveY);shape.lineTo(roofAxisX,roofRidgeY);shape.closePath();
    const mesh=new THREE.Mesh(new THREE.ShapeGeometry(shape),houseStoneTrim);mesh.position.z=z;mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);
  };
  makeGable(3.98);makeGable(-4.06);
- // Каменные накладки рассчитаны непосредственно по сторонам симметричного фронтона.
+ // Обрамления повторяют скаты с одинаковой длиной и зеркальными углами.
  const gableVergeSpecs=[
-   {length:3.9279,x:-1.9160,y:5.7800,angle:0.5581},
-   {length:3.9279,x:1.4160,y:5.7800,angle:-0.5581}
+   {length:roofSlopeLength,x:-1.9160,y:5.7800,angle:roofSlopeAngle},
+   {length:roofSlopeLength,x:1.4160,y:5.7800,angle:-roofSlopeAngle}
  ];
  for(const spec of gableVergeSpecs){
    const verge=box(g,spec.length,.09,.12,spec.x,spec.y,4.145,houseStoneTrim,false);
