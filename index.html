@@ -3815,12 +3815,12 @@ function makeWorldDecor(){
       if(z===14 && Math.abs(p)<3.6) continue;
       box(world,.76,1.28,.76,p,.64,z,fenceMat,false);
       box(world,.94,.16,.94,p,1.34,z,fenceCap,false);
-      box(world,.50,.055,.50,p,1.45,z,fenceJoint,false);
+      box(world,.50,.055,.50,p,1.465,z,fenceJoint,false);
     }
     for(const x of [-14,16.5]){
       box(world,.76,1.28,.76,x,.64,p,fenceMat,false);
       box(world,.94,.16,.94,x,1.34,p,fenceCap,false);
-      box(world,.50,.055,.50,x,1.45,p,fenceJoint,false);
+      box(world,.50,.055,.50,x,1.465,p,fenceJoint,false);
     }
   }
   // Четыре угловых пилона получают отдельные ступенчатые накладки и вертикальные каменные грани.
@@ -3844,7 +3844,7 @@ function makeWorldDecor(){
     box(world,2.7,.90,.58,15.25,.45,z,fenceMat,false);
     box(world,.76,1.28,.76,16.5,.64,z,fenceMat,false);
     box(world,.94,.16,.94,16.5,1.34,z,fenceCap,false);
-    box(world,.50,.055,.50,16.5,1.45,z,fenceJoint,false);
+    box(world,.50,.055,.50,16.5,1.465,z,fenceJoint,false);
   }
 
   // Декоративная каменная отделка ограждения: цоколь, карниз и рельефные панели.
@@ -4484,7 +4484,7 @@ function makeWorldDecor(){
   fenceMat.needsUpdate=true;fenceCap.needsUpdate=true;fenceJoint.needsUpdate=true;
   fenceBaseTrim.needsUpdate=true;fenceLightTrim.needsUpdate=true;fenceRelief.needsUpdate=true;
   // Приоритет глубины для накладного декора: исключаем совпадение лицевых поверхностей на мобильном depth buffer.
-  for(const [material,offset] of [[fenceCap,-1],[fenceJoint,-2],[fenceBaseTrim,-2],[fenceLightTrim,-3],[fenceRelief,-4]]){
+  for(const [material,offset] of [[fenceCap,-1],[fenceBaseTrim,-2],[fenceLightTrim,-3],[fenceRelief,-4]]){
     material.polygonOffset=true;
     material.polygonOffsetFactor=offset;
     material.polygonOffsetUnits=offset;
@@ -4630,7 +4630,7 @@ function makeWorldDecor(){
           box(world,.66,.035,.66,px,1.565,z,fenceLightTrim,false);
           // Двухступенчатое навершие завершает квадратный пилон и повторяет оттенки карниза.
           box(world,.54,.045,.54,px,1.66,z,fenceLightTrim,false);
-          box(world,.34,.025,.34,px,1.695,z,fenceJoint,false);
+          box(world,.34,.025,.34,px,1.715,z,fenceJoint,false);
           // Вертикальные фаски и центральная резная вставка подчёркивают архитектуру опоры.
           for(const dx of [-.125,.125]){
             box(world,.035,.82,.025,px+dx,.72,z+.239,fenceLightTrim,false);
@@ -4685,7 +4685,7 @@ function makeWorldDecor(){
         box(world,.62,.12,.62,x,1.49,pz,fenceBaseTrim,false);
         box(world,.66,.035,.66,x,1.565,pz,fenceLightTrim,false);
         box(world,.54,.045,.54,x,1.66,pz,fenceLightTrim,false);
-        box(world,.34,.025,.34,x,1.695,pz,fenceJoint,false);
+        box(world,.34,.025,.34,x,1.715,pz,fenceJoint,false);
         // Ромбовидный каменный знак на внешней грани бокового пилона.
         const sideMedallion=new THREE.Mesh(new THREE.OctahedronGeometry(.105,0),fenceRelief);
         sideMedallion.position.set(x+sign*.245,1.02,pz);
