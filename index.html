@@ -3726,26 +3726,162 @@ function clearDynamic(){
  for(const b of buildingObjects)disposeObject3D(b);
  buildingObjects=[];
 }
-function drawPlayer(){
-  // Дом, завод и лавка — постоянные декоративные объекты мира.
-  if(buildingObjects.length===0){
-  // Завод создаётся первым и независимо от остальных объектов мира.
-  window.GREEN_WORLD_HOUSE_MODEL='removed';
-  window.GREEN_WORLD_HOUSE_ERROR=null;
-  // Магазин и завод удалены; пустые опорные группы сохраняют исходные координаты.
-  const factoryAnchor=group(world,11.8,0,-9.61);
-  factoryAnchor.name='factory-coordinate-anchor';
-  factoryAnchor.userData.buildingRemoved=true;
-  buildingObjects.push(factoryAnchor);
-  const marketAnchor=group(world,-10.8,0,-8.5);
-  marketAnchor.name='market-coordinate-anchor';
-  marketAnchor.userData.buildingRemoved=true;
-  buildingObjects.push(marketAnchor);
-  window.GREEN_WORLD_FACTORY_MODEL='removed';
-  window.GREEN_WORLD_MARKET_MODEL='removed';
-  window.GREEN_WORLD_FACTORY_ERROR=null;
-  window.GREEN_WORLD_MARKET_ERROR=null;
+function makeHouse(){
+ const g=group(world,0,0,-14);g.name='main-manor-house-reference-v2';
+ const ivory=mat(0xf1e5d0,.91),cream=mat(0xfff3df,.86),stone=mat(0xcbb896,.93),stoneDark=mat(0x9e8969,.9);
+ const slate=mat(0x29445f,.78),slateDark=mat(0x182f49,.82),teal=mat(0x25b8c4,.24),tealLight=mat(0x8be2df,.2);
+ const gold=mat(0xd9ad4f,.34),bronze=mat(0x493326,.58),wood=mat(0x684126,.65),terra=mat(0xa95735,.8);
+ const pink=mat(0xe78bb4,.8),lilac=mat(0xb7a0db,.8),white=mat(0xffe8d4,.78),green=mat(0x4c7c49,.9);
+ const trim=(x,y,z,w,h,d)=>box(g,w,h,d,x,y,z,cream);
+ // Пьедестал и выразительный центральный корпус.
+ box(g,6.85,.34,5.05,0,.18,0,stone);
+ box(g,6.72,.15,4.98,0,.43,0,cream);
+ box(g,6.42,4.05,4.72,0,2.48,0,ivory);
+ box(g,6.58,.18,4.88,0,.62,0,cream);
+ box(g,6.62,.15,4.92,0,4.40,0,cream);
+ box(g,6.78,.075,5.02,0,4.53,0,gold);
+ // Пилястры и профилированные карнизы придают фасаду каменную глубину.
+ for(const x of [-3.03,-2.20,2.20,3.03]){
+  box(g,.20,3.78,.25,x,2.48,2.39,cream);
+  box(g,.34,.14,.32,x,.66,2.40,stone);
+  box(g,.34,.12,.32,x,4.27,2.40,gold);
+  box(g,.29,.09,.30,x,4.38,2.40,cream);
+ }
+ // Окна с бронзовой рамой, бирюзовым стеклом и тонкими золотыми переплётами.
+ function windowFront(x,y,w=.66,h=1.18){
+  box(g,w+.20,h+.20,.12,x,y,2.39,bronze);
+  box(g,w,h,.055,x,y,2.47,teal);
+  box(g,.055,h-.06,.035,x,y,2.51,gold,false);
+  box(g,w-.05,.055,.035,x,y,2.51,gold,false);
+  box(g,w+.28,.10,.19,x,y+h/2+.13,2.43,cream);
+  box(g,w+.28,.10,.19,x,y-h/2-.13,2.43,cream);
+  box(g,.09,h+.27,.18,x-w/2-.095,y,2.43,cream);
+  box(g,.09,h+.27,.18,x+w/2+.095,y,2.43,cream);
+  box(g,w+.34,.13,.28,x,y-h/2-.23,2.48,stone);
+  box(g,w+.12,.045,.12,x,y+h/2+.20,2.50,gold);
+ }
+ for(const x of [-2.10,2.10]){windowFront(x,1.60,.68,1.22);windowFront(x,3.42,.68,1.18);}
+ // Центральный парадный портал, массивная деревянная дверь и терракотовый навес.
+ box(g,1.48,2.25,.22,0,1.78,2.43,stoneDark);
+ box(g,1.22,2.02,.08,0,1.78,2.55,bronze);
+ box(g,1.08,1.88,.055,0,1.78,2.61,wood);
+ for(const x of [-.42,.42])box(g,.045,1.76,.035,x,1.78,2.65,gold,false);
+ box(g,1.02,.055,.035,0,2.70,2.65,gold,false);
+ for(const x of [-.24,.24])sphere(g,.05,x,1.78,2.68,gold,.85);
+ box(g,1.72,.15,.34,0,2.94,2.55,stone);
+ box(g,1.98,.15,.76,0,3.12,2.63,terra);
+ box(g,2.04,.055,.80,0,3.22,2.63,gold);
+ for(const x of [-.82,.82]){box(g,.13,.36,.18,x,2.91,2.60,cream);sphere(g,.10,x,3.12,2.66,gold,.55);}
+ // Широкие каменные ступени.
+ for(let i=0;i<5;i++)box(g,2.45-i*.13,.13,.34,0,.07+i*.13,2.72+i*.27,cream);
+ // Треугольный фронтон, объёмный тимпан и центральный круглый витраж.
+ const pedShape=new THREE.Shape();pedShape.moveTo(-1.92,0);pedShape.lineTo(0,1.48);pedShape.lineTo(1.92,0);pedShape.closePath();
+ const ped=new THREE.Mesh(new THREE.ExtrudeGeometry(pedShape,{depth:.24,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.055,bevelThickness:.035}),cream);
+ ped.position.set(0,4.55,2.26);ped.castShadow=false;ped.receiveShadow=false;g.add(ped);
+ for(const side of [-1,1]){
+  const beam=box(g,2.18,.13,.20,side*.96,5.25,2.42,cream);beam.rotation.z=-side*.66;
+  const line=box(g,2.10,.05,.22,side*.94,5.30,2.49,gold);line.rotation.z=-side*.66;
+ }
+ cylinder(g,.43,.43,.11,0,5.46,2.52,gold,48);
+ sphere(g,.34,0,5.46,2.60,tealLight,.96);
+ cylinder(g,.27,.27,.05,0,5.46,2.64,gold,48);
+ box(g,.04,.55,.035,0,5.46,2.68,gold,false);box(g,.48,.04,.035,0,5.46,2.68,gold,false);
+ for(let i=-3;i<=3;i++)sphere(g,.055,i*.48,4.70,2.52,gold,.8);
+ // Двускатная сланцевая крыша с золотыми кромками и высоким коньком.
+ for(const side of [-1,1]){
+  const roof=box(g,3.72,.20,5.30,side*.91,5.06,-.02,slate);roof.rotation.z=-side*.43;
+  const edge=box(g,3.78,.13,.24,side*.91,4.18,2.39,slateDark);edge.rotation.z=-side*.43;
+  const goldEdge=box(g,3.76,.045,.25,side*.91,4.25,2.45,gold);goldEdge.rotation.z=-side*.43;
+ }
+ box(g,.16,.16,5.34,0,6.12,-.02,slateDark);
+ box(g,.075,.07,5.38,0,6.22,-.02,gold);
+ // Две круглые башни с каменными балконами, арочными окнами и коническими крышами.
+ for(const x of [-2.93,2.93]){
+  const t=group(g,x,0,1.72),n=48;
+  cylinder(t,.78,.78,4.70,0,2.68,0,ivory,n);
+  cylinder(t,.86,.86,.18,0,.38,0,stone,n);
+  cylinder(t,.83,.83,.13,0,.52,0,cream,n);
+  for(const y of [1.02,1.90,3.48,4.35,4.55])cylinder(t,.80,.80,.065,0,y,0,gold,n);
+  // Высокое арочное окно башни.
+  box(t,.52,1.20,.10,0,2.78,.79,bronze,false);
+  box(t,.39,1.05,.055,0,2.76,.86,teal,false);
+  box(t,.045,1.00,.035,0,2.76,.90,gold,false);
+  sphere(t,.19,0,3.37,.86,tealLight,.68);
+  box(t,.65,.12,.20,0,2.12,.82,cream);
+  // Круглый балкон с каменной плитой, балясинами и золотым поручнем.
+  cylinder(t,1.08,1.08,.19,0,4.04,0,stone,n);
+  cylinder(t,1.12,1.12,.10,0,4.17,0,cream,n);
+  for(let j=0;j<24;j++){
+   const a=j*Math.PI/12,px=Math.sin(a)*1.02,pz=Math.cos(a)*1.02;
+   cylinder(t,.032,.032,.34,px,4.38,pz,cream,8);
+   sphere(t,.047,px,4.57,pz,gold,.82);
   }
+  cylinder(t,1.10,1.10,.065,0,4.57,0,gold,n);
+  cylinder(t,.88,.88,.16,0,4.73,0,cream,n);
+  cylinder(t,.94,.94,.12,0,4.85,0,slateDark,n);
+  cone(t,1.02,2.30,0,6.04,0,slate,n);
+  cylinder(t,.055,.055,.27,0,7.22,0,gold,14);
+  sphere(t,.10,0,7.40,0,gold,.85);
+  cone(t,.055,.20,0,7.55,0,gold,12);
+  // Цветочные кашпо по передней дуге балкона.
+  for(let j=0;j<9;j++){
+   const a=-1.02+j*.255,px=Math.sin(a)*1.10,pz=Math.cos(a)*1.10;
+   box(t,.22,.11,.18,px,4.26,pz,stone,false);
+   sphere(t,.075,px,4.40,pz,green,.72);
+   sphere(t,.075,px,4.48,pz,j%3===0?lilac:(j%2?white:pink),.82);
+  }
+ }
+ // Малые мансардные окна и декоративные золотые фронтоны.
+ for(const x of [-1.16,1.16]){
+  box(g,.56,.48,.13,x,5.13,1.95,bronze);
+  box(g,.43,.34,.06,x,5.14,2.03,teal);
+  const cap=cone(g,.34,.28,x,5.43,2.02,slate,4);cap.rotation.y=Math.PI/4;
+  box(g,.52,.05,.12,x,4.88,2.04,gold);
+ }
+ // Цветочные ящики под окнами, с листвой и разноцветными бутонами.
+ for(const x of [-2.10,2.10]){
+  for(const y of [ .96,2.78]){
+   box(g,1.10,.14,.30,x,y,2.55,stone);
+   for(let j=0;j<10;j++){
+    const px=x-.45+j*.10;
+    sphere(g,.065,px,y+.13,2.62,green,.74);
+    sphere(g,.067,px,y+.21,2.65,j%3===0?lilac:(j%2?white:pink),.8);
+   }
+  }
+ }
+ // Каменные дымоходы с металлическими крышками сохраняют силуэт усадьбы.
+ for(const x of [-2.35,2.35]){
+  box(g,.48,.92,.48,x,5.48,-1.66,cream);
+  box(g,.58,.12,.58,x,5.98,-1.66,stone);
+  box(g,.40,.06,.40,x,6.07,-1.66,slateDark);
+ }
+ // Фонари у лестницы.
+ for(const x of [-1.38,1.38]){
+  box(g,.09,.70,.09,x,1.38,2.94,bronze);
+  box(g,.28,.09,.28,x,1.78,2.94,gold);
+  const lamp=sphere(g,.11,x,1.92,2.94,mat(0xffd58a,.24),1);
+  lamp.material.emissive=new THREE.Color(0xffb84d);lamp.material.emissiveIntensity=.48;
+ }
+ return disableCastShadows(g);
+}
+function drawPlayer(){
+ if(buildingObjects.length===0){
+  try{
+   const house=makeHouse();buildingObjects.push(house);
+   window.GREEN_WORLD_HOUSE_MODEL='reference-v2';
+   window.GREEN_WORLD_HOUSE_ERROR=null;
+  }catch(error){
+   window.GREEN_WORLD_HOUSE_MODEL='error';
+   window.GREEN_WORLD_HOUSE_ERROR=error?.message||String(error);
+   throw error;
+  }
+  const factoryAnchor=group(world,11.8,0,-9.61);
+  factoryAnchor.name='factory-coordinate-anchor';factoryAnchor.userData.buildingRemoved=true;buildingObjects.push(factoryAnchor);
+  const marketAnchor=group(world,-10.8,0,-8.5);
+  marketAnchor.name='market-coordinate-anchor';marketAnchor.userData.buildingRemoved=true;buildingObjects.push(marketAnchor);
+  window.GREEN_WORLD_FACTORY_MODEL='removed';window.GREEN_WORLD_MARKET_MODEL='removed';
+  window.GREEN_WORLD_FACTORY_ERROR=null;window.GREEN_WORLD_MARKET_ERROR=null;
+ }
 }
 function applyPlayer(){$('login').style.display='none';try{drawPlayer()}catch(e){console.error('[render] World drawing failed:',e);$('login-error').textContent='Ошибка отображения мира: '+(e?.message||e)}}
 async function request(path,body=null,retry=true){const opts={method:body===null?'GET':'POST',credentials:'include',headers:{'Content-Type':'application/json'}};if(token)opts.headers.Authorization='Bearer '+token;if(body!==null)opts.body=JSON.stringify(body);let res=await fetch(API+path,opts);if(res.status===401&&retry&&!['/api/auth/telegram','/api/auth/refresh'].includes(path)){const rr=await fetch(API+'/api/auth/refresh',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'}});if(rr.ok){token=(await rr.json()).accessToken;return request(path,body,false)}}const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Ошибка сервера '+res.status);return data}
