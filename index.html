@@ -4681,10 +4681,18 @@ function makeWorldLandscape(){
      // Мелкие диагональные трещины и скальные пласты усиливают природную структуру массива.
       const fracture=(Math.sin(u*47+across*19)*Math.sin(u*17-across*53)+Math.sin(u*91+across*27)*.32);
       h+=height*fracture*.012*peakSmooth(.16,.42,h/height)*(1-peakSmooth(.82,.98,Math.abs(across)));
-      // Горизонтальные уступы и осыпные террасы ломают гладкость склонов.
-     const strata=(Math.sin(u*29+across*8)*.095+Math.sin(u*61-across*17)*.052+Math.sin(u*103+across*37)*.018);
-     const ledge=Math.sin((1-cross)*23+u*5)*.075*peakSmooth(.18,.5,h/height);
-     h=Math.max(0,(h+(strata+ledge)*peakSmooth(.08,.3,cross))*peakSmooth(.015,.24,1-Math.abs(u)));
+      // Слоистые скальные полки: длинные ломаные уступы с разной шириной и высотой.
+     const beddingWarp=u*7.5+across*2.8+.22*Math.sin(u*19+across*13)+.11*Math.sin(u*41-across*17);
+     const beddingWave=Math.sin(beddingWarp*2*Math.PI);
+     const beddingEdge=Math.pow(Math.max(0,1-Math.abs(beddingWave)),5);
+     const beddingMask=peakSmooth(.12,.34,h/height)*(1-peakSmooth(.88,.99,Math.abs(across)));
+     const strata=(Math.sin(u*29+across*8)*.075+Math.sin(u*61-across*17)*.04+Math.sin(u*103+across*37)*.014);
+     const ledge=(beddingEdge-.12)*.105*beddingMask+Math.sin((1-cross)*23+u*5)*.045*peakSmooth(.18,.5,h/height);
+     // Небольшие веера осыпи у основания стен и под кулуарами, без округлых бугров.
+     const screeNoise=Math.sin(u*37+across*21)*Math.sin(u*17-across*31);
+     const screeFan=Math.pow(Math.max(0,1-Math.abs(u*1.15+.18*Math.sin(across*8))),2)*
+       peakSmooth(.08,.2,Math.abs(across))*(1-peakSmooth(.42,.68,Math.abs(across)));
+     h=Math.max(0,(h+(strata+ledge+screeNoise*.012*screeFan)*peakSmooth(.08,.3,cross))*peakSmooth(.015,.24,1-Math.abs(u)));
      pos.setZ(i,h);
    }
    geometry.computeVertexNormals();
@@ -4698,11 +4706,20 @@ function makeWorldLandscape(){
      const illumination=THREE.MathUtils.clamp(.28+.66*sunFacing+.045*Math.sin(u*13+v*7),.16,.99);
      const rock=peakRockDark.clone().lerp(peakRockMid,illumination).lerp(peakRockSun,Math.max(0,sunFacing-.42)*.5);
      // Линия снега слегка меняется по рельефу, как на настоящих ветреных склонах.
-     const localSnowline=snowline+height*(.025*Math.sin(u*18+v*9)+.018*Math.sin(u*37-v*21));
-     const snowAmount=peakSmooth(localSnowline,height*.96,h)*THREE.MathUtils.clamp((up-.005)*1.75,0,1);
-     const snowDrift=THREE.MathUtils.clamp(.72+.17*Math.sin(u*37+v*13)+.12*Math.cos(u*51-v*19)+.055*Math.sin(u*83+v*41),.22,1);
+     // Ветровая кромка снега неровная: карнизы нависают над подветренными уступами.
+     const windRidge=.045*Math.sin(u*17+v*8)+.027*Math.sin(u*39-v*23)+.018*Math.sin(u*71+v*31);
+     const localSnowline=snowline+height*(windRidge+.012*Math.sin(u*113+v*67));
+     const snowSlope=THREE.MathUtils.clamp((up-.005)*1.75,0,1);
+     const snowAmount=peakSmooth(localSnowline,height*.96,h)*snowSlope;
+     const snowDrift=THREE.MathUtils.clamp(.7+.18*Math.sin(u*37+v*13)+.13*Math.cos(u*51-v*19)+.065*Math.sin(u*83+v*41),.18,1);
+     const corniceEdge=peakSmooth(-.12,.48,Math.sin(u*24+v*11)+.35*Math.sin(u*53-v*17));
+     const cornice=peakSmooth(.72,.94,h/height)*(.72+.28*corniceEdge);
+     const snowCoverage=THREE.MathUtils.clamp(snowAmount*snowDrift*(.92+.08*cornice),0,1);
      const coldShadow=THREE.MathUtils.clamp(.5-sunFacing*.38,.12,.7);
-     rock.lerp(peakSnowBlue,snowAmount*snowDrift*(.24+coldShadow*.22)).lerp(peakSnow,snowAmount*snowDrift*(.76-coldShadow*.12));
+     // Тонкие тёмные линии подчёркивают геологические пласты открытой породы.
+     const rockBand=Math.pow(Math.max(0,Math.sin(h*2.35+u*4.2+across*1.7)),12)*(.075+.035*Math.sin(u*31+across*9));
+     rock.multiplyScalar(1-rockBand*(1-snowCoverage));
+     rock.lerp(peakSnowBlue,snowCoverage*(.24+coldShadow*.22)).lerp(peakSnow,snowCoverage*(.76-coldShadow*.12));
      colors[i*3]=rock.r;colors[i*3+1]=rock.g;colors[i*3+2]=rock.b;
    }
    geometry.setAttribute('color',new THREE.BufferAttribute(colors,3));
