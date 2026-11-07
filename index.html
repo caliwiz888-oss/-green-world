@@ -4018,6 +4018,41 @@ function makeHouse(){
  // Золотой кант по всему периметру карниза.
  const eave=[[-3.88,roofY,roofZ+2.90],[3.88,roofY,roofZ+2.90],[3.88,roofY,roofZ-2.90],[-3.88,roofY,roofZ-2.90],[-3.88,roofY,roofZ+2.90]].map(p=>new THREE.Vector3(p[0],p[1]+.13,p[2]));
  center.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(eave),96,.035,8,false),goldRoof));
+  // По центру основной крыши установлен компактный конус в том же стиле,
+  // цвете и с такой же сегментированной медной отделкой, как крыши башен.
+  const centerConeBase=7.12,centerConeHeight=1.58,centerConeRadius=.68;
+  const centerConePoint=(y,a,offset=0)=>{
+   const r=centerConeRadius*(1-(y-centerConeBase)/centerConeHeight)+offset;
+   return new THREE.Vector3(Math.sin(a)*r,y,roofZ+Math.cos(a)*r);
+  };
+  for(let j=0;j<16;j++){
+   const a0=j*Math.PI*2/16+.009,a1=(j+1)*Math.PI*2/16-.009;
+   for(let row=0;row<8;row++){
+    const y0=centerConeBase+centerConeHeight*row/8+.006;
+    const y1=centerConeBase+centerConeHeight*(row+1)/8-.006;
+    const p=[centerConePoint(y0,a0,.012),centerConePoint(y1,a0,.012),
+             centerConePoint(y1,a1,.012),centerConePoint(y0,a1,.012)];
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.Float32BufferAttribute(p.flatMap(v=>[v.x,v.y,v.z]),3));
+    geo.setIndex([0,1,2,0,2,3]);geo.computeVertexNormals();
+    const panel=new THREE.Mesh(geo,copperMats[(j+row)%copperMats.length]);
+    panel.castShadow=true;panel.receiveShadow=true;center.add(panel);
+   }
+   const seamPoints=[];
+   for(let k=0;k<=24;k++)seamPoints.push(centerConePoint(centerConeBase+centerConeHeight*k/24,(a0+a1)/2,.03));
+   center.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(seamPoints),32,.012,7,false),copperBright));
+  }
+  for(let row=1;row<8;row++){
+   const y=centerConeBase+centerConeHeight*row/8;
+   for(let j=0;j<16;j++){
+    const a0=j*Math.PI*2/16+.012,a1=(j+1)*Math.PI*2/16-.012;
+    center.add(new THREE.Mesh(new THREE.TubeGeometry(
+     new THREE.LineCurve3(centerConePoint(y,a0,.024),centerConePoint(y,a1,.024)),8,.008,5,false),copperDark));
+   }
+  }
+  cylinder(center,.055,.055,.18,0,centerConeBase+centerConeHeight+.08,roofZ,goldRoof,16);
+  sphere(center,.085,0,centerConeBase+centerConeHeight+.20,roofZ,goldRoof,.9);
+  cone(center,.045,.16,0,centerConeBase+centerConeHeight+.36,roofZ,goldRoof,16);
   // Центральная мансардная крыша остаётся без купола и шпиля.
  for(const x of [-3.72,3.72])for(const z of [roofZ-2.72,roofZ+2.72]){
   const base=roofY+.10;
