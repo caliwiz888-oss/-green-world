@@ -1303,7 +1303,37 @@ function makeHouse(){
    }
    // Тонкие горизонтальные ряды черепицы повторяют геометрию восьмигранного ската.
    // Низкий контраст сохраняет спокойный серо-голубой цвет кровли.
-   const roofCourseMaterial=new THREE.MeshStandardMaterial({color:0x9aaab0,roughness:.9,metalness:.015});
+   // Процедурная микрофактура сланца: мягкие минеральные пятна и редкие светлые зёрна.
+   const slateCanvas=document.createElement('canvas');
+   slateCanvas.width=slateCanvas.height=128;
+   const slateCtx=slateCanvas.getContext('2d');
+   slateCtx.fillStyle='#929fa4';slateCtx.fillRect(0,0,128,128);
+   for(let i=0;i<520;i++){
+     const px=(i*47+13)%128,py=(i*83+29)%128;
+     const alpha=.025+((i*19)%35)/1000;
+     slateCtx.fillStyle=i%4===0?'rgba(231,239,239,'+alpha+')':'rgba(37,54,62,'+alpha+')';
+     slateCtx.fillRect(px,py,1+(i%2),1+(i%3===0?1:0));
+   }
+   for(let i=0;i<34;i++){
+     const px=(i*61+17)%128,py=(i*37+11)%128;
+     slateCtx.strokeStyle=i%3===0?'rgba(224,233,234,.09)':'rgba(42,57,64,.07)';
+     slateCtx.lineWidth=.6;
+     slateCtx.beginPath();slateCtx.moveTo(px,py);
+     slateCtx.lineTo(px+3+(i%5),py+((i%3)-1)*.4);slateCtx.stroke();
+   }
+   const slateTexture=new THREE.CanvasTexture(slateCanvas);
+   slateTexture.colorSpace=THREE.SRGBColorSpace;
+   slateTexture.wrapS=slateTexture.wrapT=THREE.RepeatWrapping;
+   slateTexture.repeat.set(2.2,2.2);
+   slateTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+   const roofCourseMaterial=new THREE.MeshStandardMaterial({
+     color:0x9aaab0,map:slateTexture,bumpMap:slateTexture,bumpScale:.012,
+     roughness:.94,metalness:.01
+   });
+   towerRoofMaterial.map=slateTexture;
+   towerRoofMaterial.bumpMap=slateTexture;
+   towerRoofMaterial.bumpScale=.018;
+   towerRoofMaterial.needsUpdate=true;
    for(const y of [6.72,7.02,7.32,7.62,7.92,8.22]){
      const radius=1.38*(8.56-y)/2.48;
      const course=new THREE.Mesh(
