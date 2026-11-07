@@ -3923,9 +3923,13 @@ function makeHouse(){
  }
  box(g,6.32,.16,.42,0,4.48,2.48,cream);
  box(g,6.40,.055,.44,0,4.37,2.52,gold);
- cylinder(g,.48,.48,.14,0,5.39,2.83,gold,48);
+ // Круглый витраж расположен вертикально на передней плоскости фронтона.
+ const roseOuter=cylinder(g,.48,.48,.14,0,5.39,2.83,gold,48);
+ roseOuter.rotation.x=Math.PI/2;
  sphere(g,.38,0,5.39,2.92,tealLight,.96);
- cylinder(g,.29,.29,.05,0,5.39,2.97,gold,48);
+ const roseInner=cylinder(g,.29,.29,.05,0,5.39,2.97,gold,48);
+ roseInner.rotation.x=Math.PI/2;
+ // Золотые импосты витража лежат в той же вертикальной плоскости.
  box(g,.045,.65,.035,0,5.39,3.01,gold,false);
  box(g,.55,.045,.035,0,5.39,3.01,gold,false);
  // Усиленный декор фронтона по крупному плану эталона: три профиля,
@@ -3944,9 +3948,12 @@ function makeHouse(){
   sphere(g,.035,x,4.68,2.97,cream,.88);
  }
  // Каменное обрамление круглого витража и аккуратный золотой внешний обод.
- cylinder(g,.58,.58,.10,0,5.39,2.78,cream,64);
- cylinder(g,.52,.52,.055,0,5.39,2.90,gold,64);
- cylinder(g,.45,.45,.035,0,5.39,2.94,bronze,64);
+ const roseStoneRing=cylinder(g,.58,.58,.10,0,5.39,2.78,cream,64);
+ roseStoneRing.rotation.x=Math.PI/2;
+ const roseGoldRing=cylinder(g,.52,.52,.055,0,5.39,2.90,gold,64);
+ roseGoldRing.rotation.x=Math.PI/2;
+ const roseBronzeRing=cylinder(g,.45,.45,.035,0,5.39,2.94,bronze,64);
+ roseBronzeRing.rotation.x=Math.PI/2;
  // Главная двускатная кровля: широкие сланцевые скаты, выступающие свесы и конёк.
  const roofMat=new THREE.MeshStandardMaterial({color:0x29445f,roughness:.78,metalness:.025,side:THREE.DoubleSide});
  function roofSide(side){
