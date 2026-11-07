@@ -2392,6 +2392,34 @@ function makeMarket(){
  const marketPlinthCap=M.stone.clone();
  marketPlinthCap.color.setHex(0x858982);
  marketPlinthCap.roughness=.82;
+ // Мелкозернистая фактура натурального камня на цоколе: мягкие минеральные вкрапления без крупных пятен.
+ const plinthCanvas=document.createElement('canvas');plinthCanvas.width=512;plinthCanvas.height=512;
+ const plinthCtx=plinthCanvas.getContext('2d');
+ const plinthImage=plinthCtx.createImageData(512,512);
+ let plinthSeed=28631;
+ const plinthRand=()=>{plinthSeed=(plinthSeed*1664525+1013904223)>>>0;return plinthSeed/4294967296};
+ for(let y=0;y<512;y++)for(let x=0;x<512;x++){
+   const grain=(plinthRand()-.5)*15+Math.sin(x*.075+y*.035)*1.8;
+   const v=Math.max(0,Math.min(255,242+grain)),p=(y*512+x)*4;
+   plinthImage.data[p]=v;plinthImage.data[p+1]=v;plinthImage.data[p+2]=v;plinthImage.data[p+3]=255;
+ }
+ plinthCtx.putImageData(plinthImage,0,0);
+ for(let i=0;i<420;i++){
+   const x=plinthRand()*512,y=plinthRand()*512,r=.35+plinthRand()*1.1;
+   plinthCtx.fillStyle=plinthRand()>.5?'rgba(70,76,68,.10)':'rgba(255,255,255,.18)';
+   plinthCtx.beginPath();plinthCtx.arc(x,y,r,0,Math.PI*2);plinthCtx.fill();
+ }
+ const plinthTexture=new THREE.CanvasTexture(plinthCanvas);
+ plinthTexture.colorSpace=THREE.SRGBColorSpace;
+ plinthTexture.wrapS=plinthTexture.wrapT=THREE.RepeatWrapping;
+ plinthTexture.repeat.set(2.2,1.4);
+ plinthTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const plinthBump=plinthTexture.clone();plinthBump.colorSpace=THREE.NoColorSpace;plinthBump.needsUpdate=true;
+ for(const material of [marketPlinthBase,marketPlinthCap]){
+   material.map=plinthTexture;material.bumpMap=plinthBump;
+   material.bumpScale=material===marketPlinthBase?.018:.012;
+   material.needsUpdate=true;
+ }
  // Передняя и задняя стороны — белая фасадная полоса почти от земли.
  for(const z of [-2.455,2.455]){
    box(g,5.92,.34,.12,0,.225,z,marketPlinthBase,false);
