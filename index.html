@@ -3774,27 +3774,51 @@ function makeHouse(){
  for(const x of [-.82,.82]){box(g,.13,.36,.18,x,2.91,2.60,cream);sphere(g,.10,x,3.12,2.66,gold,.55);}
  // Широкие каменные ступени.
  for(let i=0;i<5;i++)box(g,2.45-i*.13,.13,.34,0,.07+i*.13,2.72+i*.27,cream);
- // Треугольный фронтон, объёмный тимпан и центральный круглый витраж.
- const pedShape=new THREE.Shape();pedShape.moveTo(-1.92,0);pedShape.lineTo(0,1.48);pedShape.lineTo(1.92,0);pedShape.closePath();
- const ped=new THREE.Mesh(new THREE.ExtrudeGeometry(pedShape,{depth:.24,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.055,bevelThickness:.035}),cream);
- ped.position.set(0,4.55,2.26);ped.castShadow=false;ped.receiveShadow=false;g.add(ped);
+ // Широкий каменный фронтон во всю ширину центрального фасада — как на эталоне.
+ const pedShape=new THREE.Shape();pedShape.moveTo(-3.28,0);pedShape.lineTo(0,1.78);pedShape.lineTo(3.28,0);pedShape.closePath();
+ const ped=new THREE.Mesh(new THREE.ExtrudeGeometry(pedShape,{depth:.30,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.045,bevelThickness:.035}),ivory);
+ ped.position.set(0,4.43,2.34);ped.castShadow=false;ped.receiveShadow=false;g.add(ped);
+ // Профилированные карнизы повторяют длинные диагонали фронтона и выделены тонкой золотой линией.
  for(const side of [-1,1]){
-  const beam=box(g,2.18,.13,.20,side*.96,5.25,2.42,cream);beam.rotation.z=-side*.66;
-  const line=box(g,2.10,.05,.22,side*.94,5.30,2.49,gold);line.rotation.z=-side*.66;
+  const length=Math.hypot(3.38,1.82),angle=side===-1?Math.atan2(1.82,3.38):-Math.atan2(1.82,3.38);
+  const x=side*1.69,y=5.34;
+  const cornice=box(g,length,.20,.28,x,y,2.53,cream);cornice.rotation.z=angle;
+  const goldLine=box(g,length-.08,.055,.30,x,y+.08,2.59,gold);goldLine.rotation.z=angle;
+  const lower=box(g,length,.09,.22,x,y-.15,2.50,stone);lower.rotation.z=angle;
  }
- cylinder(g,.43,.43,.11,0,5.46,2.52,gold,48);
- sphere(g,.34,0,5.46,2.60,tealLight,.96);
- cylinder(g,.27,.27,.05,0,5.46,2.64,gold,48);
- box(g,.04,.55,.035,0,5.46,2.68,gold,false);box(g,.48,.04,.035,0,5.46,2.68,gold,false);
- for(let i=-3;i<=3;i++)sphere(g,.055,i*.48,4.70,2.52,gold,.8);
- // Двускатная сланцевая крыша с золотыми кромками и высоким коньком.
+ // Большой круглый бирюзовый витраж в центре каменного тимпана.
+ cylinder(g,.48,.48,.13,0,5.40,2.69,gold,48);
+ sphere(g,.385,0,5.40,2.78,tealLight,.96);
+ cylinder(g,.30,.30,.055,0,5.40,2.82,gold,48);
+ box(g,.045,.66,.035,0,5.40,2.86,gold,false);
+ box(g,.56,.045,.035,0,5.40,2.86,gold,false);
+ for(let i=-5;i<=5;i++)sphere(g,.052,i*.55,4.58,2.64,gold,.8);
+ // Настоящая двускатная крыша: две широкие наклонные плоскости от конька к карнизам.
+ function roofPlane(side){
+  const ridgeFront=[0,6.24,2.54],ridgeBack=[0,6.24,-2.66];
+  const eaveFront=[side*3.62,4.43,2.54],eaveBack=[side*3.62,4.43,-2.66];
+  const geo=new THREE.BufferGeometry();
+  const vertices=new Float32Array([...ridgeFront,...eaveFront,...ridgeBack,...eaveBack,
+                                  ...eaveFront,...eaveBack,...ridgeFront,...ridgeBack]);
+  geo.setAttribute('position',new THREE.BufferAttribute(vertices,3));
+  geo.setIndex([0,1,2,1,3,2,4,6,5,5,6,7]);
+  geo.computeVertexNormals();
+  const mesh=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0x29445f,roughness:.76,metalness:.035,side:THREE.DoubleSide}));
+  mesh.castShadow=false;mesh.receiveShadow=false;g.add(mesh);
+ }
+ roofPlane(-1);roofPlane(1);
+ // Передние и боковые кромки крыши — толстый сланцевый карниз с золотым кантом.
  for(const side of [-1,1]){
-  const roof=box(g,3.72,.20,5.30,side*.91,5.06,-.02,slate);roof.rotation.z=-side*.43;
-  const edge=box(g,3.78,.13,.24,side*.91,4.18,2.39,slateDark);edge.rotation.z=-side*.43;
-  const goldEdge=box(g,3.76,.045,.25,side*.91,4.25,2.45,gold);goldEdge.rotation.z=-side*.43;
+  const len=Math.hypot(3.62,1.81),angle=side===-1?Math.atan2(1.81,3.62):-Math.atan2(1.81,3.62);
+  const fascia=box(g,len,.20,.32,side*1.81,5.34,2.59,slateDark);fascia.rotation.z=angle;
+  const gilt=box(g,len-.08,.045,.34,side*1.81,5.42,2.64,gold);gilt.rotation.z=angle;
+  const sideEdge=box(g,.15,1.83,5.18,side*3.63,5.34,-.06,slateDark);
+  sideEdge.rotation.z=side===-1?0:0;
  }
- box(g,.16,.16,5.34,0,6.12,-.02,slateDark);
- box(g,.075,.07,5.38,0,6.22,-.02,gold);
+ // Конёк с золотыми наконечниками и аккуратными металлическими накладками.
+ box(g,.13,.16,5.28,0,6.27,-.06,slateDark);
+ box(g,.07,.055,5.30,0,6.38,-.06,gold);
+ for(const z of [-2.55,2.48]){sphere(g,.10,0,6.30,z,gold,.8);}
  // Две круглые башни с каменными балконами, арочными окнами и коническими крышами.
  for(const x of [-2.93,2.93]){
   const t=group(g,x,0,1.72),n=48;
