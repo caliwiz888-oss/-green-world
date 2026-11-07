@@ -916,7 +916,7 @@ function makeHouse(){
     const fascia=box(g,.2,.24,9.02,x,y,0,manorRoofEdgeMaterial,false);
    fascia.rotation.z=angle;
    // Ритмичные резные кронштейны поддерживают длинный карниз главного дома.
-   for(const z of [-2.2,-.73,.73,2.2]){
+   for(const z of [-3.65,-2.2,-.73,.73,2.2,3.65]){
      const bracket=box(g,.16,.42,.2,x+(x<0?.12:-.12),y-.2,z,M.stone2,false);
      bracket.rotation.z=angle;
      sphere(g,.045,x+(x<0?.24:-.24),y-.34,z,M.gold,.8);
@@ -1406,7 +1406,11 @@ function makeHouse(){
       box(g,.11,.18,.1,x+dx,5.98,4.39,houseStoneTrim,false);
       sphere(g,.045,x+dx,6.08,4.42,M.gold,.8);
     }
-    // Четыре выступающие светлые консоли на скатах крыши удалены по просьбе пользователя.
+    // Опорные консоли вынесены вперёд относительно деревянной рамы.
+    for(const dx of [-.34,.34]){
+      const support=box(g,.13,.22,.12,x+dx,4.88,4.39,houseStoneTrim,false);
+      support.rotation.z=dx<0?-.18:.18;
+    }
   }
 // Центральная эмблема фронтона: каменно-латунный медальон с зелёным листом.
  const gableCrest=cylinder(g,.36,.36,.075,0,5.55,4.22,houseStoneTrim,32);
