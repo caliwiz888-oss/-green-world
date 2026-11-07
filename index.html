@@ -3244,6 +3244,18 @@ function makeFactory(){
    box(g,.44,.16,.46,x,.52,2.86,M.stone2,false);
    box(g,.46,.08,.5,x,.64,2.9,M.gold,false);
  }
+ // Тонкие утопленные швы делят камень контрфорсов на крупные кладочные блоки.
+ const buttressJoint=M.stone2.clone();
+ buttressJoint.color.setHex(0x777a73);
+ buttressJoint.roughness=.96;
+ for(const x of [-3.18,-1.62,1.62,3.18]){
+   for(const y of [1.02,1.78,2.54,3.28]){
+     box(g,.292,.012,.012,x,y,3.057,buttressJoint,false);
+   }
+   for(const side of [-1,1]){
+     box(g,.018,2.82,.012,x+side*.151,2.12,3.057,M.stone2,false);
+   }
+ }
  // Центральный вход получает более глубокий портал с парными каменными опорами и ступенчатым завершением.
  for(const x of [-1.42,1.42]){
    box(g,.28,2.92,.46,x,1.82,3.12,M.stone2,false);
