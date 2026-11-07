@@ -527,6 +527,15 @@ function makeSurfaceTexture(kind,seed){
    ctx.fillStyle=rand()>.5?'rgba(195,160,112,.045)':'rgba(54,43,33,.04)';
    ctx.beginPath();ctx.ellipse(x,y,rx,ry,rand()*Math.PI,0,Math.PI*2);ctx.fill();
   }
+  // Едва заметные мягкие ореолы выветривания связывают песчинки и мелкие следы в цельную фактуру.
+  for(let i=0;i<34;i++){
+   const x=rand()*size,y=rand()*size,rx=8+rand()*22,ry=4+rand()*12;
+   const tint=rand()>.5?'rgba(216,190,145,.065)':'rgba(91,72,54,.052)';
+   ctx.save();ctx.translate(x,y);ctx.scale(rx/Math.max(rx,ry),ry/Math.max(rx,ry));
+   const wash=ctx.createRadialGradient(0,0,1,0,0,Math.max(rx,ry));
+   wash.addColorStop(0,tint);wash.addColorStop(.68,'rgba(133,108,77,.018)');wash.addColorStop(1,'rgba(133,108,77,0)');
+   ctx.fillStyle=wash;ctx.beginPath();ctx.arc(0,0,Math.max(rx,ry),0,Math.PI*2);ctx.fill();ctx.restore();
+  }
  }
  const texture=new THREE.CanvasTexture(canvas);
  texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
