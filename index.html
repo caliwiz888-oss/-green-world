@@ -1717,6 +1717,14 @@ function makeHouse(){
      }
      // Small centered keystone detail keeps the window treatment consistent on both sides.
      box(g,.24,.12,.18,side*5.22,3.48,z,M.gold,false);
+     // Клинчатая раскладка камня над боковым окном формирует выразительный сандрик.
+     for(const dz of [-.38,-.13,.13,.38]){
+       const rise=Math.abs(dz)>.2?0:.055;
+       const voussoir=box(g,.14,.105,.22,side*5.32,3.57+rise,z+dz,houseStoneTrim,false);
+       voussoir.castShadow=false;voussoir.receiveShadow=false;
+     }
+     const sideCrown=box(g,.16,.09,.2,side*5.33,3.68,z,houseStoneTrim,false);
+     sideCrown.castShadow=false;sideCrown.receiveShadow=false;
    }
  }
  // Side elevation corner caps and window crowns continue the same architectural language.
