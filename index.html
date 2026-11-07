@@ -252,6 +252,25 @@ for(let i=0;i<18;i++){
  cloud.addColorStop(0,'rgba(255,255,255,0)');cloud.addColorStop(.5,'rgba(255,255,255,.115)');cloud.addColorStop(1,'rgba(255,255,255,0)');
  skyCtx.fillStyle=cloud;skyCtx.beginPath();skyCtx.ellipse(x,y,w,h,(i%7-3)*.035,0,Math.PI*2);skyCtx.fill();
 }
+// Тонкие высокие перистые облака добавляют небу глубину, не закрывая солнечный градиент.
+for(let i=0;i<14;i++){
+ const x=(i*211+34)%1120-48,y=42+(i*29)%145,w=115+(i*37)%175,h=4+(i%3)*2;
+ const streak=skyCtx.createLinearGradient(x-w,y,x+w,y);
+ streak.addColorStop(0,'rgba(255,255,255,0)');
+ streak.addColorStop(.28,'rgba(255,255,255,.025)');
+ streak.addColorStop(.52,'rgba(255,255,255,.075)');
+ streak.addColorStop(.76,'rgba(255,255,255,.028)');
+ streak.addColorStop(1,'rgba(255,255,255,0)');
+ skyCtx.strokeStyle=streak;skyCtx.lineWidth=h;skyCtx.lineCap='round';
+ skyCtx.beginPath();skyCtx.moveTo(x-w,y+h*.25);
+ skyCtx.quadraticCurveTo(x,y-h*.9,x+w,y-h*.12);skyCtx.stroke();
+}
+// Едва тёплая дымка у горизонта мягко связывает небо с дальним ландшафтом.
+const horizonGlow=skyCtx.createLinearGradient(0,330,0,512);
+horizonGlow.addColorStop(0,'rgba(255,238,208,0)');
+horizonGlow.addColorStop(.62,'rgba(255,238,208,.035)');
+horizonGlow.addColorStop(1,'rgba(255,244,221,.075)');
+skyCtx.fillStyle=horizonGlow;skyCtx.fillRect(0,330,1024,182);
 const skyTexture=new THREE.CanvasTexture(skyCanvas);skyTexture.colorSpace=THREE.SRGBColorSpace;
 skyTexture.mapping=THREE.EquirectangularReflectionMapping;skyTexture.magFilter=THREE.LinearFilter;skyTexture.minFilter=THREE.LinearMipmapLinearFilter;skyTexture.generateMipmaps=true;skyTexture.needsUpdate=true;scene.background=skyTexture;
 scene.fog=new THREE.Fog(0xbcdce0,82,185);
