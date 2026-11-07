@@ -3896,9 +3896,14 @@ function makeWorldDecor(){
   // Боковые линии идут по наружным краям магазина и завода и замыкаются сзади.
   fenceRun(frontFenceLeft,frontFenceZ,frontFenceLeft,rearFenceZ,2.45);
   fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,rearFenceZ,2.45);
-  // За домом — ровно восемь секций на задней линии, соединённых с боковыми оградами.
-  const rearFenceSpacing=(frontFenceRight-frontFenceLeft)/8;
-  fenceRun(frontFenceLeft,rearFenceZ,frontFenceRight,rearFenceZ,rearFenceSpacing);
+  // За домом оставляем восемь хорошо читаемых секций между магазином и заводом:
+  // по четыре с каждой стороны главного дома, соединённые с боковыми оградами.
+  const rearFenceLeftEnd=-5.35;
+  const rearFenceRightStart=5.35;
+  const rearFenceLeftSpacing=(rearFenceLeftEnd-frontFenceLeft)/4;
+  const rearFenceRightSpacing=(frontFenceRight-rearFenceRightStart)/4;
+  fenceRun(frontFenceLeft,rearFenceZ,rearFenceLeftEnd,rearFenceZ,rearFenceLeftSpacing);
+  fenceRun(rearFenceRightStart,rearFenceZ,frontFenceRight,rearFenceZ,rearFenceRightSpacing);
   // Входная арка повторяет геометрию эталона: прямые массивные устои и полукруглый верх с тремя ступенями обрамления.
   const gateSpring=2.12,gateOuter=2.78,gateInner=2.12,gateFrontZ=13.98,gateBackZ=13.76;
   const gateShape=(outerR,innerR,springY)=>{
