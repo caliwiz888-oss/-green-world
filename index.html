@@ -912,6 +912,22 @@ function makeHouse(){
      sphere(g,.028,x+dx,3.3,4.34,M.gold,.8);
    }
  }
+ // Небольшие клиновидные замковые камни завершают верх боковых окон.
+ // Их рельеф подчёркивает каменные перемычки, не меняя размеров проёмов.
+ for(const x of [-3.25,3.25]){
+   box(g,.28,.18,.16,x,3.73,4.13,entranceCarvedStone,false);
+   box(g,.18,.055,.19,x,3.84,4.14,houseStoneTrim,false);
+   // Парные каменные плечики связывают верхний наличник с вертикальными стойками.
+   for(const dx of [-.73,.73]){
+     const shoulder=box(g,.19,.22,.14,x+dx,3.58,4.12,manorFacadeTrim,false);
+     shoulder.rotation.z=dx<0?-.10:.10;
+     box(g,.22,.055,.16,x+dx,3.45,4.13,houseStoneTrim,false);
+   }
+   // Тонкая внутренняя фаска делает границу оконного проёма глубже.
+   for(const dx of [-.69,.69]){
+     box(g,.045,1.08,.045,x+dx,2.72,4.31,entranceCarvedStone,false);
+   }
+ }
  // Raised timber door panels, a stone lintel and a small brass handle finish the main entrance.
  box(g,1.16,.88,.055,0,1.92,4.255,manorDoorTrim,false);
  box(g,1.16,.48,.055,0,.58,4.255,manorDoorTrim,false);
