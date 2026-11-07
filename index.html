@@ -3892,50 +3892,48 @@ function makeHouse(){
    box(t,.66,.10,.25,0,y+.91,1.16,cream);
    box(t,.60,.045,.27,0,y+1.01,1.18,gold);
   }
-   // Два полноценных круглых балкона под окнами каждой башни.
-   // Их диаметр заметно больше диаметра ствола башни: балконы выступают
-   // наружу по кругу, в том числе вперёд к фасаду.
+   // Два круглых балкона под окнами башен уменьшены до общего диаметра 3 единицы.
    for(const balconyY of [1.02,2.92]){
     const platform=new THREE.Mesh(
-     new THREE.CylinderGeometry(1.62,1.62,.18,64),
+     new THREE.CylinderGeometry(1.46,1.46,.18,64),
      stone
     );
     platform.position.set(0,balconyY,0);
     platform.castShadow=false;platform.receiveShadow=false;t.add(platform);
     const rim=new THREE.Mesh(
-     new THREE.CylinderGeometry(1.66,1.66,.075,64),
+     new THREE.CylinderGeometry(1.50,1.50,.075,64),
      cream
     );
     rim.position.set(0,balconyY+.125,0);
     rim.castShadow=false;rim.receiveShadow=false;t.add(rim);
     const goldBand=new THREE.Mesh(
-     new THREE.TorusGeometry(1.65,.035,8,64),
+     new THREE.TorusGeometry(1.46,.035,8,64),
      gold
     );
     goldBand.rotation.x=Math.PI/2;
     goldBand.position.set(0,balconyY+.18,0);
     goldBand.castShadow=false;goldBand.receiveShadow=false;t.add(goldBand);
-    // Балясины и поручень идут по всей окружности балкона.
+    // Балясины и поручень расположены внутри внешнего контура балкона.
     for(let j=0;j<40;j++){
-     const a=j*Math.PI/20,px=Math.sin(a)*1.51,pz=Math.cos(a)*1.51;
+     const a=j*Math.PI/20,px=Math.sin(a)*1.34,pz=Math.cos(a)*1.34;
      cylinder(t,.042,.052,.34,px,balconyY+.39,pz,cream,10);
      sphere(t,.055,px,balconyY+.57,pz,gold,.75);
     }
     const rail=new THREE.Mesh(
-     new THREE.TorusGeometry(1.51,.045,8,80),
+     new THREE.TorusGeometry(1.34,.045,8,80),
      gold
     );
     rail.rotation.x=Math.PI/2;
     rail.position.set(0,balconyY+.59,0);
     rail.castShadow=false;rail.receiveShadow=false;t.add(rail);
-    // Цветочные кашпо размещены вдоль передней части круглого балкона.
+    // Цветочные кашпо компактно размещены вдоль передней части балкона.
     for(let j=0;j<11;j++){
-     const a=-1.18+j*.236,px=Math.sin(a)*1.69,pz=Math.cos(a)*1.69;
-     box(t,.20,.10,.18,px,balconyY+.24,pz,stone,false);
-     sphere(t,.07,px,balconyY+.38,pz,green,.78);
-     sphere(t,.075,px,balconyY+.47,pz,j%3===0?lilac:(j%2?white:pink),.82);
-     sphere(t,.052,px-.055,balconyY+.44,pz+.025,j%2?pink:white,.9);
-     sphere(t,.052,px+.055,balconyY+.44,pz-.025,j%3===0?white:lilac,.9);
+     const a=-1.18+j*.236,px=Math.sin(a)*1.34,pz=Math.cos(a)*1.34;
+     box(t,.16,.10,.14,px,balconyY+.24,pz,stone,false);
+     sphere(t,.06,px,balconyY+.38,pz,green,.78);
+     sphere(t,.065,px,balconyY+.47,pz,j%3===0?lilac:(j%2?white:pink),.82);
+     sphere(t,.045,px-.045,balconyY+.44,pz+.02,j%2?pink:white,.9);
+     sphere(t,.045,px+.045,balconyY+.44,pz-.02,j%3===0?white:lilac,.9);
     }
    }
 // Верхний аттик и многоступенчатый карниз под конической крышей.
