@@ -3830,28 +3830,28 @@ function makeWorldDecor(){
   const fenceGroup=new THREE.Group();world.add(fenceGroup);
   // Полный декоративный периметр по утверждённому эталону GREEN WORLD.
   // Светлые известняковые столбы, тёмная кованая решётка и золотые медальоны.
-  const fencePost=(x,z)=>{
-    fenceNoShadow(box(fenceGroup,.54,.30,.58,x,.16,z,fenceReliefStone,false));
-    fenceNoShadow(box(fenceGroup,.48,.12,.52,x,.37,z,fenceIvory,false));
-    fenceNoShadow(box(fenceGroup,.36,1.68,.40,x,1.25,z,fenceStone,false));
-    fenceNoShadow(box(fenceGroup,.42,.10,.46,x,2.13,z,fenceReliefStone,false));
-    fenceNoShadow(box(fenceGroup,.58,.16,.62,x,2.25,z,fenceIvory,false));
-    fenceNoShadow(box(fenceGroup,.64,.07,.68,x,2.36,z,fenceGold,false));
-    fenceNoShadow(box(fenceGroup,.52,.10,.56,x,2.45,z,fenceStone,false));
+  const fencePost=(x,z,baseY=0)=>{
+    fenceNoShadow(box(fenceGroup,.54,.30,.58,x,baseY+.16,z,fenceReliefStone,false));
+    fenceNoShadow(box(fenceGroup,.48,.12,.52,x,baseY+.37,z,fenceIvory,false));
+    fenceNoShadow(box(fenceGroup,.36,1.68,.40,x,baseY+1.25,z,fenceStone,false));
+    fenceNoShadow(box(fenceGroup,.42,.10,.46,x,baseY+2.13,z,fenceReliefStone,false));
+    fenceNoShadow(box(fenceGroup,.58,.16,.62,x,baseY+2.25,z,fenceIvory,false));
+    fenceNoShadow(box(fenceGroup,.64,.07,.68,x,baseY+2.36,z,fenceGold,false));
+    fenceNoShadow(box(fenceGroup,.52,.10,.56,x,baseY+2.45,z,fenceStone,false));
     fenceNoShadow(box(fenceGroup,.23,1.12,.025,x,1.25,z+.207,fenceReliefStone,false));
     fenceNoShadow(box(fenceGroup,.17,1.02,.028,x,1.25,z+.226,fenceIvory,false));
     fenceNoShadow(box(fenceGroup,.025,.90,.018,x-.055,1.25,z+.247,fenceGold,false));
     fenceNoShadow(box(fenceGroup,.025,.90,.018,x+.055,1.25,z+.247,fenceGold,false));
     const lampBase=new THREE.Mesh(new THREE.CylinderGeometry(.10,.14,.10,8),fenceGold);
-    lampBase.position.set(x,2.55,z);fenceNoShadow(lampBase);fenceGroup.add(lampBase);
+    lampBase.position.set(x,baseY+2.55,z);fenceNoShadow(lampBase);fenceGroup.add(lampBase);
     const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.14,0),fenceGoldLight);
-    finial.position.set(x,2.69,z);finial.scale.set(.82,1.35,.82);fenceNoShadow(finial);fenceGroup.add(finial);
+    finial.position.set(x,baseY+2.69,z);finial.scale.set(.82,1.35,.82);fenceNoShadow(finial);fenceGroup.add(finial);
   };
-  const fenceBay=(x1,z1,x2,z2)=>{
+  const fenceBay=(x1,z1,x2,z2,baseY=0)=>{
     const dx=x2-x1,dz=z2-z1,length=Math.hypot(dx,dz);
     if(length<.3)return;
     const angle=Math.atan2(dz,dx),cx=(x1+x2)/2,cz=(z1+z2)/2;
-    const panel=new THREE.Group();panel.position.set(cx,0,cz);panel.rotation.y=-angle;fenceGroup.add(panel);
+    const panel=new THREE.Group();panel.position.set(cx,baseY,cz);panel.rotation.y=-angle;fenceGroup.add(panel);
     fenceNoShadow(box(panel,length-.12,.105,.105,0,.62,0,fenceIron,false));
     fenceNoShadow(box(panel,length-.12,.105,.105,0,1.92,0,fenceIron,false));
     fenceNoShadow(box(panel,length-.12,.035,.12,0,2.00,0,fenceGold,false));
@@ -3874,13 +3874,13 @@ function makeWorldDecor(){
     const center=new THREE.Mesh(new THREE.SphereGeometry(.052,12,10),fenceGoldLight);
     center.position.set(0,1.30,.17);center.scale.z=.38;fenceNoShadow(center);panel.add(center);
   };
-  const fenceRun=(x1,z1,x2,z2,spacing=2.45)=>{
+  const fenceRun=(x1,z1,x2,z2,spacing=2.45,startY=0,endY=startY)=>{
     const length=Math.hypot(x2-x1,z2-z1),count=Math.max(1,Math.ceil(length/spacing));
     const points=Array.from({length:count+1},(_,i)=>({
-      x:x1+(x2-x1)*i/count,z:z1+(z2-z1)*i/count
+      x:x1+(x2-x1)*i/count,z:z1+(z2-z1)*i/count,y:startY+(endY-startY)*i/count
     }));
-    for(const p of points)fencePost(p.x,p.z);
-    for(let i=0;i<count;i++)fenceBay(points[i].x,points[i].z,points[i+1].x,points[i+1].z);
+    for(const p of points)fencePost(p.x,p.z,p.y);
+    for(let i=0;i<count;i++)fenceBay(points[i].x,points[i].z,points[i+1].x,points[i+1].z,(points[i].y+points[i+1].y)/2);
   };
   // По четыре передние секции с каждой стороны арки; крайние линии совмещены
   // с наружными гранями площадок магазина и завода.
@@ -3894,14 +3894,14 @@ function makeWorldDecor(){
   fenceRun(3.20,frontFenceZ,frontFenceRight,frontFenceZ,rightFrontSpacing);
   // Боковые ограды идут по наружным краям магазина и завода.
   const sideFenceEndZ=-16.20;
-  fenceRun(frontFenceLeft,frontFenceZ,frontFenceLeft,sideFenceEndZ,2.45);
-  fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,sideFenceEndZ,2.45);
+  fenceRun(frontFenceLeft,frontFenceZ,frontFenceLeft,sideFenceEndZ,2.45,0,2.35);
+  fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,sideFenceEndZ,2.45,0,2.35);
   // Задняя ограда остаётся за постройками. Центральную часть закрывает главный дом,
   // поэтому собираем видимые левую и правую части отдельно: по четыре секции.
   const rearFenceZ=sideFenceEndZ;
   const rearLeftEnd=-6.0,rearRightStart=6.0;
-  fenceRun(frontFenceLeft,rearFenceZ,rearLeftEnd,rearFenceZ,(rearLeftEnd-frontFenceLeft)/4);
-  fenceRun(rearRightStart,rearFenceZ,frontFenceRight,rearFenceZ,(frontFenceRight-rearRightStart)/4);
+  fenceRun(frontFenceLeft,rearFenceZ,rearLeftEnd,rearFenceZ,(rearLeftEnd-frontFenceLeft)/4,2.35,2.35);
+  fenceRun(rearRightStart,rearFenceZ,frontFenceRight,rearFenceZ,(frontFenceRight-rearRightStart)/4,2.35,2.35);
   // Входная арка повторяет геометрию эталона: прямые массивные устои и полукруглый верх с тремя ступенями обрамления.
   const gateSpring=2.12,gateOuter=2.78,gateInner=2.12,gateFrontZ=13.98,gateBackZ=13.76;
   const gateShape=(outerR,innerR,springY)=>{
