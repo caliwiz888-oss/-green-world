@@ -3664,16 +3664,15 @@ function makeWorldDecor(){
     geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
     geometry.setIndex(indices);geometry.computeVertexNormals();
     const material=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.98,metalness:0,vertexColors:true,side:THREE.DoubleSide});
-    const mesh=new THREE.Mesh(geometry,material);mesh.castShadow=false;mesh.receiveShadow=false;world.add(mesh);
+    const mesh=new THREE.Mesh(geometry,material);mesh.castShadow=false;mesh.receiveShadow=false;mesh.userData.crispRoad=true;world.add(mesh);
   }
   // Гранитная дорога непрерывно проходит через арочный въезд и продолжается за пределы забора.
   addRoadGranite(9,50,-1.64,-9.72,.41,.565,.39,.535,()=>.1475,'x');
   // Поперечная дорога выложена теми же камнями, без смены материала или рисунка.
-  // Крайние плитки поперечной дороги заходят под кромку главной брусчатки,
-  // создавая физическое перекрытие вместо пустой полосы между двумя полотнами.
-  // Горизонтальная дорога проходит непрерывно через перекрёсток; её покрытие
-  // приподнято на 2 мм относительно главной брусчатки, чтобы исключить Z-fighting.
-  addRoadGranite(67,3,-13.95,-5.115,.45,.565,.428,.535,()=>.1495,'x');
+  // Главная дорога проходит через перекрёсток непрерывно.
+  // Плитки поперечной дороги, пересекающие ширину главной дороги, исключены из геометрии:
+  // поверхности больше не накладываются и не создают Z-fighting на мобильном depth buffer.
+  addRoadGranite(67,3,-13.95,-5.115,.45,.565,.428,.535,()=>.1495,'x',(x,z)=>Math.abs(x)<2.2);
   // Тёмный контур и каменные бордюры подчёркивают геометрию всех основных дорожек.
   // Единый матовый материал окантовки без dithering: чёткий тёмный край без зернистого размытия.
   const roadEdgeMat=new THREE.MeshBasicMaterial({color:0x080a0b,toneMapped:false});
@@ -5915,7 +5914,7 @@ scene.traverse(object=>{
  const materials=Array.isArray(object.material)?object.material:[object.material];
  for(const material of materials){
    if(!material)continue;
-   material.dithering=true;
+   material.dithering=!object.userData.crispRoad;
    window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH.materials++;
    for(const key of ['map','alphaMap','aoMap','bumpMap','displacementMap','emissiveMap','lightMap','metalnessMap','normalMap','roughnessMap']){
      const texture=material[key];
