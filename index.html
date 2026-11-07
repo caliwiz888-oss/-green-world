@@ -1491,6 +1491,22 @@ function makeHouse(){
      box(g,.72,.035,.045,x,y,4.145,houseStoneTrim,false);
    }
  }
+ // Смещённая перевязка каменных блоков на простенках фасада.
+ // Короткие швы расположены между окнами и не пересекают наличники или карнизы.
+ const manorJointMaterial=mat(0xaaa69d,.98);
+ for(const x of [-4.42,-2.18,2.18,4.42]){
+   for(const y of [1.25,2.32,3.62]){
+     const joint=box(g,.014,.28,.018,x,y,4.17,manorJointMaterial,false);
+     joint.castShadow=false;joint.receiveShadow=false;
+   }
+ }
+ // Отдельные тонкие горизонтальные швы связывают блоки в каждом простенке.
+ for(const x of [-4.42,-2.18,2.18,4.42]){
+   for(const y of [1.78,2.88,3.28]){
+     const joint=box(g,.34,.012,.018,x,y,4.17,manorJointMaterial,false);
+     joint.castShadow=false;joint.receiveShadow=false;
+   }
+ }
  // Убраны повторные слои рёбер и черепицы: они накладывались на основной рисунок кровли и вызывали мерцание глубины.
   // Shaped stone chimney crowns; the main roof eaves are defined once above.
   for(const x of [-3.6,3.6]){
