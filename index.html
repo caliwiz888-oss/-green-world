@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261107-183500';
+const GREEN_WORLD_BUILD_ID = '20261107-184500';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3830,7 +3830,7 @@ function makeWorldDecor(){
   const fenceGroup=new THREE.Group();world.add(fenceGroup);
   // Полный декоративный периметр по утверждённому эталону GREEN WORLD.
   // Светлые известняковые столбы, тёмная кованая решётка и золотые медальоны.
-  const fencePost=(x,z,baseY=0)=>{
+  const fencePost=(x,z,baseY=0,faceAngle=0)=>{
     fenceNoShadow(box(fenceGroup,.54,.30,.58,x,baseY+.16,z,fenceReliefStone,false));
     fenceNoShadow(box(fenceGroup,.48,.12,.52,x,baseY+.37,z,fenceIvory,false));
     fenceNoShadow(box(fenceGroup,.36,1.68,.40,x,baseY+1.25,z,fenceStone,false));
@@ -3838,10 +3838,12 @@ function makeWorldDecor(){
     fenceNoShadow(box(fenceGroup,.58,.16,.62,x,baseY+2.25,z,fenceIvory,false));
     fenceNoShadow(box(fenceGroup,.64,.07,.68,x,baseY+2.36,z,fenceGold,false));
     fenceNoShadow(box(fenceGroup,.52,.10,.56,x,baseY+2.45,z,fenceStone,false));
-    fenceNoShadow(box(fenceGroup,.23,1.12,.025,x,1.25,z+.207,fenceReliefStone,false));
-    fenceNoShadow(box(fenceGroup,.17,1.02,.028,x,1.25,z+.226,fenceIvory,false));
-    fenceNoShadow(box(fenceGroup,.025,.90,.018,x-.055,1.25,z+.247,fenceGold,false));
-    fenceNoShadow(box(fenceGroup,.025,.90,.018,x+.055,1.25,z+.247,fenceGold,false));
+    // Декоративная лицевая панель привязана к основанию столба и повёрнута внутрь двора.
+    const relief=new THREE.Group();relief.position.set(x,baseY,z);relief.rotation.y=faceAngle;fenceGroup.add(relief);
+    fenceNoShadow(box(relief,.23,1.12,.025,0,1.25,.207,fenceReliefStone,false));
+    fenceNoShadow(box(relief,.17,1.02,.028,0,1.25,.226,fenceIvory,false));
+    fenceNoShadow(box(relief,.025,.90,.018,-.055,1.25,.247,fenceGold,false));
+    fenceNoShadow(box(relief,.025,.90,.018,.055,1.25,.247,fenceGold,false));
     const lampBase=new THREE.Mesh(new THREE.CylinderGeometry(.10,.14,.10,8),fenceGold);
     lampBase.position.set(x,baseY+2.55,z);fenceNoShadow(lampBase);fenceGroup.add(lampBase);
     const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.14,0),fenceGoldLight);
@@ -3874,12 +3876,17 @@ function makeWorldDecor(){
     const center=new THREE.Mesh(new THREE.SphereGeometry(.052,12,10),fenceGoldLight);
     center.position.set(0,1.30,.17);center.scale.z=.38;fenceNoShadow(center);panel.add(center);
   };
-  const fenceRun=(x1,z1,x2,z2,spacing=2.45,startY=0,endY=startY)=>{
+  const fenceRun=(x1,z1,x2,z2,spacing=2.45,startY=0,endY=startY,options={})=>{
     const length=Math.hypot(x2-x1,z2-z1),count=Math.max(1,Math.ceil(length/spacing));
     const points=Array.from({length:count+1},(_,i)=>({
       x:x1+(x2-x1)*i/count,z:z1+(z2-z1)*i/count,y:startY+(endY-startY)*i/count
     }));
-    for(const p of points)fencePost(p.x,p.z,p.y);
+    // Концевые столбы можно разделять между соседними линиями, не создавая дубликаты в углах.
+    for(let i=0;i<points.length;i++){
+      if(i===0&&options.includeStart===false)continue;
+      if(i===count&&options.includeEnd===false)continue;
+      const p=points[i];fencePost(p.x,p.z,p.y,options.postFaceAngle||0);
+    }
     for(let i=0;i<count;i++)fenceBay(points[i].x,points[i].z,points[i+1].x,points[i+1].z,(points[i].y+points[i+1].y)/2);
   };
   // По четыре передние секции с каждой стороны арки; крайние линии совмещены
@@ -3892,14 +3899,14 @@ function makeWorldDecor(){
   const rightFrontSpacing=(frontFenceRight-3.20)/4;
   fenceRun(-3.20,frontFenceZ,frontFenceLeft,frontFenceZ,leftFrontSpacing);
   fenceRun(3.20,frontFenceZ,frontFenceRight,frontFenceZ,rightFrontSpacing);
-  // Боковые ограды идут по наружным краям магазина и завода.
-  // Боковые линии продлены ровно на две секции каждая; концы выходят на общую заднюю линию.
+  // Боковые и задняя линии идут строго горизонтально на одном уровне с передним ограждением.
   const sideFenceEndZ=-21.10;
-  fenceRun(frontFenceLeft,frontFenceZ,frontFenceLeft,sideFenceEndZ,2.45,0,2.35);
-  fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,sideFenceEndZ,2.45,0,2.35);
-  // Последняя задняя часть соединяет оба боковых забора в одну непрерывную линию.
+  // Угловые столбы уже создаются передними и задней линиями; боковые пролёты используют их без дублирования.
+  fenceRun(frontFenceLeft,frontFenceZ,frontFenceLeft,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:Math.PI/2});
+  fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:-Math.PI/2});
+  // Задняя линия замыкает обе стороны; все её столбы и пролёты стоят на уровне переднего двора.
   const rearFenceZ=sideFenceEndZ;
-  fenceRun(frontFenceLeft,rearFenceZ,frontFenceRight,rearFenceZ,2.37,2.35,2.35);
+  fenceRun(frontFenceLeft,rearFenceZ,frontFenceRight,rearFenceZ,2.37,0,0);
   // Жёстко отключаем отбрасывание и приём теней у всех деталей ограждения, включая столбики и навершия.
   fenceGroup.traverse(object=>{if(object.isMesh){object.castShadow=false;object.receiveShadow=false;}});
   // Входная арка повторяет геометрию эталона: прямые массивные устои и полукруглый верх с тремя ступенями обрамления.
