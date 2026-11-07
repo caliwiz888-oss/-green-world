@@ -436,6 +436,20 @@ function makeSurfaceTexture(kind,seed){
     ctx.beginPath();ctx.moveTo(x-13,y-11);ctx.quadraticCurveTo(x,y-14,x+13,y-11);ctx.stroke();
    }
   }
+  // Мелкая керамическая зернистость и редкие потёртые точки делают черепицу менее пластиковой.
+  for(let i=0;i<620;i++){
+   const x=rand()*size,y=rand()*size,r=.35+rand()*.85;
+   const light=rand()>.56;
+   ctx.fillStyle=light?'rgba(255,222,190,'+(.035+rand()*.055)+')':'rgba(63,31,27,'+(.035+rand()*.05)+')';
+   ctx.beginPath();ctx.ellipse(x,y,r*1.45,r,rand()*Math.PI,0,Math.PI*2);ctx.fill();
+  }
+  // Короткие слабые следы обжига добавляют естественные тональные перепады керамики.
+  for(let i=0;i<46;i++){
+   const x=rand()*size,y=rand()*size,len=4+rand()*15,dy=(rand()-.5)*3;
+   ctx.strokeStyle=rand()>.5?'rgba(255,218,190,.055)':'rgba(76,35,29,.05)';
+   ctx.lineWidth=.45+rand()*.5;ctx.beginPath();ctx.moveTo(x,y);
+   ctx.quadraticCurveTo(x+len*.5,y+dy,x+len,y+dy*.35);ctx.stroke();
+  }
  }
  if(kind==='soil'){
   // Тонкие вытянутые песчинки и следы грунта делают дорожки менее плоскими.
