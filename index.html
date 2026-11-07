@@ -3678,7 +3678,7 @@ function makeWorldDecor(){
   // Сплошная несущая плита повторяет плавный подъём арки, а её торцы заподлицо с дорогой.
   for(let row=0;row<20;row++){
     const t=(row+.5)/20,z=bridgeStart+t*bridgeLength,angle=-Math.atan(bridgeSlope(t));
-    const slab=box(world,4.08,.30,bridgeLength/20+.025,0,bridgeProfile(t)-.15,z,bridgeDeckMat,false);
+    const slab=box(world,4.08,.30,bridgeLength/20+.025,0,bridgeProfile(t)-.19,z,bridgeDeckMat,false);
     slab.rotation.x=angle;
   }
   // Гранитная мостовая продолжает рисунок главной дороги: ровные ряды, без щели на стыке.
