@@ -4731,9 +4731,19 @@ function makeWorldLandscape(){
      const cornice=peakSmooth(.72,.94,h/height)*(.72+.28*corniceEdge);
      const snowCoverage=THREE.MathUtils.clamp(snowAmount*snowDrift*(.92+.08*cornice),0,1);
      const coldShadow=THREE.MathUtils.clamp(.5-sunFacing*.38,.12,.7);
-     // Тонкие тёмные линии подчёркивают геологические пласты открытой породы.
-     const rockBand=Math.pow(Math.max(0,Math.sin(h*2.35+u*4.2+across*1.7)),12)*(.075+.035*Math.sin(u*31+across*9));
+     // Разнотонные минеральные зоны: холодный сланец в тенях и сдержанная охра на выветренных нижних гранях.
+     const mineralNoise=.5+.22*Math.sin(u*18+across*7)+.16*Math.sin(u*43-across*19)+.12*Math.sin(u*91+across*37);
+     const weathering=THREE.MathUtils.clamp((.72-h/height)*1.25,0,1)*THREE.MathUtils.clamp(mineralNoise,0,1);
+     const warmMineral=new THREE.Color(0x887866);
+     const coolMineral=new THREE.Color(0x59636a);
+     rock.lerp(warmMineral,weathering*.19*(1-snowCoverage));
+     rock.lerp(coolMineral,coldShadow*.12*(1-snowCoverage));
+     // Тонкие тёмные и светлые прожилки подчёркивают реальные слои породы, не превращаясь в регулярную сетку.
+     const bandPhase=h*2.35+u*4.2+across*1.7+.16*Math.sin(u*27+across*13);
+     const rockBand=Math.pow(Math.max(0,Math.sin(bandPhase)),12)*(.075+.035*Math.sin(u*31+across*9));
+     const paleVein=Math.pow(Math.max(0,Math.sin(bandPhase+1.1)),18)*.035;
      rock.multiplyScalar(1-rockBand*(1-snowCoverage));
+     rock.lerp(new THREE.Color(0xb0a18a),paleVein*(1-snowCoverage));
      rock.lerp(peakSnowBlue,snowCoverage*(.24+coldShadow*.22)).lerp(peakSnow,snowCoverage*(.76-coldShadow*.12));
      colors[i*3]=rock.r;colors[i*3+1]=rock.g;colors[i*3+2]=rock.b;
    }
