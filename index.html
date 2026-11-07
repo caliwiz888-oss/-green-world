@@ -1433,7 +1433,7 @@ function makeHouse(){
   for(const [material,offset] of [[towerBalconyStone,-1],[towerBalconyGold,-3]]){
     material.polygonOffset=true;material.polygonOffsetFactor=offset;material.polygonOffsetUnits=offset;material.needsUpdate=true;
   }
-  Small projecting balconies on the two front towers.
+  // Small projecting balconies on the two front towers.
  for(const x of [-4.35,4.35]){
    box(g,1.75,.18,.9,x,3.05,4.55,towerBalconyStone);
    for(const dx of [-.78,-.26,.26,.78])box(g,.09,.62,.09,x+dx,3.42,4.91,towerBalconyGold);
