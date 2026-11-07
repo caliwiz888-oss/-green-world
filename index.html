@@ -4018,15 +4018,29 @@ function makeHouse(){
  // Золотой кант по всему периметру карниза.
  const eave=[[-3.88,roofY,roofZ+2.90],[3.88,roofY,roofZ+2.90],[3.88,roofY,roofZ-2.90],[-3.88,roofY,roofZ-2.90],[-3.88,roofY,roofZ+2.90]].map(p=>new THREE.Vector3(p[0],p[1]+.13,p[2]));
  center.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(eave),96,.035,8,false),goldRoof));
- // Верхняя площадка завершена каменным фонарём без стекла и четырьмя бронзовыми пиками.
- box(center,1.34,.18,1.14,0,topY+.04,roofZ,stone);
- box(center,1.22,.075,1.02,0,topY+.17,roofZ,goldRoof);
- box(center,.76,.30,.68,0,topY+.34,roofZ,ivory);
- box(center,.92,.10,.82,0,topY+.52,roofZ,copperDark);
- for(const x of [-.48,.48])for(const z of [roofZ-.36,roofZ+.36]){
-  cylinder(center,.045,.045,.30,x,topY+.70,z,goldRoof,12);
-  sphere(center,.075,x,topY+.88,z,goldRoof,.9);
+ // Круглое основание и новый купол главной крыши из той же патинированной меди.
+ cylinder(center,.82,.82,.18,0,topY+.22,roofZ,stone,64);
+ cylinder(center,.78,.78,.09,0,topY+.34,roofZ,goldRoof,64);
+ cylinder(center,.73,.73,.10,0,topY+.43,roofZ,copperDark,64);
+ const domeMatGW=copperMats[0];
+ const domeGW=new THREE.Mesh(new THREE.SphereGeometry(.76,48,24,0,Math.PI*2,0,Math.PI/2),domeMatGW);
+ domeGW.position.set(0,topY+.48,roofZ);domeGW.castShadow=true;domeGW.receiveShadow=true;center.add(domeGW);
+ // Радиальные фальцевые рёбра повторяют металлическую отделку основной мансарды.
+ for(let j=0;j<16;j++){
+  const a=j*Math.PI*2/16,pts=[];
+  for(let k=0;k<=24;k++){
+   const t=(Math.PI/2)*k/24;
+   const r=.765*Math.sin(t);
+   pts.push(new THREE.Vector3(Math.cos(a)*r,topY+.48+.765*Math.cos(t),roofZ+Math.sin(a)*r));
+  }
+  const rib=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),40,.014,6,false),copperBright);
+  rib.castShadow=true;center.add(rib);
  }
+ // Тонкий золотой обруч у основания купола и небольшая медная корона.
+ const domeRingGW=new THREE.Mesh(new THREE.TorusGeometry(.765,.035,10,64),goldRoof);
+ domeRingGW.rotation.x=Math.PI/2;domeRingGW.position.set(0,topY+.49,roofZ);center.add(domeRingGW);
+ cylinder(center,.10,.10,.22,0,topY+1.34,roofZ,goldRoof,24);
+ sphere(center,.14,0,topY+1.49,roofZ,goldRoof,.92);
  // Центральный золотой навершник и декоративные капли на четырёх углах мансарды.
  cylinder(center,.075,.075,.32,0,topY+.76,roofZ,goldRoof,16);
  sphere(center,.13,0,topY+.98,roofZ,goldRoof,.92);
