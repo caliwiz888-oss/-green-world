@@ -916,7 +916,7 @@ function makeHouse(){
     const fascia=box(g,.2,.24,9.02,x,y,0,manorRoofEdgeMaterial,false);
    fascia.rotation.z=angle;
    // Ритмичные резные кронштейны поддерживают длинный карниз главного дома.
-   for(const z of [-3.65,-2.2,-.73,.73,2.2,3.65]){
+   for(const z of [-2.2,-.73,.73,2.2]){
      const bracket=box(g,.16,.42,.2,x+(x<0?.12:-.12),y-.2,z,M.stone2,false);
      bracket.rotation.z=angle;
      sphere(g,.045,x+(x<0?.24:-.24),y-.34,z,M.gold,.8);
