@@ -2045,6 +2045,8 @@ function makeMarket(){
    box(g,.09,.075,4.62,x,.57,0,roofEdge,false);
    box(g,.11,.035,4.48,x,.625,0,roofAccent,false);
  }
+ // Чёткая тёмная полоса у переднего основания лавки — в том же стиле, что и окантовка склада.
+ box(g,5.74,.105,.105,0,.105,2.445,roadEdgeMat,false);
  // Плоская широкая кровля с выступающим козырьком — главный отличительный силуэт лавки.
  box(g,6.65,.24,6.65,0,3.48,0,roofEdge);
  box(g,6.48,.16,6.48,0,3.66,0,roof);
@@ -3698,12 +3700,12 @@ function makeWorldDecor(){
   // Полосы стоят снаружи мощения, поэтому кирпичи их не перекрывают.
   // Два плеча с каждой стороны заканчиваются точно у внешних граней бордюров главной дороги.
   const crossRoadEdgeSegments=[[-14.0,-2.06],[2.06,16.5]];
-  const crossRoadEdgeZ=[-5.46,-3.36];
+  const crossRoadEdgeZ=[-5.435,-3.665];
   for(const z of crossRoadEdgeZ){
     for(const [x0,x1] of crossRoadEdgeSegments){
       const length=x1-x0,center=(x0+x1)*.5;
       // Одна цельная коробчатая полоса на плечо: без коротких накладок и стыковочных щелей.
-      box(world,length,.13,.14,center,.15,z,roadEdgeMat,false);
+      box(world,length,.12,.105,center,.16,z,roadEdgeMat,false);
     }
   }
   // Каменный арочный мост продолжает главную дорогу по той же оси и без ступеньки.
