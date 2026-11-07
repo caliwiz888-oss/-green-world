@@ -3860,29 +3860,29 @@ function makeHouse(){
   const cap=cone(g,.36,.30,x,5.48,2.28,slate,4);cap.rotation.y=Math.PI/4;
   box(g,.62,.06,.16,x,4.87,2.27,gold);
  }
- // Две боковые круглые башни — самостоятельные объёмы, соединённые с домом,
- // с каменными ярусами, высокими арочными окнами и выступающими балконами.
+ // Две массивные круглые башни: цельный каменный цилиндр начинается у земли
+ // и поднимается непрерывно до основания конической кровли, как на эталоне.
  for(const x of [-2.92,2.92]){
   const t=group(g,x,0,1.62);
-  cylinder(t,.82,.82,4.46,0,2.62,0,ivory,n);
-  cylinder(t,.91,.86,.20,0,.48,0,stone,n);
-  cylinder(t,.87,.87,.12,0,.62,0,cream,n);
-  for(const y of [1.03,2.12,3.23,4.34]){
-   cylinder(t,.85,.85,.11,0,y,0,stone,n);
-   cylinder(t,.88,.88,.07,0,y+.08,0,gold,n);
+  cylinder(t,1.04,1.04,5.18,0,2.59,0,ivory,n);
+  cylinder(t,1.10,1.04,.22,0,.12,0,stone,n);
+  cylinder(t,1.07,1.07,.12,0,.29,0,cream,n);
+  for(const y of [1.03,2.12,3.23,4.34,5.02]){
+   cylinder(t,1.06,1.06,.11,0,y,0,stone,n);
+   cylinder(t,1.09,1.09,.07,0,y+.08,0,gold,n);
   }
   // На каждом ярусе башни по два арочных окна: слева и справа.
   for(const y of [1.75,2.94]){
    for(const wx of [-.36,.36]){
     const sh=new THREE.Shape();sh.moveTo(-.22,0);sh.lineTo(-.22,.67);sh.absarc(0,.67,.22,Math.PI,0,true);sh.lineTo(.22,0);sh.closePath();
     const frame=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.10,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.02,bevelThickness:.02}),bronze);
-    frame.position.set(wx-.22,y,.73);frame.castShadow=false;frame.receiveShadow=false;t.add(frame);
+    frame.position.set(wx-.22,y,.94);frame.castShadow=false;frame.receiveShadow=false;t.add(frame);
     const glass=new THREE.Mesh(new THREE.ShapeGeometry(sh),teal);
-    glass.position.set(wx-.22,y,.84);glass.castShadow=false;glass.receiveShadow=false;t.add(glass);
-    box(t,.035,.88,.035,wx-.22,y+.32,.87,gold,false);
-    sphere(t,.14,wx-.22,y+.68,.85,tealLight,.70);
-    box(t,.54,.10,.22,wx-.22,y-.08,.78,cream);
-    box(t,.58,.06,.24,wx-.22,y+.96,.78,gold);
+    glass.position.set(wx-.22,y,1.05);glass.castShadow=false;glass.receiveShadow=false;t.add(glass);
+    box(t,.035,.88,.035,wx-.22,y+.32,1.08,gold,false);
+    sphere(t,.14,wx-.22,y+.68,1.06,tealLight,.70);
+    box(t,.54,.10,.22,wx-.22,y-.08,.99,cream);
+    box(t,.58,.06,.24,wx-.22,y+.96,.99,gold);
    }
   }
   // Круглый каменный балкон с широким выносом, точёными балясинами и поручнем.
