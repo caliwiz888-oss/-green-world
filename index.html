@@ -2342,8 +2342,6 @@ function makeWorldDecor(){
   // Центральная дорога: ровная ось от крыльца главного дома к берегу, одинаковая ширина по всей длине.
   const roadBase=mat(0x55483b,.98);
   box(world,3.9,.12,27.92,0,.035,4.24,roadBase,false);
-  // Площадка соединяет цоколь всего здания с главной дорогой на всю ширину дома и башен.
-  box(world,11.3,.12,2.48,0,.035,-10.99,roadBase,false);
   // Единая брусчатка дорожек: форма, фаски, раскладка, оттенки и минеральная фактура.
   function addRoadGranite(cols,rows,x0,z0,pitchX,pitchZ,width,depth,heightAt,staggerAxis,skipTile=null){
     const positions=[],colors=[],uvs=[],indices=[];
@@ -2380,8 +2378,6 @@ function makeWorldDecor(){
     const material=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.98,metalness:0,vertexColors:true,side:THREE.DoubleSide});
     const mesh=new THREE.Mesh(geometry,material);mesh.castShadow=false;mesh.receiveShadow=false;mesh.userData.crispRoad=true;world.add(mesh);
   }
-  // Широкая гранитная площадка от основания усадьбы до главной дороги.
-  addRoadGranite(27,5,-5.33,-11.84,.41,.41,.39,.39,()=>.1475,'z');
   // Гранитная дорога непрерывно проходит через арочный въезд и продолжается за пределы забора.
   addRoadGranite(9,50,-1.64,-9.72,.41,.565,.39,.535,()=>.1475,'x');
   // Поперечная дорога выложена теми же камнями, без смены материала или рисунка.
