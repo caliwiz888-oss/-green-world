@@ -4978,12 +4978,12 @@ function drawPlayer(){
   // Дом, завод и лавка — постоянные декоративные объекты мира.
   if(buildingObjects.length===0){
   // Завод создаётся первым и независимо от остальных объектов мира.
-  // Центральный дом удалён; сохраняем его исходную точку размещения.
-  const houseAnchor=group(world,0,0,-14);
-  houseAnchor.name='house-coordinate-anchor';
-  houseAnchor.userData.buildingRemoved=true;
-  buildingObjects.push(houseAnchor);
-  window.GREEN_WORLD_HOUSE_MODEL='removed';
+  // Возвращаем детализированный главный дом в сохранённую точку (0, 0, -14).
+  const house=makeHouse();
+  house.name='main-manor-house';
+  house.userData.buildingRemoved=false;
+  buildingObjects.push(house);
+  window.GREEN_WORLD_HOUSE_MODEL='restored';
   window.GREEN_WORLD_HOUSE_ERROR=null;
   // Магазин и завод удалены; пустые опорные группы сохраняют исходные координаты.
   const factoryAnchor=group(world,11.8,0,-9.61);
