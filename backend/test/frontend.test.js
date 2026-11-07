@@ -15,12 +15,13 @@ test('frontend authenticates Telegram initData and keeps the access token in mem
   assert.match(html, /credentials:'include'/);
 });
 
-test('every frontend economy action has a matching API route', () => {
+test('deferred economy actions are not exposed by the frontend', () => {
+  // Реальные игровые награды и экономические endpoints отложены до отдельного этапа.
+  // Пока интерфейс не должен отправлять вызовы несуществующих игровых API.
   const routes = [...html.matchAll(/action\('([^']+)'/g)].map(match => match[1]);
-  assert.ok(routes.length > 0, 'No API-backed game actions found');
-  for (const route of routes) {
-    assert.ok(server.includes("'" + route + "'"), 'Backend route missing: ' + route);
-  }
+  assert.deepEqual(routes, []);
+  assert.match(server, /app\.post\('\/api\/auth\/telegram'/);
+  assert.match(server, /app\.get\('\/api\/me'/);
 });
 
 test('frontend does not persist game state in local storage', () => {
