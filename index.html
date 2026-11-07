@@ -5353,6 +5353,20 @@ function makeWorldLandscape(){
    eddy.castShadow=false;eddy.receiveShadow=false;world.add(eddy);
    riverRingObjects.push({mesh:eddy,material:eddyMat,baseX:x,baseZ:z,phase:i*1.13+0.5,speed:.27+(i%4)*.035});
  }
+ // Тихие круговые завихрения у подводных опор моста подчёркивают контакт течения с камнем.
+ for(const side of [-1,1]){
+   for(let support=0;support<=3;support++){
+     const z=18.2225+(support/3)*(26.1775-18.2225);
+     const x=side*2.48;
+     const wakeMat=new THREE.MeshBasicMaterial({color:0xd8f4ed,transparent:true,opacity:.11,depthWrite:false,side:THREE.DoubleSide});
+     const wake=new THREE.Mesh(new THREE.TorusGeometry(1,.008,5,28),wakeMat);
+     wake.rotation.x=-Math.PI/2;
+     wake.position.set(x,.118,z);
+     wake.scale.set(.055,1,.055);
+     wake.castShadow=false;wake.receiveShadow=false;world.add(wake);
+     riverRingObjects.push({mesh:wake,material:wakeMat,baseX:x,baseZ:z,phase:support*1.37+(side>0?.8:0),speed:.19+(support%2)*.045});
+   }
+ }
  // Узкие подвижные отражения света и береговой зелени у кромки реки.
  const bankReflectionMat=new THREE.MeshBasicMaterial({color:0xd9eee0,transparent:true,opacity:.14,depthWrite:false});
  for(let i=0;i<10;i++){
