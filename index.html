@@ -595,7 +595,7 @@ function makeHouse(){
  // Материалы цоколя объявляются до первого использования в нижних фасадных филёнках.
  // Раньше const находились ниже по функции, из-за чего makeHouse() падала с ReferenceError (TDZ).
  const housePlinthBase=M.stone2.clone();
- housePlinthBase.color.setHex(0x9c8e77);
+ housePlinthBase.color.setHex(0xb6a88e);
  const housePlinthCap=M.stone.clone();
  housePlinthCap.color.setHex(0xd6c7aa);
  const masonryCanvas=document.createElement('canvas');masonryCanvas.width=masonryCanvas.height=256;
@@ -1905,7 +1905,7 @@ function makeMarket(){
  awningTexture.wrapS=awningTexture.wrapT=THREE.RepeatWrapping;
  awningTexture.repeat.set(1.6,1.2);
  awningTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- const awningMatA=new THREE.MeshStandardMaterial({color:0x237f91,map:awningTexture,roughness:.96,metalness:0});
+ const awningMatA=new THREE.MeshStandardMaterial({color:0x238b96,map:awningTexture,roughness:.96,metalness:0});
  const awningMatB=new THREE.MeshStandardMaterial({color:0xf0e4cd,map:awningTexture,roughness:.98,metalness:0});
  // Тканый рельеф навеса: отдельная карта высот подчёркивает переплетение нитей при боковом свете.
  const awningBump=awningTexture.clone();
@@ -2446,10 +2446,10 @@ function makeMarket(){
  // Непрерывный белый каменный цоколь по наружным вертикальным граням основания лавки.
  // Накладки перекрывают торец существующей площадки, поэтому белая облицовка остаётся видимой снаружи.
  const marketPlinthBase=M.stone2.clone();
- marketPlinthBase.color.setHex(0x626663);
+ marketPlinthBase.color.setHex(0xb6a88e);
  marketPlinthBase.roughness=.88;
  const marketPlinthCap=M.stone.clone();
- marketPlinthCap.color.setHex(0x858982);
+ marketPlinthCap.color.setHex(0xe8dcc5);
  marketPlinthCap.roughness=.82;
  // Мелкозернистая фактура натурального камня на цоколе: мягкие минеральные вкрапления без крупных пятен.
  const plinthCanvas=document.createElement('canvas');plinthCanvas.width=512;plinthCanvas.height=512;
@@ -3656,7 +3656,7 @@ function makeWorldDecor(){
   // Каменный арочный мост продолжает главную дорогу по той же оси и без ступеньки.
   // Начало настила точно совпадает с последним рядом гранитной дороги: z=18.2225, y=0.1475.
   const bridgeStart=18.2225,bridgeEnd=26.1775,bridgeLength=bridgeEnd-bridgeStart;
-  const bridgeDeckMat=mat(0x526d88,.96),bridgeStone=mat(0xe0d2b8,.97),bridgeStoneLight=mat(0xf1e5ce,.96),bridgeStoneShade=mat(0x55483b,.98);
+  const bridgeDeckMat=mat(0xe2cfad,.96),bridgeStone=mat(0xe0d2b8,.97),bridgeStoneLight=mat(0xf1e5ce,.96),bridgeStoneShade=mat(0x55483b,.98);
   const bridgeProfile=(t)=>.1475+.48*Math.pow(Math.sin(Math.PI*t),2);
   const bridgeSlope=(t)=>.48*Math.PI/bridgeLength*Math.sin(2*Math.PI*t);
   // Единая параметрическая геометрия настила: нет перекрывающихся коробчатых сегментов
@@ -3761,8 +3761,8 @@ function makeWorldDecor(){
   // Невысокие каменные парапеты повторяют профиль настила, сохраняя открытый вид на реку.
   // Круглые арочные перила: ровно три больших полукруглых секции на каждой стороне.
   // Более тёмный графитово-коричневый камень отделяет перила от светлого дорожного настила.
-  const railMat=new THREE.MeshStandardMaterial({color:0x55483b,roughness:.82,metalness:.18});
-  const railCapMat=new THREE.MeshStandardMaterial({color:0x526d88,roughness:.88,metalness:.035});
+  const railMat=new THREE.MeshStandardMaterial({color:0x34495e,roughness:.86,metalness:.035});
+  const railCapMat=new THREE.MeshStandardMaterial({color:0x607d98,roughness:.88,metalness:.035});
   for(const side of [-1,1]){
     // Непрерывный низкий каменный бортик повторяет продольный профиль моста.
     for(let row=0;row<20;row++){
