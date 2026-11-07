@@ -4475,6 +4475,43 @@ function makeWorldDecor(){
     box(world,.026,.018,27.78,x+(x<0?-.414:.414),1.175,0,fenceLightTrim,false);
   }
   // Матовая отделка подчёркивает натуральный известняк и не добавляет новых источников бликов.
+  // Кованые тёмно-бронзовые секции и золотые розетки по утверждённому эталону.
+  const fenceIron=new THREE.MeshStandardMaterial({color:0x26333a,roughness:.72,metalness:.34});
+  const fenceIronEdge=new THREE.MeshStandardMaterial({color:0x46545a,roughness:.68,metalness:.38});
+  const fenceGold=new THREE.MeshStandardMaterial({color:0xd9a844,roughness:.48,metalness:.56});
+  const ironBar=(w,h,d,x,y,z,material=fenceIron)=>{const m=box(world,w,h,d,x,y,z,material,false);m.castShadow=false;m.receiveShadow=false;};
+  for(const z of [-14.34,14.34]){
+    const spans=z===14.34?[[-14,-3.8],[3.8,16.5]]:[[-14,16.5]];
+    const fz=z+(z<0?-.018:.018);
+    for(const [start,end] of spans){
+      ironBar(end-start-.9,.075,.075,(start+end)/2,.34,fz,fenceIronEdge);
+      ironBar(end-start-.9,.075,.075,(start+end)/2,.98,fz,fenceIronEdge);
+      for(let x=start+.62;x<end-.35;x+=.42){
+        ironBar(.055,.58,.055,x,.66,fz);
+        const tip=cone(world,.075,.19,x,1.035,fz,fenceGold,4);tip.castShadow=false;tip.receiveShadow=false;
+      }
+      for(let x=start+1.75;x<end-.8;x+=3.5){
+        const ring=new THREE.Mesh(new THREE.TorusGeometry(.19,.035,8,24),fenceGold);
+        ring.position.set(x,.66,fz+.055);ring.castShadow=false;ring.receiveShadow=false;world.add(ring);
+        const core=new THREE.Mesh(new THREE.CircleGeometry(.115,20),fenceGold);
+        core.position.set(x,.66,fz+.06);core.castShadow=false;core.receiveShadow=false;world.add(core);
+      }
+    }
+  }
+  for(const x of [-14.34,16.84]){
+    const fx=x+(x<0?-.018:.018);
+    ironBar(.075,.075,27.4,fx,.34,0,fenceIronEdge);ironBar(.075,.075,27.4,fx,.98,0,fenceIronEdge);
+    for(let z=-13.25;z<13.3;z+=.42){
+      ironBar(.055,.58,.055,fx,.66,z);
+      const tip=cone(world,.075,.19,fx,1.035,z,fenceGold,4);tip.rotation.z=Math.PI/2;tip.castShadow=false;tip.receiveShadow=false;
+    }
+    for(let z=-10.5;z<=10.5;z+=3.5){
+      const ring=new THREE.Mesh(new THREE.TorusGeometry(.19,.035,8,24),fenceGold);
+      ring.rotation.y=Math.PI/2;ring.position.set(fx+(x<0?-.055:.055),.66,z);ring.castShadow=false;ring.receiveShadow=false;world.add(ring);
+      const core=new THREE.Mesh(new THREE.CircleGeometry(.115,20),fenceGold);
+      core.rotation.y=Math.PI/2;core.position.set(fx+(x<0?-.06:.06),.66,z);core.castShadow=false;core.receiveShadow=false;world.add(core);
+    }
+  }
   fenceMat.roughness=.94;
   fenceCap.roughness=.88;
   fenceJoint.roughness=.98;
