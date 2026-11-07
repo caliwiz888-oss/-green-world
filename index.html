@@ -4726,10 +4726,18 @@ function makeWorldLandscape(){
      const localSnowline=snowline+height*(windRidge+.012*Math.sin(u*113+v*67));
      const snowSlope=THREE.MathUtils.clamp((up-.005)*1.75,0,1);
      const snowAmount=peakSmooth(localSnowline,height*.96,h)*snowSlope;
-     const snowDrift=THREE.MathUtils.clamp(.7+.18*Math.sin(u*37+v*13)+.13*Math.cos(u*51-v*19)+.065*Math.sin(u*83+v*41),.18,1);
+     // Снежные языки повторяют направление кулуаров и обтекают выступающие скальные рёбра.
+     const chuteFlow=Math.sin(u*16+across*5.8+.28*Math.sin(u*31));
+     const chuteTongue=Math.pow(Math.max(0,Math.cos(u*13+across*4.2)),5)*
+       peakSmooth(.18,.42,h/height)*(1-peakSmooth(.78,.94,Math.abs(across)));
+     const windDrift=.7+.18*Math.sin(u*37+v*13)+.13*Math.cos(u*51-v*19)+.065*Math.sin(u*83+v*41);
+     const snowDrift=THREE.MathUtils.clamp(windDrift+.09*chuteFlow+.12*chuteTongue,.12,1);
      const corniceEdge=peakSmooth(-.12,.48,Math.sin(u*24+v*11)+.35*Math.sin(u*53-v*17));
      const cornice=peakSmooth(.72,.94,h/height)*(.72+.28*corniceEdge);
-     const snowCoverage=THREE.MathUtils.clamp(snowAmount*snowDrift*(.92+.08*cornice),0,1);
+     // Снег накапливается в защищённых ложбинах, а на острых рёбрах проступает тёмная порода.
+     const leePocket=peakSmooth(.15,.82,-chuteFlow)*peakSmooth(.2,.48,h/height);
+     const exposedRidge=peakSmooth(.72,.98,chuteFlow)*peakSmooth(.3,.68,h/height);
+     const snowCoverage=THREE.MathUtils.clamp(snowAmount*snowDrift*(.92+.08*cornice)*(1+.13*leePocket-.16*exposedRidge),0,1);
      const coldShadow=THREE.MathUtils.clamp(.5-sunFacing*.38,.12,.7);
      // Разнотонные минеральные зоны: холодный сланец в тенях и сдержанная охра на выветренных нижних гранях.
      const mineralNoise=.5+.22*Math.sin(u*18+across*7)+.16*Math.sin(u*43-across*19)+.12*Math.sin(u*91+across*37);
