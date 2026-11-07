@@ -1751,29 +1751,8 @@ function makeHouse(){
      box(g,.025,2.36,.025,x+dx,2.05,-4.39,M.stone2,false);
    }
  }
-  // Круглое слуховое окно в центре фронтона: каменный обод, латунное кольцо и тонкие переплёты.
-  const atticGlassUpper=new THREE.Mesh(new THREE.CircleGeometry(.255,24),windowInterior);
-  atticGlassUpper.position.set(-.25,6.34,4.34);g.add(atticGlassUpper);
-  const atticRingUpper=new THREE.Mesh(new THREE.TorusGeometry(.31,.055,8,32),M.stone2);
-  atticRingUpper.position.set(-.25,6.34,4.35);g.add(atticRingUpper);
-  const atticBrassUpper=new THREE.Mesh(new THREE.TorusGeometry(.235,.018,6,32),M.gold);
-  atticBrassUpper.position.set(-.25,6.34,4.365);g.add(atticBrassUpper);
-  box(g,.045,.46,.045,-.25,6.34,4.38,M.gold,false);
-  box(g,.44,.045,.045,-.25,6.34,4.38,M.gold,false);
-  // Веер из отдельных каменных клиньев обрамляет круглое слуховое окно фронтона.
-  for(let i=0;i<8;i++){
-    const angle=i*Math.PI/4;
-    const x=-.25+Math.cos(angle)*.405;
-    const y=6.34+Math.sin(angle)*.405;
-    const voussoir=box(g,.14,.085,.09,x,y,4.385,M.stone2,false);
-    voussoir.rotation.z=angle;
-    sphere(g,.026,x,y,4.445,M.gold,.8);
-  }
-  // Верхний замковый камень связывает оконный обод с линией фронтона.
-  box(g,.16,.12,.1,-.25,6.79,4.34,M.stone2,false);
-  sphere(g,.035,-.25,6.86,4.39,M.gold,.8);
- 
- // Небольшая мощёная площадка перед главным входом, не заходящая на грядки.
+  // Круглое слуховое окно фронтона вместе с каменным ободом, латунным кольцом и клиньями удалено по просьбе пользователя.
+  // Небольшая мощёная площадка перед главным входом, не заходящая на грядки.
  box(g,5.25,.12,1.45,0,.035,4.92,M.stone2,false);
  for(let ix=0;ix<5;ix++)for(let iz=0;iz<2;iz++){
    box(g,.96,.035,.62,-1.92+ix*.96,.112,4.58+iz*.66,ix%2?M.stone:M.stone2,false);
