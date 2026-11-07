@@ -590,6 +590,8 @@ function makeHouse(){
  const g=group(world,0,0,-14);
  // Индивидуальная фактура светлого тесаного камня главного дома: тонкие швы и мягкая неоднородность.
  const houseStone=M.stone.clone(),houseStoneTrim=M.stone2.clone();
+ // Единая новая палитра поместья: слоновая кость и кремовый известняк.
+ houseStone.color.setHex(0xe8dcc5);houseStoneTrim.color.setHex(0xf2e8d5);
  // Материалы цоколя объявляются до первого использования в нижних фасадных филёнках.
  // Раньше const находились ниже по функции, из-за чего makeHouse() падала с ReferenceError (TDZ).
  const housePlinthBase=M.stone2.clone();
@@ -773,10 +775,10 @@ function makeHouse(){
  // Тонкая настройка матового рельефа резного камня вокруг входа: мягче блики, чуть выразительнее микрофактура.
  const entranceCarvedStone=houseStoneTrim.clone();entranceCarvedStone.color.setHex(0xe5dfd3);entranceCarvedStone.roughness=.94;entranceCarvedStone.bumpScale=.034;entranceCarvedStone.needsUpdate=true;
  // Каменное обрамление окон и фасадные тяги получают чуть более читаемый матовый микрорельеф.
- const manorFacadeTrim=houseStoneTrim.clone();manorFacadeTrim.color.setHex(0xded8cc);manorFacadeTrim.roughness=.9;manorFacadeTrim.bumpScale=.04;manorFacadeTrim.needsUpdate=true;
+ const manorFacadeTrim=houseStoneTrim.clone();manorFacadeTrim.color.setHex(0xf0e4cd);manorFacadeTrim.roughness=.9;manorFacadeTrim.bumpScale=.04;manorFacadeTrim.needsUpdate=true;
   // Более тонкая матовая поверхность подчёркивает резные каменные детали фасада.
   manorFacadeTrim.roughness=.95;manorFacadeTrim.bumpScale=.043;
-  manorFacadeTrim.color.setHex(0xe0dacf);manorFacadeTrim.needsUpdate=true;
+  manorFacadeTrim.color.setHex(0xf3e7d1);manorFacadeTrim.needsUpdate=true;
  // Холодные отражения на стекле добавляют глубину окнам, не меняя их рам и размеров.
  const glassCanvas=document.createElement('canvas');glassCanvas.width=128;glassCanvas.height=128;
  const glassCtx=glassCanvas.getContext('2d');
@@ -903,7 +905,7 @@ function makeHouse(){
  const manorRoofBump=manorRoofTexture.clone();manorRoofBump.colorSpace=THREE.NoColorSpace;manorRoofBump.needsUpdate=true;
  const manorRoofMaterial=M.roof.clone();
  // Светлый благородный серо-голубой оттенок кровли для контраста с тёплым фасадом.
-  manorRoofMaterial.color.setHex(0x718b9a);
+  manorRoofMaterial.color.setHex(0x526d88);
  manorRoofMaterial.roughness=.82;manorRoofMaterial.metalness=.035;
  manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.013;manorRoofMaterial.roughness=.87;manorRoofMaterial.metalness=.02;manorRoofMaterial.needsUpdate=true;
  // НОВАЯ КРОВЛЯ: единая параметрическая геометрия от общей оси конька.
@@ -1208,7 +1210,7 @@ function makeHouse(){
  towerTrimMaterial.bumpScale=.03;
  towerTrimMaterial.needsUpdate=true;
  // Купола в приглушённом серо-голубом тоне с более тёмной синевато-графитовой окантовкой.
- const towerRoofMaterial=new THREE.MeshStandardMaterial({color:0x879ba4,roughness:.84,metalness:.045});
+ const towerRoofMaterial=new THREE.MeshStandardMaterial({color:0x526d88,roughness:.84,metalness:.045});
  const towerRoofLine=new THREE.MeshStandardMaterial({color:0x43545d,roughness:.88,metalness:.02});
  const towerMetal=new THREE.MeshStandardMaterial({color:0xb99a61,roughness:.48,metalness:.48});
  const towerWindow=mat(0x263b40,.34);
@@ -1368,7 +1370,7 @@ function makeHouse(){
    towerRoofMaterial.map=null;
    towerRoofMaterial.bumpMap=null;
    towerRoofMaterial.bumpScale=0;
-   towerRoofMaterial.color.setHex(0x879ba4);
+   towerRoofMaterial.color.setHex(0x526d88);
    towerRoofMaterial.roughness=.9;
    towerRoofMaterial.metalness=.015;
    towerRoofMaterial.needsUpdate=true;
@@ -1523,7 +1525,7 @@ function makeHouse(){
    }
  }
  // Главный вход: выразительный каменный портик с колоннами и отдельной кровлей.
- const porchStone=mat(0xd8c9a8),porchRoof=mat(0x754037);
+ const porchStone=mat(0xe5d4b5),porchRoof=mat(0xa85d48);
  for(const x of [-1.48,1.48]){
    cylinder(g,.16,.2,2.45,x,1.42,4.62,porchStone,12);
    cylinder(g,.23,.23,.18,x,.2,4.62,houseStoneTrim,12);
@@ -3563,15 +3565,15 @@ function makeFlowerBed(x,z){
 }
 function makeWorldDecor(){
   // Двухцветная палитра ограды: тёплый известняк и приглушённый шалфейно-оливковый камень.
-  const fenceBaseTrim=mat(0x697260),fenceLightTrim=mat(0xd8cdb4),fenceRelief=mat(0xa99d80),fenceShadow=mat(0x555c50);
+  const fenceBaseTrim=mat(0x55483b),fenceLightTrim=mat(0xf0e2c8),fenceRelief=mat(0xb99a55),fenceShadow=mat(0x493b31);
   // Открытая территория. Каменная дорожка идёт от главного дома к берегу реки.
   // var исключает TDZ для материалов дорожки при повторном/раннем вызове декораций.
   // Бело-серая гранитная гамма дорожек: светлый камень, холодный серый и графитовые швы.
-  const roadBrickLight=mat(0xd9ddda,.96);
-  const roadBrickDark=mat(0x788185,.96);
+  const roadBrickLight=mat(0xe8dcc5,.96);
+  const roadBrickDark=mat(0xb6a88e,.96);
   // Основание в тон тёмному камню; контраст мягкий, без чисто белого и чёрного.
   // Центральная дорога: ровная ось от крыльца главного дома к берегу, одинаковая ширина по всей длине.
-  const roadBase=mat(0x42494c,.98);
+  const roadBase=mat(0x55483b,.98);
   box(world,3.9,.12,27.92,0,.035,4.24,roadBase,false);
   // Единая брусчатка дорожек: форма, фаски, раскладка, оттенки и минеральная фактура.
   function addRoadGranite(cols,rows,x0,z0,pitchX,pitchZ,width,depth,heightAt,staggerAxis,skipTile=null){
@@ -3652,7 +3654,7 @@ function makeWorldDecor(){
   // Каменный арочный мост продолжает главную дорогу по той же оси и без ступеньки.
   // Начало настила точно совпадает с последним рядом гранитной дороги: z=18.2225, y=0.1475.
   const bridgeStart=18.2225,bridgeEnd=26.1775,bridgeLength=bridgeEnd-bridgeStart;
-  const bridgeDeckMat=mat(0x777f7e,.96),bridgeStone=mat(0xb5b4a6,.97),bridgeStoneLight=mat(0xd0cabb,.96),bridgeStoneShade=mat(0x747c78,.98);
+  const bridgeDeckMat=mat(0x526d88,.96),bridgeStone=mat(0xe0d2b8,.97),bridgeStoneLight=mat(0xf1e5ce,.96),bridgeStoneShade=mat(0x55483b,.98);
   const bridgeProfile=(t)=>.1475+.48*Math.pow(Math.sin(Math.PI*t),2);
   const bridgeSlope=(t)=>.48*Math.PI/bridgeLength*Math.sin(2*Math.PI*t);
   // Единая параметрическая геометрия настила: нет перекрывающихся коробчатых сегментов
@@ -3757,7 +3759,7 @@ function makeWorldDecor(){
   // Невысокие каменные парапеты повторяют профиль настила, сохраняя открытый вид на реку.
   // Круглые арочные перила: ровно три больших полукруглых секции на каждой стороне.
   // Более тёмный графитово-коричневый камень отделяет перила от светлого дорожного настила.
-  const railMat=new THREE.MeshStandardMaterial({color:0x46545b,roughness:.96,metalness:0});
+  const railMat=new THREE.MeshStandardMaterial({color:0x55483b,roughness:.82,metalness:.18});
   const railCapMat=new THREE.MeshStandardMaterial({color:0x68777d,roughness:.95,metalness:0});
   for(const side of [-1,1]){
     // Непрерывный низкий каменный бортик повторяет продольный профиль моста.
@@ -3796,7 +3798,7 @@ function makeWorldDecor(){
   }
   // Мост начинается ровно в торце главной дороги и выходит на противоположный берег.
   // Каменное ограждение по периметру; правая сторона вынесена за завод, центральный проход оставлен открытым к берегу.
-  const fenceMat=mat(0xb5a789),fenceCap=mat(0xd0c2a3),fenceJoint=mat(0x747b69);
+  const fenceMat=mat(0xe4d5b8),fenceCap=mat(0xf3e7d1),fenceJoint=mat(0x55483b);
   for(let p=-14;p<=14;p+=1.75){
     for(const z of [-14,14]){
       if(z===14 && Math.abs(p)<3.6) continue;
