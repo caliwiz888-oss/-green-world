@@ -4584,7 +4584,7 @@ function makeWorldLandscape(){
  snowTexture.wrapS=snowTexture.wrapT=THREE.RepeatWrapping;snowTexture.repeat.set(1.2,1.2);
  snowTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const snowBump=snowTexture.clone();snowBump.colorSpace=THREE.NoColorSpace;snowBump.needsUpdate=true;
- for(const m of [snow]){m.map=snowTexture;m.bumpMap=snowBump;m.bumpScale=.018;m.roughness=.98;m.needsUpdate=true;}
+ for(const m of [snow]){m.map=snowTexture;m.bumpMap=snowBump;m.bumpScale=.026;m.roughness=.94;m.metalness=0;m.needsUpdate=true;}
  // Естественный пояс пологих холмов занимает место удалённого леса.
  // Одна непрерывная рельефная поверхность вместо отдельных круглых насыпей.
  const rollingHillsGeometry=new THREE.PlaneGeometry(76,37,152,88);
@@ -4680,17 +4680,22 @@ function makeWorldLandscape(){
    for(let i=0;i<pos.count;i++){
      const u=uv.getX(i)*2-1,v=uv.getY(i)*2-1;
      const h=pos.getZ(i),up=normal.getZ(i);
-     const illumination=THREE.MathUtils.clamp(.34+.5*(1-up)+.1*Math.sin(u*13+v*7),.08,.99);
-     const rock=peakRockDark.clone().lerp(peakRockMid,illumination).lerp(peakRockSun,Math.max(0,illumination-.58)*.72);
-     const snowAmount=peakSmooth(snowline,height*.94,h)*THREE.MathUtils.clamp((up+.015)*1.5,0,1);
-     const snowDrift=THREE.MathUtils.clamp(.78+.14*Math.sin(u*37+v*13)+.1*Math.cos(u*51-v*19),.25,1);
-     rock.lerp(peakSnowBlue,snowAmount*snowDrift*.38).lerp(peakSnow,snowAmount*snowDrift*.62);
+     // Направленный альпийский свет подчёркивает солнечные и теневые грани скал.
+     const sunFacing=Math.max(0,normal.getX(i)*-.48+normal.getY(i)*.72+up*.5);
+     const illumination=THREE.MathUtils.clamp(.28+.66*sunFacing+.045*Math.sin(u*13+v*7),.16,.99);
+     const rock=peakRockDark.clone().lerp(peakRockMid,illumination).lerp(peakRockSun,Math.max(0,sunFacing-.42)*.5);
+     // Линия снега слегка меняется по рельефу, как на настоящих ветреных склонах.
+     const localSnowline=snowline+height*(.025*Math.sin(u*18+v*9)+.018*Math.sin(u*37-v*21));
+     const snowAmount=peakSmooth(localSnowline,height*.96,h)*THREE.MathUtils.clamp((up-.005)*1.75,0,1);
+     const snowDrift=THREE.MathUtils.clamp(.72+.17*Math.sin(u*37+v*13)+.12*Math.cos(u*51-v*19)+.055*Math.sin(u*83+v*41),.22,1);
+     const coldShadow=THREE.MathUtils.clamp(.5-sunFacing*.38,.12,.7);
+     rock.lerp(peakSnowBlue,snowAmount*snowDrift*(.24+coldShadow*.22)).lerp(peakSnow,snowAmount*snowDrift*(.76-coldShadow*.12));
      colors[i*3]=rock.r;colors[i*3+1]=rock.g;colors[i*3+2]=rock.b;
    }
    geometry.setAttribute('color',new THREE.BufferAttribute(colors,3));
    const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({
      color:0xffffff,vertexColors:true,map:alpineRockTexture,bumpMap:alpineRockBump,
-     bumpScale:.135,roughness:.96,metalness:0,side:THREE.DoubleSide,flatShading:true
+     bumpScale:.15,roughness:.93,metalness:0,side:THREE.DoubleSide,flatShading:true
    }));
    mesh.name=name;mesh.rotation.x=-Math.PI/2;mesh.rotation.z=rotation;
    mesh.position.set(x,0,z);mesh.castShadow=false;mesh.receiveShadow=false;world.add(mesh);
