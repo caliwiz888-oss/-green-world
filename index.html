@@ -3897,7 +3897,7 @@ function makeWorldDecor(){
   // Передняя ограда: по четыре секции с каждой стороны арки.
   const leftFrontSpacing=(Math.abs(frontFenceLeft)-3.20)/4;
   const rightFrontSpacing=(frontFenceRight-3.20)/4;
-  fenceRun(-3.20,frontFenceZ,frontFenceLeft,frontFenceZ,leftFrontSpacing);
+  fenceRun(-3.20,frontFenceZ,frontFenceLeft,frontFenceZ,leftFrontSpacing,0,0,{bayFaceAngle:Math.PI});
   fenceRun(3.20,frontFenceZ,frontFenceRight,frontFenceZ,rightFrontSpacing);
   // Боковые и задняя линии идут строго горизонтально на одном уровне с передним ограждением.
   const sideFenceEndZ=-21.10;
