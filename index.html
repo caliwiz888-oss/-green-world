@@ -3901,15 +3901,15 @@ function makeHouse(){
     balconyShape.absarc(0,0,radius,Math.PI,0,false);
     balconyShape.lineTo(-radius,0);
     balconyShape.closePath();
-    const platformGeo=new THREE.ExtrudeGeometry(balconyShape,{depth:.10,bevelEnabled:false,steps:1});
+    const platformGeo=new THREE.ExtrudeGeometry(balconyShape,{depth:.14,bevelEnabled:false,steps:1});
     platformGeo.rotateX(-Math.PI/2);
     const platform=new THREE.Mesh(platformGeo,stone);
-    platform.position.set(0,balconyY-.05,chordZ);
+    platform.position.set(0,balconyY-.07,chordZ);
     platform.castShadow=false;platform.receiveShadow=false;t.add(platform);
-    const rimGeo=new THREE.ExtrudeGeometry(balconyShape,{depth:.035,bevelEnabled:false,steps:1});
+    const rimGeo=new THREE.ExtrudeGeometry(balconyShape,{depth:.045,bevelEnabled:false,steps:1});
     rimGeo.rotateX(-Math.PI/2);
     const rim=new THREE.Mesh(rimGeo,cream);
-    rim.position.set(0,balconyY+.05,chordZ);
+    rim.position.set(0,balconyY+.07,chordZ);
     rim.castShadow=false;rim.receiveShadow=false;t.add(rim);
     // Золотой кант и поручень повторяют только переднюю полукруглую дугу.
     const arcPoints=[];
