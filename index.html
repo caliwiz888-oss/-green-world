@@ -1905,6 +1905,15 @@ function makeMarket(){
  awningTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const awningMatA=new THREE.MeshStandardMaterial({color:0x9eaa83,map:awningTexture,roughness:.96,metalness:0});
  const awningMatB=new THREE.MeshStandardMaterial({color:0xe5dfca,map:awningTexture,roughness:.98,metalness:0});
+ // Тканый рельеф навеса: отдельная карта высот подчёркивает переплетение нитей при боковом свете.
+ const awningBump=awningTexture.clone();
+ awningBump.colorSpace=THREE.NoColorSpace;
+ awningBump.needsUpdate=true;
+ for(const fabricMaterial of [awningMatA,awningMatB]){
+   fabricMaterial.bumpMap=awningBump;
+   fabricMaterial.bumpScale=.014;
+   fabricMaterial.needsUpdate=true;
+ }
 
  // Едва заметная фактура окрашенного кровельного покрытия: мелкое зерно и спокойные продольные полосы без новых деталей.
  const marketRoofCanvas=document.createElement('canvas');marketRoofCanvas.width=512;marketRoofCanvas.height=512;
