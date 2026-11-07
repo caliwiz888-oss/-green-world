@@ -707,6 +707,9 @@ function makeHouse(){
  const entranceCarvedStone=houseStoneTrim.clone();entranceCarvedStone.color.setHex(0xe5dfd3);entranceCarvedStone.roughness=.94;entranceCarvedStone.bumpScale=.034;entranceCarvedStone.needsUpdate=true;
  // Каменное обрамление окон и фасадные тяги получают чуть более читаемый матовый микрорельеф.
  const manorFacadeTrim=houseStoneTrim.clone();manorFacadeTrim.color.setHex(0xded8cc);manorFacadeTrim.roughness=.9;manorFacadeTrim.bumpScale=.04;manorFacadeTrim.needsUpdate=true;
+  // Более тонкая матовая поверхность подчёркивает резные каменные детали фасада.
+  manorFacadeTrim.roughness=.94;manorFacadeTrim.bumpScale=.052;
+  manorFacadeTrim.color.setHex(0xe0dacf);manorFacadeTrim.needsUpdate=true;
  // Холодные отражения на стекле добавляют глубину окнам, не меняя их рам и размеров.
  const glassCanvas=document.createElement('canvas');glassCanvas.width=128;glassCanvas.height=128;
  const glassCtx=glassCanvas.getContext('2d');
