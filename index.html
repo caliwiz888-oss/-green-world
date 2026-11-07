@@ -3853,13 +3853,22 @@ function makeHouse(){
  box(g,1.12,.055,.035,0,2.42,2.81,gold,false);
  box(g,.045,.78,.035,0,1.28,2.82,bronze,false);
  for(const x of [-.18,.18])sphere(g,.055,x,1.58,2.84,gold,.9);
- // Терракотовый навес с золотым фризом и декоративными кронштейнами.
- box(g,1.90,.17,.78,0,2.82,2.74,terra);
- box(g,2.02,.07,.82,0,2.94,2.74,gold);
- box(g,1.78,.09,.70,0,2.72,2.75,cream);
+ // Терракотовый входной козырёк с небольшим двускатным силуэтом,
+ // золотой окантовкой, каменными кронштейнами и декоративным фронтоном.
+ const canopyShape=new THREE.Shape();
+ canopyShape.moveTo(-1.02,0);canopyShape.lineTo(0,.34);canopyShape.lineTo(1.02,0);canopyShape.lineTo(1.02,-.10);canopyShape.lineTo(-1.02,-.10);canopyShape.closePath();
+ const canopyMesh=new THREE.Mesh(new THREE.ExtrudeGeometry(canopyShape,{depth:.72,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.035,bevelThickness:.025}),terra);
+ canopyMesh.position.set(0,2.78,2.48);canopyMesh.castShadow=false;canopyMesh.receiveShadow=false;g.add(canopyMesh);
+ box(g,2.08,.075,.82,0,2.80,2.78,gold);
+ box(g,1.92,.055,.78,0,2.70,2.79,cream);
+ box(g,2.12,.07,.82,0,2.68,2.79,terra);
+ // Золотая накладка и медальон на центральном ребре козырька.
+ box(g,.06,.36,.055,0,2.95,3.20,gold,false);
+ sphere(g,.10,0,3.05,3.22,gold,.9);
  for(const x of [-.78,.78]){
-  box(g,.14,.38,.18,x,2.56,2.70,cream);
-  box(g,.10,.20,.16,x,2.78,2.72,gold);
+  const bracket=box(g,.14,.42,.18,x,2.55,2.72,cream,false);
+  bracket.rotation.z=x<0?-.18:.18;
+  box(g,.18,.10,.20,x,2.78,2.75,gold,false);
  }
  // Парадная лестница с широкими каменными ступенями.
  for(let i=0;i<5;i++){
@@ -3918,12 +3927,21 @@ function makeHouse(){
   const mesh=new THREE.Mesh(geo,roofMat);mesh.castShadow=false;mesh.receiveShadow=false;g.add(mesh);
  }
  roofSide(-1);roofSide(1);
- // Тонкие ряды сланцевой черепицы повторяют скаты основной крыши.
+ // Отдельные перекрывающиеся плитки сланцевой черепицы на обоих скатах.
+ // Ряды уложены со смещением, а плитки повторяют наклон кровли.
  for(const side of [-1,1]){
-  for(let k=1;k<=6;k++){
-   const ax=k*.48,yy=6.22-(ax/3.48)*1.75;
-   box(g,.028,.026,5.34,side*ax,yy,-.07,slateDark,false);
+  const slope=side*.466;
+  for(let k=1;k<=7;k++){
+   const ax=k*.43,yy=6.22-(ax/3.48)*1.75;
+   for(let j=0;j<9;j++){
+    const z=-2.35+j*.57+(k%2)*.285;
+    const tile=box(g,.43,.045,.52,side*ax,yy+.018,z, j%3===0?slateDark:slate,false);
+    tile.rotation.z=slope;
+   }
   }
+  // Непрерывный золотой профиль карниза вдоль нижнего края ската.
+  const edge=box(g,.12,.10,5.42,side*3.47,4.47,-.07,gold,false);
+  edge.rotation.z=slope;
  }
  for(const side of [-1,1]){
   const fascia=box(g,4.00,.22,.36,side*1.74,5.34,2.61,slateDark);
@@ -4018,6 +4036,11 @@ function makeHouse(){
   cylinder(t,1.10,1.10,.10,0,5.19,0,gold,n);
   cylinder(t,1.07,1.07,.12,0,5.30,0,slateDark,n);
   cone(t,1.08,2.48,0,6.58,0,slate,64);
+  // Тонкие горизонтальные пояса черепицы на конической кровле.
+  for(const [yy,rr] of [[5.72,.91],[6.12,.74],[6.52,.56],[6.92,.39],[7.32,.21]]){
+   cylinder(t,rr,rr,.035,0,yy,0,slateDark,64);
+   cylinder(t,rr+.018,rr+.018,.018,0,yy+.025,0,gold,64);
+  }
   cylinder(t,.075,.075,.22,0,7.85,0,gold,16);
   sphere(t,.11,0,8.01,0,gold,.9);
   cone(t,.06,.22,0,8.18,0,gold,16);
@@ -4044,6 +4067,24 @@ function makeHouse(){
    sphere(g,.065,px,y+.20,2.80,green,.76);
    sphere(g,.070,px,y+.29,2.82,j%3===0?lilac:(j%2?white:pink),.82);
   }
+ }
+ // Каменная отделка боковых стен: угловые русты и непрерывные пояса
+ // продолжают архитектуру фасада по всему объёму дома.
+ for(const side of [-1,1]){
+  for(const z of [-2.18,-1.12,0,1.12,2.18]){
+   for(const y of [.92,1.42,2.92,3.42]){
+    box(g,.16,.25,.30,side*2.91,y,z,y===1.42?stone:cream,false);
+   }
+  }
+  for(const y of [.82,2.62,3.82,4.12]){
+   box(g,.18,.065,4.48,side*2.91,y,-.08,stone,false);
+   box(g,.19,.035,4.50,side*2.92,y+.07,-.08,cream,false);
+  }
+ }
+ // Рельефные каменные панели на торцевых простенках под кровлей.
+ for(const side of [-1,1]){
+  box(g,.12,.42,1.05,side*2.88,4.02,-1.70,cream,false);
+  box(g,.14,.10,1.12,side*2.90,4.28,-1.70,gold,false);
  }
  // Дымоходы остаются частью силуэта главной кровли.
  for(const x of [-2.18,2.18]){
