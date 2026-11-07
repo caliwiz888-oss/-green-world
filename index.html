@@ -947,12 +947,17 @@ function makeHouse(){
    const mesh=new THREE.Mesh(new THREE.ShapeGeometry(shape),houseStoneTrim);mesh.position.z=z;mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);
  };
  makeGable(3.98);makeGable(-4.06);
- // Тонкие каменные обрамления скатов фронтона подчёркивают его треугольную форму и отделяют кладку от черепицы.
- for(const [cx,angle] of [[-1.7,.626],[1.2,-.626]]){
-   const verge=box(g,3.34,.13,.16,cx,5.77,4.145,houseStoneTrim,false);
-   verge.rotation.z=angle;
-   const vergeShadow=box(g,3.28,.035,.17,cx,5.69,4.155,M.stone2,false);
-   vergeShadow.rotation.z=angle;
+ // Каменные обрамления точно повторяют стороны фронтона и заканчиваются до карниза и конька.
+ // Длины и углы рассчитаны по вершинам треугольной кладки, без выступающих концов.
+ const gableVergeSpecs=[
+   {length:3.29,x:-1.70,y:5.78,angle:.622},
+   {length:3.71,x:1.45,y:5.78,angle:-.549}
+ ];
+ for(const spec of gableVergeSpecs){
+   const verge=box(g,spec.length,.09,.12,spec.x,spec.y,4.145,houseStoneTrim,false);
+   verge.rotation.z=spec.angle;
+   const vergeShadow=box(g,spec.length-.06,.022,.125,spec.x,spec.y-.075,4.155,M.stone2,false);
+   vergeShadow.rotation.z=spec.angle;
  }
  // Четыре небольших накладных элемента у переднего края крыши удалены по просьбе пользователя.
  // Основные скаты, фронтон, карнизы и дымоходы сохранены.
