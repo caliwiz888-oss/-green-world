@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261106-195600';
+const GREEN_WORLD_BUILD_ID = '20261107-090900';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1368,6 +1368,29 @@ function makeHouse(){
        const pz=Math.sin(ang)*radius+Math.cos(ang)*tangentOffset;
        const joint=box(t,.22,.012,.018,px,y,pz,roofJointMaterial,false);
        joint.rotation.y=-ang;
+     }
+   }
+   // Отдельные слегка перекрывающиеся сланцевые плашки делают покрытие читаемым как настоящую кровлю.
+   // Плашки лежат по граням восьмигранного шатра, с разбежкой швов и без дополнительных теней.
+   const slateTileMaterials=[
+     new THREE.MeshStandardMaterial({color:0x9aa8ad,map:slateTexture,bumpMap:slateTexture,bumpScale:.009,roughness:.96,metalness:.005}),
+     new THREE.MeshStandardMaterial({color:0x87979e,map:slateTexture,bumpMap:slateTexture,bumpScale:.009,roughness:.97,metalness:.005}),
+     new THREE.MeshStandardMaterial({color:0xa3afb2,map:slateTexture,bumpMap:slateTexture,bumpScale:.008,roughness:.96,metalness:.005})
+   ];
+   for(let a=0;a<8;a++){
+     const ang=Math.PI/8+a*Math.PI/4;
+     for(let row=0;row<5;row++){
+       const y=6.84+row*.285;
+       const radius=1.38*(8.56-y)/2.48;
+       const stagger=row%2===0?-.16:.16;
+       for(const side of [-1,1]){
+         const tangent=side*.34+stagger;
+         const px=Math.cos(ang)*radius-Math.sin(ang)*tangent;
+         const pz=Math.sin(ang)*radius+Math.cos(ang)*tangent;
+         const tile=box(t,.29,.205,.022,px,y,pz,slateTileMaterials[(a+row+(side>0?1:0))%slateTileMaterials.length],false);
+         tile.rotation.y=-ang;
+         tile.castShadow=false;tile.receiveShadow=false;
+       }
      }
    }
    // Небольшие металлические наконечники на вершинах граней связывают рёбра с коньком.
