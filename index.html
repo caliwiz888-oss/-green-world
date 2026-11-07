@@ -3827,20 +3827,6 @@ function makeHouse(){
   box(center,w+.28,.09,.32,x,y+h+.04,z+.08,stone);
   box(center,w+.20,.045,.34,x,y+h+.12,z+.08,gold);
  }
- // Небольшой терракотовый двускатный козырёк — без лишних
- // золотых медальонов, боковых накладок и жёлтых полос сверху.
- const canopyShape=new THREE.Shape();
- canopyShape.moveTo(-1.04,-.10);
- canopyShape.lineTo(-1.04,.08);
- canopyShape.lineTo(0,.54);
- canopyShape.lineTo(1.04,.08);
- canopyShape.lineTo(1.04,-.10);
- canopyShape.closePath();
- const canopyMesh=new THREE.Mesh(new THREE.ExtrudeGeometry(canopyShape,{depth:.76,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.025,bevelThickness:.02}),terra);
- canopyMesh.position.set(0,2.72,2.48);canopyMesh.castShadow=false;canopyMesh.receiveShadow=false;center.add(canopyMesh);
- // Светлая нижняя кромка козырька без золотой отделки скатов.
- box(center,2.08,.07,.80,0,2.64,2.80,cream,false);
-
  // Парадная лестница с широкими каменными ступенями.
  for(let i=0;i<5;i++){
   box(center,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,cream);
