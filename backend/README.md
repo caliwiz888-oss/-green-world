@@ -45,12 +45,14 @@ Use the root-level `render.yaml` Blueprint in this repository. It provisions the
 
 Set `WEB_ORIGINS` to the exact public origin of the deployed Mini App (scheme and host, without a path). In `index.html`, replace the empty value in `window.GREEN_WORLD_API_URL = '';` (near the Telegram bridge script) with the API's HTTPS base URL. Do not include a trailing path such as `/api`; the frontend appends API routes itself. When this URL is configured, game actions are locked until Telegram authentication succeeds, rather than silently falling back to local-only economy.
 
-## API routes
+## API routes currently deployed
 
+- `GET /health` — service health check.
 - `POST /api/auth/telegram` — verify Telegram WebApp initData and create a player session.
 - `POST /api/auth/refresh` — rotate the HttpOnly refresh session.
 - `POST /api/auth/logout` — revoke the current refresh session.
 - `GET /api/me` — return the authenticated player's state.
-- `POST /api/game/plant`, `water`, `harvest`, `sell`, `buy-seeds`, `build`, `upgrade-orchard` — authenticated economy actions.
 
-The API is not considered live until it is deployed, connected to PostgreSQL, and the Mini App frontend has been configured to authenticate and use these routes.
+Gameplay economy routes (planting, watering, harvesting, selling, seeds, construction and upgrades) are **not currently implemented or deployed**. They remain deferred while the 3D world, architecture and visuals are being developed. Do not treat the planned route names as working endpoints.
+
+The authentication API is live when deployed, connected to PostgreSQL and configured with the Mini App origin.
