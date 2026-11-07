@@ -4427,21 +4427,16 @@ function makeWorldLandscape(){
    const edge=Math.min(1,Math.max(0,(38-Math.abs(x))/7),Math.max(0,(18-Math.abs(z))/6));
    const gentleNoise=(Math.sin(x*.37+z*.21)+Math.cos(x*.23-z*.31))*.12;
    height=Math.max(0,(height+gentleNoise)*edge);
-   // Небольшой плавный проход в рельефе под задней и задними боковыми линиями забора.
-   // Не вырезаем холмы целиком: только понижаем узкую полосу, чтобы земля не закрывала ограждение.
+   // Внутри ограждённого квадрата рельеф полностью убран: поверхность ровная, как передний двор.
+   // По внешней стороне периметра делаем мягкий переход, чтобы не образовалась резкая стенка.
    const worldZ=-27.5-z;
-   const sideStartZ=-9,sideEndZ=-21.10,rearZ=-21.10;
    const clamp01=v=>Math.max(0,Math.min(1,v));
    const smooth01=v=>{v=clamp01(v);return v*v*(3-2*v);};
-   const sideDistance=Math.min(
-     Math.hypot(x-(-14.40),Math.max(sideEndZ,Math.min(sideStartZ,worldZ))-worldZ),
-     Math.hypot(x-16.40,Math.max(sideEndZ,Math.min(sideStartZ,worldZ))-worldZ)
-   );
-   const rearClosestX=Math.max(-14.40,Math.min(16.40,x));
-   const rearDistance=Math.hypot(x-rearClosestX,worldZ-rearZ);
-   const fenceLineDistance=Math.min(sideDistance,rearDistance);
-   const carve=1-smooth01((fenceLineDistance-.30)/1.55);
-   height=height*(1-carve)+Math.min(height,1.55)*carve;
+   const insideX=Math.max(-14.40-x,0,x-16.40);
+   const insideZ=Math.max(-21.10-worldZ,0,worldZ-14.02);
+   const outsideDistance=Math.hypot(insideX,insideZ);
+   const flatten=1-smooth01(outsideDistance/1.8);
+   height*=1-flatten;
    hillPositions.setZ(i,height);
    const shade=THREE.MathUtils.clamp(.5+height*.09+Math.sin(x*.16+z*.12)*.055,.28,.92);
    const color=hillBaseColor.clone().lerp(hillSunColor,shade*.42).lerp(hillShadeColor,(1-shade)*.22);
