@@ -3853,10 +3853,15 @@ function makeHouse(){
    // обрамляют окно, не перекрывая его; все колонны входят в группу башни.
    const a=(j+.5)*Math.PI/4,px=Math.sin(a)*.985,pz=Math.cos(a)*.985;
    cylinder(t,.155,.155,3.92,px,2.72,pz,cream,32);
+   // Более выразительные профили круглых колонн: ступенчатые базы, шейки и капители.
    cylinder(t,.235,.235,.18,px,.78,pz,stone,32);
-   cylinder(t,.195,.195,.12,px,.93,pz,cream,32);
+   cylinder(t,.265,.265,.075,px,.88,pz,cream,32);
+   cylinder(t,.195,.195,.12,px,.99,pz,cream,32);
+   cylinder(t,.175,.175,.055,px,1.09,pz,gold,32);
+   cylinder(t,.185,.185,.055,px,4.35,pz,gold,32);
    cylinder(t,.245,.245,.16,px,4.60,pz,stone,32);
-   cylinder(t,.195,.195,.11,px,4.735,pz,cream,32);
+   cylinder(t,.275,.275,.075,px,4.68,pz,cream,32);
+   cylinder(t,.195,.195,.11,px,4.78,pz,cream,32);
   }
   // Два окна на башню: одно нижнее и одно верхнее, с каменным обрамлением.
   for(const y of [1.15,3.05]){
@@ -3892,6 +3897,8 @@ function makeHouse(){
     cylinder(t,.042,.052,.30,px,balconyY+.39,pz,cream,10);
     sphere(t,.055,px,balconyY+.55,pz,gold,.75);
    }
+   // Дополнительный средний пояс балюстрады делает ограждение визуально цельным.
+   cylinder(t,1.16,1.16,.045,0,balconyY+.40,0,cream,n);
    cylinder(t,1.18,1.18,.07,0,balconyY+.57,0,cream,n);
    cylinder(t,1.21,1.21,.045,0,balconyY+.65,0,gold,n);
    // Цветочные кашпо вдоль передней дуги каждого балконного яруса башни.
@@ -3900,6 +3907,8 @@ function makeHouse(){
     box(t,.20,.10,.18,px,balconyY+.24,pz,stone,false);
     sphere(t,.07,px,balconyY+.38,pz,green,.78);
     sphere(t,.075,px,balconyY+.47,pz,j%3===0?lilac:(j%2?white:pink),.82);
+    sphere(t,.052,px-.055,balconyY+.44,pz+.025,j%2?pink:white,.9);
+    sphere(t,.052,px+.055,balconyY+.44,pz-.025,j%3===0?white:lilac,.9);
    }
   }
   // Верхний аттик и многоступенчатый карниз под конической крышей.
