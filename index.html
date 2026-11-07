@@ -4868,7 +4868,7 @@ function makeWorldLandscape(){
  waterReliefTexture.wrapS=waterReliefTexture.wrapT=THREE.RepeatWrapping;
  waterReliefTexture.repeat.set(2,1);
  waterReliefTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- water.bumpMap=waterReliefTexture;water.bumpScale=.012;water.needsUpdate=true;
+ water.bumpMap=waterReliefTexture;water.bumpScale=.012;water.roughnessMap=waterReliefTexture;water.roughness=.22;water.metalness=.035;water.clearcoat=.58;water.clearcoatRoughness=.16;water.reflectivity=.72;water.needsUpdate=true;
  // Тонкая минеральная фактура на основных горных склонах: без новых геометрических накладок.
  // Мелкая природная фактура на дальних зелёных склонах — только через карту материала.
  const foothillCanvas=document.createElement('canvas');foothillCanvas.width=foothillCanvas.height=128;
