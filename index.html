@@ -1882,9 +1882,16 @@ function makeMarket(){
  marketWoodTexture.repeat.set(1.15,1.45);
  marketWoodTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const marketWoodBump=marketWoodTexture.clone();marketWoodBump.colorSpace=THREE.NoColorSpace;marketWoodBump.needsUpdate=true;
- for(const material of [timber,timberLight]){
-   material.map=marketWoodTexture;material.bumpMap=marketWoodBump;
-   material.bumpScale=material===timber?.028:.02;material.needsUpdate=true;
+ // Карта шероховатости повторяет тонкие волокна: боковой свет мягко подчёркивает натуральную древесину.
+ const marketWoodRoughness=marketWoodTexture.clone();
+ marketWoodRoughness.colorSpace=THREE.NoColorSpace;
+ marketWoodRoughness.needsUpdate=true;
+ for(const material of [timber,timberLight,marketBeamMaterial]){
+   material.map=marketWoodTexture;
+   material.bumpMap=marketWoodBump;
+   material.roughnessMap=marketWoodRoughness;
+   material.bumpScale=material===timberLight?.02:.028;
+   material.needsUpdate=true;
  }
  const roof=new THREE.MeshStandardMaterial({color:0x34483a,roughness:.84,metalness:.015});
  const roofEdge=new THREE.MeshStandardMaterial({color:0x202e25,roughness:.88,metalness:.01});
