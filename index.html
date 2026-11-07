@@ -1406,11 +1406,7 @@ function makeHouse(){
       box(g,.11,.18,.1,x+dx,5.98,4.39,houseStoneTrim,false);
       sphere(g,.045,x+dx,6.08,4.42,M.gold,.8);
     }
-    // Опорные консоли вынесены вперёд относительно деревянной рамы.
-    for(const dx of [-.34,.34]){
-      const support=box(g,.13,.22,.12,x+dx,4.88,4.39,houseStoneTrim,false);
-      support.rotation.z=dx<0?-.18:.18;
-    }
+    // Четыре выступающие светлые консоли на скатах крыши удалены по просьбе пользователя.
   }
 // Центральная эмблема фронтона: каменно-латунный медальон с зелёным листом.
  const gableCrest=cylinder(g,.36,.36,.075,0,5.55,4.22,houseStoneTrim,32);
