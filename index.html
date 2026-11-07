@@ -4850,7 +4850,25 @@ function makeWorldLandscape(){
  }
  const waterTexture=new THREE.CanvasTexture(waterCanvas);riverWaterTexture=waterTexture;waterTexture.colorSpace=THREE.SRGBColorSpace;
  waterTexture.wrapS=waterTexture.wrapT=THREE.RepeatWrapping;waterTexture.repeat.set(2,1);
- waterTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();water.map=waterTexture;water.roughness=.24;water.needsUpdate=true;
+ waterTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();water.map=waterTexture;water.roughness=.24;
+ // Отдельная очень слабая карта микрорельефа придаёт бликам объём без волн-накладок.
+ const waterReliefCanvas=document.createElement('canvas');waterReliefCanvas.width=256;waterReliefCanvas.height=256;
+ const waterReliefCtx=waterReliefCanvas.getContext('2d');
+ waterReliefCtx.fillStyle='rgb(128,128,128)';waterReliefCtx.fillRect(0,0,256,256);
+ for(let i=0;i<190;i++){
+   const x=(i*73+19)%256,y=(i*47+31)%256,len=9+(i*17)%39,curve=((i*11)%9)-4;
+   const shade=i%4===0?146:(i%3===0?112:137);
+   waterReliefCtx.strokeStyle='rgb('+shade+','+shade+','+shade+')';
+   waterReliefCtx.lineWidth=.65+(i%4)*.32;waterReliefCtx.lineCap='round';
+   waterReliefCtx.beginPath();waterReliefCtx.moveTo(x,y);
+   waterReliefCtx.bezierCurveTo(x+len*.28,y+curve*.25,x+len*.68,y-curve*.38,x+len,y+curve*.12);
+   waterReliefCtx.stroke();
+ }
+ const waterReliefTexture=new THREE.CanvasTexture(waterReliefCanvas);
+ waterReliefTexture.wrapS=waterReliefTexture.wrapT=THREE.RepeatWrapping;
+ waterReliefTexture.repeat.set(2,1);
+ waterReliefTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ water.bumpMap=waterReliefTexture;water.bumpScale=.012;water.needsUpdate=true;
  // Тонкая минеральная фактура на основных горных склонах: без новых геометрических накладок.
  // Мелкая природная фактура на дальних зелёных склонах — только через карту материала.
  const foothillCanvas=document.createElement('canvas');foothillCanvas.width=foothillCanvas.height=128;
