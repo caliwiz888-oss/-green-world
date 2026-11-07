@@ -585,129 +585,174 @@ const world=group(scene,0,0,0);
 box(world,76,.55,76,0,-.42,0,M.grass,false);
 box(world,26,.12,26,0,-.08,0,M.grass2,false);
 function makeHouse(){
- // Новая усадьба спроектирована по утверждённому фото GREEN WORLD.
- // Мировая точка установки сохранена: X=0, Y=0, Z=-14; фасад обращён к +Z.
- const g=group(world,0,0,-14);g.name='main-manor-house';
- const stone=mat(0xf0e5d0,.92),trim=mat(0xfff2dc,.86),shadowStone=mat(0xcbb997,.94);
- const roof=mat(0x263f5d,.86),roofEdge=mat(0x172c43,.8),teal=mat(0x27b9c3,.28),tealLight=mat(0x8be0d9,.3);
- const gold=M.gold.clone();gold.color.setHex(0xe0ad3f);gold.metalness=.68;gold.roughness=.32;gold.needsUpdate=true;
- const bronze=mat(0x493321,.58),wood=mat(0x744326,.68),doorGold=mat(0xe5b64e,.38);
- const terracotta=mat(0x9d4d2e,.78),flowerPink=mat(0xe98bb7,.75),flowerLilac=mat(0xb18bd2,.76),flowerWhite=mat(0xffe6e4,.72),leaf=mat(0x477a48,.94);
- // Каменный цоколь и центральный двухэтажный корпус.
- box(g,9.45,.42,8.15,0,.22,0,shadowStone);
- box(g,9.15,.24,7.95,0,.54,0,trim);
- box(g,9.0,4.35,7.55,0,2.82,0,stone);
- box(g,9.22,.22,7.78,0,.82,0,trim);
- box(g,9.45,.20,7.9,0,4.98,0,trim);
- box(g,9.55,.14,7.98,0,5.12,0,gold);
- // Фронтальные пилястры, капители и каменные горизонтальные пояса.
- for(const x of [-4.32,-2.35,2.35,4.32]){
-   box(g,.28,4.15,.34,x,2.83,3.83,trim);
-   box(g,.43,.22,.48,x,4.88,3.83,gold);
-   box(g,.38,.18,.42,x,.82,3.83,shadowStone);
+ // Полностью новая геометрия главного особняка по сохранённому эталонному изображению.
+ // Центр и направление фасада сохранены: (0,0,-14), фасад обращён к +Z.
+ const g=group(world,0,0,-14);g.name='main-manor-house-reference-rebuild';
+ const ivory=mat(0xf1e5ce,.94),ivoryLight=mat(0xfff3dc,.88),stoneShade=mat(0xc8b28e,.96);
+ const slate=mat(0x263e59,.9),slateDark=mat(0x172c43,.9),teal=mat(0x18aeb9,.24),tealBright=mat(0x65d4d2,.22);
+ const gold=mat(0xe6b54d,.34),bronze=mat(0x49301e,.68),wood=mat(0x58351f,.65),terracotta=mat(0x9b4b2c,.84);
+ const pink=mat(0xe875a9,.82),lilac=mat(0xa98bd0,.82),white=mat(0xffe9d8,.82),green=mat(0x367443,.96);
+ const glassGlow=mat(0x43c9d0,.18);glassGlow.emissive=new THREE.Color(0x0b6973);glassGlow.emissiveIntensity=.12;
+ // Центральный корпус — компактный двухэтажный каменный объём с выраженным цоколем.
+ box(g,8.55,.42,6.15,0,.22,0,stoneShade);
+ box(g,8.42,.20,6.02,0,.53,0,ivoryLight);
+ box(g,8.25,4.05,5.78,0,2.62,0,ivory);
+ box(g,8.48,.18,5.98,0,.72,0,ivoryLight);
+ box(g,8.55,.18,6.08,0,4.68,0,ivoryLight);
+ box(g,8.62,.10,6.14,0,4.81,0,gold);
+ // Пилястры фасада с массивными базами, капителями и тонкими золотыми профилями.
+ for(const x of [-3.92,-2.12,2.12,3.92]){
+   box(g,.25,3.85,.30,x,2.62,2.94,ivoryLight);
+   box(g,.39,.18,.42,x,.78,2.99,stoneShade);
+   box(g,.42,.14,.43,x,4.48,2.99,gold);
+   box(g,.35,.10,.38,x,4.58,2.99,ivoryLight);
  }
- // Парные окна первого и второго этажа с бирюзовым стеклом, бронзовыми рамами и золотыми переплётами.
- for(const x of [-3.25,3.25]){
-   for(const y of [2.05,4.05]){
-     box(g,1.22,1.48,.13,x,y,3.84,bronze);
-     box(g,1.02,1.28,.045,x,y,3.93,teal);
-     box(g,.10,1.34,.08,x,y,3.99,gold,false);
-     box(g,.98,.09,.08,x,y,3.99,gold,false);
-     box(g,.09,1.30,.08,x-.48,y,3.99,trim,false);box(g,.09,1.30,.08,x+.48,y,3.99,trim,false);
-     box(g,1.08,.11,.13,x,y+.77,3.91,trim);box(g,1.08,.11,.13,x,y-.77,3.91,trim);
-     box(g,.045,1.22,.04,x,y,4.01,gold,false);box(g,.92,.045,.04,x,y,4.01,gold,false);
-     box(g,1.48,.16,.34,x,y-.91,3.91,shadowStone);
-   }
+ // Парные высокие окна на двух этажах: тёмная бронзовая рама, бирюзовые стёкла, золотые импосты.
+ function windowFront(x,y,w=0.82,h=1.28){
+   box(g,w+.18,h+.18,.14,x,y,2.99,bronze);
+   box(g,w,h,.055,x,y,3.085,teal);
+   box(g,.055,h-.06,.035,x,y,3.125,gold,false);
+   box(g,w-.04,.055,.035,x,y,3.125,gold,false);
+   box(g,w+.20,.10,.18,x,y+h/2+.12,3.04,ivoryLight);
+   box(g,w+.20,.10,.18,x,y-h/2-.12,3.04,ivoryLight);
+   box(g,.10,h+.22,.18,x-w/2-.07,y,3.04,ivoryLight);
+   box(g,.10,h+.22,.18,x+w/2+.07,y,3.04,ivoryLight);
+   box(g,w+.36,.12,.30,x,y-h/2-.23,3.10,stoneShade);
  }
- // Центральный парадный вход, терракотовый козырёк и широкая лестница.
- box(g,1.72,2.35,.28,0,1.92,3.9,bronze);
- box(g,1.38,2.05,.08,0,1.95,4.08,wood);
- box(g,.13,1.96,.06,-.43,1.96,4.14,gold,false);box(g,.13,1.96,.06,.43,1.96,4.14,gold,false);
- box(g,.08,2.04,.07,0,1.95,4.15,doorGold,false);
- for(const x of [-.55,.55])sphere(g,.065,x,1.92,4.22,gold,.8);
- box(g,2.5,.16,.75,0,3.22,4.05,terracotta);
- box(g,2.32,.12,.68,0,3.33,4.04,gold);
- for(const x of [-1.12,1.12])box(g,.16,.42,.18,x,3.04,4.0,trim);
- box(g,3.25,.22,1.0,0,.18,4.55,shadowStone);
- box(g,2.95,.18,.78,0,.36,4.35,trim);
- box(g,2.6,.16,.58,0,.53,4.16,trim);
- // Фронтон с круглым витражом и золотой резьбой.
- const ped=box(g,4.45,1.8,.48,0,5.85,3.78,trim);ped.rotation.z=0;
- const gable=cone(g,2.55,1.9,0,6.34,3.75,roof,4);gable.rotation.y=Math.PI/4;gable.scale.set(1,1,.32);
- cylinder(g,.58,.58,.10,0,5.95,4.08,gold,48);
- sphere(g,.48,0,5.95,4.16,teal,.95);
- cylinder(g,.39,.39,.045,0,5.95,4.22,gold,48);
- box(g,.055,.72,.055,0,5.95,4.25,gold,false);box(g,.62,.055,.055,0,5.95,4.25,gold,false);
- sphere(g,.11,0,5.95,4.28,gold,.8);
- for(const x of [-1.8,-.9,0,.9,1.8]){sphere(g,.09,x,5.34,4.04,gold,.8);sphere(g,.045,x,5.34,4.11,trim,.8);}
- // Два круглых башенных объёма с балконами, арочными окнами, сланцевыми шатрами и золотыми шпилями.
- for(const x of [-4.35,4.35]){
-   const t=group(g,x,0,3.25),n=48;
-   cylinder(t,1.18,1.18,5.18,0,2.78,0,stone,n);
-   cylinder(t,1.29,1.29,.22,0,.18,0,shadowStone,n);
-   cylinder(t,1.34,1.34,.16,0,.42,0,trim,n);
-   for(const y of [1.12,2.15,4.65,5.18])cylinder(t,1.205,1.205,.09,0,y,0,trim,n);
-   // Окна с четырёх сторон башни.
-   for(const side of [0,1,2,3]){
-     const angle=side*Math.PI/2,px=Math.sin(angle)*1.17,pz=Math.cos(angle)*1.17;
-     const win=box(t,.62,1.46,.055,px,3.16,pz,teal,false);win.rotation.y=angle;
-     const frame=box(t,.82,1.68,.12,px,3.16,pz,trim,false);frame.rotation.y=angle;
-     const mull=box(t,.045,1.38,.04,px,3.16,pz+.04,gold,false);mull.rotation.y=angle;
-     const arch=sphere(t,.31,px,3.91,pz,teal,.82);arch.scale.set(.31,.34,.07);arch.rotation.y=angle;
-     const sill=box(t,.92,.13,.2,px,2.34,pz,shadowStone);sill.rotation.y=angle;
-     const lintel=box(t,.92,.13,.2,px,4.0,pz,trim);lintel.rotation.y=angle;
-   }
-   // Выступающий круглый балкон с золотой балюстрадой.
-   cylinder(t,1.48,1.48,.18,0,4.48,0,shadowStone,n);
-   cylinder(t,1.55,1.55,.12,0,4.59,0,trim,n);
-   for(let j=0;j<16;j++){const q=j*Math.PI/8;box(t,.075,.42,.075,Math.sin(q)*1.43,4.84,Math.cos(q)*1.43,gold,false);}
-   cylinder(t,1.52,1.52,.075,0,5.08,0,gold,n);
-   // Коническая крыша и металлическое навершие.
-   cylinder(t,1.48,1.48,.22,0,5.30,0,trim,n);
-   const cap=cone(t,1.42,2.55,0,6.65,0,roof,n);
-   cylinder(t,.075,.075,.36,0,7.98,0,gold,16);sphere(t,.12,0,8.19,0,gold,.85);cone(t,.075,.24,0,8.36,0,gold,12);
-   // Золотые кольца по карнизу шатра.
-   cylinder(t,1.44,1.44,.06,0,5.43,0,gold,n);
- }
- // Двускатная сланцевая крыша основного корпуса с коньком и декоративными фронтонными кромками.
+ for(const x of [-3.05,3.05]){windowFront(x,1.78,.88,1.25);windowFront(x,3.62,.88,1.20);}
+ // Центральный парадный портал и дверь с тёплым деревом и золотой фурнитурой.
+ box(g,1.55,2.22,.24,0,1.78,3.02,bronze);
+ box(g,1.28,2.02,.09,0,1.78,3.17,wood);
+ for(const x of [-.42,.42])box(g,.07,1.90,.035,x,1.78,3.23,gold,false);
+ box(g,1.22,.07,.04,0,2.72,3.23,gold,false);
+ box(g,.06,1.92,.04,0,1.78,3.24,gold,false);
+ sphere(g,.055,-.25,1.76,3.28,gold,.8);sphere(g,.055,.25,1.76,3.28,gold,.8);
+ // Ступени, боковые щёки и площадка входа.
+ for(let i=0;i<4;i++)box(g,2.55-i*.18,.16,.42,0,.08+i*.16,3.42+i*.29,ivoryLight);
+ for(const x of [-1.42,1.42]){box(g,.18,.82,.22,x,.55,3.72,stoneShade);sphere(g,.12,x,1.03,3.72,gold,.8);}
+ // Терракотовый козырёк входа с золотой окантовкой и резными кронштейнами.
+ box(g,2.05,.15,.88,0,3.05,3.33,terracotta);
+ box(g,2.12,.09,.92,0,3.14,3.33,gold);
+ for(const x of [-.92,.92]){box(g,.12,.34,.16,x,2.88,3.35,ivoryLight);box(g,.22,.07,.20,x,2.70,3.35,gold);}
+ // Треугольный фронтон настоящего силуэта: каменный тимпан, профилированные скаты и круглый витраж.
+ const shape=new THREE.Shape();shape.moveTo(-2.18,0);shape.lineTo(0,1.75);shape.lineTo(2.18,0);shape.closePath();
+ const pedGeo=new THREE.ExtrudeGeometry(shape,{depth:.24,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.045,bevelThickness:.035});
+ const ped=new THREE.Mesh(pedGeo,ivoryLight);ped.position.set(0,4.78,2.94);ped.castShadow=false;ped.receiveShadow=false;g.add(ped);
+ // Профиль фронтона повторяет оба ската, а не имитирует его прямоугольным блоком.
  for(const side of [-1,1]){
-   const slab=box(g,5.25,.22,8.15,side*1.28,5.95,0,roof);slab.rotation.z=side*.48;
-   const fascia=box(g,5.3,.16,.22,side*1.28,4.62,4.02,roofEdge);fascia.rotation.z=side*.48;
-   box(g,.12,.12,8.25,side*2.58,4.62,0,gold);
+   const edge=box(g,2.48,.13,.18,side*1.12,5.55,3.12,ivoryLight);edge.rotation.z=side*.68;
+   const gilt=box(g,2.40,.055,.20,side*1.08,5.60,3.20,gold);gilt.rotation.z=side*.68;
  }
- box(g,.24,.22,8.3,0,7.17,0,roofEdge);
- box(g,.12,.08,8.35,0,7.31,0,gold);
- // Слуховые окна и декоративные золотые накладки на скатах.
- for(const x of [-1.65,1.65]){
-   box(g,.82,.74,.2,x,6.22,2.72,trim);
-   box(g,.62,.48,.08,x,6.22,2.84,teal);
-   box(g,.72,.08,.1,x,6.62,2.86,gold);
+ cylinder(g,.48,.48,.10,0,5.72,3.25,gold,48);
+ sphere(g,.39,0,5.72,3.33,glassGlow,.96);
+ cylinder(g,.32,.32,.045,0,5.72,3.39,gold,48);
+ box(g,.045,.62,.035,0,5.72,3.43,gold,false);box(g,.55,.045,.035,0,5.72,3.43,gold,false);
+ // Декоративные золотые розетки по карнизу и в тимпане.
+ for(let i=-3;i<=3;i++){sphere(g,.075,i*.55,4.91,3.12,gold,.8);}
+ for(const x of [-1.55,-.95,.95,1.55])sphere(g,.07,x,5.12,3.18,gold,.8);
+ // Основная двускатная крыша — два широких сланцевых ската с видимыми свесами и золотым коньком.
+ for(const side of [-1,1]){
+   const roof=box(g,4.85,.20,6.65,side*1.17,5.45,-.02,slate);roof.rotation.z=side*.43;
+   const eave=box(g,4.92,.16,.22,side*1.17,4.40,3.10,slateDark);eave.rotation.z=side*.43;
+   const trim=box(g,4.88,.055,.25,side*1.17,4.48,3.20,gold);trim.rotation.z=side*.43;
  }
- // Цветочные ящики и балконные кашпо, как на эталонной фотографии.
- for(const x of [-3.25,3.25]){
-   box(g,1.62,.20,.42,x,1.02,4.12,shadowStone);
-   box(g,1.68,.08,.46,x,1.14,4.12,trim);
-   for(let j=0;j<11;j++){const px=x-.7+j*.14,pz=4.12+(j%2)*.12; sphere(g,.075,px,1.34,pz,leaf,.7);sphere(g,.082,px,1.40,pz+.025,j%3===0?flowerLilac:(j%2?flowerWhite:flowerPink),.8);}
-   box(g,1.38,.18,.34,x,4.25,5.02,shadowStone);
-   for(let j=0;j<9;j++){const px=x-.58+j*.145,pz=5.02+(j%2)*.1;sphere(g,.07,px,4.43,pz,leaf,.7);sphere(g,.08,px,4.49,pz+.025,j%3===0?flowerLilac:(j%2?flowerWhite:flowerPink),.8);}
+ box(g,.20,.18,6.72,0,6.48,-.02,slateDark);
+ box(g,.09,.08,6.78,0,6.60,-.02,gold);
+ // Небольшие фронтонные слуховые окна с бирюзовым остеклением.
+ for(const x of [-1.62,1.62]){
+   box(g,.74,.58,.14,x,5.48,2.48,bronze);
+   box(g,.58,.43,.06,x,5.49,2.58,teal);
+   const cap=cone(g,.48,.34,x,5.90,2.55,slate,4);cap.rotation.y=Math.PI/4;
+   box(g,.68,.055,.10,x,5.22,2.60,gold);
  }
- // Каменные боковые стены, задние окна и золотые угловые акценты.
- for(const x of [-4.42,4.42])for(const y of [1.1,2.1,3.1,4.1])box(g,.16,.035,7.1,x,y,0,trim,false);
+ // Две симметричные круглые башни, как на эталоне: каменные ярусы, выступающие балконы и конические крыши.
+ for(const x of [-4.05,4.05]){
+   const t=group(g,x,0,2.20);const n=48;
+   cylinder(t,1.02,1.02,4.72,0,2.72,0,ivory,n);
+   cylinder(t,1.10,1.10,.24,0,.38,0,stoneShade,n);
+   cylinder(t,1.12,1.12,.14,0,.55,0,ivoryLight,n);
+   for(const y of [1.0,2.0,3.95,4.35]){cylinder(t,1.055,1.055,.09,0,y,0,gold,n);}
+   // Вертикальные каменные рёбра и арочные бирюзовые окна по фасаду башни.
+   for(let k=0;k<8;k++){
+     const q=k*Math.PI/4,px=Math.sin(q)*1.015,pz=Math.cos(q)*1.015;
+     const pil=box(t,.11,3.55,.12,px,2.70,pz,ivoryLight,false);pil.rotation.y=q;
+   }
+   for(const side of [-1,1]){
+     const px=side*.48,pz=.91;
+     box(t,.63,1.25,.09,px,2.92,pz,bronze,false);
+     box(t,.49,1.10,.045,px,2.92,pz+.06,teal,false);
+     box(t,.055,1.06,.035,px,2.92,pz+.09,gold,false);
+     // Полукруглый верх окна.
+     const arch=sphere(t,.245,px,3.53,pz+.055,teal,.55);arch.scale.set(.245,.25,.06);
+     const sill=box(t,.78,.12,.22,px,2.25,pz,ivoryLight);sill.rotation.y=side*.12;
+   }
+   // Круглый балкон с каменной плитой и частой балюстрадой, не плоский цилиндрический пояс.
+   cylinder(t,1.38,1.38,.20,0,4.18,0,stoneShade,n);
+   cylinder(t,1.43,1.43,.12,0,4.32,0,ivoryLight,n);
+   for(let j=0;j<24;j++){
+     const q=j*Math.PI/12,px=Math.sin(q)*1.30,pz=Math.cos(q)*1.30;
+     cylinder(t,.035,.035,.42,px,4.57,pz,gold,8);
+     sphere(t,.055,px,4.80,pz,gold,.8);
+   }
+   cylinder(t,1.39,1.39,.075,0,4.83,0,gold,n);
+   // Верхний ярус башни и широкий карниз под шатровой кровлей.
+   cylinder(t,1.05,1.05,.20,0,4.98,0,ivoryLight,n);
+   cylinder(t,1.18,1.18,.16,0,5.12,0,gold,n);
+   // Коническая сланцевая кровля с отдельным золотым основанием и шпилем.
+   cylinder(t,1.12,1.12,.16,0,5.23,0,slateDark,n);
+   cone(t,1.12,2.30,0,6.37,0,slate,n);
+   cylinder(t,.055,.055,.30,0,7.55,0,gold,16);
+   sphere(t,.105,0,7.73,0,gold,.8);
+   cone(t,.06,.22,0,7.89,0,gold,12);
+   // Золотой кант основания шатра.
+   cylinder(t,1.13,1.13,.055,0,5.32,0,gold,n);
+   // Каменные балконные кашпо и цветы по передней дуге башни.
+   for(let j=0;j<9;j++){
+     const q=-.92+j*.23,px=Math.sin(q)*1.38,pz=Math.cos(q)*1.38;
+     box(t,.25,.13,.22,px,4.35,pz,stoneShade,false);
+     sphere(t,.085,px,4.52,pz,green,.75);
+     sphere(t,.085,px,4.58,pz+.025,j%3===0?lilac:(j%2?white:pink),.85);
+   }
+ }
+ // Низкие цветочные ящики под окнами главного фасада — как на фотографии.
+ for(const x of [-3.05,3.05]){
+   box(g,1.25,.16,.34,x,.96,3.18,stoneShade);
+   for(let j=0;j<10;j++){
+     const px=x-.54+j*.12;
+     sphere(g,.07,px,1.13,3.25,green,.72);
+     sphere(g,.075,px,1.20,3.29,j%3===0?lilac:(j%2?white:pink),.82);
+   }
+   box(g,1.22,.14,.30,x,3.00,3.18,stoneShade);
+   for(let j=0;j<9;j++){
+     const px=x-.52+j*.13;
+     sphere(g,.065,px,3.17,3.24,green,.72);
+     sphere(g,.075,px,3.23,3.28,j%3===0?lilac:(j%2?white:pink),.82);
+   }
+ }
+ // Каменные боковые стены, задние оконные проёмы и симметричные угловые русты.
+ for(const x of [-4.10,4.10]){
+   for(const y of [1.0,2.0,3.0,4.0])box(g,.13,.045,5.7,x,y,-.02,ivoryLight,false);
+ }
  for(const x of [-3.0,0,3.0]){
-   box(g,1.1,1.35,.08,x,2.65,-3.82,teal,false);
-   box(g,1.28,1.55,.13,x,2.65,-3.9,trim);
-   box(g,1.36,.12,.18,x,3.48,-3.9,gold);
+   box(g,.86,1.18,.07,x,2.55,-2.92,bronze,false);
+   box(g,.70,1.02,.04,x,2.55,-2.98,teal,false);
+   box(g,.98,.12,.12,x,3.18,-2.96,gold,false);
  }
- for(const x of [-4.48,4.48]){box(g,.34,4.55,.38,x,2.82,3.75,trim);sphere(g,.12,x,5.16,3.98,gold,.8);}
- // Фонари у входа и ступеней.
- for(const x of [-1.75,1.75]){
-   box(g,.13,1.35,.13,x,1.08,4.9,bronze);
-   box(g,.48,.12,.48,x,1.82,4.9,gold);
-   const lamp=sphere(g,.18,x,2.08,4.9,mat(0xffd58a,.25),1);lamp.material.emissive=new THREE.Color(0xffb84d);lamp.material.emissiveIntensity=.65;
+ // Парные дымоходы за коньком — архитектурные детали сохранены.
+ for(const x of [-2.55,2.55]){
+   box(g,.48,.95,.52,x,6.08,-2.20,ivoryLight);
+   box(g,.62,.12,.64,x,6.58,-2.20,stoneShade);
+   box(g,.52,.10,.54,x,6.69,-2.20,gold);
+ }
+ // Входные фонари с бронзовыми стойками и тёплым светящимся стеклом.
+ for(const x of [-1.65,1.65]){
+   box(g,.10,.72,.10,x,1.45,3.72,bronze);
+   box(g,.34,.10,.34,x,1.86,3.72,gold);
+   const lamp=sphere(g,.13,x,2.02,3.72,mat(0xffd48a,.22),1);
+   lamp.material.emissive=new THREE.Color(0xffb84d);lamp.material.emissiveIntensity=.75;
  }
  return disableCastShadows(g);
 }
-
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
 function makeMarket(){
  // Новая архитектура лавки: открытый торговый павильон с широкой плоской крышей.
