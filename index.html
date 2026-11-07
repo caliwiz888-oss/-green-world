@@ -295,7 +295,7 @@ const atmosphereRim=new THREE.DirectionalLight(0xc9e3f5,.34);atmosphereRim.posit
 const worldBounce=new THREE.DirectionalLight(0xffe8c9,.22);worldBounce.position.set(18,7,30);worldBounce.castShadow=false;scene.add(worldBounce);
 const mat=(c,r=.82)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.025,dithering:true});
 const windowInterior=new THREE.MeshStandardMaterial({color:0xffdca0,emissive:0xb87932,emissiveIntensity:.2,roughness:.42,dithering:true});
-const M={grass:mat(0x91a77d,.94),grass2:mat(0x879b75,.95),soil:mat(0x98734a,.96),path:mat(0xe2cfad,.88),stone:new THREE.MeshStandardMaterial({color:0xe8ddc5,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x526d88,roughness:.82,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0x34495e,roughness:.84,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x397b3c,roughness:.92,metalness:0,sheen:.34,sheenColor:0x91b86b,sheenRoughness:.88}),leaf2:new THREE.MeshPhysicalMaterial({color:0x5a9a48,roughness:.91,metalness:0,sheen:.42,sheenColor:0xc0d98a,sheenRoughness:.86}),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xd6b45d,roughness:.34,metalness:.58}),glass:new THREE.MeshStandardMaterial({color:0x9bdde1,roughness:.3,metalness:.04,emissive:0x102b34,emissiveIntensity:.06,transparent:false,opacity:1,depthWrite:true})};
+const M={grass:mat(0x91a77d,.94),grass2:mat(0x879b75,.95),soil:mat(0x98734a,.96),path:mat(0xe2cfad,.88),stone:new THREE.MeshStandardMaterial({color:0xe8ddc5,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x526d88,roughness:.82,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0x34495e,roughness:.84,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x426b3c,roughness:.94,metalness:0,sheen:.28,sheenColor:0x91a77d,sheenRoughness:.9}),leaf2:new THREE.MeshPhysicalMaterial({color:0x668653,roughness:.93,metalness:0,sheen:.32,sheenColor:0xb3c28e,sheenRoughness:.9}),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xd6b45d,roughness:.34,metalness:.58}),glass:new THREE.MeshStandardMaterial({color:0x9bdde1,roughness:.3,metalness:.04,emissive:0x102b34,emissiveIntensity:.06,transparent:false,opacity:1,depthWrite:true})};
 
 function makeSurfaceTexture(kind,seed){
  const size=768,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
@@ -1795,9 +1795,9 @@ function makeHouse(){
  }
 
   // Парадная каменная лестница связывает портик с передней площадкой; ступени понижаются к двору.
-  const manorStepStone=mat(0x3b4243,.92);
-  const manorStepEdge=mat(0x68716f,.88);
-  const manorStepSide=mat(0x4b5553,.92);
+  const manorStepStone=mat(0xd6c7aa,.96);
+  const manorStepEdge=mat(0xe8dcc5,.96);
+  const manorStepSide=mat(0xb6a88e,.97);
   for(const step of [
     {z:5.43,y:.24,h:.24,d:.42},
     {z:5.88,y:.16,h:.16,d:.42},
@@ -3132,14 +3132,14 @@ function makeFactory(){
  // Фирменный промышленный медальон над воротами: латунная шестерня и зелёный центр.
  const factoryCrest=cylinder(g,.27,.27,.075,0,3.91,3.055,M.gold,24);
  factoryCrest.rotation.x=Math.PI/2;
- const factoryCrestFace=cylinder(g,.205,.205,.085,0,3.91,3.105,mat(0x315b3d,.48),24);
+ const factoryCrestFace=cylinder(g,.205,.205,.085,0,3.91,3.105,mat(0x34495e,.58),24);
  factoryCrestFace.rotation.x=Math.PI/2;
  for(let tooth=0;tooth<8;tooth++){
    const angle=tooth*Math.PI/4;
    const tab=box(g,.075,.11,.045,Math.cos(angle)*.275,3.91+Math.sin(angle)*.275,3.115,M.gold,false);
    tab.rotation.z=angle;
  }
- const factoryLeaf=box(g,.075,.19,.035,0,3.93,3.16,mat(0x9ab86a,.52),false);
+ const factoryLeaf=box(g,.075,.19,.035,0,3.93,3.16,mat(0xd6b45d,.48),false);
  factoryLeaf.rotation.z=-.38;
  const factoryStem=box(g,.035,.14,.035,0,3.86,3.17,M.gold,false);
  factoryStem.rotation.z=.32;
@@ -3531,8 +3531,8 @@ function makeFlowerBed(x,z){
  const petalColors=[0xe45d72,0xf0c75e,0xfff0d8,0xb66fc2,0x4f9fc0];
  const petalMaterials=petalColors.map(color=>new THREE.MeshStandardMaterial({color,roughness:.82}));
  const centerMaterial=new THREE.MeshStandardMaterial({color:0xe6b94d,roughness:.78});
- const leafMaterial=new THREE.MeshStandardMaterial({color:0x6f9655,roughness:.94});
- const leafLightMaterial=new THREE.MeshStandardMaterial({color:0x91b96b,roughness:.92});
+ const leafMaterial=new THREE.MeshStandardMaterial({color:0x718765,roughness:.96});
+ const leafLightMaterial=new THREE.MeshStandardMaterial({color:0x91a77d,roughness:.95});
  const flowerHead=new THREE.SphereGeometry(.075,12,9);
  const leafGeo=new THREE.SphereGeometry(1,10,7);
  for(let i=0;i<7;i++){
