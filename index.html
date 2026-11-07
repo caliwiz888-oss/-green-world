@@ -1380,43 +1380,9 @@ function makeHouse(){
    box(g,.38,.22,.42,x,4.25,4.12,M.gold);
  }
  for(const y of [.62,4.18])box(g,9.7,.12,.2,0,y,4.12,houseStoneTrim);
- // Upper arched-looking windows in the front gable, with deep frames and crossbars.
- for(const x of [-1.35,1.35]){
-   box(g,.92,1.12,.18,x,5.35,4.12,M.wood);
-   box(g,.68,.88,.12,x,5.38,4.24,manorGlass);
-   box(g,.12,.96,.16,x,5.38,4.32,M.gold,false);
-   box(g,.72,.1,.16,x,5.38,4.32,M.gold,false);
-   box(g,1.12,.14,.3,x,4.78,4.18,houseStoneTrim);
- }
-   // Разнесённая по глубине раскладка верхних окон: переплёты не совпадают с плоскостью стекла.
-  for(const x of [-1.35,1.35]){
-    for(const y of [5.12,5.64]){
-      box(g,.76,.035,.035,x,y,4.385,M.gold,false);
-    }
-    // Каменные импосты и небольшие латунные розетки находятся выше оконной рамы.
-    for(const dx of [-.49,.49]){
-      box(g,.11,.18,.1,x+dx,5.98,4.39,houseStoneTrim,false);
-      sphere(g,.045,x+dx,6.08,4.42,M.gold,.8);
-    }
-    // Опорные консоли вынесены вперёд относительно деревянной рамы.
-    for(const dx of [-.34,.34]){
-      const support=box(g,.13,.22,.12,x+dx,4.88,4.39,houseStoneTrim,false);
-      support.rotation.z=dx<0?-.18:.18;
-    }
-  }
-// Центральная эмблема фронтона: каменно-латунный медальон с зелёным листом.
- const gableCrest=cylinder(g,.36,.36,.075,0,5.55,4.22,houseStoneTrim,32);
- gableCrest.rotation.x=Math.PI/2;
- const crestFace=cylinder(g,.285,.285,.085,0,5.55,4.275,mat(0x315b3d,.48),32);
- crestFace.rotation.x=Math.PI/2;
- const crestLeaf=box(g,.13,.3,.045,0,5.57,4.34,mat(0x9ab86a,.52),false);
- crestLeaf.rotation.z=-.42;
- const crestStem=box(g,.045,.22,.045,0,5.49,4.37,M.gold,false);
- crestStem.rotation.z=.35;
- for(const x of [-.22,.22]){
-   sphere(g,.035,x,5.55,4.34,M.gold,.8);
- }
- // Дублирующие наличники верхних окон фронтона удалены: основные каменные рамы и переплёты сохранены.
+ // Оба верхних окна фронтона вместе с рамами, переплётами и выступающими опорами удалены по просьбе пользователя.
+  // Зелёный медальон со значком и его латунное обрамление удалены по просьбе пользователя.
+  // Дублирующие наличники верхних окон фронтона удалены: основные каменные рамы и переплёты сохранены.
   // Small projecting balconies on the two front towers.
  for(const x of [-4.35,4.35]){
    box(g,1.75,.18,.9,x,3.05,4.55,houseStoneTrim);
