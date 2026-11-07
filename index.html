@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261107-091000';
+const GREEN_WORLD_BUILD_ID = '20261107-091100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1331,6 +1331,23 @@ function makeHouse(){
      slateCtx.lineWidth=.6;
      slateCtx.beginPath();slateCtx.moveTo(px,py);
      slateCtx.lineTo(px+3+(i%5),py+((i%3)-1)*.4);slateCtx.stroke();
+   }
+   // Тонкие направленные минеральные прожилки и сколы по поверхности натурального сланца.
+   // Низкая контрастность сохраняет спокойный серо-голубой тон кровли.
+   for(let i=0;i<92;i++){
+     const px=(i*73+19)%128,py=(i*41+7)%128;
+     const length=3+(i%9),rise=((i%5)-2)*.34;
+     slateCtx.strokeStyle=i%4===0?'rgba(235,241,240,.105)':'rgba(34,51,59,.075)';
+     slateCtx.lineWidth=i%7===0?1:.55;
+     slateCtx.beginPath();
+     slateCtx.moveTo(px,py);
+     slateCtx.lineTo(px+length,py+rise);
+     slateCtx.stroke();
+   }
+   for(let i=0;i<46;i++){
+     const px=(i*29+11)%128,py=(i*67+23)%128;
+     slateCtx.fillStyle=i%3===0?'rgba(236,240,236,.12)':'rgba(37,52,58,.09)';
+     slateCtx.fillRect(px,py,1,1+(i%2));
    }
    const slateTexture=new THREE.CanvasTexture(slateCanvas);
    slateTexture.colorSpace=THREE.SRGBColorSpace;
