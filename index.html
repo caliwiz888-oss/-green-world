@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261107-091300';
+const GREEN_WORLD_BUILD_ID = '20261107-091400';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -668,7 +668,7 @@ function makeHouse(){
  masonryTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const masonryBump=masonryTexture.clone();masonryBump.colorSpace=THREE.NoColorSpace;masonryBump.needsUpdate=true;
  for(const material of [houseStone,houseStoneTrim]){
-   material.map=masonryTexture;material.bumpMap=masonryBump;material.bumpScale=.027;material.needsUpdate=true;
+   material.map=masonryTexture;material.bumpMap=masonryBump;material.bumpScale=.022;material.needsUpdate=true;
  }
  // Тёплая древесная текстура парадной двери: спокойные вертикальные волокна и редкие мягкие сучки.
  const doorCanvas=document.createElement('canvas');doorCanvas.width=256;doorCanvas.height=256;
@@ -728,7 +728,7 @@ function makeHouse(){
  // Каменное обрамление окон и фасадные тяги получают чуть более читаемый матовый микрорельеф.
  const manorFacadeTrim=houseStoneTrim.clone();manorFacadeTrim.color.setHex(0xded8cc);manorFacadeTrim.roughness=.9;manorFacadeTrim.bumpScale=.04;manorFacadeTrim.needsUpdate=true;
   // Более тонкая матовая поверхность подчёркивает резные каменные детали фасада.
-  manorFacadeTrim.roughness=.94;manorFacadeTrim.bumpScale=.052;
+  manorFacadeTrim.roughness=.95;manorFacadeTrim.bumpScale=.043;
   manorFacadeTrim.color.setHex(0xe0dacf);manorFacadeTrim.needsUpdate=true;
  // Холодные отражения на стекле добавляют глубину окнам, не меняя их рам и размеров.
  const glassCanvas=document.createElement('canvas');glassCanvas.width=128;glassCanvas.height=128;
