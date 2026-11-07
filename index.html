@@ -3696,9 +3696,9 @@ function makeWorldDecor(){
   world.add(rightRoadBorder);
   // Окантовка горизонтальной дороги разделена в точках примыкания к главной дороге:
   // линии доходят до её боковых кромок, но не проходят поперёк проезжей части.
-  const crossRoadEdgeSegments=[[-14.0,-2.085],[2.085,16.5]];
+  const crossRoadEdgeSegments=[[-14.0,-2.065],[2.065,16.5]];
   for(const side of [-1,1]){
-    const z=-4.55+side*.99;
+    const z=-4.55+side*.88;
     for(const [x0,x1] of crossRoadEdgeSegments){
       const length=x1-x0,center=(x0+x1)*.5;
       // Цельное основание каждого плеча дороги.
