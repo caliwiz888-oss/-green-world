@@ -1888,9 +1888,9 @@ function makeMarket(){
  marketBeamMaterial.roughnessMap=marketBeamRoughness;
  marketBeamMaterial.bumpScale=.024;
  marketBeamMaterial.needsUpdate=true;
- const roof=new THREE.MeshStandardMaterial({color:0x34483a,roughness:.84,metalness:.015});
- const roofEdge=new THREE.MeshStandardMaterial({color:0x202e25,roughness:.88,metalness:.01});
- const roofAccent=new THREE.MeshStandardMaterial({color:0x52664d,roughness:.84,metalness:.01});
+ const roof=new THREE.MeshStandardMaterial({color:0x526d88,roughness:.84,metalness:.035});
+ const roofEdge=new THREE.MeshStandardMaterial({color:0x34495e,roughness:.88,metalness:.02});
+ const roofAccent=new THREE.MeshStandardMaterial({color:0xb99a55,roughness:.84,metalness:.08});
  // Ткань переднего навеса получает тонкое плетение вместо гладкой окрашенной поверхности.
  const awningCanvas=document.createElement('canvas');awningCanvas.width=256;awningCanvas.height=256;
  const awningCtx=awningCanvas.getContext('2d');
@@ -1905,8 +1905,8 @@ function makeMarket(){
  awningTexture.wrapS=awningTexture.wrapT=THREE.RepeatWrapping;
  awningTexture.repeat.set(1.6,1.2);
  awningTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- const awningMatA=new THREE.MeshStandardMaterial({color:0x9eaa83,map:awningTexture,roughness:.96,metalness:0});
- const awningMatB=new THREE.MeshStandardMaterial({color:0xe5dfca,map:awningTexture,roughness:.98,metalness:0});
+ const awningMatA=new THREE.MeshStandardMaterial({color:0x237f91,map:awningTexture,roughness:.96,metalness:0});
+ const awningMatB=new THREE.MeshStandardMaterial({color:0xf0e4cd,map:awningTexture,roughness:.98,metalness:0});
  // Тканый рельеф навеса: отдельная карта высот подчёркивает переплетение нитей при боковом свете.
  const awningBump=awningTexture.clone();
  awningBump.colorSpace=THREE.NoColorSpace;
@@ -5808,7 +5808,7 @@ function drawPlayer(){
     for(const child of [...world.children])if(!marketChildrenBefore.has(child))world.remove(child);
     const fallback=group(world,-10.8,0,-8.5);
     fallback.scale.setScalar(1.2);
-    const shopWall=mat(0xd6c7a8),shopTimber=mat(0x70472d),shopRoof=new THREE.MeshStandardMaterial({color:0x34483a,roughness:.84,metalness:.015}),shopTrim=mat(0xc8b898);
+    const shopWall=mat(0xe8dcc5),shopTimber=mat(0x55483b),shopRoof=new THREE.MeshStandardMaterial({color:0x526d88,roughness:.84,metalness:.035}),shopTrim=mat(0xb99a55);
     // Matching stone plinth for the fallback storefront, visible around the full building perimeter.
     const fallbackPlinthBase=M.stone2.clone();fallbackPlinthBase.color.setHex(0x626663);fallbackPlinthBase.roughness=.88;
     const fallbackPlinthCap=M.stone.clone();fallbackPlinthCap.color.setHex(0x858982);fallbackPlinthCap.roughness=.82;
