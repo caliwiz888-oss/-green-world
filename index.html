@@ -3581,27 +3581,28 @@ function makeWorldDecor(){
     arch.castShadow=false;arch.receiveShadow=false;world.add(arch);
   }
   // Невысокие каменные парапеты повторяют профиль настила, сохраняя открытый вид на реку.
-  const railMat=new THREE.MeshStandardMaterial({color:0xc1b9a5,roughness:.96,metalness:0});
-  const railCapMat=new THREE.MeshStandardMaterial({color:0xd5cdbb,roughness:.94,metalness:0});
+  // Более высокие выразительные парапеты из тёплого песочного камня — визуально отделены от серой мостовой.
+  const railMat=new THREE.MeshStandardMaterial({color:0x96866d,roughness:.97,metalness:0});
+  const railCapMat=new THREE.MeshStandardMaterial({color:0xc5b493,roughness:.95,metalness:0});
   for(const side of [-1,1]){
     for(let row=0;row<20;row++){
       const t=(row+.5)/20,z=bridgeStart+t*bridgeLength,angle=-Math.atan(bridgeSlope(t));
-      const curb=box(world,.22,.20,bridgeLength/20+.018,side*2.01,bridgeProfile(t)+.09,z,bridgeStoneShade,false);
+      const curb=box(world,.24,.22,bridgeLength/20+.018,side*2.01,bridgeProfile(t)+.10,z,bridgeStoneShade,false);
       curb.rotation.x=angle;
     }
     for(let i=0;i<=8;i++){
       const t=i/8,z=bridgeStart+t*bridgeLength,y=bridgeProfile(t);
-      const post=box(world,.25,.55,.30,side*2.01,y+.36,z,railMat,false);
+      const post=box(world,.27,.72,.32,side*2.01,y+.445,z,railMat,false);
       post.rotation.x=-Math.atan(bridgeSlope(t));
-      const cap=box(world,.34,.10,.38,side*2.01,y+.69,z,railCapMat,false);
+      const cap=box(world,.38,.12,.42,side*2.01,y+.86,z,railCapMat,false);
       cap.rotation.x=-Math.atan(bridgeSlope(t));
     }
     const railPoints=[];
     for(let i=0;i<=40;i++){
       const t=i/40,z=bridgeStart+t*bridgeLength;
-      railPoints.push(new THREE.Vector3(side*2.01,bridgeProfile(t)+.76,z));
+      railPoints.push(new THREE.Vector3(side*2.01,bridgeProfile(t)+.94,z));
     }
-    const handrail=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(railPoints),80,.085,8,false),railCapMat);
+    const handrail=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(railPoints),80,.09,8,false),railCapMat);
     handrail.castShadow=false;handrail.receiveShadow=false;world.add(handrail);
   }
   // У входа и выхода — цельные каменные устои, плавно связывающие мост с берегами.
