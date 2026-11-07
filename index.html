@@ -928,7 +928,7 @@ function makeHouse(){
  const manorRidgeMaterial=M.roof2.clone();
  manorRidgeMaterial.color.setHex(0x493329);
  manorRidgeMaterial.roughness=.88;manorRidgeMaterial.metalness=.025;manorRidgeMaterial.needsUpdate=true;
- const ridge=cylinder(g,.13,.13,9.02,-.25,6.82,0,manorRidgeMaterial,12);
+ const ridge=cylinder(g,.13,.13,8.04,-.25,6.82,-.04,manorRidgeMaterial,12);
  ridge.rotation.x=Math.PI/2;
  // Небольшие латунные стяжки на коньке визуально соединяют секции кровельного покрытия.
  for(const z of [-3.55,-2.15,-.72,.72,2.15,3.55]){
@@ -936,7 +936,7 @@ function makeHouse(){
     ridgeBand.rotation.x=Math.PI/2;
  }
  // Compact stone-and-brass ridge finials finish both visible ends of the manor roof.
- for(const z of [-4.52,4.52]){
+ for(const z of [-4.06,3.98]){
    sphere(g,.16,-.25,6.82,z,houseStoneTrim,.9);
    // Тонкое латунное кольцо и шейка связывают концевые навершия с коньком.
    cylinder(g,.14,.14,.045,-.25,6.875,z,M.gold,12);
@@ -951,9 +951,10 @@ function makeHouse(){
  makeGable(3.98);makeGable(-4.06);
  // Каменные обрамления точно повторяют стороны фронтона и заканчиваются до карниза и конька.
  // Длины и углы рассчитаны по вершинам треугольной кладки, без выступающих концов.
+ // Обе накладки имеют одинаковую длину и зеркальные углы, точно по рёбрам фронтона.
  const gableVergeSpecs=[
-   {length:3.29,x:-1.70,y:5.78,angle:.622},
-   {length:3.71,x:1.45,y:5.78,angle:-.549}
+   {length:3.57,x:-1.70,y:5.78,angle:.622},
+   {length:3.57,x:1.45,y:5.78,angle:-.622}
  ];
  for(const spec of gableVergeSpecs){
    const verge=box(g,spec.length,.09,.12,spec.x,spec.y,4.145,houseStoneTrim,false);
