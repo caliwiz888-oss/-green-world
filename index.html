@@ -3863,7 +3863,9 @@ function makeWorldDecor(){
   };
   const fencePostKeys=new Set();
   const fenceAddPost=(axis,side,u)=>{
-    const key=(axis==="front"||axis==="back"?u.toFixed(2)+","+side:side+","+u.toFixed(2));
+    const px=axis==="front"||axis==="back"?u:side;
+    const pz=axis==="front"||axis==="back"?side:u;
+    const key=px.toFixed(2)+","+pz.toFixed(2);
     if(fencePostKeys.has(key))return;
     fencePostKeys.add(key);
     fencePart(axis,side,u,.24,.82,.42,.82,fenceReliefStone);
