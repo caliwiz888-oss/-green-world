@@ -433,6 +433,27 @@ function makeSurfaceTexture(kind,seed){
   }
  }
  }
+ // Дополнительная микрофактура уплотнённой земли: мелкая галька и мягкие следы прохода.
+ if(kind==='soil'){
+  for(let i=0;i<520;i++){
+   const x=rand()*size,y=rand()*size,r=.35+rand()*1.25;
+   const light=rand()>.48;
+   ctx.fillStyle=light?'rgba(224,202,163,.19)':'rgba(65,49,35,.16)';
+   ctx.beginPath();ctx.ellipse(x,y,r*1.45,r*.72,(rand()-.5)*.9,0,Math.PI*2);ctx.fill();
+  }
+  for(let i=0;i<46;i++){
+   const x=rand()*size,y=rand()*size,len=10+rand()*34,curve=(rand()-.5)*5;
+   ctx.strokeStyle=rand()>.5?'rgba(235,214,178,.075)':'rgba(66,48,34,.065)';
+   ctx.lineWidth=.7+rand()*.9;ctx.beginPath();ctx.moveTo(x,y);
+   ctx.quadraticCurveTo(x+len*.5,y+curve,x+len,y+curve*.35);ctx.stroke();
+  }
+  // Небольшие пятна разной плотности грунта сохраняют естественную неоднородность дорожки.
+  for(let i=0;i<22;i++){
+   const x=rand()*size,y=rand()*size,rx=5+rand()*17,ry=3+rand()*8;
+   ctx.fillStyle=rand()>.5?'rgba(195,160,112,.045)':'rgba(54,43,33,.04)';
+   ctx.beginPath();ctx.ellipse(x,y,rx,ry,rand()*Math.PI,0,Math.PI*2);ctx.fill();
+  }
+ }
  const texture=new THREE.CanvasTexture(canvas);
  texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
  const textureRepeat=kind==='wood'?2:(kind==='stone'||kind==='roof'?4:3);texture.repeat.set(textureRepeat,textureRepeat);
