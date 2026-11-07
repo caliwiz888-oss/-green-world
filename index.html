@@ -2195,9 +2195,34 @@ function makeMarket(){
    box(g,.075,.16,.12,x,2.42,2.68,roofEdge,false);
  }
  // Невысокие ступени и каменная площадка перед прилавком.
- box(g,5.55,.12,1.05,0,.08,3.05,M.stone2,false);
- box(g,4.95,.1,.48,0,.18,3.48,M.stone,false);
- for(let i=0;i<6;i++)box(g,.88,.035,.48,-2.2+i*.88,.245,3.15,i%2?M.stone:M.stone2,false);
+ // Локальная микрофактура ступеней: мелкие зерна и едва заметные минеральные слои.
+ const marketStepCanvas=document.createElement('canvas');marketStepCanvas.width=256;marketStepCanvas.height=256;
+ const marketStepCtx=marketStepCanvas.getContext('2d');
+ const marketStepImage=marketStepCtx.createImageData(256,256);
+ let marketStepSeed=41827;
+ const marketStepRand=()=>{marketStepSeed=(marketStepSeed*1664525+1013904223)>>>0;return marketStepSeed/4294967296};
+ for(let y=0;y<256;y++)for(let x=0;x<256;x++){
+   const layer=Math.sin(y*.115+Math.sin(x*.035)*.8)*2.1;
+   const grain=(marketStepRand()-.5)*18+layer;
+   const v=Math.max(0,Math.min(255,128+grain)),p=(y*256+x)*4;
+   marketStepImage.data[p]=v;marketStepImage.data[p+1]=v;marketStepImage.data[p+2]=v;marketStepImage.data[p+3]=255;
+ }
+ marketStepCtx.putImageData(marketStepImage,0,0);
+ const marketStepBump=new THREE.CanvasTexture(marketStepCanvas);
+ marketStepBump.colorSpace=THREE.NoColorSpace;
+ marketStepBump.wrapS=marketStepBump.wrapT=THREE.RepeatWrapping;
+ marketStepBump.repeat.set(2.2,1);
+ marketStepBump.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const marketStepBase=M.stone2.clone(),marketStepTop=M.stone.clone();
+ for(const stepMaterial of [marketStepBase,marketStepTop]){
+   stepMaterial.bumpMap=marketStepBump;
+   stepMaterial.bumpScale=.022;
+   stepMaterial.roughness=.91;
+   stepMaterial.needsUpdate=true;
+ }
+ box(g,5.55,.12,1.05,0,.08,3.05,marketStepBase,false);
+ box(g,4.95,.1,.48,0,.18,3.48,marketStepTop,false);
+ for(let i=0;i<6;i++)box(g,.88,.035,.48,-2.2+i*.88,.245,3.15,i%2?marketStepTop:marketStepBase,false);
  // Минимальный металлический декор крыши — без скатов и конька.
  for(const z of [-2.55,2.55])box(g,6.25,.07,.08,0,3.82,z,roofAccent,false);
  for(const x of [-2.95,2.95])box(g,.08,.07,5.1,x,3.82,0,roofAccent,false);
