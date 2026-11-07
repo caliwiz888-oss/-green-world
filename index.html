@@ -5914,7 +5914,7 @@ scene.traverse(object=>{
  const materials=Array.isArray(object.material)?object.material:[object.material];
  for(const material of materials){
    if(!material)continue;
-   material.dithering=!object.userData.crispRoad;
+   material.dithering=!object.userData.crispRoad&&!material.isMeshBasicMaterial;
    window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH.materials++;
    for(const key of ['map','alphaMap','aoMap','bumpMap','displacementMap','emissiveMap','lightMap','metalnessMap','normalMap','roughnessMap']){
      const texture=material[key];
