@@ -3871,6 +3871,20 @@ function makeHouse(){
  canopyMesh.position.set(0,2.72,2.48);canopyMesh.castShadow=false;canopyMesh.receiveShadow=false;g.add(canopyMesh);
  // Светлая нижняя кромка козырька без золотой отделки скатов.
  box(g,2.08,.07,.80,0,2.64,2.80,cream,false);
+
+ // Две круглые каменные колонны под козырьком — симметрично по эталону.
+ for(const x of [-.94,.94]){
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(.17,.19,.16,24),stone);
+  base.position.set(x,.96,3.12);base.castShadow=false;base.receiveShadow=false;g.add(base);
+  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.115,.135,1.55,24),cream);
+  shaft.position.set(x,1.815,3.12);shaft.castShadow=false;shaft.receiveShadow=false;g.add(shaft);
+  const lowerRing=new THREE.Mesh(new THREE.CylinderGeometry(.145,.145,.075,24),stone);
+  lowerRing.position.set(x,1.10,3.12);lowerRing.castShadow=false;lowerRing.receiveShadow=false;g.add(lowerRing);
+  const capital=new THREE.Mesh(new THREE.CylinderGeometry(.18,.14,.18,24),stone);
+  capital.position.set(x,2.68,3.12);capital.castShadow=false;capital.receiveShadow=false;g.add(capital);
+  const abacus=new THREE.Mesh(new THREE.CylinderGeometry(.19,.19,.07,24),cream);
+  abacus.position.set(x,2.805,3.12);abacus.castShadow=false;abacus.receiveShadow=false;g.add(abacus);
+ }
  // Парадная лестница с широкими каменными ступенями.
  for(let i=0;i<5;i++){
   box(g,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,cream);
