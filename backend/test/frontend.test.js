@@ -28,7 +28,9 @@ test('frontend does not persist game state in local storage', () => {
   assert.doesNotMatch(html, /localStorage/);
 });
 
-test('creates the manor once and registers it for dynamic scene cleanup', () => {
-  assert.match(html, /buildingObjects\.push\(makeHouse\(\)\);makeWorldDecor\(\);makeWorldLandscape\(\);/);
-  assert.doesNotMatch(html, /\n\s*makeHouse\(\);makeWorldDecor\(\);/);
+test('creates the detailed manor once and keeps the fallback roof flush with its gable', () => {
+  assert.match(html, /const manor=makeHouse\(\);\s*buildingObjects\.push\(manor\);/);
+  assert.match(html, /catch\(houseError\)/);
+  assert.match(html, /box\(fallback,3\.95,\.34,8\.08,-1\.93,5\.72,-\.02,fallbackRoof\)/);
+  assert.match(html, /box\(fallback,3\.95,\.34,8\.08,1\.43,5\.72,-\.02,fallbackRoof\)/);
 });
