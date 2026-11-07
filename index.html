@@ -3780,10 +3780,9 @@ function makeHouse(){
   box(g,w+.28,.09,.32,x,y+h+.04,z+.08,stone);
   box(g,w+.20,.045,.34,x,y+h+.12,z+.08,gold);
  }
- // Симметричные высокие окна на двух этажах главного фасада.
+ // По одному высокому окну с каждой стороны центрального входа — как в эталоне.
  for(const x of [-2.05,2.05]){
   archedWindow(x,1.02,.82,1.48,2.52);
-  archedWindow(x,2.72,.82,1.38,2.52);
  }
  // Центральный парадный портал: глубокий каменный проём, арочная перемычка,
  // деревянные створки, бронзовая фурнитура и выступающий терракотовый козырёк.
@@ -3872,17 +3871,19 @@ function makeHouse(){
    cylinder(t,.85,.85,.11,0,y,0,stone,n);
    cylinder(t,.88,.88,.07,0,y+.08,0,gold,n);
   }
-  // Арочное окно башни с глубокой бронзовой окантовкой и золотым переплётом.
+  // На каждом ярусе башни по два арочных окна: слева и справа.
   for(const y of [1.75,2.94]){
-   const sh=new THREE.Shape();sh.moveTo(-.25,0);sh.lineTo(-.25,.67);sh.absarc(0,.67,.25,Math.PI,0,true);sh.lineTo(.25,0);sh.closePath();
-   const frame=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.10,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.02,bevelThickness:.02}),bronze);
-   frame.position.set(0,y,.79);frame.castShadow=false;frame.receiveShadow=false;t.add(frame);
-   const glass=new THREE.Mesh(new THREE.ShapeGeometry(sh),teal);
-   glass.position.set(0,y,.90);glass.castShadow=false;glass.receiveShadow=false;t.add(glass);
-   box(t,.04,.88,.035,0,y+.32,.93,gold,false);
-   sphere(t,.16,0,y+.68,.91,tealLight,.70);
-   box(t,.62,.10,.22,0,y-.08,.84,cream);
-   box(t,.66,.06,.24,0,y+.96,.84,gold);
+   for(const wx of [-.36,.36]){
+    const sh=new THREE.Shape();sh.moveTo(-.22,0);sh.lineTo(-.22,.67);sh.absarc(0,.67,.22,Math.PI,0,true);sh.lineTo(.22,0);sh.closePath();
+    const frame=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.10,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.02,bevelThickness:.02}),bronze);
+    frame.position.set(wx-.22,y,.73);frame.castShadow=false;frame.receiveShadow=false;t.add(frame);
+    const glass=new THREE.Mesh(new THREE.ShapeGeometry(sh),teal);
+    glass.position.set(wx-.22,y,.84);glass.castShadow=false;glass.receiveShadow=false;t.add(glass);
+    box(t,.035,.88,.035,wx-.22,y+.32,.87,gold,false);
+    sphere(t,.14,wx-.22,y+.68,.85,tealLight,.70);
+    box(t,.54,.10,.22,wx-.22,y-.08,.78,cream);
+    box(t,.58,.06,.24,wx-.22,y+.96,.78,gold);
+   }
   }
   // Круглый каменный балкон с широким выносом, точёными балясинами и поручнем.
   cylinder(t,1.03,1.03,.18,0,4.00,0,stone,n);
@@ -3918,16 +3919,15 @@ function makeHouse(){
    sphere(t,.078,px,4.52,pz,j%3===0?lilac:(j%2?white:pink),.82);
   }
  }
- // Цветочные балконные ящики под фасадными окнами.
+ // Цветочные ящики только под двумя фасадными окнами главного дома.
  for(const x of [-2.05,2.05]){
-  for(const y of [.88,2.56]){
-   box(g,1.18,.14,.32,x,y,2.70,stone);
-   box(g,1.22,.05,.34,x,y+.09,2.72,gold);
-   for(let j=0;j<10;j++){
-    const px=x-.48+j*.106;
-    sphere(g,.065,px,y+.17,2.78,green,.76);
-    sphere(g,.068,px,y+.25,2.80,j%3===0?lilac:(j%2?white:pink),.82);
-   }
+  const y=.88;
+  box(g,1.18,.14,.32,x,y,2.70,stone);
+  box(g,1.22,.05,.34,x,y+.09,2.72,gold);
+  for(let j=0;j<10;j++){
+   const px=x-.48+j*.106;
+   sphere(g,.065,px,y+.17,2.78,green,.76);
+   sphere(g,.068,px,y+.25,2.80,j%3===0?lilac:(j%2?white:pink),.82);
   }
  }
  // Дымоходы остаются частью силуэта главной кровли.
