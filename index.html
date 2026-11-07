@@ -5090,6 +5090,22 @@ function makeWorldLandscape(){
    alpineRockCtx.fillStyle=g;alpineRockCtx.beginPath();
    alpineRockCtx.ellipse(x,y,rx,ry,(i%5-2)*.14,0,Math.PI*2);alpineRockCtx.fill();
  }
+ // Мягкие широкие минеральные переходы убирают повторяемость скальной фактуры на крупных склонах.
+ for(let i=0;i<18;i++){
+   const x=(i*47+19)%128,y=(i*71+13)%128,rx=8+(i*9)%17,ry=3+(i*5)%9;
+   const tint=i%3===0?'rgba(177,157,129,.075)':(i%3===1?'rgba(65,82,83,.065)':'rgba(218,216,199,.055)');
+   alpineRockCtx.save();alpineRockCtx.translate(x,y);alpineRockCtx.scale(rx/Math.max(rx,ry),ry/Math.max(rx,ry));
+   const wash=alpineRockCtx.createRadialGradient(0,0,1,0,0,Math.max(rx,ry));
+   wash.addColorStop(0,tint);wash.addColorStop(.7,'rgba(105,111,105,.018)');wash.addColorStop(1,'rgba(105,111,105,0)');
+   alpineRockCtx.fillStyle=wash;alpineRockCtx.beginPath();alpineRockCtx.arc(0,0,Math.max(rx,ry),0,Math.PI*2);alpineRockCtx.fill();alpineRockCtx.restore();
+ }
+ // Редкие короткие прожилки разной яркости связывают пятна с естественными слоями породы.
+ for(let i=0;i<16;i++){
+   const x=(i*37+9)%128,y=(i*53+21)%128,len=7+(i*11)%19,bend=((i*7)%7)-3;
+   alpineRockCtx.strokeStyle=i%4===0?'rgba(226,221,202,.12)':'rgba(48,62,62,.075)';
+   alpineRockCtx.lineWidth=.45+(i%3)*.18;alpineRockCtx.beginPath();alpineRockCtx.moveTo(x,y);
+   alpineRockCtx.quadraticCurveTo(x+len*.48,y+bend*.35,x+len,y+bend);alpineRockCtx.stroke();
+ }
  const alpineRockTexture=new THREE.CanvasTexture(alpineRockCanvas);
  alpineRockTexture.colorSpace=THREE.SRGBColorSpace;
  alpineRockTexture.wrapS=alpineRockTexture.wrapT=THREE.RepeatWrapping;
