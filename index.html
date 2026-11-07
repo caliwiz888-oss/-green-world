@@ -389,6 +389,21 @@ function makeSurfaceTexture(kind,seed){
    ctx.lineTo(x+len*.48,y+bend);ctx.lineTo(x+len,y+bend*.35);ctx.stroke();
   }
  }
+ // Тонкая дополнительная зернистость каменной кладки и мощения: мелкие поры и сколы кромок.
+ if(kind==='stone'){
+  for(let i=0;i<360;i++){
+   const x=rand()*size,y=rand()*size,r=.35+rand()*1.15;
+   const warm=rand()>.5;
+   ctx.fillStyle=warm?'rgba(218,197,160,.105)':'rgba(48,48,45,.085)';
+   ctx.beginPath();ctx.ellipse(x,y,r*1.55,r*.7,(rand()-.5)*.8,0,Math.PI*2);ctx.fill();
+  }
+  for(let i=0;i<38;i++){
+   const x=rand()*size,y=rand()*size,len=2+rand()*7,dy=(rand()-.5)*2.2;
+   ctx.strokeStyle=rand()>.5?'rgba(255,249,231,.12)':'rgba(42,42,39,.085)';
+   ctx.lineWidth=.4+rand()*.45;ctx.beginPath();
+   ctx.moveTo(x,y);ctx.lineTo(x+len*.55,y+dy);ctx.lineTo(x+len,y+dy*.4);ctx.stroke();
+  }
+ }
  if(kind==='roof'){
   // Низкоконтрастные дуги повторяют ритм черепицы, не превращая материал в плоский узор.
   for(let row=-1;row<18;row++){
