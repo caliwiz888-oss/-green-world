@@ -590,7 +590,7 @@ function makeHouse(){
  // Индивидуальная фактура светлого тесаного камня главного дома: тонкие швы и мягкая неоднородность.
  const houseStone=M.stone.clone(),houseStoneTrim=M.stone2.clone();
  // Единая новая палитра поместья: слоновая кость и кремовый известняк.
- houseStone.color.setHex(0xe8dcc5);houseStoneTrim.color.setHex(0xf2e8d5);
+ houseStone.color.setHex(0xf0e4cd);houseStoneTrim.color.setHex(0xfff1d8);
  // Материалы цоколя объявляются до первого использования в нижних фасадных филёнках.
  // Раньше const находились ниже по функции, из-за чего makeHouse() падала с ReferenceError (TDZ).
  const housePlinthBase=M.stone2.clone();
@@ -782,8 +782,8 @@ function makeHouse(){
  const glassCanvas=document.createElement('canvas');glassCanvas.width=128;glassCanvas.height=128;
  const glassCtx=glassCanvas.getContext('2d');
  const glassGradient=glassCtx.createLinearGradient(0,0,128,128);
- glassGradient.addColorStop(0,'#8299a2');glassGradient.addColorStop(.42,'#b6c8ca');
- glassGradient.addColorStop(.58,'#718b98');glassGradient.addColorStop(1,'#526b7a');
+ glassGradient.addColorStop(0,'#37c4c9');glassGradient.addColorStop(.42,'#8de3dc');
+ glassGradient.addColorStop(.58,'#2aaab5');glassGradient.addColorStop(1,'#147b91');
  glassCtx.fillStyle=glassGradient;glassCtx.fillRect(0,0,128,128);
  glassCtx.fillStyle='rgba(255,255,255,.22)';glassCtx.beginPath();
  glassCtx.moveTo(8,0);glassCtx.lineTo(34,0);glassCtx.lineTo(112,128);glassCtx.lineTo(88,128);glassCtx.closePath();glassCtx.fill();
@@ -904,7 +904,7 @@ function makeHouse(){
  const manorRoofBump=manorRoofTexture.clone();manorRoofBump.colorSpace=THREE.NoColorSpace;manorRoofBump.needsUpdate=true;
  const manorRoofMaterial=M.roof.clone();
  // Светлый благородный серо-голубой оттенок кровли для контраста с тёплым фасадом.
-  manorRoofMaterial.color.setHex(0x526d88);
+  manorRoofMaterial.color.setHex(0x263f5d);
  manorRoofMaterial.roughness=.82;manorRoofMaterial.metalness=.035;
  manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.013;manorRoofMaterial.roughness=.87;manorRoofMaterial.metalness=.02;manorRoofMaterial.needsUpdate=true;
  // НОВАЯ КРОВЛЯ: единая параметрическая геометрия от общей оси конька.
@@ -935,7 +935,7 @@ function makeHouse(){
 
  // Коньковый профиль строго по центральной оси, от фронтона до фронтона.
  const roofRidgeMaterial=M.roof2.clone();
- roofRidgeMaterial.color.setHex(0x34495e);roofRidgeMaterial.roughness=.88;roofRidgeMaterial.metalness=.025;roofRidgeMaterial.needsUpdate=true;
+ roofRidgeMaterial.color.setHex(0x1b3049);roofRidgeMaterial.roughness=.88;roofRidgeMaterial.metalness=.025;roofRidgeMaterial.needsUpdate=true;
  const ridge=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,roofDepth,16),roofRidgeMaterial);
  ridge.position.set(roofAxisX,roofRidgeY,roofCenterZ);ridge.rotation.x=Math.PI/2;
  ridge.castShadow=false;ridge.receiveShadow=false;g.add(ridge);
@@ -957,7 +957,7 @@ function makeHouse(){
  makeGable(3.98);makeGable(-4.06);
  // Центральное круглое окно фронтона: вся геометрия привязана к оси фасада x=0.
  // Плоскость стекла находится перед каменной кладкой и не пересекает наклонные обрамления крыши.
- const oculusGlass=mat(0x4d9fa5,.28);
+ const oculusGlass=mat(0x24b6c2,.24);
  oculusGlass.metalness=.12;
  const oculusCenterY=5.72,oculusFrontZ=4.205;
  const oculusGlassMesh=new THREE.Mesh(new THREE.CircleGeometry(.405,64),oculusGlass);
@@ -1207,20 +1207,20 @@ function makeHouse(){
  // Сохраняем прежние места и общую высоту башен, убирая тяжёлую квадратную кладку и избыток золота.
  const towerStoneMaterial=houseStone.clone();
  // Башенный известняк чуть теплее и матовее фасадного, с более читаемым микрорельефом.
- towerStoneMaterial.color.setHex(0xd9d5cb);
+ towerStoneMaterial.color.setHex(0xf0e4cd);
  towerStoneMaterial.roughness=.96;
  towerStoneMaterial.bumpScale=.034;
  towerStoneMaterial.needsUpdate=true;
  const towerTrimMaterial=houseStoneTrim.clone();
- towerTrimMaterial.color.setHex(0xe9e4d9);
+ towerTrimMaterial.color.setHex(0xfff1d8);
  towerTrimMaterial.roughness=.94;
  towerTrimMaterial.bumpScale=.03;
  towerTrimMaterial.needsUpdate=true;
  // Купола в приглушённом серо-голубом тоне с более тёмной синевато-графитовой окантовкой.
- const towerRoofMaterial=new THREE.MeshStandardMaterial({color:0x526d88,roughness:.84,metalness:.045});
+ const towerRoofMaterial=new THREE.MeshStandardMaterial({color:0x263f5d,roughness:.84,metalness:.045});
  const towerRoofLine=new THREE.MeshStandardMaterial({color:0x43545d,roughness:.88,metalness:.02});
- const towerMetal=new THREE.MeshStandardMaterial({color:0xb99a61,roughness:.48,metalness:.48});
- const towerWindow=mat(0x263b40,.34);
+ const towerMetal=new THREE.MeshStandardMaterial({color:0xd7a83e,roughness:.42,metalness:.58});
+ const towerWindow=mat(0x28b6c0,.28);
  // Две башни остаются на прежних углах главного дома.
  for(const x of [-4.35,4.35]){
    const t=group(g,x,0,3.25);
@@ -1377,7 +1377,7 @@ function makeHouse(){
    towerRoofMaterial.map=null;
    towerRoofMaterial.bumpMap=null;
    towerRoofMaterial.bumpScale=0;
-   towerRoofMaterial.color.setHex(0x526d88);
+   towerRoofMaterial.color.setHex(0x263f5d);
    towerRoofMaterial.roughness=.9;
    towerRoofMaterial.metalness=.015;
    towerRoofMaterial.needsUpdate=true;
@@ -1417,6 +1417,15 @@ function makeHouse(){
      box(g,.46,.08,.055,x,6.30,-2.2+sz,chimneyStone,false);
    }
  }
+  // Flower boxes beneath the paired front facade windows.
+  const facadePlanterStone=mat(0xd8c39b,.92),facadeLeaf=mat(0x477b4a,.92),facadeBloomA=mat(0xf1a0bf,.76),facadeBloomB=mat(0xb78bd0,.76),facadeBloomC=mat(0xffd2dc,.76);
+  for(const x of [-3.25,3.25]){
+    box(g,1.58,.20,.38,x,1.77,4.46,facadePlanterStone,false);box(g,1.64,.07,.42,x,1.89,4.46,houseStoneTrim,false);
+    for(let j=0;j<10;j++){const px=x-.68+j*.15,pz=4.43+(j%2)*.12,py=2.02+(j%3)*.025;const leaf=sphere(g,.07,px,py-.035,pz,facadeLeaf,.92);leaf.castShadow=false;leaf.receiveShadow=false;const flower=sphere(g,.075,px,py+.02,pz,j%3===0?facadeBloomB:(j%2?facadeBloomC:facadeBloomA),.78);flower.castShadow=false;flower.receiveShadow=false;}
+  }
+  // Gold ornamental rosettes across the front gable.
+  const gableGold=M.gold.clone();gableGold.color.setHex(0xd7a83e);gableGold.metalness=.62;gableGold.roughness=.38;gableGold.needsUpdate=true;
+  for(const x of [-2.55,-1.7,-.85,0,.85,1.7,2.55]){const medallion=sphere(g,.095,x,4.91,4.255,gableGold,.72);medallion.castShadow=false;medallion.receiveShadow=false;const center=sphere(g,.035,x,4.91,4.31,houseStoneTrim,.8);center.castShadow=false;center.receiveShadow=false;}
  // Rich stone facade: corner pilasters, horizontal courses and carved window surrounds.
  for(const x of [-4.72,4.72]){
    box(g,.28,4.15,.34,x,2.25,4.12,houseStoneTrim);
@@ -1441,6 +1450,11 @@ function makeHouse(){
      box(g,.07,.5,.07,x+dx,3.39,5.33,towerBalconyGold,false);
    }
    box(g,1.68,.08,.08,x,3.65,5.33,towerBalconyGold,false);
+   // Flower boxes on the front tower balconies, matching the approved reference.
+   const balconyPlanter=mat(0xd9c49d,.92),balconyLeaf=mat(0x4f8050,.92),balconyRose=mat(0xe98eb5,.76),balconyPink=mat(0xf5c1d2,.76),balconyViolet=mat(0x9b78bd,.76);
+   box(g,1.42,.22,.34,x,3.79,5.02,balconyPlanter,false);
+   for(let j=0;j<9;j++){const px=x-.62+j*.155,py=3.98+(j%3)*.035,pz=4.98+(j%2)*.09;const leaf=sphere(g,.075,px,py-.035,pz,balconyLeaf,.9);leaf.castShadow=false;leaf.receiveShadow=false;const bloom=sphere(g,.09,px,py+.025,pz,j%3===0?balconyViolet:(j%2?balconyPink:balconyRose),.78);bloom.castShadow=false;bloom.receiveShadow=false;}
+
 
  }
  // Тонкие каменные консоли под главными окнами поддерживают глубокие подоконники.
