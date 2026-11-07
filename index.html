@@ -4636,10 +4636,17 @@ function makeWorldLandscape(){
    const crestAt=(u)=>{
      let crest=0;
      for(const p of peaks){
-       const d=Math.abs(u-p.x);
+       // Неровный профиль вершины: наветренный и подветренный склоны имеют разную крутизну.
+       const delta=u-p.x;
+       const asymmetry=delta<0?.88:1.16;
+       const d=Math.abs(delta)*asymmetry;
        const triangular=Math.max(0,1-d/p.span);
        const shoulder=Math.max(0,1-d/(p.span*1.8));
-       crest=Math.max(crest,p.height*(Math.pow(triangular,p.sharp)+.12*Math.pow(shoulder,1.35)));
+       // Узкая скальная корона поверх широкого основания связывает пики в единый хребет.
+       const crown=Math.pow(triangular,p.sharp*1.12);
+       const brokenShoulder=.12*Math.pow(shoulder,1.35)*
+         (1+.12*Math.sin(delta*38)+.055*Math.sin(delta*79));
+       crest=Math.max(crest,p.height*(crown+brokenShoulder));
      }
      return crest;
    };
