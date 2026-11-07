@@ -1450,12 +1450,8 @@ function makeHouse(){
    box(g,.62,.12,.62,x,6.2,-2.2,M.wood);
  }
   // Повторные карнизные накладки и кронштейны удалены: основной карниз уже создан выше.
- // Decorative ridge-end finials complete the roof silhouette at both gable ends.
- for(const z of [-4.32,4.32]){
-   box(g,.34,.12,.28,0,6.54,z,houseStoneTrim,false);
-   sphere(g,.09,0,6.68,z,M.gold,.9);
-   cylinder(g,.055,.055,.22,0,6.78,z,M.gold,8);
- }
+ // Устаревшие дублирующие навершия удалены: используются только парные элементы
+ // новой крыши, расположенные по общей оси x=0.
  // Sculpted stone lintels and sills make the main facade read as a finished manor.
  for(const x of [-3.25,3.25]){
    box(g,1.62,.16,.3,x,3.52,4.2,houseStoneTrim);
@@ -1584,19 +1580,8 @@ function makeHouse(){
    box(g,2.42,.14,2.42,x,5.78,3.25,houseStoneTrim);
    box(g,2.12,.1,2.12,x,5.9,3.25,M.gold,false);
  }
- // Fine ridge crest and restrained roof-end accents.
- box(g,.22,.16,7.95,-.25,6.74,0,M.gold,false);
- // Четыре небольших выступа на передней части кровли удалены по отметке пользователя.
- // Сегментированные керамические коньковые элементы закрывают стык скатов и завершают силуэт крыши.
- for(let i=0;i<9;i++){
-   const cap=cylinder(g,.17,.17,.98,-.25,6.84,-3.56+i*.89,M.roof2,12);
-   cap.rotation.x=Math.PI/2;
- }
- // Небольшие каменные торцевые завершения аккуратно закрывают конёк с обеих сторон.
- for(const z of [-4.08,4.08]){
-   cylinder(g,.205,.205,.12,-.25,6.84,z,houseStoneTrim,12).rotation.x=Math.PI/2;
-   sphere(g,.09,-.25,6.99,z,M.gold,.8);
- }
+ // Удалён старый смещённый коньковый профиль x=-0.25 и его золотые накладки.
+ // Новый конёк и парные навершия выше используют общую ось x=0.
  // Tower corner stones, cornices and narrow upper lights.
  for(const x of [-4.35,4.35]){
    for(const z of [2.16,4.34]){
