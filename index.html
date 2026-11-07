@@ -3892,60 +3892,53 @@ function makeHouse(){
    box(t,.66,.10,.25,0,y+.91,1.16,cream);
    box(t,.60,.045,.27,0,y+1.01,1.18,gold);
   }
-  // Полукруглые выступающие балконы под обоими окнами башни — как на утверждённом эталоне.
-  // Передняя дуга обращена во двор; форма повторяет окружность башни.
-  for(const balconyY of [1.02,2.92]){
-   const platform=new THREE.Mesh(
-    new THREE.CylinderGeometry(1.34,1.34,.16,48,1,false,-Math.PI/2,Math.PI),
-    stone
-   );
-   platform.position.set(0,balconyY,0);
-   platform.castShadow=false;platform.receiveShadow=false;t.add(platform);
-   const rim=new THREE.Mesh(
-    new THREE.CylinderGeometry(1.36,1.36,.075,48,1,false,-Math.PI/2,Math.PI),
-    cream
-   );
-   rim.position.set(0,balconyY+.115,0);
-   rim.castShadow=false;rim.receiveShadow=false;t.add(rim);
-   // Изогнутое ограждение только по наружной полукруглой кромке.
-   for(let j=0;j<=16;j++){
-    const a=-Math.PI/2+j*Math.PI/16,px=Math.sin(a)*1.27,pz=Math.cos(a)*1.27;
-    cylinder(t,.035,.042,.34,px,balconyY+.34,pz,cream,10);
-    sphere(t,.045,px,balconyY+.53,pz,gold,.75);
+   // Два полноценных круглых балкона под окнами каждой башни.
+   // Их диаметр заметно больше диаметра ствола башни: балконы выступают
+   // наружу по кругу, в том числе вперёд к фасаду.
+   for(const balconyY of [1.02,2.92]){
+    const platform=new THREE.Mesh(
+     new THREE.CylinderGeometry(1.62,1.62,.18,64),
+     stone
+    );
+    platform.position.set(0,balconyY,0);
+    platform.castShadow=false;platform.receiveShadow=false;t.add(platform);
+    const rim=new THREE.Mesh(
+     new THREE.CylinderGeometry(1.66,1.66,.075,64),
+     cream
+    );
+    rim.position.set(0,balconyY+.125,0);
+    rim.castShadow=false;rim.receiveShadow=false;t.add(rim);
+    const goldBand=new THREE.Mesh(
+     new THREE.TorusGeometry(1.65,.035,8,64),
+     gold
+    );
+    goldBand.rotation.x=Math.PI/2;
+    goldBand.position.set(0,balconyY+.18,0);
+    goldBand.castShadow=false;goldBand.receiveShadow=false;t.add(goldBand);
+    // Балясины и поручень идут по всей окружности балкона.
+    for(let j=0;j<40;j++){
+     const a=j*Math.PI/20,px=Math.sin(a)*1.51,pz=Math.cos(a)*1.51;
+     cylinder(t,.042,.052,.34,px,balconyY+.39,pz,cream,10);
+     sphere(t,.055,px,balconyY+.57,pz,gold,.75);
+    }
+    const rail=new THREE.Mesh(
+     new THREE.TorusGeometry(1.51,.045,8,80),
+     gold
+    );
+    rail.rotation.x=Math.PI/2;
+    rail.position.set(0,balconyY+.59,0);
+    rail.castShadow=false;rail.receiveShadow=false;t.add(rail);
+    // Цветочные кашпо размещены вдоль передней части круглого балкона.
+    for(let j=0;j<11;j++){
+     const a=-1.18+j*.236,px=Math.sin(a)*1.69,pz=Math.cos(a)*1.69;
+     box(t,.20,.10,.18,px,balconyY+.24,pz,stone,false);
+     sphere(t,.07,px,balconyY+.38,pz,green,.78);
+     sphere(t,.075,px,balconyY+.47,pz,j%3===0?lilac:(j%2?white:pink),.82);
+     sphere(t,.052,px-.055,balconyY+.44,pz+.025,j%2?pink:white,.9);
+     sphere(t,.052,px+.055,balconyY+.44,pz-.025,j%3===0?white:lilac,.9);
+    }
    }
-   const rail=new THREE.Mesh(
-    new THREE.TorusGeometry(1.27,.045,8,64,Math.PI),
-    gold
-   );
-   rail.rotation.x=Math.PI/2;
-   rail.position.set(0,balconyY+.54,0);
-   rail.castShadow=false;rail.receiveShadow=false;t.add(rail);
-  }
-  // Два круглых балконных яруса с каменной плитой, балясинами и золотым поручнем.
-  for(const balconyY of [2.12,4.02]){
-   cylinder(t,1.08,1.04,.16,0,balconyY,0,stone,n);
-   cylinder(t,1.14,1.14,.10,0,balconyY+.13,0,cream,n);
-   cylinder(t,1.17,1.17,.045,0,balconyY+.20,0,gold,n);
-   for(let j=0;j<32;j++){
-    const a=j*Math.PI/16,px=Math.sin(a)*1.09,pz=Math.cos(a)*1.09;
-    cylinder(t,.042,.052,.30,px,balconyY+.39,pz,cream,10);
-    sphere(t,.055,px,balconyY+.55,pz,gold,.75);
-   }
-   // Дополнительный средний пояс балюстрады делает ограждение визуально цельным.
-   cylinder(t,1.16,1.16,.045,0,balconyY+.40,0,cream,n);
-   cylinder(t,1.18,1.18,.07,0,balconyY+.57,0,cream,n);
-   cylinder(t,1.21,1.21,.045,0,balconyY+.65,0,gold,n);
-   // Цветочные кашпо вдоль передней дуги каждого балконного яруса башни.
-   for(let j=0;j<9;j++){
-    const a=-1.05+j*.2625,px=Math.sin(a)*1.20,pz=Math.cos(a)*1.20;
-    box(t,.20,.10,.18,px,balconyY+.24,pz,stone,false);
-    sphere(t,.07,px,balconyY+.38,pz,green,.78);
-    sphere(t,.075,px,balconyY+.47,pz,j%3===0?lilac:(j%2?white:pink),.82);
-    sphere(t,.052,px-.055,balconyY+.44,pz+.025,j%2?pink:white,.9);
-    sphere(t,.052,px+.055,balconyY+.44,pz-.025,j%3===0?white:lilac,.9);
-   }
-  }
-  // Верхний аттик и многоступенчатый карниз под конической крышей.
+// Верхний аттик и многоступенчатый карниз под конической крышей.
   cylinder(t,.98,.98,.13,0,4.96,0,stone,n);
   cylinder(t,1.05,1.05,.12,0,5.08,0,cream,n);
   // Жёлтое кольцо под синим куполом удалено по просьбе пользователя.
