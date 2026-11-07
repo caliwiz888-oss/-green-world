@@ -2046,7 +2046,7 @@ function makeMarket(){
    box(g,.11,.035,4.48,x,.625,0,roofAccent,false);
  }
  // Чёткая тёмная полоса у переднего основания лавки — в том же стиле, что и окантовка склада.
- box(g,5.74,.105,.105,0,.105,2.445,roadEdgeMat,false);
+ box(g,5.72,.085,.10,0,.57,2.47,roadEdgeMat,false);
  // Плоская широкая кровля с выступающим козырьком — главный отличительный силуэт лавки.
  box(g,6.65,.24,6.65,0,3.48,0,roofEdge);
  box(g,6.48,.16,6.48,0,3.66,0,roof);
@@ -3678,7 +3678,7 @@ function makeWorldDecor(){
   addRoadGranite(67,3,-13.95,-5.115,.45,.565,.428,.535,()=>.1495,'z');
   // Тёмный контур и каменные бордюры подчёркивают геометрию всех основных дорожек.
   // Единый матовый материал окантовки без dithering: чёткий тёмный край без зернистого размытия.
-  const roadEdgeMat=new THREE.MeshStandardMaterial({color:0x171d20,roughness:1,metalness:0,dithering:false});
+  const roadEdgeMat=new THREE.MeshBasicMaterial({color:0x080a0b,toneMapped:false});
   const roadEdgeTop=mat(0x687174,.92);
   const roadEdgeInlay=mat(0xd9ddda,.94);
   // Боковые бордюры главной дороги имеют ту же высоту верхней грани, что и поперечная окантовка.
@@ -3705,7 +3705,7 @@ function makeWorldDecor(){
     for(const [x0,x1] of crossRoadEdgeSegments){
       const length=x1-x0,center=(x0+x1)*.5;
       // Одна цельная коробчатая полоса на плечо: без коротких накладок и стыковочных щелей.
-      box(world,length,.12,.105,center,.16,z,roadEdgeMat,false);
+      box(world,length,.04,.15,center,.205,z,roadEdgeMat,false);
     }
   }
   // Каменный арочный мост продолжает главную дорогу по той же оси и без ступеньки.
