@@ -3675,42 +3675,35 @@ function makeWorldDecor(){
   // приподнято на 2 мм относительно главной брусчатки, чтобы исключить Z-fighting.
   addRoadGranite(67,3,-13.95,-5.115,.45,.565,.428,.535,()=>.1495,'z');
   // Тёмный контур и каменные бордюры подчёркивают геометрию всех основных дорожек.
-  const roadEdgeMat=mat(0x20282b,.94);
+  // Единый матовый материал окантовки без dithering: чёткий тёмный край без зернистого размытия.
+  const roadEdgeMat=new THREE.MeshStandardMaterial({color:0x171d20,roughness:1,metalness:0,dithering:false});
   const roadEdgeTop=mat(0x687174,.92);
   const roadEdgeInlay=mat(0xd9ddda,.94);
-  // Левый бордюр создаётся один раз; правый — его точная зеркальная копия без отличий в деталях.
+  // Боковые бордюры главной дороги имеют ту же высоту верхней грани, что и поперечная окантовка.
   const leftRoadBorder=new THREE.Group();
   leftRoadBorder.position.set(-1.965,0,4.24);
-  box(leftRoadBorder,.19,.13,28.07,0,.105,0,roadEdgeMat,false);
-  box(leftRoadBorder,.075,.035,28.0,.012,.184,0,roadEdgeTop,false);
-  box(leftRoadBorder,.025,.018,27.62,.105,.169,0,roadEdgeInlay,false);
-  // Одинаковые поперечные швы по всей длине бордюра.
+  box(leftRoadBorder,.19,.13,28.07,0,.15,0,roadEdgeMat,false);
+  box(leftRoadBorder,.075,.035,28.0,.012,.2325,0,roadEdgeTop,false);
+  box(leftRoadBorder,.025,.018,27.62,.105,.217,0,roadEdgeInlay,false);
   for(let i=0;i<15;i++){
     const z=-13.39+i*1.86;
-    box(leftRoadBorder,.195,.018,.025,0,.18,z,roadEdgeTop,false);
+    box(leftRoadBorder,.195,.018,.025,0,.228,z,roadEdgeTop,false);
   }
   world.add(leftRoadBorder);
   const rightRoadBorder=leftRoadBorder.clone();
   rightRoadBorder.position.x=1.965;
   rightRoadBorder.scale.x=-1;
   world.add(rightRoadBorder);
-  // Окантовка горизонтальной дороги разделена в точках примыкания к главной дороге:
-  // линии доходят до её боковых кромок, но не проходят поперёк проезжей части.
-  const crossRoadEdgeSegments=[[-14.0,-2.065],[2.065,16.5]];
-  for(const side of [-1,1]){
-    const z=-4.55+side*.88;
+  // Края поперечной брусчатки рассчитаны по крайним вершинам плиток.
+  // Полосы стоят снаружи мощения, поэтому кирпичи их не перекрывают.
+  // Два плеча с каждой стороны заканчиваются точно у внешних граней бордюров главной дороги.
+  const crossRoadEdgeSegments=[[-14.0,-2.06],[2.06,16.5]];
+  const crossRoadEdgeZ=[-5.46,-3.36];
+  for(const z of crossRoadEdgeZ){
     for(const [x0,x1] of crossRoadEdgeSegments){
       const length=x1-x0,center=(x0+x1)*.5;
-      // Цельное основание каждого плеча дороги.
-      box(world,length,.12,.24,center,.215,z,roadEdgeMat,false);
-      box(world,length-.04,.045,.12,center,.292,z-side*.012,roadEdgeTop,false);
-      box(world,length-.22,.022,.038,center,.286,z-side*.105,roadEdgeInlay,false);
-      // Швы равномерно распределены отдельно на каждом плече и не попадают в перекрёсток.
-      const seams=Math.max(2,Math.floor(length/1.81));
-      for(let i=1;i<seams;i++){
-        const x=x0+length*i/seams;
-        box(world,.028,.022,.205,x,.267,z,roadEdgeTop,false);
-      }
+      // Одна цельная коробчатая полоса на плечо: без коротких накладок и стыковочных щелей.
+      box(world,length,.13,.14,center,.15,z,roadEdgeMat,false);
     }
   }
   // Каменный арочный мост продолжает главную дорогу по той же оси и без ступеньки.
