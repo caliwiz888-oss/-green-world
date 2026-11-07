@@ -4180,26 +4180,47 @@ function makeHouse(){
   // Тонкое профилированное каменное кольцо у основания синего купола — как в эталоне.
   cylinder(t,1.105,1.105,.075,0,5.29,0,stone,n);
   cylinder(t,1.125,1.125,.025,0,5.34,0,cream,n);
-  cone(t,1.08,2.48,0,6.58,0,slate,64);
-  // Тонкие вертикальные швы делят синюю коническую кровлю на аккуратные сланцевые полосы.
+  // Коническая кровля башни сохранена по форме, но теперь выполнена
+  // из той же патинированной зелёной меди и с той же панельной отделкой, что и крыша дома.
+  const towerRoofY=5.34,towerRoofH=2.48,towerRoofR=1.08;
+  const towerRoofPoint=(y,a,offset=0)=>{
+   const r=towerRoofR*(1-(y-towerRoofY)/towerRoofH)+offset;
+   return new THREE.Vector3(Math.sin(a)*r,y,Math.cos(a)*r);
+  };
   for(let j=0;j<16;j++){
-   const a=j*Math.PI*2/16,points=[];
-   for(let k=0;k<=24;k++){
-    const y=5.36+k*(2.40/24),r=1.08*(1-(y-5.34)/2.48)+.009;
-    points.push(new THREE.Vector3(Math.sin(a)*r,y,Math.cos(a)*r));
+   const a0=j*Math.PI*2/16+.008,a1=(j+1)*Math.PI*2/16-.008;
+   for(let row=0;row<10;row++){
+    const y0=towerRoofY+towerRoofH*row/10+.006;
+    const y1=towerRoofY+towerRoofH*(row+1)/10-.006;
+    const p=[towerRoofPoint(y0,a0,.012),towerRoofPoint(y1,a0,.012),
+             towerRoofPoint(y1,a1,.012),towerRoofPoint(y0,a1,.012)];
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.Float32BufferAttribute(p.flatMap(v=>[v.x,v.y,v.z]),3));
+    geo.setIndex([0,1,2,0,2,3]);geo.computeVertexNormals();
+    const panel=new THREE.Mesh(geo,copperMats[(j+row)%copperMats.length]);
+    panel.castShadow=true;panel.receiveShadow=true;t.add(panel);
    }
-   const seam=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),32,.009,6,false),slateDark);
+   const seamPoints=[];
+   for(let k=0;k<=28;k++){
+    const y=towerRoofY+towerRoofH*k/28;
+    seamPoints.push(towerRoofPoint(y,(a0+a1)/2,.035));
+   }
+   const seam=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(seamPoints),36,.014,7,false),copperBright);
    seam.castShadow=false;seam.receiveShadow=false;t.add(seam);
   }
-  // Тонкие горизонтальные пояса черепицы на конической кровле.
-  for(const [yy,rr] of [[5.72,.91],[6.12,.74],[6.52,.56],[6.92,.39],[7.32,.21]]){
-   cylinder(t,rr,rr,.035,0,yy,0,slateDark,64);
-   cylinder(t,rr+.018,rr+.018,.018,0,yy+.025,0,gold,64);
+  // Небольшие поперечные фальцы повторяют металлические панели основной крыши.
+  for(let row=1;row<10;row++){
+   const y=towerRoofY+towerRoofH*row/10;
+   for(let j=0;j<16;j++){
+    const a0=j*Math.PI*2/16+.012,a1=(j+1)*Math.PI*2/16-.012;
+    const edge=new THREE.Mesh(new THREE.TubeGeometry(
+     new THREE.LineCurve3(towerRoofPoint(y,a0,.025),towerRoofPoint(y,a1,.025)),8,.009,5,false),copperDark);
+    edge.castShadow=false;edge.receiveShadow=false;t.add(edge);
+   }
   }
-  cylinder(t,.075,.075,.22,0,7.85,0,gold,16);
-  sphere(t,.11,0,8.01,0,gold,.9);
-  cone(t,.06,.22,0,8.18,0,gold,16);
-  // Золотые линии на конических крышах башен удалены по просьбе пользователя.
+  cylinder(t,.075,.075,.22,0,7.85,0,goldRoof,16);
+  sphere(t,.11,0,8.01,0,goldRoof,.9);
+  cone(t,.06,.22,0,8.18,0,goldRoof,16);
  }
   // Фасадные цветочные ящики под окнами удалены по просьбе пользователя.
   // Каменная отделка боковых стен: угловые русты и непрерывные пояса
