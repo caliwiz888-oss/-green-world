@@ -3612,6 +3612,11 @@ function makeWorldDecor(){
     // Массивные простенки между пролётами формируют цельный каменный мост.
     for(let support=0;support<=3;support++){
       const t=support/3,z=bridgeStart+t*bridgeLength,y=bridgeProfile(t);
+      // Ступенчатое основание распределяет массу опоры и подчёркивает её опирание на реку.
+      const footing=box(world,.68,.16,.68,side*1.91,y-.76,z,bridgeStoneShade,false);
+      footing.rotation.x=-Math.atan(bridgeSlope(t));
+      const footingCap=box(world,.60,.09,.60,side*1.91,y-.635,z,pierMat,false);
+      footingCap.rotation.x=-Math.atan(bridgeSlope(t));
       const pier=box(world,.48,.72,.48,side*1.91,y-.43,z,pierMat,false);
       pier.rotation.x=-Math.atan(bridgeSlope(t));
       const pierCap=box(world,.56,.13,.58,side*1.91,y-.055,z,bridgeStoneLight,false);
