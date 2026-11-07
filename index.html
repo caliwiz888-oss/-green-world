@@ -3853,22 +3853,25 @@ function makeHouse(){
  box(g,1.12,.055,.035,0,2.42,2.81,gold,false);
  box(g,.045,.78,.035,0,1.28,2.82,bronze,false);
  for(const x of [-.18,.18])sphere(g,.055,x,1.58,2.84,gold,.9);
- // Терракотовый входной козырёк с небольшим двускатным силуэтом,
- // золотой окантовкой, каменными кронштейнами и декоративным фронтоном.
+ // Терракотовый козырёк над входом с мягким выпуклым профилем,
+ // как на эталонном фасаде, с тонкой золотой кромкой.
  const canopyShape=new THREE.Shape();
- canopyShape.moveTo(-1.02,0);canopyShape.lineTo(0,.34);canopyShape.lineTo(1.02,0);canopyShape.lineTo(1.02,-.10);canopyShape.lineTo(-1.02,-.10);canopyShape.closePath();
- const canopyMesh=new THREE.Mesh(new THREE.ExtrudeGeometry(canopyShape,{depth:.72,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.035,bevelThickness:.025}),terra);
- canopyMesh.position.set(0,2.78,2.48);canopyMesh.castShadow=false;canopyMesh.receiveShadow=false;g.add(canopyMesh);
- box(g,2.08,.075,.82,0,2.80,2.78,gold);
- box(g,1.92,.055,.78,0,2.70,2.79,cream);
- box(g,2.12,.07,.82,0,2.68,2.79,terra);
- // Золотая накладка и медальон на центральном ребре козырька.
- box(g,.06,.36,.055,0,2.95,3.20,gold,false);
- sphere(g,.10,0,3.05,3.22,gold,.9);
+ canopyShape.moveTo(-1.02,-.08);
+ canopyShape.lineTo(-1.02,.04);
+ canopyShape.quadraticCurveTo(-.58,.43,0,.47);
+ canopyShape.quadraticCurveTo(.58,.43,1.02,.04);
+ canopyShape.lineTo(1.02,-.08);
+ canopyShape.closePath();
+ const canopyMesh=new THREE.Mesh(new THREE.ExtrudeGeometry(canopyShape,{depth:.72,bevelEnabled:true,bevelSegments:4,steps:1,bevelSize:.035,bevelThickness:.025}),terra);
+ canopyMesh.position.set(0,2.75,2.48);canopyMesh.castShadow=false;canopyMesh.receiveShadow=false;g.add(canopyMesh);
+ box(g,2.10,.07,.82,0,2.72,2.78,gold);
+ box(g,1.94,.055,.78,0,2.65,2.79,cream);
+ // Золотой медальон на вершине козырька и симметричные каменные кронштейны.
+ sphere(g,.10,0,3.18,3.22,gold,.9);
  for(const x of [-.78,.78]){
-  const bracket=box(g,.14,.42,.18,x,2.55,2.72,cream,false);
+  const bracket=box(g,.14,.42,.18,x,2.53,2.72,cream,false);
   bracket.rotation.z=x<0?-.18:.18;
-  box(g,.18,.10,.20,x,2.78,2.75,gold,false);
+  box(g,.18,.10,.20,x,2.76,2.75,gold,false);
  }
  // Парадная лестница с широкими каменными ступенями.
  for(let i=0;i<5;i++){
@@ -3952,13 +3955,7 @@ function makeHouse(){
  }
  box(g,.16,.16,5.52,0,6.27,-.07,slateDark);
  box(g,.07,.06,5.54,0,6.38,-.07,gold);
- // Небольшие декоративные слуховые окна с каменными рамами на переднем скате.
- for(const x of [-1.18,1.18]){
-  box(g,.56,.48,.14,x,5.12,2.20,bronze);
-  box(g,.42,.34,.06,x,5.12,2.29,teal);
-  const cap=cone(g,.36,.30,x,5.48,2.28,slate,4);cap.rotation.y=Math.PI/4;
-  box(g,.62,.06,.16,x,4.87,2.27,gold);
- }
+ // Передний скат оставлен чистым и цельным, как на утверждённом эталоне.
  // Две башни по утверждённому эталону: выразительное каменное основание,
  // двухъярусный цилиндрический корпус, балконы с балюстрадами и высокая синяя кровля.
  for(const x of [-2.92,2.92]){
@@ -4091,6 +4088,21 @@ function makeHouse(){
   box(g,.48,.90,.48,x,5.52,-1.62,cream);
   box(g,.58,.12,.58,x,6.02,-1.62,stone);
   box(g,.42,.06,.42,x,6.11,-1.62,slateDark);
+ }
+ // Дополнительные золотые акценты на фасадном фризе и вокруг окон:
+ // небольшие замковые камни подчёркивают арочные завершения, не меняя размеры окон.
+ for(const x of [-2.05,2.05]){
+  sphere(g,.075,x,3.12,2.76,gold,.86);
+  box(g,.56,.045,.22,x,3.18,2.70,cream,false);
+  box(g,.48,.035,.24,x,3.24,2.72,gold,false);
+  // Вертикальные золотые деления стекла и нижняя перемычка.
+  box(g,.025,.70,.025,x-.12,2.57,2.68,gold,false);
+  box(g,.025,.70,.025,x+.12,2.57,2.68,gold,false);
+ }
+ // Каменные угловые накладки у основания башен связывают их с главным корпусом.
+ for(const x of [-2.92,2.92]){
+  box(g,.34,.18,.28,x,.62,2.48,cream,false);
+  box(g,.38,.07,.30,x,.72,2.50,gold,false);
  }
  // Парные декоративные фонари по сторонам парадной лестницы.
  for(const x of [-1.42,1.42]){
