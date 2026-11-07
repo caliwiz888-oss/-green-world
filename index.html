@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261107-091200';
+const GREEN_WORLD_BUILD_ID = '20261107-091300';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -858,7 +858,7 @@ function makeHouse(){
  // Светлый благородный серо-голубой оттенок кровли для контраста с тёплым фасадом.
   manorRoofMaterial.color.setHex(0x718b9a);
  manorRoofMaterial.roughness=.82;manorRoofMaterial.metalness=.035;
- manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.011;manorRoofMaterial.roughness=.82;manorRoofMaterial.metalness=.035;manorRoofMaterial.needsUpdate=true;
+ manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.013;manorRoofMaterial.roughness=.87;manorRoofMaterial.metalness=.02;manorRoofMaterial.needsUpdate=true;
  // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
  const roofL=box(g,3.95,.34,8.9,-1.93,5.72,0,manorRoofMaterial);roofL.rotation.z=.58;
  const roofR=box(g,3.95,.34,8.9,1.43,5.72,0,manorRoofMaterial);roofR.rotation.z=-.58;
