@@ -3620,8 +3620,9 @@ function makeWorldDecor(){
   }
   // Невысокие каменные парапеты повторяют профиль настила, сохраняя открытый вид на реку.
   // Круглые арочные перила: ровно три больших полукруглых секции на каждой стороне.
-  const railMat=new THREE.MeshStandardMaterial({color:0x96866d,roughness:.97,metalness:0});
-  const railCapMat=new THREE.MeshStandardMaterial({color:0xc5b493,roughness:.95,metalness:0});
+  // Более тёмный графитово-коричневый камень отделяет перила от светлого дорожного настила.
+  const railMat=new THREE.MeshStandardMaterial({color:0x514b43,roughness:.98,metalness:0});
+  const railCapMat=new THREE.MeshStandardMaterial({color:0x62594e,roughness:.97,metalness:0});
   for(const side of [-1,1]){
     // Непрерывный низкий каменный бортик повторяет продольный профиль моста.
     for(let row=0;row<20;row++){
