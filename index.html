@@ -1221,169 +1221,45 @@ function makeHouse(){
  const towerRoofLine=new THREE.MeshStandardMaterial({color:0x43545d,roughness:.88,metalness:.02});
  const towerMetal=new THREE.MeshStandardMaterial({color:0xd7a83e,roughness:.42,metalness:.58});
  const towerWindow=mat(0x28b6c0,.28);
- // Две башни остаются на прежних углах главного дома.
+ // Новые круглые башни по утверждённому эталону: гладкий цилиндр, коническая сланцевая крыша и золотое навершие.
  for(const x of [-4.35,4.35]){
-   const t=group(g,x,0,3.25);
-   // Восьмигранный ствол визуально легче прежней массивной квадратной башни.
-   cylinder(t,1.22,1.22,5.55,0,2.82,0,towerStoneMaterial,8);
-   cylinder(t,1.29,1.29,.18,0,.16,0,towerTrimMaterial,8);
-   cylinder(t,1.25,1.25,.10,0,.31,0,towerStoneMaterial,8);
-   cylinder(t,1.38,1.38,.16,0,.48,0,towerTrimMaterial,8);
-   cylinder(t,1.31,1.31,.075,0,.60,0,towerMetal,8);
-   cylinder(t,1.27,1.27,.12,0,.72,0,towerStoneMaterial,8);
-   // Восемь гранёных каменных выступов подчёркивают основание восьмигранной башни.
-   for(let a=0;a<8;a++){
-     const ang=Math.PI/8+a*Math.PI/4;
-     const boss=box(t,.24,.32,.16,Math.cos(ang)*1.22,.52,Math.sin(ang)*1.22,towerTrimMaterial,false);
-     boss.rotation.y=-ang;
-     sphere(t,.035,Math.cos(ang)*1.31,.54,Math.sin(ang)*1.31,towerMetal,.8);
-   }
-   for(const y of [1.02,5.55])cylinder(t,1.25,1.25,.075,0,y,0,towerTrimMaterial,8);
-   cylinder(t,1.34,1.34,.2,0,5.68,0,towerTrimMaterial,8);
-   // Два тонких каменных пояса делят высокий ствол на аккуратные ярусы.
-   for(const y of [1.42,4.92]){
-     cylinder(t,1.245,1.245,.065,0,y,0,towerTrimMaterial,8);
-     cylinder(t,1.258,1.258,.022,0,y-.052,0,towerRoofLine,8);
-   }
-   // Небольшие угловые камни повторяют восьмигранный ритм кладки на двух уровнях.
-   for(const y of [1.78,4.58]){
-     for(let a=0;a<8;a++){
-       const ang=Math.PI/8+a*Math.PI/4;
-       const quoin=box(t,.19,.24,.12,Math.cos(ang)*1.205,y,Math.sin(ang)*1.205,towerTrimMaterial,false);
-       quoin.rotation.y=-ang;
-     }
-   }
-   // Тонкие швы на гранях подчёркивают блочную каменную кладку башен.
-   const towerMortar=mat(0xaaa69d,.97);
-   for(let a=0;a<8;a++){
-     const ang=Math.PI/8+a*Math.PI/4;
-     const radius=1.226;
-     for(const y of [2.18,3.12,4.06]){
-       const seam=box(t,.72,.012,.018,Math.cos(ang)*radius,y,Math.sin(ang)*radius,towerMortar,false);
-       seam.rotation.y=-ang;
-     }
-   }
-   // Короткие вертикальные растворные швы создают перевязку каменных блоков.
-   // Они размещены в простенках между поясами и не проходят по оконным проёмам.
-   for(let a=0;a<8;a++){
-     const ang=Math.PI/8+a*Math.PI/4;
-     const radius=1.228;
-     const offset=a%2===0?-.22:.22;
-     for(const y of [1.96,4.43]){
-       const seam=box(t,.012,.34,.02,
-         Math.cos(ang)*radius+Math.cos(ang)*offset,
-         y,
-         Math.sin(ang)*radius+Math.sin(ang)*offset,
-         towerMortar,false);
-       seam.rotation.y=-ang;
-     }
-   }
-   // На диагональных гранях добавлены короткие смещённые швы,
-   // чтобы кладка читалась как отдельные каменные блоки, а не гладкий цилиндр.
-   for(let a=0;a<8;a++){
-     if(a%2===0) continue;
-     const ang=Math.PI/8+a*Math.PI/4;
-     const radius=1.229;
-     const offset=a%4===1?-.27:.27;
-     for(const y of [2.72,3.78]){
-       const seam=box(t,.012,.24,.018,
-         Math.cos(ang)*radius-Math.sin(ang)*offset,
-         y,
-         Math.sin(ang)*radius+Math.cos(ang)*offset,
-         towerMortar,false);
-       seam.rotation.y=-ang;
-     }
-   }
-   // Небольшие светлые фаски на гранях смягчают переход от ствола к верхнему карнизу.
-   for(let a=0;a<8;a++){
-     const ang=Math.PI/8+a*Math.PI/4;
-     const radius=1.345;
-     const edge=box(t,.34,.035,.035,Math.cos(ang)*radius,5.72,Math.sin(ang)*radius,towerTrimMaterial,false);
-     edge.rotation.y=-ang;
-   }
-   cylinder(t,1.28,1.28,.055,0,5.81,0,towerRoofLine,8);
-   // Высокие окна с тёмным стеклом, светлым обрамлением и мягкой арочной верхушкой.
+   const t=group(g,x,0,3.25),roundSegments=32;
+   cylinder(t,1.22,1.22,5.55,0,2.82,0,towerStoneMaterial,roundSegments);
+   cylinder(t,1.29,1.29,.18,0,.16,0,towerTrimMaterial,roundSegments);
+   cylinder(t,1.25,1.25,.10,0,.31,0,towerStoneMaterial,roundSegments);
+   cylinder(t,1.38,1.38,.16,0,.48,0,towerTrimMaterial,roundSegments);
+   cylinder(t,1.31,1.31,.075,0,.60,0,towerMetal,roundSegments);
+   cylinder(t,1.27,1.27,.12,0,.72,0,towerStoneMaterial,roundSegments);
+   for(const y of [1.02,1.42,4.92,5.55])cylinder(t,1.245,1.245,.065,0,y,0,towerTrimMaterial,roundSegments);
+   cylinder(t,1.34,1.34,.20,0,5.68,0,towerTrimMaterial,roundSegments);
+   // Четыре одинаковых арочных окна по сторонам круглого ствола.
    for(const axis of ["front","back","left","right"]){
-     const front=axis==="front"||axis==="back";
-     const sign=(axis==="back"||axis==="left")?-1:1;
-     const face=front?sign*1.205:sign*1.205;
+     const front=axis==="front"||axis==="back",sign=(axis==="back"||axis==="left")?-1:1,face=sign*1.205;
      if(front){
-       box(t,.62,1.42,.045,0,3.22,face,towerWindow,false);
-       sphere(t,.31,0,3.92,face,towerWindow,.82);
+       box(t,.62,1.42,.045,0,3.22,face,towerWindow,false);sphere(t,.31,0,3.92,face,towerWindow,.82);
        for(const sx of [-.37,.37])box(t,.075,1.62,.12,sx,3.2,face+sign*.025,towerTrimMaterial,false);
-       box(t,.84,.12,.14,0,4.08,face+sign*.025,towerTrimMaterial,false);
-       box(t,.82,.10,.15,0,2.42,face+sign*.025,towerTrimMaterial,false);
-       box(t,.035,1.28,.035,0,3.23,face+sign*.065,towerMetal,false);
-       box(t,.58,.035,.035,0,3.18,face+sign*.065,towerMetal,false);
-       // Каменный импост делит верхнюю часть окна на аккуратные световые секции.
-       box(t,.64,.055,.11,0,3.70,face+sign*.075,towerTrimMaterial,false);
-       box(t,.035,.035,.035,0,3.70,face+sign*.14,towerMetal,false);
+       box(t,.84,.12,.14,0,4.08,face+sign*.025,towerTrimMaterial,false);box(t,.82,.10,.15,0,2.42,face+sign*.025,towerTrimMaterial,false);
+       box(t,.035,1.28,.035,0,3.23,face+sign*.065,towerMetal,false);box(t,.58,.035,.035,0,3.18,face+sign*.065,towerMetal,false);
+       box(t,.64,.055,.11,0,3.70,face+sign*.075,towerTrimMaterial,false);box(t,.035,.035,.035,0,3.70,face+sign*.14,towerMetal,false);
+       box(t,.12,1.38,.16,-.48,3.22,face+sign*.055,towerTrimMaterial,false);box(t,.12,1.38,.16,.48,3.22,face+sign*.055,towerTrimMaterial,false);
+       box(t,.78,.13,.18,0,4.16,face+sign*.06,towerTrimMaterial,false);box(t,.2,.22,.19,0,4.22,face+sign*.08,towerStoneMaterial,false);
+       box(t,.76,.12,.18,0,2.30,face+sign*.06,towerTrimMaterial,false);box(t,.68,.035,.19,0,2.22,face+sign*.08,towerMetal,false);
      }else{
-       box(t,.045,1.42,.62,face,3.22,0,towerWindow,false);
-       sphere(t,.31,face,3.92,0,towerWindow,.82);
+       box(t,.045,1.42,.62,face,3.22,0,towerWindow,false);sphere(t,.31,face,3.92,0,towerWindow,.82);
        for(const sz of [-.37,.37])box(t,.12,1.62,.075,face+sign*.025,3.2,sz,towerTrimMaterial,false);
-       box(t,.14,.12,.84,face+sign*.025,4.08,0,towerTrimMaterial,false);
-       box(t,.15,.10,.82,face+sign*.025,2.42,0,towerTrimMaterial,false);
-       box(t,.035,1.28,.035,face+sign*.065,3.23,0,towerMetal,false);
-       box(t,.035,.035,.58,face+sign*.065,3.18,0,towerMetal,false);
-       // Такой же каменный импост повторён на боковых гранях башни.
-       box(t,.11,.055,.64,face+sign*.075,3.70,0,towerTrimMaterial,false);
-       box(t,.035,.035,.035,face+sign*.14,3.70,0,towerMetal,false);
+       box(t,.14,.12,.84,face+sign*.025,4.08,0,towerTrimMaterial,false);box(t,.15,.10,.82,face+sign*.025,2.42,0,towerTrimMaterial,false);
+       box(t,.035,1.28,.035,face+sign*.065,3.23,0,towerMetal,false);box(t,.035,.035,.58,face+sign*.065,3.18,0,towerMetal,false);
+       box(t,.11,.055,.64,face+sign*.075,3.70,0,towerTrimMaterial,false);box(t,.035,.035,.035,face+sign*.14,3.70,0,towerMetal,false);
+       box(t,.16,1.38,.12,face+sign*.055,3.22,-.48,towerTrimMaterial,false);box(t,.16,1.38,.12,face+sign*.055,3.22,.48,towerTrimMaterial,false);
+       box(t,.18,.13,.78,face+sign*.06,4.16,0,towerTrimMaterial,false);box(t,.19,.22,.2,face+sign*.08,4.22,0,towerStoneMaterial,false);
+       box(t,.18,.12,.76,face+sign*.06,2.30,0,towerTrimMaterial,false);box(t,.19,.035,.68,face+sign*.08,2.22,0,towerMetal,false);
      }
    }
-     // Резные каменные наличники и замковый камень подчёркивают арочную форму окон.
-     for(const axis of ["front","back","left","right"]){
-       const front=axis==="front"||axis==="back";
-       const sign=(axis==="back"||axis==="left")?-1:1;
-       const face=sign*1.205;
-       if(front){
-       box(t,.12,1.38,.16,-.48,3.22,face+sign*.055,towerTrimMaterial,false);
-       box(t,.12,1.38,.16,.48,3.22,face+sign*.055,towerTrimMaterial,false);
-       box(t,.78,.13,.18,0,4.16,face+sign*.06,towerTrimMaterial,false);
-       box(t,.2,.22,.19,0,4.22,face+sign*.08,towerStoneMaterial,false);
-       box(t,.76,.12,.18,0,2.30,face+sign*.06,towerTrimMaterial,false);
-       box(t,.68,.035,.19,0,2.22,face+sign*.08,towerMetal,false);
-       for(const sx of [-.48,.48]){
-         box(t,.2,.12,.18,sx,2.42,face+sign*.06,towerTrimMaterial,false);
-         sphere(t,.035,sx,2.34,face+sign*.1,towerMetal,.8);
-       }
-     }else{
-       box(t,.16,1.38,.12,face+sign*.055,3.22,-.48,towerTrimMaterial,false);
-       box(t,.16,1.38,.12,face+sign*.055,3.22,.48,towerTrimMaterial,false);
-       box(t,.18,.13,.78,face+sign*.06,4.16,0,towerTrimMaterial,false);
-       box(t,.19,.22,.2,face+sign*.08,4.22,0,towerStoneMaterial,false);
-       box(t,.18,.12,.76,face+sign*.06,2.30,0,towerTrimMaterial,false);
-       box(t,.19,.035,.68,face+sign*.08,2.22,0,towerMetal,false);
-       for(const sz of [-.48,.48]){
-         box(t,.18,.12,.2,face+sign*.06,2.42,sz,towerTrimMaterial,false);
-         sphere(t,.1,face+sign*.1,2.34,sz,towerMetal,.8);
-       }
-     }
-   }
-   // Каменные консоли под восьмигранным карнизом создают выразительный переход от стен к кровле.
-   for(let a=0;a<8;a++){
-     const ang=Math.PI/8+a*Math.PI/4;
-     const radius=1.34;
-     const corbel=box(t,.28,.19,.2,Math.cos(ang)*radius,5.79,Math.sin(ang)*radius,towerTrimMaterial,false);
-     corbel.rotation.y=-ang;
-     corbel.castShadow=false;corbel.receiveShadow=false;
-     const inset=box(t,.13,.075,.205,Math.cos(ang)*(radius-.015),5.665,Math.sin(ang)*(radius-.015),towerStoneMaterial,false);
-     inset.rotation.y=-ang;
-     inset.castShadow=false;inset.receiveShadow=false;
-   }
-   // Чистый восьмигранный сланцевый шатёр: один спокойный карниз и гладкие скаты без накладок.
-   cylinder(t,1.48,1.48,.18,0,5.94,0,towerTrimMaterial,8);
-   cone(t,1.38,2.48,0,7.32,0,towerRoofMaterial,8);
-   towerRoofMaterial.map=null;
-   towerRoofMaterial.bumpMap=null;
-   towerRoofMaterial.bumpScale=0;
-   towerRoofMaterial.color.setHex(0x263f5d);
-   towerRoofMaterial.roughness=.9;
-   towerRoofMaterial.metalness=.015;
-   towerRoofMaterial.needsUpdate=true;
-   // Простое аккуратное навершие без дополнительных колец и фасеточных накладок.
-   cylinder(t,.075,.075,.32,0,8.72,0,towerMetal,8);
-   cone(t,.075,.22,0,8.99,0,towerMetal,8);
+   cylinder(t,1.42,1.42,.18,0,5.88,0,towerTrimMaterial,roundSegments);
+   cone(t,1.38,2.48,0,7.20,0,towerRoofMaterial,roundSegments);
+   towerRoofMaterial.map=null;towerRoofMaterial.bumpMap=null;towerRoofMaterial.bumpScale=0;
+   towerRoofMaterial.color.setHex(0x263f5d);towerRoofMaterial.roughness=.9;towerRoofMaterial.metalness=.015;towerRoofMaterial.needsUpdate=true;
+   cylinder(t,.075,.075,.32,0,8.56,0,towerMetal,16);sphere(t,.105,0,8.76,0,towerMetal,.72);cone(t,.075,.22,0,8.94,0,towerMetal,12);
  }
  // Entry terrace and three broad stone steps.
  box(g,3.5,.3,1.65,0,.18,5,houseStoneTrim);
@@ -1466,14 +1342,7 @@ function makeHouse(){
    }
  }
  // Повторные боковые накладки фронтонных окон удалены, чтобы исключить z-fighting.
-  // Небольшие латунные накладки подчёркивают углы каменного карниза башен.
- for(const x of [-4.35,4.35]){
-   for(const z of [2.13,4.37]){
-     box(g,.28,.09,.09,x,5.92,z,M.gold,false);
-     sphere(g,.035,x,5.98,z,M.gold,.8);
-   }
- }
- // Fine masonry joints on the manor facade add scale without visual clutter.
+  // Fine masonry joints on the manor facade add scale without visual clutter.
  for(const y of [1.02,1.52,3.98]){
    for(const x of [-4.05,-2.15,2.15,4.05]){
      box(g,.72,.035,.045,x,y,4.145,houseStoneTrim,false);
@@ -1618,29 +1487,8 @@ function makeHouse(){
  }
  // Два выступающих замковых элемента над верхними окнами удалены по отметке пользователя.
  // Сами окна, переплёты и основные каменные рамы сохранены.
- // Tower window surrounds and stepped cornices make both corner towers read clearly.
- for(const x of [-4.35,4.35]){
-   box(g,.92,.16,.24,x,4.12,4.46,houseStoneTrim);
-   box(g,.92,.16,.24,x,2.58,4.46,houseStoneTrim);
-   for(const dx of [-.48,.48]){
-     box(g,.12,1.55,.2,x+dx,3.35,4.46,houseStoneTrim);
-   }
-   box(g,2.42,.14,2.42,x,5.78,3.25,houseStoneTrim);
-   box(g,2.12,.1,2.12,x,5.9,3.25,M.gold,false);
- }
  // Удалён старый смещённый коньковый профиль x=-0.25 и его золотые накладки.
  // Новый конёк и парные навершия выше используют общую ось x=0.
- // Tower corner stones, cornices and narrow upper lights.
- for(const x of [-4.35,4.35]){
-   for(const z of [2.16,4.34]){
-     for(const y of [1.0,2.0,3.0,4.0,5.0]){
-       box(g,.24,.28,.24,x+(x<0?-.96:.96),y,z,houseStoneTrim);
-     }
-   }
-   box(g,2.28,.16,2.28,x,5.94,3.25,M.gold);
-   box(g,.78,1.32,.14,x,4.55,4.46,manorGlass);
-   box(g,.96,.14,.2,x,5.24,4.46,houseStoneTrim);
- }
  // Rear elevation: matching framed windows and stone beltwork complete the manor from every view.
  for(const x of [-3.25,0,3.25]){
    box(g,1.22,1.42,.18,x,2.72,-4.14,M.wood);
@@ -1656,12 +1504,6 @@ function makeHouse(){
    box(g,.38,.18,.36,x,4.2,-4.13,M.gold);
  }
  box(g,9.7,.12,.2,0,.62,-4.14,houseStoneTrim);
- // Subtle tower masonry bands and small inset upper lights sharpen the silhouette.
- for(const x of [-4.35,4.35]){
-   for(const y of [1.05,2.15,4.35,5.45])cylinder(g,1.27,1.27,.075,x,y,3.25,houseStoneTrim,8);
-   box(g,.48,.78,.1,x,4.85,4.46,manorGlass,false);
-   box(g,.58,.1,.12,x,5.27,4.46,houseStoneTrim,false);
- }
  // Side elevations: paired recessed windows echo the front facade and break up the broad stone walls.
  for(const side of [-1,1]){
    for(const z of [-1.35,1.35]){
