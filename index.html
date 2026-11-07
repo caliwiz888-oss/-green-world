@@ -3847,40 +3847,73 @@ function makeHouse(){
    glint.rotation.z=side===-1?.46:-.46;
   }
  }
- // Две круглые башни с каменными балконами, арочными окнами и коническими крышами.
+ // Две парадные круглые башни по эталону: ярусный каменный барабан, балконы, арочные окна и высокие синие конусы.
  for(const x of [-2.93,2.93]){
-  const t=group(g,x,0,1.72),n=48;
-  cylinder(t,.78,.78,4.70,0,2.68,0,ivory,n);
-  cylinder(t,.86,.86,.18,0,.38,0,stone,n);
-  cylinder(t,.83,.83,.13,0,.52,0,cream,n);
-  for(const y of [1.02,1.90,3.48,4.35,4.55])cylinder(t,.80,.80,.065,0,y,0,gold,n);
-  // Высокое арочное окно башни.
-  box(t,.52,1.20,.10,0,2.78,.79,bronze,false);
-  box(t,.39,1.05,.055,0,2.76,.86,teal,false);
-  box(t,.045,1.00,.035,0,2.76,.90,gold,false);
-  sphere(t,.19,0,3.37,.86,tealLight,.68);
-  box(t,.65,.12,.20,0,2.12,.82,cream);
-  // Круглый балкон с каменной плитой, балясинами и золотым поручнем.
-  cylinder(t,1.08,1.08,.19,0,4.04,0,stone,n);
-  cylinder(t,1.12,1.12,.10,0,4.17,0,cream,n);
-  for(let j=0;j<24;j++){
-   const a=j*Math.PI/12,px=Math.sin(a)*1.02,pz=Math.cos(a)*1.02;
-   cylinder(t,.032,.032,.34,px,4.38,pz,cream,8);
-   sphere(t,.047,px,4.57,pz,gold,.82);
+  const t=group(g,x,0,1.72),n=64;
+  // Основной круглый каменный объём с выраженными этажными поясами.
+  cylinder(t,.79,.79,4.48,0,2.58,0,ivory,n);
+  cylinder(t,.86,.82,.22,0,.48,0,stone,n);
+  cylinder(t,.83,.83,.12,0,.64,0,cream,n);
+  cylinder(t,.82,.82,.10,0,1.02,0,stone,n);
+  cylinder(t,.84,.84,.12,0,1.12,0,cream,n);
+  cylinder(t,.82,.82,.10,0,2.02,0,stone,n);
+  cylinder(t,.85,.85,.12,0,2.12,0,cream,n);
+  cylinder(t,.82,.82,.10,0,3.10,0,stone,n);
+  cylinder(t,.86,.86,.14,0,3.22,0,cream,n);
+  // Узкие вертикальные каменные лопатки подчёркивают круглую форму башни.
+  for(let j=0;j<12;j++){
+   const a=j*Math.PI/6,px=Math.sin(a)*.755,pz=Math.cos(a)*.755;
+   box(t,.105,3.72,.105,px,2.55,pz,cream,false);
+   sphere(t,.075,px,.72,pz,gold,.72);
+   sphere(t,.075,px,4.38,pz,gold,.72);
   }
-  cylinder(t,1.10,1.10,.065,0,4.57,0,gold,n);
-  cylinder(t,.88,.88,.16,0,4.73,0,cream,n);
-  cylinder(t,.94,.94,.12,0,4.85,0,slateDark,n);
-  cone(t,1.02,2.30,0,6.04,0,slate,n);
-  cylinder(t,.055,.055,.27,0,7.22,0,gold,14);
-  sphere(t,.10,0,7.40,0,gold,.85);
-  cone(t,.055,.20,0,7.55,0,gold,12);
-  // Цветочные кашпо по передней дуге балкона.
-  for(let j=0;j<9;j++){
-   const a=-1.02+j*.255,px=Math.sin(a)*1.10,pz=Math.cos(a)*1.10;
-   box(t,.22,.11,.18,px,4.26,pz,stone,false);
-   sphere(t,.075,px,4.40,pz,green,.72);
-   sphere(t,.075,px,4.48,pz,j%3===0?lilac:(j%2?white:pink),.82);
+  // Два высоких арочных окна на лицевой стороне, с бирюзовым стеклом и бронзовым обрамлением.
+  for(const y of [1.88,3.05]){
+   box(t,.48,.92,.12,0,y,.785,bronze,false);
+   box(t,.36,.78,.055,0,y-.015,.86,teal,false);
+   box(t,.045,.73,.035,0,y-.015,.90,gold,false);
+   box(t,.30,.04,.035,0,y+.15,.90,gold,false);
+   sphere(t,.18,0,y+.40,.86,tealLight,.68);
+   box(t,.62,.10,.18,0,y-.51,.84,cream);
+   box(t,.66,.055,.20,0,y+.52,.84,gold);
+  }
+  // Выступающий круглый балкон с многослойной каменной плитой.
+  cylinder(t,1.02,1.02,.20,0,4.05,0,stone,n);
+  cylinder(t,1.10,1.10,.12,0,4.20,0,cream,n);
+  cylinder(t,1.12,1.12,.055,0,4.28,0,gold,n);
+  // Каменные балясины по окружности и непрерывный верхний поручень.
+  for(let j=0;j<32;j++){
+   const a=j*Math.PI/16,px=Math.sin(a)*1.045,pz=Math.cos(a)*1.045;
+   cylinder(t,.042,.052,.34,px,4.48,pz,cream,10);
+   sphere(t,.060,px,4.67,pz,gold,.72);
+  }
+  cylinder(t,1.12,1.12,.075,0,4.70,0,cream,n);
+  cylinder(t,1.15,1.15,.055,0,4.77,0,gold,n);
+  // Верхний аттик под крышей: ступенчатые круглые каменные карнизы.
+  cylinder(t,.91,.91,.16,0,4.91,0,stone,n);
+  cylinder(t,.96,.96,.12,0,5.04,0,cream,n);
+  cylinder(t,.99,.99,.10,0,5.14,0,gold,n);
+  cylinder(t,.92,.92,.14,0,5.25,0,slateDark,n);
+  // Высокая аккуратная коническая сланцевая кровля с широким свесом.
+  cone(t,1.02,2.36,0,6.43,0,slate,48);
+  cylinder(t,1.03,1.03,.10,0,5.28,0,slateDark,n);
+  cylinder(t,.075,.075,.22,0,7.63,0,gold,16);
+  sphere(t,.11,0,7.79,0,gold,.9);
+  cone(t,.065,.24,0,7.96,0,gold,16);
+  // Тонкие золотые рёбра на кровле повторяют её конический силуэт.
+  for(let j=0;j<8;j++){
+   const a=j*Math.PI/4,px=Math.sin(a)*.50,pz=Math.cos(a)*.50;
+   const rib=box(t,.035,1.58,.035,px,6.35,pz,gold,false);
+   rib.rotation.z=Math.sin(a)*.25;
+   rib.rotation.x=Math.cos(a)*.25;
+  }
+  // Цветочные кашпо встроены в переднюю дугу балкона, как на утверждённом изображении.
+  for(let j=0;j<11;j++){
+   const a=-1.18+j*.236,px=Math.sin(a)*1.12,pz=Math.cos(a)*1.12;
+   box(t,.22,.12,.20,px,4.32,pz,stone,false);
+   sphere(t,.078,px,4.46,pz,green,.78);
+   sphere(t,.078,px,4.55,pz,j%3===0?lilac:(j%2?white:pink),.82);
+   sphere(t,.055,px-.07,4.52,pz+.02,white,.78);
   }
  }
  // Малые мансардные окна и декоративные золотые фронтоны.
