@@ -4668,7 +4668,7 @@ function makeWorldLandscape(){
      // Горизонтальные уступы и осыпные террасы ломают гладкость склонов.
      const strata=(Math.sin(u*29+across*8)*.075+Math.sin(u*61-across*17)*.035);
      const ledge=Math.sin((1-cross)*23+u*5)*.055*peakSmooth(.18,.5,h/height);
-     h=Math.max(0,h+(strata+ledge)*peakSmooth(.08,.3,cross));
+     h=Math.max(0,(h+(strata+ledge)*peakSmooth(.08,.3,cross))*peakSmooth(.015,.24,1-Math.abs(u)));
      pos.setZ(i,h);
    }
    geometry.computeVertexNormals();
