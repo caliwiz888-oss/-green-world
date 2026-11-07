@@ -4629,7 +4629,7 @@ function makeWorldLandscape(){
  const peakSmooth=(a,b,v)=>{const t=THREE.MathUtils.clamp((v-a)/(b-a),0,1);return t*t*(3-2*t);};
  const makeJaggedAlpinePeak=(cfg)=>{
    const {name,x,z,width,depth,height,rotation,peaks,gullies,rockFaces,snowline}=cfg;
-   const nx=144,nz=112;
+   const nx=176,nz=136;
    const geometry=new THREE.PlaneGeometry(width*2,depth*2,nx,nz);
    const pos=geometry.attributes.position,uv=geometry.attributes.uv;
    const crestAt=(u)=>{
@@ -4644,18 +4644,18 @@ function makeWorldLandscape(){
    };
    for(let i=0;i<pos.count;i++){
      const u=uv.getX(i)*2-1,v=uv.getY(i)*2-1;
-     const ridgeLine=.08*Math.sin(u*4.2+.7)+.035*Math.sin(u*11.5)+.045*u;
+     const ridgeLine=.105*Math.sin(u*4.2+.7)+.052*Math.sin(u*11.5)+.035*Math.sin(u*23.0)+.045*u;
      const across=v-ridgeLine;
      const side=across>=0?1:0;
-     const sideWidth=side?.92:.74;
+     const sideWidth=side?.88:.78;
      const cross= Math.max(0,1-Math.abs(across)/sideWidth);
      // Поперечный профиль — крутой скальный склон, а не округлая полусфера.
-     let h=height*crestAt(u)*Math.pow(cross,side?.72:.58);
+     let h=height*crestAt(u)*Math.pow(cross,side?1.02:.88);
      // Отдельные контрфорсы образуют длинные рёбра от вершины вниз.
      for(const r of rockFaces){
        const line=r.x+r.drift*across;
        const ridge=Math.exp(-.5*Math.pow((u-line)/r.width,2));
-       h+=height*r.raise*ridge*peakSmooth(.12,.38,Math.abs(across))*
+       h+=height*r.raise*ridge*peakSmooth(.09,.32,Math.abs(across))*
          (1-peakSmooth(.78,.99,Math.abs(across)));
      }
      // Узкие ледниковые кулуары прорезают стену и разделяют скальные рёбра.
@@ -4666,8 +4666,8 @@ function makeWorldLandscape(){
        h-=height*g.cut*channel;
      }
      // Горизонтальные уступы и осыпные террасы ломают гладкость склонов.
-     const strata=(Math.sin(u*29+across*8)*.075+Math.sin(u*61-across*17)*.035);
-     const ledge=Math.sin((1-cross)*23+u*5)*.055*peakSmooth(.18,.5,h/height);
+     const strata=(Math.sin(u*29+across*8)*.095+Math.sin(u*61-across*17)*.052+Math.sin(u*103+across*37)*.018);
+     const ledge=Math.sin((1-cross)*23+u*5)*.075*peakSmooth(.18,.5,h/height);
      h=Math.max(0,(h+(strata+ledge)*peakSmooth(.08,.3,cross))*peakSmooth(.015,.24,1-Math.abs(u)));
      pos.setZ(i,h);
    }
@@ -4687,7 +4687,7 @@ function makeWorldLandscape(){
    geometry.setAttribute('color',new THREE.BufferAttribute(colors,3));
    const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({
      color:0xffffff,vertexColors:true,map:alpineRockTexture,bumpMap:alpineRockBump,
-     bumpScale:.1,roughness:.98,metalness:0,side:THREE.DoubleSide,flatShading:true
+     bumpScale:.135,roughness:.96,metalness:0,side:THREE.DoubleSide,flatShading:true
    }));
    mesh.name=name;mesh.rotation.x=-Math.PI/2;mesh.rotation.z=rotation;
    mesh.position.set(x,0,z);mesh.castShadow=false;mesh.receiveShadow=false;world.add(mesh);
