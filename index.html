@@ -3937,43 +3937,7 @@ function makeHouse(){
  roseGoldRing.rotation.x=Math.PI/2;
  const roseBronzeRing=cylinder(g,.45,.45,.035,0,5.39,2.56,bronze,64);
  roseBronzeRing.rotation.x=Math.PI/2;
- // Главная двускатная кровля: широкие сланцевые скаты, выступающие свесы и конёк.
- const roofMat=new THREE.MeshStandardMaterial({color:0x29445f,roughness:.78,metalness:.025,side:THREE.DoubleSide});
- function roofSide(side){
-  const ridgeF=[0,6.22,2.58],ridgeB=[0,6.22,-2.72];
-  const eaveF=[side*3.48,4.47,2.58],eaveB=[side*3.48,4.47,-2.72];
-  const geo=new THREE.BufferGeometry();
-  geo.setAttribute('position',new THREE.Float32BufferAttribute([...ridgeF,...eaveF,...ridgeB,...eaveF,...eaveB,...ridgeB],3));
-  geo.setIndex([0,1,2,3,4,5]);geo.computeVertexNormals();
-  const mesh=new THREE.Mesh(geo,roofMat);mesh.castShadow=false;mesh.receiveShadow=false;g.add(mesh);
- }
- roofSide(-1);roofSide(1);
- // Отдельные перекрывающиеся плитки сланцевой черепицы на обоих скатах.
- // Ряды уложены со смещением, а плитки повторяют наклон кровли.
- for(const side of [-1,1]){
-  const slope=side*.466;
-  for(let k=1;k<=7;k++){
-   const ax=k*.43,yy=6.22-(ax/3.48)*1.75;
-   for(let j=0;j<9;j++){
-    const z=-2.35+j*.57+(k%2)*.285;
-    const tile=box(g,.43,.045,.52,side*ax,yy+.018,z, j%3===0?slateDark:slate,false);
-    tile.rotation.z=slope;
-   }
-  }
-  // Непрерывный золотой профиль карниза вдоль нижнего края ската.
-  const edge=box(g,.12,.10,5.42,side*3.47,4.47,-.07,gold,false);
-  edge.rotation.z=slope;
- }
- for(const side of [-1,1]){
-  // Торцевая фасция проходит по полной длине ската основной кровли.
-  const fascia=box(g,4.00,.22,.36,side*1.74,5.34,2.61,slateDark);
-  fascia.rotation.z=side===-1?.466:-.466;
-  // Золотую линейную накладку торца ската убрали.
-  box(g,.18,.18,5.48,side*3.50,4.43,-.07,slateDark);
- }
- box(g,.16,.16,5.52,0,6.27,-.07,slateDark);
- box(g,.07,.06,5.54,0,6.38,-.07,gold);
- // Передний скат оставлен чистым и цельным, как на утверждённом эталоне.
+ // Центральная двускатная крыша удалена по просьбе пользователя.
  // Две башни по утверждённому эталону: выразительное каменное основание,
  // двухъярусный цилиндрический корпус, балконы с балюстрадами и высокая синяя кровля.
  for(const x of [-3.18,3.18]){
