@@ -3770,15 +3770,47 @@ function makeHouse(){
   box(g,.36,.12,.40,x,4.05,2.45,gold);
   box(g,.42,.13,.44,x,4.17,2.45,cream);
  }
+ // Точная фасадная отделка по эталону: симметричные каменные простенки,
+ // профилированные тяги, рустовка и золотые акценты на светлом известняке.
+ for(const x of [-2.72,-1.30,1.30,2.72]){
+  box(g,.13,3.02,.10,x,2.38,2.60,stone,false);
+  box(g,.075,2.84,.045,x,2.38,2.67,cream,false);
+  box(g,.28,.12,.18,x,.86,2.62,cream,false);
+  box(g,.30,.075,.20,x,3.91,2.62,gold,false);
+  box(g,.34,.11,.20,x,4.04,2.62,cream,false);
+ }
+ // Декоративные горизонтальные пояса с небольшими золотыми розетками.
+ for(const y of [1.02,2.72,3.98]){
+  box(g,5.78,.075,.18,0,y,2.62,cream,false);
+  box(g,5.82,.035,.20,0,y+.075,2.64,gold,false);
+  for(let x=-2.35;x<=2.36;x+=.47){
+   if(Math.abs(x)>1.02) sphere(g,.055,x,y+.13,2.70,gold,.82);
+  }
+ }
+ // Каменные базы и капители подчёркивают центральный портал, не перекрывая дверь.
+ for(const x of [-.94,.94]){
+  box(g,.20,1.86,.18,x,1.72,2.66,stone,false);
+  box(g,.27,.16,.24,x,.83,2.68,cream,false);
+  box(g,.30,.09,.25,x,2.62,2.68,gold,false);
+  box(g,.34,.12,.27,x,2.74,2.68,cream,false);
+  box(g,.24,.08,.22,x,1.10,2.70,gold,false);
+ }
  // Оконный проём с настоящей арочной верхушкой и отдельной бронзовой рамой.
  function archedWindow(x,y,w,h,z){
   const r=w/2,rectH=h-r;
+  // Светлый профилированный каменный наличник вокруг арочного окна.
+  const outerShape=new THREE.Shape();
+  outerShape.moveTo(-r-.105,-.07);outerShape.lineTo(-r-.105,rectH);
+  outerShape.absarc(0,rectH,r+.105,Math.PI,0,true);
+  outerShape.lineTo(r+.105,-.07);outerShape.closePath();
+  const outerFrame=new THREE.Mesh(new THREE.ExtrudeGeometry(outerShape,{depth:.075,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.025,bevelThickness:.02}),cream);
+  outerFrame.position.set(x,y,z-.035);outerFrame.castShadow=false;outerFrame.receiveShadow=false;g.add(outerFrame);
   const frameShape=new THREE.Shape();
   frameShape.moveTo(-r,0);frameShape.lineTo(-r,rectH);
   frameShape.absarc(0,rectH,r,Math.PI,0,true);
   frameShape.lineTo(r,0);frameShape.closePath();
-  const frame=new THREE.Mesh(new THREE.ExtrudeGeometry(frameShape,{depth:.09,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.025,bevelThickness:.02}),bronze);
-  frame.position.set(x,y,z);frame.castShadow=false;frame.receiveShadow=false;g.add(frame);
+  const frame=new THREE.Mesh(new THREE.ExtrudeGeometry(frameShape,{depth:.09,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.025,bevelThickness:.02}),bronze);
+  frame.position.set(x,y,z+.045);frame.castShadow=false;frame.receiveShadow=false;g.add(frame);
   const glassShape=new THREE.Shape();
   glassShape.moveTo(-r+.09,.08);glassShape.lineTo(-r+.09,rectH);
   glassShape.absarc(0,rectH,r-.09,Math.PI,0,true);
@@ -3803,8 +3835,18 @@ function makeHouse(){
  doorShape.moveTo(-.72,0);doorShape.lineTo(-.72,1.78);
  doorShape.absarc(0,1.78,.72,Math.PI,0,true);
  doorShape.lineTo(.72,0);doorShape.closePath();
- const portal=new THREE.Mesh(new THREE.ExtrudeGeometry(doorShape,{depth:.24,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.04,bevelThickness:.035}),stoneDark);
- portal.position.set(0,.72,2.48);portal.castShadow=false;portal.receiveShadow=false;g.add(portal);
+ // Многослойный светлый портал с профилями, как на утверждённом фасаде.
+ const portalOuter=new THREE.Mesh(new THREE.ExtrudeGeometry(doorShape,{depth:.12,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.055,bevelThickness:.035}),cream);
+ portalOuter.scale.set(1.16,1.10,1);
+ portalOuter.position.set(0,.66,2.43);portalOuter.castShadow=false;portalOuter.receiveShadow=false;g.add(portalOuter);
+ const portal=new THREE.Mesh(new THREE.ExtrudeGeometry(doorShape,{depth:.24,bevelEnabled:true,bevelSegments:4,steps:1,bevelSize:.04,bevelThickness:.035}),stoneDark);
+ portal.position.set(0,.72,2.58);portal.castShadow=false;portal.receiveShadow=false;g.add(portal);
+ // Золотой замковый камень и небольшие боковые орнаменты над аркой.
+ sphere(g,.12,0,2.54,2.87,gold,.82);
+ for(const side of [-1,1]){
+  sphere(g,.075,side*.82,2.36,2.83,gold,.82);
+  box(g,.055,.44,.055,side*.83,1.92,2.84,gold,false);
+ }
  const door=box(g,1.22,1.83,.07,0,1.63,2.76,wood);
  box(g,.055,1.62,.035,-.42,1.63,2.81,gold,false);
  box(g,.055,1.62,.035,.42,1.63,2.81,gold,false);
