@@ -912,8 +912,9 @@ function makeHouse(){
   // Основные скаты оставлены цельными: убраны накладные ряды и черепица, создававшие мерцание.
  // Карнизные балки вдоль обоих скатов закрывают торцы кровли и подчёркивают её толщину.
  const manorRoofEdgeMaterial=new THREE.MeshStandardMaterial({color:0x704832,roughness:.88,metalness:.02});
-  for(const [x,y,angle] of [[-3.55,4.63,.58],[3.09,4.78,-.58]]){
-    const fascia=box(g,.2,.24,9.02,x,y,0,manorRoofEdgeMaterial,false);
+  for(const [x,y,angle] of [[-3.55,4.63,.58],[3.55,4.63,-.58]]){
+    // Карниз заканчивается в плоскости торцевых стен, не выступая за фронтоны.
+    const fascia=box(g,.2,.24,8.12,x,y,0,manorRoofEdgeMaterial,false);
    fascia.rotation.z=angle;
    // Ритмичные резные кронштейны поддерживают длинный карниз главного дома.
    for(const z of [-3.65,-2.2,-.73,.73,2.2,3.65]){
