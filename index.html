@@ -307,6 +307,23 @@ function makeSurfaceTexture(kind,seed){
    ctx.strokeStyle='rgba(78,48,28,.10)';ctx.lineWidth=.7;ctx.beginPath();
    ctx.ellipse(x,y,rx,ry,(rand()-.5)*.12,0,Math.PI*2);ctx.stroke();
   }
+  // Годичные дуги и сучки усиливают ощущение натуральной древесины вблизи.
+  for(let i=0;i<15;i++){
+   const x=rand()*size,y=rand()*size,rx=3+rand()*8,ry=7+rand()*18;
+   ctx.strokeStyle='rgba(73,43,25,'+(.045+rand()*.045)+')';
+   ctx.lineWidth=.45+rand()*.45;ctx.beginPath();
+   ctx.ellipse(x,y,rx,ry,(rand()-.5)*.08,0,Math.PI*2);ctx.stroke();
+   ctx.strokeStyle='rgba(238,197,143,.07)';ctx.lineWidth=.55;
+   ctx.beginPath();ctx.ellipse(x+1,y,rx*.72,ry*.82,(rand()-.5)*.06,0,Math.PI*2);ctx.stroke();
+  }
+  // Длинные слабоконтрастные волокна и редкие поры добавляют глубину рисунку.
+  for(let i=0;i<210;i++){
+   const x=rand()*size,y=rand()*size,len=18+rand()*105,dx=(rand()-.5)*2.2;
+   ctx.strokeStyle=rand()>.52?'rgba(64,39,23,.055)':'rgba(255,218,169,.065)';
+   ctx.lineWidth=.3+rand()*.45;ctx.beginPath();ctx.moveTo(x,y);
+   ctx.quadraticCurveTo(x+dx,y+len*.5,x+dx*.4,y+len);ctx.stroke();
+  }
+
  }
  // Мягкие травяные штрихи и редкие пятна придают газону естественную фактуру без визуального мусора.
  if(kind==='grass'){
