@@ -3943,13 +3943,7 @@ function makeHouse(){
   box(center,.34,.18,.28,x,.62,2.48,cream,false);
   box(center,.38,.07,.30,x,.72,2.50,gold,false);
  }
- // Парные декоративные фонари по сторонам парадной лестницы.
- for(const x of [-1.42,1.42]){
-  box(center,.10,.68,.10,x,1.42,3.02,bronze);
-  box(center,.28,.09,.28,x,1.79,3.02,gold);
-  const lamp=sphere(center,.11,x,1.92,3.02,mat(0xffd58a,.24),1);
-  lamp.material.emissive=new THREE.Color(0xffb84d);lamp.material.emissiveIntensity=.48;
- }
+ // Два декоративных фонаря возле фасада удалены по просьбе пользователя.
  return disableCastShadows(g);
 }
 function drawPlayer(){
