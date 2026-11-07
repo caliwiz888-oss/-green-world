@@ -1258,6 +1258,19 @@ function makeHouse(){
      const radius=1.38*(8.56-y)/2.48;
      cylinder(t,radius+.035,radius+.035,.045,0,y,0,towerRoofLine,8);
    }
+   // Тонкие горизонтальные ряды черепицы повторяют геометрию восьмигранного ската.
+   // Низкий контраст сохраняет спокойный серо-голубой цвет кровли.
+   const roofCourseMaterial=new THREE.MeshStandardMaterial({color:0x9aaab0,roughness:.9,metalness:.015});
+   for(const y of [6.72,7.02,7.32,7.62,7.92,8.22]){
+     const radius=1.38*(8.56-y)/2.48;
+     const course=new THREE.Mesh(
+       new THREE.CylinderGeometry(radius+.012,radius+.012,.018,8),
+       roofCourseMaterial
+     );
+     course.position.set(0,y,0);
+     course.castShadow=false;course.receiveShadow=false;
+     t.add(course);
+   }
    // Небольшие металлические наконечники на вершинах граней связывают рёбра с коньком.
    for(let a=0;a<8;a++){
      const ang=Math.PI/8+a*Math.PI/4;
