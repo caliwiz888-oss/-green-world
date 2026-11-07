@@ -3741,7 +3741,6 @@ function makeHouse(){
  // Единый высокий каменный цоколь и ступенчатые основания главного корпуса.
  box(center,7.35,.30,5.42,0,.16,0,stone);
  box(center,7.20,.13,5.30,0,.37,0,cream);
- box(center,6.92,.12,5.12,0,.49,0,gold);
  // Каменная кладка фасада: горизонтальные тяги и рустованные угловые блоки.
  for(const y of [.82,2.62,3.82,4.12]){
   box(center,5.92,.065,.13,0,y,2.43,stone,false);
@@ -3765,12 +3764,10 @@ function makeHouse(){
   box(center,6.18,.09,.38,0,y,2.25,y===.64?stone:cream);
  }
  box(center,6.34,.14,.46,0,4.38,2.25,cream);
- box(center,6.46,.055,.48,0,4.48,2.28,gold);
  // Каменные угловые пилястры с базами, капителями и вертикальными рустами.
  for(const x of [-2.78,-2.30,2.30,2.78]){
   box(center,.22,3.45,.32,x,2.38,2.43,cream);
   box(center,.38,.18,.42,x,.72,2.45,stone);
-  box(center,.36,.12,.40,x,4.05,2.45,gold);
   box(center,.42,.13,.44,x,4.17,2.45,cream);
  }
  // Точная фасадная отделка по эталону: симметричные каменные простенки,
@@ -3779,24 +3776,7 @@ function makeHouse(){
   box(center,.13,3.02,.10,x,2.38,2.60,stone,false);
   box(center,.075,2.84,.045,x,2.38,2.67,cream,false);
   box(center,.28,.12,.18,x,.86,2.62,cream,false);
-  box(center,.30,.075,.20,x,3.91,2.62,gold,false);
   box(center,.34,.11,.20,x,4.04,2.62,cream,false);
- }
- // Декоративные горизонтальные пояса с небольшими золотыми розетками.
- for(const y of [1.02,2.72,3.98]){
-  box(center,5.78,.075,.18,0,y,2.62,cream,false);
-  box(center,5.82,.035,.20,0,y+.075,2.64,gold,false);
-  for(let x=-2.35;x<=2.36;x+=.47){
-   if(Math.abs(x)>1.02) sphere(center,.055,x,y+.13,2.70,gold,.82);
-  }
- }
- // Каменные базы и капители подчёркивают центральный портал, не перекрывая дверь.
- for(const x of [-.94,.94]){
-  box(center,.20,1.86,.18,x,1.72,2.66,stone,false);
-  box(center,.27,.16,.24,x,.83,2.68,cream,false);
-  box(center,.30,.09,.25,x,2.62,2.68,gold,false);
-  box(center,.34,.12,.27,x,2.74,2.68,cream,false);
-  box(center,.24,.08,.22,x,1.10,2.70,gold,false);
  }
  // Оконный проём с настоящей арочной верхушкой и отдельной бронзовой рамой.
  function archedWindow(x,y,w,h,z){
@@ -3820,12 +3800,9 @@ function makeHouse(){
   glassShape.lineTo(r-.09,.08);glassShape.closePath();
   const glass=new THREE.Mesh(new THREE.ShapeGeometry(glassShape),teal);
   glass.position.set(x,y,z+.105);glass.castShadow=false;glass.receiveShadow=false;center.add(glass);
-  box(center,.045,h-.16,.035,x,y+h*.43,z+.14,gold,false);
-  box(center,w-.18,.045,.035,x,y+rectH*.55,z+.14,gold,false);
   // Выступающий подоконник и небольшой декоративный сандрик.
   box(center,w+.30,.12,.34,x,y-.08,z+.08,cream);
   box(center,w+.28,.09,.32,x,y+h+.04,z+.08,stone);
-  box(center,w+.20,.045,.34,x,y+h+.12,z+.08,gold);
  }
  // Парадная лестница с широкими каменными ступенями.
  for(let i=0;i<5;i++){
@@ -3851,14 +3828,10 @@ function makeHouse(){
  box(center,6.32,.16,.42,0,4.48,2.18,cream);
  // Золотую горизонтальную полосу под фронтоном убрали.
  // Круглый витраж расположен вертикально на передней плоскости фронтона.
- const roseOuter=cylinder(center,.48,.48,.14,0,5.39,2.45,gold,48);
  roseOuter.rotation.x=Math.PI/2;
  sphere(center,.38,0,5.39,2.49,tealLight,.96);
- const roseInner=cylinder(center,.29,.29,.05,0,5.39,2.54,gold,48);
  roseInner.rotation.x=Math.PI/2;
  // Золотые импосты витража лежат в той же вертикальной плоскости.
- box(center,.045,.65,.035,0,5.39,2.58,gold,false);
- box(center,.55,.045,.035,0,5.39,2.58,gold,false);
  // Усиленный декор фронтона по крупному плану эталона: три профиля,
  // золотая линия вдоль скатов и симметричные каменные/золотые акценты.
  // Дополнительные накладки идут по всей длине наружного ската фронтона.
@@ -3869,13 +3842,11 @@ function makeHouse(){
  // Золотые полосы вдоль скатов фронтона удалены.
  // Ряд небольших рельефных медальонов под круглым витражом.
  for(const x of [-2.35,-1.88,-1.41,-.94,-.47,.47,.94,1.41,1.88,2.35]){
-  sphere(center,.075,x,4.68,2.49,gold,.86);
   sphere(center,.035,x,4.68,2.55,cream,.88);
  }
  // Каменное обрамление круглого витража и аккуратный золотой внешний обод.
  const roseStoneRing=cylinder(center,.58,.58,.10,0,5.39,2.40,cream,64);
  roseStoneRing.rotation.x=Math.PI/2;
- const roseGoldRing=cylinder(center,.52,.52,.055,0,5.39,2.52,gold,64);
  roseGoldRing.rotation.x=Math.PI/2;
  const roseBronzeRing=cylinder(center,.45,.45,.035,0,5.39,2.56,bronze,64);
  roseBronzeRing.rotation.x=Math.PI/2;
@@ -3992,30 +3963,17 @@ function makeHouse(){
  // Рельефные каменные панели на торцевых простенках под кровлей.
  for(const side of [-1,1]){
   box(center,.12,.42,1.05,side*2.88,4.02,-1.70,cream,false);
-  box(center,.14,.10,1.12,side*2.90,4.28,-1.70,gold,false);
  }
  // Дымоходы главного дома удалены по просьбе пользователя.
  // Дополнительные золотые акценты на фасадном фризе и вокруг окон:
  // небольшие замковые камни подчёркивают арочные завершения, не меняя размеры окон.
  for(const x of [-2.05,2.05]){
-  sphere(center,.075,x,3.12,2.76,gold,.86);
   box(center,.56,.045,.22,x,3.18,2.70,cream,false);
-  box(center,.48,.035,.24,x,3.24,2.72,gold,false);
   // Вертикальные золотые деления стекла и нижняя перемычка.
-  box(center,.025,.70,.025,x-.12,2.57,2.68,gold,false);
-  box(center,.025,.70,.025,x+.12,2.57,2.68,gold,false);
  }
  // Каменные угловые накладки у основания башен связывают их с главным корпусом.
  for(const x of [-2.92,2.92]){
   box(center,.34,.18,.28,x,.62,2.48,cream,false);
-  box(center,.38,.07,.30,x,.72,2.50,gold,false);
- }
- // Парные декоративные фонари по сторонам парадной лестницы.
- for(const x of [-1.42,1.42]){
-  box(center,.10,.68,.10,x,1.42,3.02,bronze);
-  box(center,.28,.09,.28,x,1.79,3.02,gold);
-  const lamp=sphere(center,.11,x,1.92,3.02,mat(0xffd58a,.24),1);
-  lamp.material.emissive=new THREE.Color(0xffb84d);lamp.material.emissiveIntensity=.48;
  }
  return disableCastShadows(g);
 }
