@@ -1893,6 +1893,19 @@ function makeMarket(){
    material.bumpScale=material===timberLight?.02:.028;
    material.needsUpdate=true;
  }
+ // Для длинных потолочных балок волокна ориентированы более вытянуто и спокойно, отдельно от стоек.
+ const marketBeamTexture=marketWoodTexture.clone();
+ const marketBeamBump=marketWoodBump.clone();
+ const marketBeamRoughness=marketWoodRoughness.clone();
+ for(const texture of [marketBeamTexture,marketBeamBump,marketBeamRoughness]){
+   texture.repeat.set(.72,2.15);
+   texture.needsUpdate=true;
+ }
+ marketBeamMaterial.map=marketBeamTexture;
+ marketBeamMaterial.bumpMap=marketBeamBump;
+ marketBeamMaterial.roughnessMap=marketBeamRoughness;
+ marketBeamMaterial.bumpScale=.024;
+ marketBeamMaterial.needsUpdate=true;
  const roof=new THREE.MeshStandardMaterial({color:0x34483a,roughness:.84,metalness:.015});
  const roofEdge=new THREE.MeshStandardMaterial({color:0x202e25,roughness:.88,metalness:.01});
  const roofAccent=new THREE.MeshStandardMaterial({color:0x52664d,roughness:.84,metalness:.01});
