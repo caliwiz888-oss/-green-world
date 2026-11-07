@@ -3727,224 +3727,220 @@ function clearDynamic(){
  buildingObjects=[];
 }
 function makeHouse(){
- const g=group(world,0,0,-14);g.name='main-manor-house-reference-v2';
+ const g=group(world,0,0,-14);g.name='green-world-manor-full-reference-rebuild';
  const ivory=mat(0xf1e5d0,.91),cream=mat(0xfff3df,.86),stone=mat(0xcbb896,.93),stoneDark=mat(0x9e8969,.9);
  const slate=mat(0x29445f,.78),slateDark=mat(0x182f49,.82),teal=mat(0x25b8c4,.24),tealLight=mat(0x8be2df,.2);
  const gold=mat(0xd9ad4f,.34),bronze=mat(0x493326,.58),wood=mat(0x684126,.65),terra=mat(0xa95735,.8);
  const pink=mat(0xe78bb4,.8),lilac=mat(0xb7a0db,.8),white=mat(0xffe8d4,.78),green=mat(0x4c7c49,.9);
- const trim=(x,y,z,w,h,d)=>box(g,w,h,d,x,y,z,cream);
- // Пьедестал и выразительный центральный корпус.
- box(g,6.85,.34,5.05,0,.18,0,stone);
- box(g,6.72,.15,4.98,0,.43,0,cream);
- box(g,6.42,4.05,4.72,0,2.48,0,ivory);
- box(g,6.58,.18,4.88,0,.62,0,cream);
- box(g,6.62,.15,4.92,0,4.40,0,cream);
- box(g,6.78,.075,5.02,0,4.53,0,gold);
- // Пилястры и профилированные карнизы придают фасаду каменную глубину.
- for(const x of [-3.03,-2.20,2.20,3.03]){
-  box(g,.20,3.78,.25,x,2.48,2.39,cream);
-  box(g,.34,.14,.32,x,.66,2.40,stone);
-  box(g,.34,.12,.32,x,4.27,2.40,gold);
-  box(g,.29,.09,.30,x,4.38,2.40,cream);
+ const n=64;
+ // Единый высокий каменный цоколь и ступенчатые основания главного корпуса.
+ box(g,7.35,.30,5.42,0,.16,0,stone);
+ box(g,7.20,.13,5.30,0,.37,0,cream);
+ box(g,6.92,.12,5.12,0,.49,0,gold);
+ // Главный объём не плоский прямоугольник: центральный ризалит выступает вперёд,
+ // а боковые части имеют собственные каменные пояса и глубокие оконные ниши.
+ box(g,5.72,3.82,4.48,0,2.42,-.08,ivory);
+ box(g,6.08,3.55,.34,0,2.48,2.18,cream);
+ box(g,2.00,3.48,.40,-2.00,2.40,2.14,stone);
+ box(g,2.00,3.48,.40,2.00,2.40,2.14,stone);
+ box(g,1.78,3.35,.18,-2.00,2.42,2.39,ivory);
+ box(g,1.78,3.35,.18,2.00,2.42,2.39,ivory);
+ // Цокольные тяги и широкий профилированный карниз под кровлей.
+ for(const y of [.64,.78,4.13,4.28]){
+  box(g,6.18,.09,.38,0,y,2.25,y===.64?stone:cream);
  }
- // Окна с бронзовой рамой, бирюзовым стеклом и тонкими золотыми переплётами.
- function windowFront(x,y,w=.66,h=1.18){
-  box(g,w+.20,h+.20,.12,x,y,2.39,bronze);
-  box(g,w,h,.055,x,y,2.47,teal);
-  box(g,.055,h-.06,.035,x,y,2.51,gold,false);
-  box(g,w-.05,.055,.035,x,y,2.51,gold,false);
-  box(g,w+.28,.10,.19,x,y+h/2+.13,2.43,cream);
-  box(g,w+.28,.10,.19,x,y-h/2-.13,2.43,cream);
-  box(g,.09,h+.27,.18,x-w/2-.095,y,2.43,cream);
-  box(g,.09,h+.27,.18,x+w/2+.095,y,2.43,cream);
-  box(g,w+.34,.13,.28,x,y-h/2-.23,2.48,stone);
-  box(g,w+.12,.045,.12,x,y+h/2+.20,2.50,gold);
+ box(g,6.34,.14,.46,0,4.38,2.25,cream);
+ box(g,6.46,.055,.48,0,4.48,2.28,gold);
+ // Каменные угловые пилястры с базами, капителями и вертикальными рустами.
+ for(const x of [-2.78,-2.30,2.30,2.78]){
+  box(g,.22,3.45,.32,x,2.38,2.43,cream);
+  box(g,.38,.18,.42,x,.72,2.45,stone);
+  box(g,.36,.12,.40,x,4.05,2.45,gold);
+  box(g,.42,.13,.44,x,4.17,2.45,cream);
  }
- for(const x of [-2.10,2.10]){windowFront(x,1.60,.68,1.22);windowFront(x,3.42,.68,1.18);}
- // Центральный парадный портал, массивная деревянная дверь и терракотовый навес.
- box(g,1.48,2.25,.22,0,1.78,2.43,stoneDark);
- box(g,1.22,2.02,.08,0,1.78,2.55,bronze);
- box(g,1.08,1.88,.055,0,1.78,2.61,wood);
- for(const x of [-.42,.42])box(g,.045,1.76,.035,x,1.78,2.65,gold,false);
- box(g,1.02,.055,.035,0,2.70,2.65,gold,false);
- for(const x of [-.24,.24])sphere(g,.05,x,1.78,2.68,gold,.85);
- box(g,1.72,.15,.34,0,2.94,2.55,stone);
- box(g,1.98,.15,.76,0,3.12,2.63,terra);
- box(g,2.04,.055,.80,0,3.22,2.63,gold);
- for(const x of [-.82,.82]){box(g,.13,.36,.18,x,2.91,2.60,cream);sphere(g,.10,x,3.12,2.66,gold,.55);}
- // Широкие каменные ступени.
- for(let i=0;i<5;i++)box(g,2.45-i*.13,.13,.34,0,.07+i*.13,2.72+i*.27,cream);
- // Главный фасад: высокий широкий фронтон с каменной рамой и глубокой нишей.
- const pedShape=new THREE.Shape();
- pedShape.moveTo(-3.18,0);pedShape.lineTo(0,1.83);pedShape.lineTo(3.18,0);pedShape.closePath();
+ // Оконный проём с настоящей арочной верхушкой и отдельной бронзовой рамой.
+ function archedWindow(x,y,w,h,z){
+  const r=w/2,rectH=h-r;
+  const frameShape=new THREE.Shape();
+  frameShape.moveTo(-r,0);frameShape.lineTo(-r,rectH);
+  frameShape.absarc(0,rectH,r,Math.PI,0,true);
+  frameShape.lineTo(r,0);frameShape.closePath();
+  const frame=new THREE.Mesh(new THREE.ExtrudeGeometry(frameShape,{depth:.09,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.025,bevelThickness:.02}),bronze);
+  frame.position.set(x,y,z);frame.castShadow=false;frame.receiveShadow=false;g.add(frame);
+  const glassShape=new THREE.Shape();
+  glassShape.moveTo(-r+.09,.08);glassShape.lineTo(-r+.09,rectH);
+  glassShape.absarc(0,rectH,r-.09,Math.PI,0,true);
+  glassShape.lineTo(r-.09,.08);glassShape.closePath();
+  const glass=new THREE.Mesh(new THREE.ShapeGeometry(glassShape),teal);
+  glass.position.set(x,y,z+.105);glass.castShadow=false;glass.receiveShadow=false;g.add(glass);
+  box(g,.045,h-.16,.035,x,y+h*.43,z+.14,gold,false);
+  box(g,w-.18,.045,.035,x,y+rectH*.55,z+.14,gold,false);
+  // Выступающий подоконник и небольшой декоративный сандрик.
+  box(g,w+.30,.12,.34,x,y-.08,z+.08,cream);
+  box(g,w+.28,.09,.32,x,y+h+.04,z+.08,stone);
+  box(g,w+.20,.045,.34,x,y+h+.12,z+.08,gold);
+ }
+ // Симметричные высокие окна на двух этажах главного фасада.
+ for(const x of [-2.05,2.05]){
+  archedWindow(x,1.02,.82,1.48,2.52);
+  archedWindow(x,2.72,.82,1.38,2.52);
+ }
+ // Центральный парадный портал: глубокий каменный проём, арочная перемычка,
+ // деревянные створки, бронзовая фурнитура и выступающий терракотовый козырёк.
+ const doorShape=new THREE.Shape();
+ doorShape.moveTo(-.72,0);doorShape.lineTo(-.72,1.78);
+ doorShape.absarc(0,1.78,.72,Math.PI,0,true);
+ doorShape.lineTo(.72,0);doorShape.closePath();
+ const portal=new THREE.Mesh(new THREE.ExtrudeGeometry(doorShape,{depth:.24,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.04,bevelThickness:.035}),stoneDark);
+ portal.position.set(0,.72,2.48);portal.castShadow=false;portal.receiveShadow=false;g.add(portal);
+ const door=box(g,1.22,1.83,.07,0,1.63,2.76,wood);
+ box(g,.055,1.62,.035,-.42,1.63,2.81,gold,false);
+ box(g,.055,1.62,.035,.42,1.63,2.81,gold,false);
+ box(g,1.12,.055,.035,0,2.42,2.81,gold,false);
+ box(g,.045,.78,.035,0,1.28,2.82,bronze,false);
+ for(const x of [-.18,.18])sphere(g,.055,x,1.58,2.84,gold,.9);
+ // Терракотовый навес с золотым фризом и декоративными кронштейнами.
+ box(g,1.90,.17,.78,0,2.82,2.74,terra);
+ box(g,2.02,.07,.82,0,2.94,2.74,gold);
+ box(g,1.78,.09,.70,0,2.72,2.75,cream);
+ for(const x of [-.78,.78]){
+  box(g,.14,.38,.18,x,2.56,2.70,cream);
+  box(g,.10,.20,.16,x,2.78,2.72,gold);
+ }
+ // Парадная лестница с широкими каменными ступенями.
+ for(let i=0;i<5;i++){
+  box(g,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,cream);
+ }
+ // Центральный фронтон — отдельная выразительная каменная композиция,
+ // с утопленным тимпаном, несколькими профилями и круглым бирюзовым витражом.
+ const pedShape=new THREE.Shape();pedShape.moveTo(-3.08,0);pedShape.lineTo(0,1.78);pedShape.lineTo(3.08,0);pedShape.closePath();
  const ped=new THREE.Mesh(new THREE.ExtrudeGeometry(pedShape,{depth:.34,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.055,bevelThickness:.04}),ivory);
- ped.position.set(0,4.42,2.42);ped.castShadow=false;ped.receiveShadow=false;g.add(ped);
- // Внутренняя плоскость фронтона и каменные профили создают настоящий многослойный фасад.
- const insetShape=new THREE.Shape();insetShape.moveTo(-2.72,.12);insetShape.lineTo(0,1.67);insetShape.lineTo(2.72,.12);insetShape.closePath();
+ ped.position.set(0,4.42,2.32);ped.castShadow=false;ped.receiveShadow=false;g.add(ped);
+ const insetShape=new THREE.Shape();insetShape.moveTo(-2.62,.12);insetShape.lineTo(0,1.52);insetShape.lineTo(2.62,.12);insetShape.closePath();
  const inset=new THREE.Mesh(new THREE.ShapeGeometry(insetShape),cream);
- inset.position.set(0,4.48,2.785);inset.material=cream;inset.castShadow=false;inset.receiveShadow=false;g.add(inset);
+ inset.position.set(0,4.48,2.68);inset.castShadow=false;inset.receiveShadow=false;g.add(inset);
  for(const side of [-1,1]){
-  const beam=box(g,3.70,.19,.30,side*1.80,5.30,2.78,cream);
-  beam.rotation.z=side===-1?Math.atan2(1.83,3.18):-Math.atan2(1.83,3.18);
-  const goldLine=box(g,3.62,.055,.33,side*1.76,5.37,2.84,gold);
-  goldLine.rotation.z=side===-1?Math.atan2(1.83,3.18):-Math.atan2(1.83,3.18);
-  const inner=box(g,3.42,.075,.24,side*1.70,5.13,2.82,stone);
-  inner.rotation.z=side===-1?Math.atan2(1.83,3.18):-Math.atan2(1.83,3.18);
+  const beam=box(g,3.55,.18,.30,side*1.75,5.30,2.72,cream);
+  beam.rotation.z=side===-1?.52:-.52;
+  const line=box(g,3.48,.05,.32,side*1.72,5.38,2.79,gold);
+  line.rotation.z=side===-1?.52:-.52;
+  const inner=box(g,3.30,.07,.24,side*1.63,5.14,2.75,stone);
+  inner.rotation.z=side===-1?.52:-.52;
  }
- // Каменный пояс под фронтоном и выступающий карниз над окнами.
- box(g,6.55,.20,.36,0,4.48,2.57,cream);
- box(g,6.64,.075,.39,0,4.36,2.61,gold);
- // Круглый бирюзовый витраж в центре фронтона с золотым крестовым переплётом.
- cylinder(g,.49,.49,.14,0,5.43,2.88,gold,48);
- sphere(g,.39,0,5.43,2.97,tealLight,.96);
- cylinder(g,.30,.30,.055,0,5.43,3.01,gold,48);
- box(g,.045,.68,.035,0,5.43,3.05,gold,false);
- box(g,.58,.045,.035,0,5.43,3.05,gold,false);
- for(const x of [-2.72,-1.86,1.86,2.72]){
-  sphere(g,.075,x,4.64,2.90,gold,.8);
- }
- // Крыша в эталонной форме: единый высокий конёк и две большие цельные скатные плоскости.
- const roofMaterial=new THREE.MeshStandardMaterial({color:0x29445f,roughness:.78,metalness:.025,side:THREE.DoubleSide});
- function makeRoofSlope(side){
-  const ridgeFront=[0,6.28,2.72],ridgeBack=[0,6.28,-2.92];
-  const eaveFront=[side*3.72,4.43,2.72],eaveBack=[side*3.72,4.43,-2.92];
+ box(g,6.32,.16,.42,0,4.48,2.48,cream);
+ box(g,6.40,.055,.44,0,4.37,2.52,gold);
+ cylinder(g,.48,.48,.14,0,5.39,2.83,gold,48);
+ sphere(g,.38,0,5.39,2.92,tealLight,.96);
+ cylinder(g,.29,.29,.05,0,5.39,2.97,gold,48);
+ box(g,.045,.65,.035,0,5.39,3.01,gold,false);
+ box(g,.55,.045,.035,0,5.39,3.01,gold,false);
+ // Главная двускатная кровля: широкие сланцевые скаты, выступающие свесы и конёк.
+ const roofMat=new THREE.MeshStandardMaterial({color:0x29445f,roughness:.78,metalness:.025,side:THREE.DoubleSide});
+ function roofSide(side){
+  const ridgeF=[0,6.22,2.58],ridgeB=[0,6.22,-2.72];
+  const eaveF=[side*3.48,4.47,2.58],eaveB=[side*3.48,4.47,-2.72];
   const geo=new THREE.BufferGeometry();
-  const vertices=new Float32Array([
-   ...ridgeFront,...eaveFront,...ridgeBack,
-   ...eaveFront,...eaveBack,...ridgeBack
-  ]);
-  geo.setAttribute('position',new THREE.BufferAttribute(vertices,3));
-  geo.setIndex([0,1,2,1,3,4,1,4,2,2,4,5]);
-  geo.computeVertexNormals();
-  const mesh=new THREE.Mesh(geo,roofMaterial);
-  mesh.castShadow=false;mesh.receiveShadow=false;g.add(mesh);
+  geo.setAttribute('position',new THREE.Float32BufferAttribute([...ridgeF,...eaveF,...ridgeB,...eaveF,...eaveB,...ridgeB],3));
+  geo.setIndex([0,1,2,3,4,5]);geo.computeVertexNormals();
+  const mesh=new THREE.Mesh(geo,roofMat);mesh.castShadow=false;mesh.receiveShadow=false;g.add(mesh);
  }
- makeRoofSlope(-1);makeRoofSlope(1);
- // Толстые свесы, фасции и золотая окантовка вдоль обоих скатов.
+ roofSide(-1);roofSide(1);
  for(const side of [-1,1]){
-  const angle=side===-1?Math.atan2(1.85,3.72):-Math.atan2(1.85,3.72);
-  const x=side*1.86,y=5.36;
-  const fascia=box(g,4.18,.22,.38,x,y,2.76,slateDark);fascia.rotation.z=angle;
-  const trim=box(g,4.12,.065,.40,x,y+.11,2.83,gold);trim.rotation.z=angle;
-  const underside=box(g,4.12,.10,.34,x,y-.13,2.72,cream);underside.rotation.z=angle;
+  const fascia=box(g,4.00,.22,.36,side*1.74,5.34,2.61,slateDark);
+  fascia.rotation.z=side===-1?.48:-.48;
+  const edge=box(g,3.96,.055,.39,side*1.72,5.45,2.67,gold);
+  edge.rotation.z=side===-1?.48:-.48;
+  box(g,.18,.18,5.48,side*3.50,4.43,-.07,slateDark);
  }
- // Длинные боковые карнизы и аккуратный коньковый гребень.
- for(const side of [-1,1]){
-  box(g,.20,.18,5.78,side*3.72,4.39,-.10,slateDark);
-  box(g,.08,.045,5.80,side*3.75,4.50,-.10,gold);
+ box(g,.16,.16,5.52,0,6.27,-.07,slateDark);
+ box(g,.07,.06,5.54,0,6.38,-.07,gold);
+ // Небольшие декоративные слуховые окна с каменными рамами на переднем скате.
+ for(const x of [-1.18,1.18]){
+  box(g,.56,.48,.14,x,5.12,2.20,bronze);
+  box(g,.42,.34,.06,x,5.12,2.29,teal);
+  const cap=cone(g,.36,.30,x,5.48,2.28,slate,4);cap.rotation.y=Math.PI/4;
+  box(g,.62,.06,.16,x,4.87,2.27,gold);
  }
- box(g,.18,.18,5.78,0,6.31,-.10,slateDark);
- box(g,.085,.07,5.80,0,6.43,-.10,gold);
- for(const z of [-2.88,2.69]){
-  sphere(g,.105,0,6.39,z,gold,.82);
- }
- // Небольшие золотые накладки на скатах вместо случайных мансардных коробов.
- for(const side of [-1,1]){
-  for(const z of [-1.75,-.15,1.45]){
-   const patch=box(g,.72,.035,.38,side*1.55,5.47,z,slateDark);
-   patch.rotation.z=side===-1?.46:-.46;
-   const glint=box(g,.66,.025,.035,side*1.55,5.51,z+.20,gold);
-   glint.rotation.z=side===-1?.46:-.46;
+ // Две боковые круглые башни — самостоятельные объёмы, соединённые с домом,
+ // с каменными ярусами, высокими арочными окнами и выступающими балконами.
+ for(const x of [-2.92,2.92]){
+  const t=group(g,x,0,1.62);
+  cylinder(t,.82,.82,4.46,0,2.62,0,ivory,n);
+  cylinder(t,.91,.86,.20,0,.48,0,stone,n);
+  cylinder(t,.87,.87,.12,0,.62,0,cream,n);
+  for(const y of [1.03,2.12,3.23,4.34]){
+   cylinder(t,.85,.85,.11,0,y,0,stone,n);
+   cylinder(t,.88,.88,.07,0,y+.08,0,gold,n);
   }
- }
- // Две парадные круглые башни по эталону: ярусный каменный барабан, балконы, арочные окна и высокие синие конусы.
- for(const x of [-2.93,2.93]){
-  const t=group(g,x,0,1.72),n=64;
-  // Основной круглый каменный объём с выраженными этажными поясами.
-  cylinder(t,.79,.79,4.48,0,2.58,0,ivory,n);
-  cylinder(t,.86,.82,.22,0,.48,0,stone,n);
-  cylinder(t,.83,.83,.12,0,.64,0,cream,n);
-  cylinder(t,.82,.82,.10,0,1.02,0,stone,n);
-  cylinder(t,.84,.84,.12,0,1.12,0,cream,n);
-  cylinder(t,.82,.82,.10,0,2.02,0,stone,n);
-  cylinder(t,.85,.85,.12,0,2.12,0,cream,n);
-  cylinder(t,.82,.82,.10,0,3.10,0,stone,n);
-  cylinder(t,.86,.86,.14,0,3.22,0,cream,n);
-  // Узкие вертикальные каменные лопатки подчёркивают круглую форму башни.
-  for(let j=0;j<12;j++){
-   const a=j*Math.PI/6,px=Math.sin(a)*.755,pz=Math.cos(a)*.755;
-   box(t,.105,3.72,.105,px,2.55,pz,cream,false);
-   sphere(t,.075,px,.72,pz,gold,.72);
-   sphere(t,.075,px,4.38,pz,gold,.72);
+  // Арочное окно башни с глубокой бронзовой окантовкой и золотым переплётом.
+  for(const y of [1.75,2.94]){
+   const sh=new THREE.Shape();sh.moveTo(-.25,0);sh.lineTo(-.25,.67);sh.absarc(0,.67,.25,Math.PI,0,true);sh.lineTo(.25,0);sh.closePath();
+   const frame=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.10,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.02,bevelThickness:.02}),bronze);
+   frame.position.set(0,y,.79);frame.castShadow=false;frame.receiveShadow=false;t.add(frame);
+   const glass=new THREE.Mesh(new THREE.ShapeGeometry(sh),teal);
+   glass.position.set(0,y,.90);glass.castShadow=false;glass.receiveShadow=false;t.add(glass);
+   box(t,.04,.88,.035,0,y+.32,.93,gold,false);
+   sphere(t,.16,0,y+.68,.91,tealLight,.70);
+   box(t,.62,.10,.22,0,y-.08,.84,cream);
+   box(t,.66,.06,.24,0,y+.96,.84,gold);
   }
-  // Два высоких арочных окна на лицевой стороне, с бирюзовым стеклом и бронзовым обрамлением.
-  for(const y of [1.88,3.05]){
-   box(t,.48,.92,.12,0,y,.785,bronze,false);
-   box(t,.36,.78,.055,0,y-.015,.86,teal,false);
-   box(t,.045,.73,.035,0,y-.015,.90,gold,false);
-   box(t,.30,.04,.035,0,y+.15,.90,gold,false);
-   sphere(t,.18,0,y+.40,.86,tealLight,.68);
-   box(t,.62,.10,.18,0,y-.51,.84,cream);
-   box(t,.66,.055,.20,0,y+.52,.84,gold);
-  }
-  // Выступающий круглый балкон с многослойной каменной плитой.
-  cylinder(t,1.02,1.02,.20,0,4.05,0,stone,n);
-  cylinder(t,1.10,1.10,.12,0,4.20,0,cream,n);
-  cylinder(t,1.12,1.12,.055,0,4.28,0,gold,n);
-  // Каменные балясины по окружности и непрерывный верхний поручень.
+  // Круглый каменный балкон с широким выносом, точёными балясинами и поручнем.
+  cylinder(t,1.03,1.03,.18,0,4.00,0,stone,n);
+  cylinder(t,1.13,1.13,.12,0,4.15,0,cream,n);
+  cylinder(t,1.15,1.15,.05,0,4.23,0,gold,n);
   for(let j=0;j<32;j++){
-   const a=j*Math.PI/16,px=Math.sin(a)*1.045,pz=Math.cos(a)*1.045;
-   cylinder(t,.042,.052,.34,px,4.48,pz,cream,10);
-   sphere(t,.060,px,4.67,pz,gold,.72);
+   const a=j*Math.PI/16,px=Math.sin(a)*1.07,pz=Math.cos(a)*1.07;
+   cylinder(t,.042,.052,.34,px,4.42,pz,cream,10);
+   sphere(t,.055,px,4.61,pz,gold,.75);
   }
-  cylinder(t,1.12,1.12,.075,0,4.70,0,cream,n);
-  cylinder(t,1.15,1.15,.055,0,4.77,0,gold,n);
-  // Верхний аттик под крышей: ступенчатые круглые каменные карнизы.
-  cylinder(t,.91,.91,.16,0,4.91,0,stone,n);
-  cylinder(t,.96,.96,.12,0,5.04,0,cream,n);
-  cylinder(t,.99,.99,.10,0,5.14,0,gold,n);
-  cylinder(t,.92,.92,.14,0,5.25,0,slateDark,n);
-  // Высокая аккуратная коническая сланцевая кровля с широким свесом.
-  cone(t,1.02,2.36,0,6.43,0,slate,48);
-  cylinder(t,1.03,1.03,.10,0,5.28,0,slateDark,n);
-  cylinder(t,.075,.075,.22,0,7.63,0,gold,16);
-  sphere(t,.11,0,7.79,0,gold,.9);
-  cone(t,.065,.24,0,7.96,0,gold,16);
-  // Тонкие золотые рёбра на кровле повторяют её конический силуэт.
+  cylinder(t,1.15,1.15,.07,0,4.64,0,cream,n);
+  cylinder(t,1.18,1.18,.05,0,4.71,0,gold,n);
+  // Аттик, ступенчатое основание и высокая коническая синяя кровля башни.
+  cylinder(t,.94,.94,.14,0,4.84,0,stone,n);
+  cylinder(t,1.00,1.00,.12,0,4.97,0,cream,n);
+  cylinder(t,1.03,1.03,.08,0,5.08,0,gold,n);
+  cylinder(t,1.00,1.00,.12,0,5.18,0,slateDark,n);
+  cone(t,1.08,2.48,0,6.48,0,slate,64);
+  cylinder(t,.075,.075,.22,0,7.75,0,gold,16);
+  sphere(t,.11,0,7.91,0,gold,.9);
+  cone(t,.06,.22,0,8.08,0,gold,16);
+  // Золотые вертикальные рёбра подчёркивают конический профиль.
   for(let j=0;j<8;j++){
-   const a=j*Math.PI/4,px=Math.sin(a)*.50,pz=Math.cos(a)*.50;
-   const rib=box(t,.035,1.58,.035,px,6.35,pz,gold,false);
-   rib.rotation.z=Math.sin(a)*.25;
-   rib.rotation.x=Math.cos(a)*.25;
+   const a=j*Math.PI/4,px=Math.sin(a)*.48,pz=Math.cos(a)*.48;
+   const rib=box(t,.032,1.60,.032,px,6.48,pz,gold,false);
+   rib.rotation.z=Math.sin(a)*.22;rib.rotation.x=Math.cos(a)*.22;
   }
-  // Цветочные кашпо встроены в переднюю дугу балкона, как на утверждённом изображении.
+  // Цветочные ящики и бутоны вдоль передней части балкона.
   for(let j=0;j<11;j++){
-   const a=-1.18+j*.236,px=Math.sin(a)*1.12,pz=Math.cos(a)*1.12;
-   box(t,.22,.12,.20,px,4.32,pz,stone,false);
-   sphere(t,.078,px,4.46,pz,green,.78);
-   sphere(t,.078,px,4.55,pz,j%3===0?lilac:(j%2?white:pink),.82);
-   sphere(t,.055,px-.07,4.52,pz+.02,white,.78);
+   const a=-1.18+j*.236,px=Math.sin(a)*1.17,pz=Math.cos(a)*1.17;
+   box(t,.22,.12,.20,px,4.28,pz,stone,false);
+   sphere(t,.078,px,4.42,pz,green,.78);
+   sphere(t,.078,px,4.52,pz,j%3===0?lilac:(j%2?white:pink),.82);
   }
  }
- // Малые мансардные окна и декоративные золотые фронтоны.
- for(const x of [-1.16,1.16]){
-  box(g,.56,.48,.13,x,5.13,1.95,bronze);
-  box(g,.43,.34,.06,x,5.14,2.03,teal);
-  const cap=cone(g,.34,.28,x,5.43,2.02,slate,4);cap.rotation.y=Math.PI/4;
-  box(g,.52,.05,.12,x,4.88,2.04,gold);
- }
- // Цветочные ящики под окнами, с листвой и разноцветными бутонами.
- for(const x of [-2.10,2.10]){
-  for(const y of [ .96,2.78]){
-   box(g,1.10,.14,.30,x,y,2.55,stone);
+ // Цветочные балконные ящики под фасадными окнами.
+ for(const x of [-2.05,2.05]){
+  for(const y of [.88,2.56]){
+   box(g,1.18,.14,.32,x,y,2.70,stone);
+   box(g,1.22,.05,.34,x,y+.09,2.72,gold);
    for(let j=0;j<10;j++){
-    const px=x-.45+j*.10;
-    sphere(g,.065,px,y+.13,2.62,green,.74);
-    sphere(g,.067,px,y+.21,2.65,j%3===0?lilac:(j%2?white:pink),.8);
+    const px=x-.48+j*.106;
+    sphere(g,.065,px,y+.17,2.78,green,.76);
+    sphere(g,.068,px,y+.25,2.80,j%3===0?lilac:(j%2?white:pink),.82);
    }
   }
  }
- // Каменные дымоходы с металлическими крышками сохраняют силуэт усадьбы.
- for(const x of [-2.35,2.35]){
-  box(g,.48,.92,.48,x,5.48,-1.66,cream);
-  box(g,.58,.12,.58,x,5.98,-1.66,stone);
-  box(g,.40,.06,.40,x,6.07,-1.66,slateDark);
+ // Дымоходы остаются частью силуэта главной кровли.
+ for(const x of [-2.18,2.18]){
+  box(g,.48,.90,.48,x,5.52,-1.62,cream);
+  box(g,.58,.12,.58,x,6.02,-1.62,stone);
+  box(g,.42,.06,.42,x,6.11,-1.62,slateDark);
  }
- // Фонари у лестницы.
- for(const x of [-1.38,1.38]){
-  box(g,.09,.70,.09,x,1.38,2.94,bronze);
-  box(g,.28,.09,.28,x,1.78,2.94,gold);
-  const lamp=sphere(g,.11,x,1.92,2.94,mat(0xffd58a,.24),1);
+ // Парные декоративные фонари по сторонам парадной лестницы.
+ for(const x of [-1.42,1.42]){
+  box(g,.10,.68,.10,x,1.42,3.02,bronze);
+  box(g,.28,.09,.28,x,1.79,3.02,gold);
+  const lamp=sphere(g,.11,x,1.92,3.02,mat(0xffd58a,.24),1);
   lamp.material.emissive=new THREE.Color(0xffb84d);lamp.material.emissiveIntensity=.48;
  }
  return disableCastShadows(g);
