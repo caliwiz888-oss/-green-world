@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261107-091600';
+const GREEN_WORLD_BUILD_ID = '20261107-091700';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1319,47 +1319,6 @@ function makeHouse(){
    // Простое аккуратное навершие без дополнительных колец и фасеточных накладок.
    cylinder(t,.075,.075,.32,0,8.72,0,towerMetal,8);
    cone(t,.075,.22,0,8.99,0,towerMetal,8);
-   // Короткие каменные кронштейны под карнизом повторяют восьмигранный ритм башни.
-   for(let a=0;a<8;a++){
-     const ang=Math.PI/8+a*Math.PI/4;
-     const bracket=box(t,.13,.22,.18,Math.cos(ang)*1.34,5.82,Math.sin(ang)*1.34,towerTrimMaterial,false);
-     bracket.rotation.y=-ang;
-   }
-   // Небольшие каменные зубцы и теневые канавки уточняют профиль карниза башни.
-   for(let a=0;a<8;a++){
-     const ang=Math.PI/8+a*Math.PI/4;
-     const r=1.405;
-     const x=Math.cos(ang)*r,z=Math.sin(ang)*r;
-     const dentil=box(t,.19,.075,.095,x,5.76,z,towerTrimMaterial,false);
-     dentil.rotation.y=-ang;
-     const groove=box(t,.105,.014,.012,x,5.76,z+.05,towerRoofLine,false);
-     groove.rotation.y=-ang;
-   }
-   // Сдержанное навершие вместо массивной золотой конструкции.
-   cylinder(t,.09,.09,.38,0,8.72,0,towerMetal,8);
-   cylinder(t,.14,.14,.07,0,8.53,0,towerMetal,8);
-   sphere(t,.105,0,8.94,0,towerMetal,.9);
-   cone(t,.085,.25,0,9.1,0,towerMetal,8);
-   // Завершающий каменно-металлический узел шпиля: сланцевый воротник и тонкие бронзовые кольца.
-   const finialCollar=new THREE.Mesh(
-     new THREE.CylinderGeometry(.115,.16,.075,8),
-     towerRoofLine
-   );
-   finialCollar.position.set(0,8.79,0);
-   finialCollar.castShadow=false;finialCollar.receiveShadow=false;t.add(finialCollar);
-   const finialBand=new THREE.Mesh(
-     new THREE.CylinderGeometry(.105,.105,.028,8),
-     towerMetal
-   );
-   finialBand.position.set(0,8.835,0);
-   finialBand.castShadow=false;finialBand.receiveShadow=false;t.add(finialBand);
-   // Небольшие фасеточные грани основания шпиля повторяют восьмигранную геометрию крыши.
-   for(let a=0;a<8;a++){
-     const ang=Math.PI/8+a*Math.PI/4;
-     const facet=box(t,.105,.045,.075,Math.cos(ang)*.105,8.755,Math.sin(ang)*.105,towerTrimMaterial,false);
-     facet.rotation.y=-ang;
-     facet.castShadow=false;facet.receiveShadow=false;
-   }
  }
  // Entry terrace and three broad stone steps.
  box(g,3.5,.3,1.65,0,.18,5,houseStoneTrim);
