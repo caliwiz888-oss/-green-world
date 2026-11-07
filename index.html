@@ -1843,6 +1843,17 @@ function makeMarket(){
  // Новая архитектура лавки: открытый торговый павильон с широкой плоской крышей.
  // Силуэт намеренно отличается от жилого дома: нет фронтона, конька и двускатных скатов.
  const marketGlass=M.glass.clone();
+ // Стекло витрин: более чистый холодный оттенок и гладкая поверхность с мягким отражающим блеском.
+ marketGlass.color.setHex(0x86cbd3);
+ marketGlass.roughness=.18;
+ marketGlass.metalness=.11;
+ marketGlass.emissive.setHex(0x102b32);
+ marketGlass.emissiveIntensity=.035;
+ marketGlass.envMapIntensity=1.15;
+ marketGlass.transparent=false;
+ marketGlass.opacity=1;
+ marketGlass.depthWrite=true;
+ marketGlass.needsUpdate=true;
  const g=group(world,-10.8,0,-8.5);g.rotation.y=0;g.scale.setScalar(1.2);
  const timber=mat(0x765039,.78),timberLight=mat(0xa8794e,.72);
  const marketBeamMaterial=timber.clone();
