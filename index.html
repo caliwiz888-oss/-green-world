@@ -5309,11 +5309,21 @@ function makeWorldLandscape(){
      const shelfBreak=Math.pow(Math.max(0,Math.sin(shelfPhase)),8);
      const shelfMask=peakSmooth(.2,.42,h/height)*(1-peakSmooth(.76,.94,Math.abs(across)));
      const fracturedShelf=(shelfBreak-.055)*height*.009*shelfMask;
+     // Тонкие ломаные уступы внутри крупных пластов: разная высота полок и короткие обрывы по линии слоя.
+     const terracePhase=h*2.35+u*5.1+across*1.35+
+       .19*Math.sin(u*23+across*15)+.075*Math.sin(u*49-across*27);
+     const terraceRidge=Math.pow(Math.max(0,Math.sin(terracePhase)),13);
+     const terraceMask=peakSmooth(.24,.46,h/height)*(1-peakSmooth(.79,.95,Math.abs(across)));
+     const terraceRelief=(terraceRidge-.035)*height*.0065*terraceMask;
+     // Мелкие скальные уступы прерываются у кулуаров, чтобы не создавать искусственных параллельных полос.
+     const brokenLayer=Math.sin(u*57+across*18+.22*Math.sin(u*31-across*23));
+     const layerMask=peakSmooth(.18,.4,h/height)*(1-peakSmooth(.7,.9,Math.abs(across)));
+     const layerRelief=height*brokenLayer*.0028*layerMask;
      // Небольшие веера осыпи у основания стен и под кулуарами, без округлых бугров.
      const screeNoise=Math.sin(u*37+across*21)*Math.sin(u*17-across*31);
      const screeFan=Math.pow(Math.max(0,1-Math.abs(u*1.15+.18*Math.sin(across*8))),2)*
        peakSmooth(.08,.2,Math.abs(across))*(1-peakSmooth(.42,.68,Math.abs(across)));
-     h=Math.max(0,(h+(strata+ledge+ribRelief+height*erosion*erosionMask+fracturedShelf+screeNoise*.012*screeFan)*peakSmooth(.08,.3,cross))*peakSmooth(.015,.24,1-Math.abs(u)));
+     h=Math.max(0,(h+(strata+ledge+ribRelief+height*erosion*erosionMask+fracturedShelf+terraceRelief+layerRelief+screeNoise*.012*screeFan)*peakSmooth(.08,.3,cross))*peakSmooth(.015,.24,1-Math.abs(u)));
      pos.setZ(i,h);
    }
    geometry.computeVertexNormals();
