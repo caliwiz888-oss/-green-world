@@ -4739,17 +4739,21 @@ function makeWorldLandscape(){
      const exposedRidge=peakSmooth(.72,.98,chuteFlow)*peakSmooth(.3,.68,h/height);
      const snowCoverage=THREE.MathUtils.clamp(snowAmount*snowDrift*(.92+.08*cornice)*(1+.13*leePocket-.16*exposedRidge),0,1);
      const coldShadow=THREE.MathUtils.clamp(.5-sunFacing*.38,.12,.7);
-     // Разнотонные минеральные зоны: холодный сланец в тенях и сдержанная охра на выветренных нижних гранях.
+     // Разнотонные минеральные зоны и выветренные скальные стены с плавными переходами оттенков.
      const mineralNoise=.5+.22*Math.sin(u*18+across*7)+.16*Math.sin(u*43-across*19)+.12*Math.sin(u*91+across*37);
      const weathering=THREE.MathUtils.clamp((.72-h/height)*1.25,0,1)*THREE.MathUtils.clamp(mineralNoise,0,1);
      const warmMineral=new THREE.Color(0x887866);
      const coolMineral=new THREE.Color(0x59636a);
+     const cliffFace=THREE.MathUtils.clamp((.72-up)*1.55,0,1)*peakSmooth(.12,.34,h/height);
+     const cliffVariation=.5+.25*Math.sin(u*32+across*14)+.17*Math.sin(u*67-across*29)+.08*Math.cos(u*119+across*41);
      rock.lerp(warmMineral,weathering*.19*(1-snowCoverage));
-     rock.lerp(coolMineral,coldShadow*.12*(1-snowCoverage));
-     // Тонкие тёмные и светлые прожилки подчёркивают реальные слои породы, не превращаясь в регулярную сетку.
-     const bandPhase=h*2.35+u*4.2+across*1.7+.16*Math.sin(u*27+across*13);
-     const rockBand=Math.pow(Math.max(0,Math.sin(bandPhase)),12)*(.075+.035*Math.sin(u*31+across*9));
-     const paleVein=Math.pow(Math.max(0,Math.sin(bandPhase+1.1)),18)*.035;
+     rock.lerp(coolMineral,(coldShadow*.12+cliffFace*.1)*(1-snowCoverage));
+     rock.lerp(new THREE.Color(0x77736c),cliffFace*THREE.MathUtils.clamp(cliffVariation,0,1)*.12*(1-snowCoverage));
+     // Слоистые жилы следуют уклону и слегка ломаются, как пласты в настоящей горной породе.
+     const bandPhase=h*2.35+u*4.2+across*1.7+.16*Math.sin(u*27+across*13)+.07*Math.sin(u*63-across*21);
+     const bandStrength=THREE.MathUtils.clamp(.075+.035*Math.sin(u*31+across*9)+cliffFace*.035,.025,.14);
+     const rockBand=Math.pow(Math.max(0,Math.sin(bandPhase)),12)*bandStrength;
+     const paleVein=Math.pow(Math.max(0,Math.sin(bandPhase+1.1)),18)*(.025+cliffFace*.018);
      rock.multiplyScalar(1-rockBand*(1-snowCoverage));
      rock.lerp(new THREE.Color(0xb0a18a),paleVein*(1-snowCoverage));
      rock.lerp(peakSnowBlue,snowCoverage*(.24+coldShadow*.22)).lerp(peakSnow,snowCoverage*(.76-coldShadow*.12));
