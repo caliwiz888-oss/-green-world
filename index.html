@@ -3827,68 +3827,10 @@ function makeHouse(){
   box(center,w+.28,.09,.32,x,y+h+.04,z+.08,stone);
   box(center,w+.20,.045,.34,x,y+h+.12,z+.08,gold);
  }
- // По одному высокому окну с каждой стороны центрального входа — как в эталоне.
- for(const x of [-2.05,2.05]){
-  // Крупные фасадные окна на одном уровне с парадной дверью, как на эталоне.
-  archedWindow(x,2.15,.44,.89,2.52);
- }
- // Парадный вход по утверждённому эталону: прямоугольная
- // двустворчатая тёмно-деревянная дверь в светлом каменном обрамлении.
- box(center,.16,1.92,.22,-.76,1.66,2.62,cream,false);
- box(center,.16,1.92,.22,.76,1.66,2.62,cream,false);
- box(center,1.68,.16,.24,0,2.62,2.62,stone,false);
- box(center,1.58,.055,.27,0,2.72,2.64,gold,false);
- box(center,1.36,1.78,.075,0,1.64,2.77,wood);
- // Тонкая бронзовая линия разделяет створки; золотые контуры
- // подчёркивают панели, без бирюзовых стеклянных вставок.
- box(center,.035,1.72,.035,0,1.64,2.825,bronze,false);
- for(const x of [-.30,.30]){
-  box(center,.46,.66,.035,x,2.05,2.825,bronze,false);
-  box(center,.39,.59,.025,x,2.05,2.85,wood,false);
-  box(center,.025,.61,.025,x-.195,2.05,2.87,gold,false);
-  box(center,.025,.61,.025,x+.195,2.05,2.87,gold,false);
-  box(center,.42,.025,.025,x,2.35,2.87,gold,false);
-  box(center,.42,.025,.025,x,1.75,2.87,gold,false);
-  box(center,.46,.48,.035,x,1.20,2.825,bronze,false);
-  box(center,.39,.40,.025,x,1.20,2.85,wood,false);
-  box(center,.42,.025,.025,x,1.40,2.87,gold,false);
-  box(center,.42,.025,.025,x,1.00,2.87,gold,false);
-  box(center,.025,.40,.025,x-.195,1.20,2.87,gold,false);
-  box(center,.025,.40,.025,x+.195,1.20,2.87,gold,false);
- }
- // Скромная парная фурнитура у центрального шва.
- for(const x of [-.075,.075]){
-  box(center,.035,.14,.035,x,1.62,2.89,bronze,false);
-  sphere(center,.045,x,1.70,2.91,gold,.9);
- }
- // Небольшой терракотовый двускатный козырёк — без лишних
- // золотых медальонов, боковых накладок и жёлтых полос сверху.
- const canopyShape=new THREE.Shape();
- canopyShape.moveTo(-1.04,-.10);
- canopyShape.lineTo(-1.04,.08);
- canopyShape.lineTo(0,.54);
- canopyShape.lineTo(1.04,.08);
- canopyShape.lineTo(1.04,-.10);
- canopyShape.closePath();
- const canopyMesh=new THREE.Mesh(new THREE.ExtrudeGeometry(canopyShape,{depth:.76,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.025,bevelThickness:.02}),terra);
- canopyMesh.position.set(0,2.72,2.48);canopyMesh.castShadow=false;canopyMesh.receiveShadow=false;center.add(canopyMesh);
- // Светлая нижняя кромка козырька без золотой отделки скатов.
- box(center,2.08,.07,.80,0,2.64,2.80,cream,false);
-
- // Две круглые каменные колонны под козырьком — симметрично по эталону.
- for(const x of [-.94,.94]){
-  const base=new THREE.Mesh(new THREE.CylinderGeometry(.17,.19,.16,24),stone);
-  base.position.set(x,.96,3.12);base.castShadow=false;base.receiveShadow=false;center.add(base);
-  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.115,.135,1.55,24),cream);
-  shaft.position.set(x,1.815,3.12);shaft.castShadow=false;shaft.receiveShadow=false;center.add(shaft);
-  const lowerRing=new THREE.Mesh(new THREE.CylinderGeometry(.145,.145,.075,24),stone);
-  lowerRing.position.set(x,1.10,3.12);lowerRing.castShadow=false;lowerRing.receiveShadow=false;center.add(lowerRing);
-  const capital=new THREE.Mesh(new THREE.CylinderGeometry(.18,.14,.18,24),stone);
-  capital.position.set(x,2.68,3.12);capital.castShadow=false;capital.receiveShadow=false;center.add(capital);
-  const abacus=new THREE.Mesh(new THREE.CylinderGeometry(.19,.19,.07,24),cream);
-  abacus.position.set(x,2.805,3.12);abacus.castShadow=false;abacus.receiveShadow=false;center.add(abacus);
- }
- // Парадная лестница с широкими каменными ступенями.
+ // Центральные фасадные окна удалены по просьбе пользователя.
+  // Входная дверь и её фурнитура удалены по просьбе пользователя.
+  // Козырёк и его опорные колонны удалены по просьбе пользователя.
+  // Парадная лестница с широкими каменными ступенями.
  for(let i=0;i<5;i++){
   box(center,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,cream);
  }
@@ -4007,14 +3949,8 @@ function makeHouse(){
    }
    cylinder(t,1.18,1.18,.07,0,balconyY+.57,0,cream,n);
    cylinder(t,1.21,1.21,.045,0,balconyY+.65,0,gold,n);
-   // Цветочные кашпо вдоль передней дуги каждого балкона.
-   for(let j=0;j<9;j++){
-    const a=-1.05+j*.2625,px=Math.sin(a)*1.20,pz=Math.cos(a)*1.20;
-    box(t,.20,.10,.18,px,balconyY+.24,pz,stone,false);
-    sphere(t,.07,px,balconyY+.38,pz,green,.78);
-    sphere(t,.075,px,balconyY+.47,pz,j%3===0?lilac:(j%2?white:pink),.82);
+   // Все цветы и кашпо на балконах удалены по просьбе пользователя.
    }
-  }
   // Верхний аттик и многоступенчатый карниз под конической крышей.
   cylinder(t,.98,.98,.13,0,4.96,0,stone,n);
   cylinder(t,1.05,1.05,.12,0,5.08,0,cream,n);
