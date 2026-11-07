@@ -3777,6 +3777,16 @@ function makeWorldDecor(){
       pier.rotation.x=-Math.atan(bridgeSlope(t));
       const cap=box(world,.42,.12,.46,side*2.01,y+.95,z,railCapMat,false);
       cap.rotation.x=-Math.atan(bridgeSlope(t));
+      // Золотые навершники и розетки повторяют акценты эталонных ворот.
+      const finial=new THREE.Mesh(new THREE.SphereGeometry(.095,12,10),M.gold);
+      finial.position.set(side*2.01,y+1.075,z);finial.castShadow=false;finial.receiveShadow=false;world.add(finial);
+      const bridgeRosette=new THREE.Mesh(new THREE.TorusGeometry(.105,.024,8,20),M.gold);
+      bridgeRosette.rotation.y=Math.PI/2;
+      bridgeRosette.position.set(side*2.205,y+.48,z);
+      bridgeRosette.castShadow=false;bridgeRosette.receiveShadow=false;world.add(bridgeRosette);
+      const bridgeCenter=new THREE.Mesh(new THREE.SphereGeometry(.045,10,8),M.gold);
+      bridgeCenter.position.set(side*2.21,y+.48,z);
+      bridgeCenter.castShadow=false;bridgeCenter.receiveShadow=false;world.add(bridgeCenter);
     }
     // Каждая секция — широкая округлая дуга с единым плавным радиусом.
     for(let bay=0;bay<3;bay++){
