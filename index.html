@@ -918,6 +918,8 @@ function makeHouse(){
    fascia.rotation.z=angle;
    // Ритмичные резные кронштейны поддерживают длинный карниз главного дома.
    for(const z of [-3.65,-2.2,-.73,.73,2.2,3.65]){
+     // Правый край фронтона оставлен чистым, как левый: убран только выступающий крайний кронштейн.
+     if(x>0 && z===3.65) continue;
      const bracket=box(g,.16,.42,.2,x+(x<0?.12:-.12),y-.2,z,M.stone2,false);
      bracket.rotation.z=angle;
      sphere(g,.045,x+(x<0?.24:-.24),y-.34,z,M.gold,.8);
