@@ -3594,34 +3594,34 @@ function makeWorldDecor(){
     }
   }
   // Невысокие каменные парапеты повторяют профиль настила, сохраняя открытый вид на реку.
-  // Арочные каменные перила: повторяющиеся плавные пролёты с открытыми арочными просветами.
+  // Круглые арочные перила: ровно три больших полукруглых секции на каждой стороне.
   const railMat=new THREE.MeshStandardMaterial({color:0x96866d,roughness:.97,metalness:0});
   const railCapMat=new THREE.MeshStandardMaterial({color:0xc5b493,roughness:.95,metalness:0});
   for(const side of [-1,1]){
-    // Невысокий непрерывный цоколь отделяет ограждение от серой мостовой.
+    // Непрерывный низкий каменный бортик повторяет продольный профиль моста.
     for(let row=0;row<20;row++){
       const t=(row+.5)/20,z=bridgeStart+t*bridgeLength,angle=-Math.atan(bridgeSlope(t));
       const curb=box(world,.24,.22,bridgeLength/20+.018,side*2.01,bridgeProfile(t)+.10,z,bridgeStoneShade,false);
       curb.rotation.x=angle;
     }
-    // Каменные опоры задают ритм аркады; между ними оставлены широкие просветы.
-    for(let i=0;i<=8;i++){
-      const t=i/8,z=bridgeStart+t*bridgeLength,y=bridgeProfile(t);
-      const pier=box(world,.29,.88,.34,side*2.01,y+.53,z,railMat,false);
+    // Четыре опоры образуют начало, две границы и конец трёх арочных секций.
+    for(let i=0;i<=3;i++){
+      const t=i/3,z=bridgeStart+t*bridgeLength,y=bridgeProfile(t);
+      const pier=box(world,.30,.82,.38,side*2.01,y+.48,z,railMat,false);
       pier.rotation.x=-Math.atan(bridgeSlope(t));
-      const cap=box(world,.40,.12,.43,side*2.01,y+1.02,z,railCapMat,false);
+      const cap=box(world,.42,.12,.46,side*2.01,y+.95,z,railCapMat,false);
       cap.rotation.x=-Math.atan(bridgeSlope(t));
     }
-    // Каждый пролёт — отдельная каменная дуга, плавно повторяющая подъём настила.
-    for(let bay=0;bay<8;bay++){
+    // Каждая секция — широкая округлая дуга с единым плавным радиусом.
+    for(let bay=0;bay<3;bay++){
       const points=[];
-      for(let j=0;j<=16;j++){
-        const u=j/16,t=(bay+u)/8,z=bridgeStart+t*bridgeLength;
-        const y=bridgeProfile(t)+.34+.54*Math.sin(Math.PI*u);
+      for(let j=0;j<=32;j++){
+        const u=j/32,t=(bay+u)/3,z=bridgeStart+t*bridgeLength;
+        const y=bridgeProfile(t)+.38+.78*Math.sin(Math.PI*u);
         points.push(new THREE.Vector3(side*2.01,y,z));
       }
       const archCurve=new THREE.CatmullRomCurve3(points);
-      const arch=new THREE.Mesh(new THREE.TubeGeometry(archCurve,40,.105,10,false),railCapMat);
+      const arch=new THREE.Mesh(new THREE.TubeGeometry(archCurve,72,.13,12,false),railCapMat);
       arch.castShadow=false;arch.receiveShadow=false;world.add(arch);
     }
   }
