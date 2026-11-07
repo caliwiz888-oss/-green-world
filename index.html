@@ -3940,32 +3940,72 @@ function makeWorldDecor(){
   buildFenceRun("left",-14,-14,14);
   buildFenceRun("right",16.5,-14,14);
 
-  // Центральная парадная арка — светлый камень с золотыми обводками и гербом, как на макете.
-  const gateSpring=2.45,gateOuter=2.95,gateInner=2.12,gateFrontZ=13.98;
+  // Парадная входная арка по крупному плану утверждённого макета: многослойный известняковый портал с золотым гербом.
+  const gateSpring=2.48,gateOuter=2.98,gateInner=2.18,gateFrontZ=13.98,gateBackZ=13.76;
   const gateShape=(outerR,innerR,springY)=>{
     const shape=new THREE.Shape();
     shape.moveTo(-outerR,0);shape.lineTo(-outerR,springY);shape.absarc(0,springY,outerR,Math.PI,0,true);shape.lineTo(outerR,0);shape.closePath();
     const hole=new THREE.Path();hole.moveTo(-innerR,0);hole.lineTo(-innerR,springY);hole.absarc(0,springY,innerR,Math.PI,0,true);hole.lineTo(innerR,0);hole.closePath();shape.holes.push(hole);
     return shape;
   };
-  const gateGeometry=new THREE.ExtrudeGeometry(gateShape(gateOuter,gateInner,gateSpring),{depth:.52,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.045,bevelThickness:.035,curveSegments:40});
-  const gate=new THREE.Mesh(gateGeometry,fenceStone);gate.position.set(0,.02,13.76);fenceNoShadow(gate);world.add(gate);
-  const gateBand=(radius,material,tube)=>{
-    const pts=[];for(let i=0;i<=64;i++){const a=Math.PI-i*Math.PI/64;pts.push(new THREE.Vector3(radius*Math.cos(a),.02+gateSpring+radius*Math.sin(a),gateFrontZ+.30));}
-    const mesh=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),128,tube,8,false),material);fenceNoShadow(mesh);world.add(mesh);
+  const gateMesh=(outerR,innerR,springY,depth,material,z,bevel=.025)=>{
+    const geometry=new THREE.ExtrudeGeometry(gateShape(outerR,innerR,springY),{depth,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:bevel,bevelThickness:bevel,curveSegments:48});
+    const mesh=new THREE.Mesh(geometry,material);mesh.position.set(0,.02,z);fenceNoShadow(mesh);world.add(mesh);return mesh;
   };
-  gateBand(2.78,fenceGold,.055);gateBand(2.25,fenceIvory,.035);
-  for(const x of [-2.56,2.56]){
-    fenceNoShadow(box(world,.82,.22,.82,x,.13,14.02,fenceReliefStone,false));
-    fenceNoShadow(box(world,.76,2.12,.72,x,1.30,14.02,fenceStone,false));
-    fenceNoShadow(box(world,.98,.16,.88,x,2.48,14.02,fenceIvory,false));
-    fenceNoShadow(box(world,.82,.08,.74,x,2.60,14.02,fenceGold,false));
-    const finial=new THREE.Mesh(new THREE.ConeGeometry(.16,.30,8),fenceGold);finial.position.set(x,2.79,14.02);fenceNoShadow(finial);world.add(finial);
+  // Несущий массив арки. Старая простая арка полностью заменена.
+  gateMesh(gateOuter,gateInner,gateSpring,.58,fenceStone,gateBackZ,.045);
+  // Широкий наружный наличник и тонкая внутренняя золотая линия повторяют контур арки.
+  gateMesh(2.86,2.67,gateSpring,.12,fenceIvory,gateFrontZ+.38,.018);
+  gateMesh(2.72,2.64,gateSpring,.055,fenceGold,gateFrontZ+.49,.009);
+  gateMesh(2.34,2.23,gateSpring,.045,fenceReliefStone,gateFrontZ+.49,.008);
+  gateMesh(2.29,2.23,gateSpring,.035,fenceGoldLight,gateFrontZ+.535,.006);
+  // Каменные устои с массивными базами, капителями и вертикальными рельефными тягами.
+  for(const x of [-2.57,2.57]){
+    fenceNoShadow(box(world,.98,.24,.96,x,.14,14.02,fenceReliefStone,false));
+    fenceNoShadow(box(world,.91,.12,.91,x,.31,14.02,fenceIvory,false));
+    fenceNoShadow(box(world,.82,2.18,.82,x,1.46,14.02,fenceStone,false));
+    fenceNoShadow(box(world,.90,.13,.90,x,2.60,14.02,fenceIvory,false));
+    fenceNoShadow(box(world,.98,.07,.94,x,2.70,14.02,fenceGold,false));
+    fenceNoShadow(box(world,.84,.10,.84,x,2.79,14.02,fenceStone,false));
+    for(const face of [-1,1]){
+      const z=14.02+face*.421;
+      for(const dx of [-.25,0,.25]){
+        fenceNoShadow(box(world,.075,1.72,.035,x+dx,1.43,z,fenceIvory,false));
+        fenceNoShadow(box(world,.026,1.55,.018,x+dx+.055,1.43,z+face*.021,fenceGold,false));
+      }
+      fenceNoShadow(box(world,.62,.055,.04,x, .56,z,fenceGold,false));
+      fenceNoShadow(box(world,.62,.055,.04,x,2.28,z,fenceGold,false));
+    }
   }
-  const gateMedallion=new THREE.Mesh(new THREE.OctahedronGeometry(.28,1),fenceGold);
-  gateMedallion.position.set(0,.02+gateSpring+gateOuter-.02,gateFrontZ+.34);gateMedallion.scale.set(1.25,1.1,.42);fenceNoShadow(gateMedallion);world.add(gateMedallion);
-  const gateMedallionCore=new THREE.Mesh(new THREE.SphereGeometry(.105,12,10),fenceGoldLight);
-  gateMedallionCore.position.set(0,.02+gateSpring+gateOuter+.015,gateFrontZ+.40);fenceNoShadow(gateMedallionCore);world.add(gateMedallionCore);
+  // Радиальные швы на каменных блоках дуги — тонкие золотистые разделители по обеим сторонам.
+  for(const face of [-1,1]){
+    const z=gateFrontZ+.515+face*.012;
+    for(let i=1;i<13;i++){
+      const angle=Math.PI-i*Math.PI/13;
+      const r=2.77;
+      const x=r*Math.cos(angle),y=.02+gateSpring+r*Math.sin(angle);
+      const radial=new THREE.Mesh(new THREE.SphereGeometry(.035,8,6),fenceGold);
+      radial.position.set(x,y,z);radial.scale.set(1,1,.35);fenceNoShadow(radial);world.add(radial);
+    }
+  }
+  // Центральный замковый камень с выразительным золотым гербом и симметричными завитками.
+  const crestY=.02+gateSpring+gateOuter+.10,crestZ=gateFrontZ+.59;
+  const crestBase=new THREE.Mesh(new THREE.OctahedronGeometry(.34,1),fenceGold);
+  crestBase.position.set(0,crestY,crestZ);crestBase.scale.set(1.05,1.22,.34);fenceNoShadow(crestBase);world.add(crestBase);
+  const crestCore=new THREE.Mesh(new THREE.OctahedronGeometry(.17,1),fenceIvory);
+  crestCore.position.set(0,crestY,crestZ+.075);crestCore.scale.set(.85,1.1,.28);fenceNoShadow(crestCore);world.add(crestCore);
+  const crestGem=new THREE.Mesh(new THREE.SphereGeometry(.085,14,12),fenceGoldLight);
+  crestGem.position.set(0,crestY+.015,crestZ+.14);crestGem.scale.set(1,1,.42);fenceNoShadow(crestGem);world.add(crestGem);
+  for(const side of [-1,1]){
+    const curl=new THREE.Mesh(new THREE.TorusGeometry(.23,.045,8,28,Math.PI*1.25),fenceGold);
+    curl.position.set(side*.30,crestY-.06,crestZ+.04);curl.rotation.z=side<0?Math.PI*.12:Math.PI*.88;fenceNoShadow(curl);world.add(curl);
+    const leaf=new THREE.Mesh(new THREE.ConeGeometry(.075,.22,7),fenceGoldLight);
+    leaf.position.set(side*.43,crestY+.20,crestZ+.03);leaf.rotation.z=-side*.55;fenceNoShadow(leaf);world.add(leaf);
+  }
+  const crestCrown=new THREE.Mesh(new THREE.ConeGeometry(.15,.25,8),fenceGold);
+  crestCrown.position.set(0,crestY+.37,crestZ);fenceNoShadow(crestCrown);world.add(crestCrown);
+  const crestTop=new THREE.Mesh(new THREE.SphereGeometry(.055,10,8),fenceGoldLight);
+  crestTop.position.set(0,crestY+.51,crestZ);fenceNoShadow(crestTop);world.add(crestTop);
   // Decorative entrance arch is built above; continue with natural ground-cover details.
  // Low ornamental ground cover and natural stone clusters around the outer border.
  const shrubMat=mat(0x718765),rockMat=mat(0x9b9586);
