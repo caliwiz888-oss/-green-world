@@ -1131,9 +1131,16 @@ function makeHouse(){
  // Новая архитектура двух башен: стройный восьмигранный каменный объём и высокие окна.
  // Сохраняем прежние места и общую высоту башен, убирая тяжёлую квадратную кладку и избыток золота.
  const towerStoneMaterial=houseStone.clone();
- towerStoneMaterial.color.setHex(0xdedbd2);towerStoneMaterial.roughness=.92;towerStoneMaterial.bumpScale=.026;towerStoneMaterial.needsUpdate=true;
+ // Башенный известняк чуть теплее и матовее фасадного, с более читаемым микрорельефом.
+ towerStoneMaterial.color.setHex(0xd9d5cb);
+ towerStoneMaterial.roughness=.96;
+ towerStoneMaterial.bumpScale=.034;
+ towerStoneMaterial.needsUpdate=true;
  const towerTrimMaterial=houseStoneTrim.clone();
- towerTrimMaterial.color.setHex(0xeee9df);towerTrimMaterial.roughness=.9;towerTrimMaterial.needsUpdate=true;
+ towerTrimMaterial.color.setHex(0xe9e4d9);
+ towerTrimMaterial.roughness=.94;
+ towerTrimMaterial.bumpScale=.03;
+ towerTrimMaterial.needsUpdate=true;
  // Купола в приглушённом серо-голубом тоне с более тёмной синевато-графитовой окантовкой.
  const towerRoofMaterial=new THREE.MeshStandardMaterial({color:0x879ba4,roughness:.84,metalness:.045});
  const towerRoofLine=new THREE.MeshStandardMaterial({color:0x43545d,roughness:.88,metalness:.02});
