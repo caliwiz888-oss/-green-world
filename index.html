@@ -3898,11 +3898,13 @@ function makeHouse(){
  const inset=new THREE.Mesh(new THREE.ShapeGeometry(insetShape),cream);
  inset.position.set(0,4.48,2.68);inset.castShadow=false;inset.receiveShadow=false;g.add(inset);
  for(const side of [-1,1]){
-  const beam=box(g,3.55,.18,.30,side*1.75,5.30,2.72,cream);
+  // Укороченный карниз фронтона: его скаты заканчиваются внутри промежутка
+  // между башнями и не заходят на их цилиндрические корпуса.
+  const beam=box(g,2.02,.18,.30,side*.91,5.30,2.72,cream);
   beam.rotation.z=side===-1?.52:-.52;
-  const line=box(g,3.48,.05,.32,side*1.72,5.38,2.79,gold);
+  const line=box(g,1.96,.05,.32,side*.88,5.38,2.79,gold);
   line.rotation.z=side===-1?.52:-.52;
-  const inner=box(g,3.30,.07,.24,side*1.63,5.14,2.75,stone);
+  const inner=box(g,1.86,.07,.24,side*.82,5.14,2.75,stone);
   inner.rotation.z=side===-1?.52:-.52;
  }
  box(g,6.32,.16,.42,0,4.48,2.48,cream);
@@ -3966,9 +3968,10 @@ function makeHouse(){
   edge.rotation.z=slope;
  }
  for(const side of [-1,1]){
-  const fascia=box(g,4.00,.22,.36,side*1.74,5.34,2.61,slateDark);
+  // Торцевые накладки ската также укорочены, чтобы не перекрывать башни.
+  const fascia=box(g,2.02,.22,.36,side*.91,5.34,2.61,slateDark);
   fascia.rotation.z=side===-1?.48:-.48;
-  const edge=box(g,3.96,.055,.39,side*1.72,5.45,2.67,gold);
+  const edge=box(g,1.98,.055,.39,side*.89,5.45,2.67,gold);
   edge.rotation.z=side===-1?.48:-.48;
   box(g,.18,.18,5.48,side*3.50,4.43,-.07,slateDark);
  }
