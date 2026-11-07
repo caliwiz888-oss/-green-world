@@ -295,7 +295,7 @@ const atmosphereRim=new THREE.DirectionalLight(0xc9e3f5,.34);atmosphereRim.posit
 const worldBounce=new THREE.DirectionalLight(0xffe8c9,.22);worldBounce.position.set(18,7,30);worldBounce.castShadow=false;scene.add(worldBounce);
 const mat=(c,r=.82)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.025,dithering:true});
 const windowInterior=new THREE.MeshStandardMaterial({color:0xffdca0,emissive:0xb87932,emissiveIntensity:.2,roughness:.42,dithering:true});
-const M={grass:mat(0x78a94f,.9),grass2:mat(0x699747,.92),soil:mat(0x98734a,.96),path:mat(0xd7bd8d,.88),stone:new THREE.MeshStandardMaterial({color:0xe8ddc5,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x91483a,roughness:.78,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0xb8644c,roughness:.74,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x397b3c,roughness:.92,metalness:0,sheen:.34,sheenColor:0x91b86b,sheenRoughness:.88}),leaf2:new THREE.MeshPhysicalMaterial({color:0x5a9a48,roughness:.91,metalness:0,sheen:.42,sheenColor:0xc0d98a,sheenRoughness:.86}),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xd6b45d,roughness:.34,metalness:.58}),glass:new THREE.MeshStandardMaterial({color:0x9bdde1,roughness:.3,metalness:.04,emissive:0x102b34,emissiveIntensity:.06,transparent:false,opacity:1,depthWrite:true})};
+const M={grass:mat(0x83a66a,.9),grass2:mat(0x78985f,.92),soil:mat(0x98734a,.96),path:mat(0xe2cfad,.88),stone:new THREE.MeshStandardMaterial({color:0xe8ddc5,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x91483a,roughness:.78,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0xb8644c,roughness:.74,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x397b3c,roughness:.92,metalness:0,sheen:.34,sheenColor:0x91b86b,sheenRoughness:.88}),leaf2:new THREE.MeshPhysicalMaterial({color:0x5a9a48,roughness:.91,metalness:0,sheen:.42,sheenColor:0xc0d98a,sheenRoughness:.86}),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xd6b45d,roughness:.34,metalness:.58}),glass:new THREE.MeshStandardMaterial({color:0x9bdde1,roughness:.3,metalness:.04,emissive:0x102b34,emissiveIntensity:.06,transparent:false,opacity:1,depthWrite:true})};
 
 function makeSurfaceTexture(kind,seed){
  const size=768,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
@@ -1837,7 +1837,7 @@ function makeMarket(){
  marketGlass.depthWrite=true;
  marketGlass.needsUpdate=true;
  const g=group(world,-10.8,0,-8.5);g.rotation.y=0;g.scale.setScalar(1.2);
- const timber=mat(0x765039,.78),timberLight=mat(0xa8794e,.72);
+ const timber=mat(0x55483b,.78),timberLight=mat(0xb99a55,.72);
  const marketBeamMaterial=timber.clone();
  marketBeamMaterial.roughness=.7;marketBeamMaterial.bumpScale=.028;marketBeamMaterial.color.multiplyScalar(1.035);marketBeamMaterial.needsUpdate=true;
  // Локальная карта древесины лавки: тонкие продольные волокна и мягкие годичные слои без изменения геометрии.
@@ -3528,11 +3528,11 @@ function makeFlowerBed(x,z){
  box(b,2.2,.28,1.15,0,.14,0,M.stone2,false);
  box(b,2.08,.09,1.03,0,.315,0,M.stone,false);
  box(b,1.88,.16,.84,0,.39,0,M.soil,false);
- const petalColors=[0xd95b62,0xe9c65d,0xe9e4ce,0xb76db0];
+ const petalColors=[0xe45d72,0xf0c75e,0xfff0d8,0xb66fc2,0x4f9fc0];
  const petalMaterials=petalColors.map(color=>new THREE.MeshStandardMaterial({color,roughness:.82}));
  const centerMaterial=new THREE.MeshStandardMaterial({color:0xe6b94d,roughness:.78});
- const leafMaterial=new THREE.MeshStandardMaterial({color:0x56894a,roughness:.94});
- const leafLightMaterial=new THREE.MeshStandardMaterial({color:0x79a95b,roughness:.92});
+ const leafMaterial=new THREE.MeshStandardMaterial({color:0x6f9655,roughness:.94});
+ const leafLightMaterial=new THREE.MeshStandardMaterial({color:0x91b96b,roughness:.92});
  const flowerHead=new THREE.SphereGeometry(.075,12,9);
  const leafGeo=new THREE.SphereGeometry(1,10,7);
  for(let i=0;i<7;i++){
@@ -3563,6 +3563,8 @@ function makeFlowerBed(x,z){
    tuft.castShadow=false;tuft.receiveShadow=false;b.add(tuft);
  }
 }
+ // Цветочные акценты вдоль передней линии ограды: симметрично по обе стороны от центрального входа.
+ for(const x of [-11,-7,7,11])makeFlowerBed(x,11.65);
 function makeWorldDecor(){
   // Двухцветная палитра ограды: тёплый известняк и приглушённый шалфейно-оливковый камень.
   const fenceBaseTrim=mat(0x55483b),fenceLightTrim=mat(0xf0e2c8),fenceRelief=mat(0xb99a55),fenceShadow=mat(0x493b31);
