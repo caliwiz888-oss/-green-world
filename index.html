@@ -3977,6 +3977,14 @@ function makeWorldDecor(){
       fenceNoShadow(box(world,.62,.055,.04,x,2.28,z,fenceGold,false));
     }
   }
+  // Соединительные каменные вставки: без щелей между боковыми устоями арки и крайними столбами ограды.
+  for(const side of [-1,1]){
+    const x=side*3.225;
+    fenceNoShadow(box(world,.33,2.16,.78,x,1.42,14.02,fenceStone,false));
+    fenceNoShadow(box(world,.39,.13,.86,x,.30,14.02,fenceIvory,false));
+    fenceNoShadow(box(world,.39,.13,.86,x,2.62,14.02,fenceIvory,false));
+    fenceNoShadow(box(world,.025,1.72,.025,x,1.43,14.425,fenceGold,false));
+  }
   // Радиальные швы на каменных блоках дуги — тонкие золотистые разделители по обеим сторонам.
   for(const face of [-1,1]){
     const z=gateFrontZ+.515+face*.012;
