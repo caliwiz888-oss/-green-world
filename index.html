@@ -3728,6 +3728,8 @@ function clearDynamic(){
 }
 function makeHouse(){
  const g=group(world,0,0,-14);g.name='green-world-manor-full-reference-rebuild';
+ // Небольшое общее увеличение усадьбы без изменения её положения во дворе.
+ g.scale.set(1.06,1.04,1.04);
  const ivory=mat(0xf1e5d0,.91),cream=mat(0xfff3df,.86),stone=mat(0xcbb896,.93),stoneDark=mat(0x9e8969,.9);
  const slate=mat(0x29445f,.78),slateDark=mat(0x182f49,.82),teal=mat(0x25b8c4,.24),tealLight=mat(0x8be2df,.2);
  const gold=mat(0xd9ad4f,.34),bronze=mat(0x493326,.58),wood=mat(0x684126,.65),terra=mat(0xa95735,.8);
