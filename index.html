@@ -3876,21 +3876,26 @@ function makeHouse(){
   sphere(g,.045,x,1.60,2.91,gold,.95);
   box(g,.035,.16,.025,x,1.51,2.90,bronze,false);
  }
- // Терракотовый козырёк над входом с мягким выпуклым профилем,
- // как на эталонном фасаде, с тонкой золотой кромкой.
+ // Терракотовый двускатный козырёк над входом — повторяет
+ // характерный небольшой фронтон эталонного парадного входа.
  const canopyShape=new THREE.Shape();
- canopyShape.moveTo(-1.02,-.08);
- canopyShape.lineTo(-1.02,.04);
- canopyShape.quadraticCurveTo(-.58,.43,0,.47);
- canopyShape.quadraticCurveTo(.58,.43,1.02,.04);
- canopyShape.lineTo(1.02,-.08);
+ canopyShape.moveTo(-1.04,-.10);
+ canopyShape.lineTo(-1.04,.08);
+ canopyShape.lineTo(0,.54);
+ canopyShape.lineTo(1.04,.08);
+ canopyShape.lineTo(1.04,-.10);
  canopyShape.closePath();
- const canopyMesh=new THREE.Mesh(new THREE.ExtrudeGeometry(canopyShape,{depth:.72,bevelEnabled:true,bevelSegments:4,steps:1,bevelSize:.035,bevelThickness:.025}),terra);
- canopyMesh.position.set(0,2.75,2.48);canopyMesh.castShadow=false;canopyMesh.receiveShadow=false;g.add(canopyMesh);
- box(g,2.10,.07,.82,0,2.72,2.78,gold);
- box(g,1.94,.055,.78,0,2.65,2.79,cream);
- // Золотой медальон на вершине козырька и симметричные каменные кронштейны.
- sphere(g,.10,0,3.18,3.22,gold,.9);
+ const canopyMesh=new THREE.Mesh(new THREE.ExtrudeGeometry(canopyShape,{depth:.76,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.025,bevelThickness:.02}),terra);
+ canopyMesh.position.set(0,2.72,2.48);canopyMesh.castShadow=false;canopyMesh.receiveShadow=false;g.add(canopyMesh);
+ // Непрерывная золотая окантовка основания и двух скатов козырька.
+ box(g,2.12,.075,.84,0,2.68,2.80,gold);
+ const canopyLeft=box(g,1.16,.055,.82,-.51,3.09,2.82,gold,false);
+ canopyLeft.rotation.z=-.416;
+ const canopyRight=box(g,1.16,.055,.82,.51,3.09,2.82,gold,false);
+ canopyRight.rotation.z=.416;
+ box(g,1.96,.045,.80,0,2.59,2.80,cream);
+ // Золотой медальон в вершине фронтона и симметричные каменные кронштейны.
+ sphere(g,.10,0,3.26,3.24,gold,.9);
  for(const x of [-.78,.78]){
   const bracket=box(g,.14,.42,.18,x,2.53,2.72,cream,false);
   bracket.rotation.z=x<0?-.18:.18;
