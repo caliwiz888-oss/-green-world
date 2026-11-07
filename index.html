@@ -914,7 +914,10 @@ function makeHouse(){
  const manorRoofEdgeMaterial=new THREE.MeshStandardMaterial({color:0x704832,roughness:.88,metalness:.02});
   // Обе карнизные балки одинаковой длины и точно под наружными кромками скатов.
   for(const [x,y,angle] of [[-3.55,4.63,.58],[3.09,4.63,-.58]]){
-    const fascia=box(g,.2,.24,9.02,x,y,0,manorRoofEdgeMaterial,false);
+    // Справа передний конец балки утоплен за плоскость фронтона, чтобы не выступать рядом с башней.
+    const fascia= x>0
+      ? box(g,.2,.24,8.0,x,y,-.51,manorRoofEdgeMaterial,false)
+      : box(g,.2,.24,9.02,x,y,0,manorRoofEdgeMaterial,false);
    fascia.rotation.z=angle;
    // Ритмичные резные кронштейны поддерживают длинный карниз главного дома.
    for(const z of [-3.65,-2.2,-.73,.73,2.2,3.65]){
