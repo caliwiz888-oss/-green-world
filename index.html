@@ -3824,9 +3824,72 @@ function makeHouse(){
   box(center,w+.28,.09,.32,x,y+h+.04,z+.08,stone);
   box(center,w+.20,.045,.34,x,y+h+.12,z+.08,gold);
  }
- // Центральные фасадные окна удалены по просьбе пользователя.
-  // Входная дверь и её фурнитура удалены по просьбе пользователя.
-  // Козырёк и его опорные колонны удалены по просьбе пользователя.
+ // Парадный фасад: симметричные арочные окна, высокая двустворчатая дверь
+ // и отдельный дворцовый козырёк из бронзы и патинированной меди.
+ // Два больших арочных окна с бирюзовыми витражами и глубокими каменными наличниками.
+ archedWindow(-1.78,1.42,1.02,1.78,2.72);
+ archedWindow(1.78,1.42,1.02,1.78,2.72);
+ // Каменный портал главного входа: арочная форма повторяет окна и связывает фасад.
+ const doorOuter=new THREE.Shape();
+ doorOuter.moveTo(-.91,0);doorOuter.lineTo(-.91,2.30);
+ doorOuter.absarc(0,2.30,.91,Math.PI,0,true);
+ doorOuter.lineTo(.91,0);doorOuter.closePath();
+ const portal=new THREE.Mesh(new THREE.ExtrudeGeometry(doorOuter,{depth:.16,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.045,bevelThickness:.035}),cream);
+ portal.position.set(0,.57,2.66);portal.castShadow=true;center.add(portal);
+ const doorShape=new THREE.Shape();
+ doorShape.moveTo(-.76,.04);doorShape.lineTo(-.76,2.24);
+ doorShape.absarc(0,2.24,.76,Math.PI,0,true);
+ doorShape.lineTo(.76,.04);doorShape.closePath();
+ const doorMesh=new THREE.Mesh(new THREE.ExtrudeGeometry(doorShape,{depth:.09,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.025,bevelThickness:.02}),wood);
+ doorMesh.position.set(0,.61,2.83);doorMesh.castShadow=true;center.add(doorMesh);
+ // Две филёнчатые створки с бронзовой окантовкой.
+ for(const side of [-1,1]){
+  box(center,.035,2.05,.035,side*.055,1.70,2.94,gold,false);
+  box(center,.56,1.20,.045,side*.38,1.43,2.95,bronze,false);
+  box(center,.47,1.10,.045,side*.38,1.43,2.98,wood,false);
+  box(center,.50,.055,.05,side*.38,2.08,2.98,gold,false);
+  box(center,.50,.055,.05,side*.38,.83,2.98,gold,false);
+  box(center,.055,.95,.05,side*.38,1.43,2.98,gold,false);
+  sphere(center,.055,side*.12,1.62,3.02,gold,.9);
+ }
+ // Арочный витраж над створками и золотой центральный импост.
+ const transomShape=new THREE.Shape();
+ transomShape.moveTo(-.66,0);transomShape.lineTo(-.66,.28);
+ transomShape.absarc(0,.28,.66,Math.PI,0,true);
+ transomShape.lineTo(.66,0);transomShape.closePath();
+ const transom=new THREE.Mesh(new THREE.ShapeGeometry(transomShape),teal);
+ transom.position.set(0,2.85,2.955);center.add(transom);
+ box(center,.045,.38,.035,0,3.12,2.97,gold,false);
+ // Верхняя перемычка портала, ступенчатый порог и декоративная розетка.
+ box(center,2.05,.16,.36,0,.57,2.78,stone);
+ box(center,1.98,.08,.40,0,.68,2.82,gold);
+ sphere(center,.12,0,3.62,2.83,gold,.9);
+ // Козырёк над дверью: тонкая пологая медная кровля с золотым кантом.
+ const canopyMat=new THREE.MeshStandardMaterial({color:0x176b62,roughness:.45,metalness:.74,side:THREE.DoubleSide});
+ const canopyShape=new THREE.Shape();
+ canopyShape.moveTo(-1.48,0);canopyShape.lineTo(1.48,0);
+ canopyShape.lineTo(1.34,-.56);canopyShape.lineTo(-1.34,-.56);canopyShape.closePath();
+ const canopyGeo=new THREE.ExtrudeGeometry(canopyShape,{depth:.10,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.035,bevelThickness:.025});
+ canopyGeo.rotateX(-Math.PI/2);
+ const canopy=new THREE.Mesh(canopyGeo,canopyMat);
+ canopy.position.set(0,3.66,2.78);canopy.castShadow=true;center.add(canopy);
+ // Профилированный край козырька и бронзовые кронштейны без тяжёлых колонн.
+ box(center,3.02,.10,.16,0,3.66,3.31,gold);
+ for(const side of [-1,1]){
+  const bracketPts=[
+   new THREE.Vector3(side*.95,3.62,2.70),
+   new THREE.Vector3(side*.95,3.28,2.92),
+   new THREE.Vector3(side*1.30,3.28,3.20)
+  ];
+  const bracket=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(bracketPts),20,.045,8,false),bronze);
+  bracket.castShadow=true;center.add(bracket);
+  sphere(center,.075,side*1.30,3.28,3.20,gold,.9);
+ }
+ // Небольшой золотой гребень и парные декоративные пики завершают козырёк.
+ box(center,.12,.10,.64,0,3.77,3.04,gold);
+ for(const side of [-1,1]){
+  sphere(center,.07,side*1.36,3.76,2.86,gold,.9);
+ }
   // Парадная лестница с широкими каменными ступенями.
  for(let i=0;i<5;i++){
   box(center,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,cream);
