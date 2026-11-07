@@ -907,22 +907,18 @@ function makeHouse(){
  manorRoofMaterial.roughness=.82;manorRoofMaterial.metalness=.035;
  manorRoofMaterial.map=manorRoofTexture;manorRoofMaterial.bumpMap=manorRoofBump;manorRoofMaterial.bumpScale=.013;manorRoofMaterial.roughness=.87;manorRoofMaterial.metalness=.02;manorRoofMaterial.needsUpdate=true;
  // Two correctly sized roof slopes meet at one ridge; no intersecting oversized panels.
- const roofL=box(g,3.95,.34,8.9,-1.93,5.72,0,manorRoofMaterial);roofL.rotation.z=.58;
- const roofR=box(g,3.95,.34,8.9,1.43,5.72,0,manorRoofMaterial);roofR.rotation.z=-.58;
+ const roofL=box(g,3.95,.34,8.04,-1.93,5.72,-.04,manorRoofMaterial);roofL.rotation.z=.58;
+ const roofR=box(g,3.95,.34,8.04,1.43,5.72,-.04,manorRoofMaterial);roofR.rotation.z=-.58;
   // Основные скаты оставлены цельными: убраны накладные ряды и черепица, создававшие мерцание.
  // Карнизные балки вдоль обоих скатов закрывают торцы кровли и подчёркивают её толщину.
  const manorRoofEdgeMaterial=new THREE.MeshStandardMaterial({color:0x704832,roughness:.88,metalness:.02});
   // Обе карнизные балки одинаковой длины и точно под наружными кромками скатов.
+  // Обе балки совпадают по глубине со скатами: торцы заканчиваются в плоскостях фронтонов.
   for(const [x,y,angle] of [[-3.55,4.63,.58],[3.09,4.63,-.58]]){
-    // Справа передний конец балки утоплен за плоскость фронтона, чтобы не выступать рядом с башней.
-    const fascia= x>0
-      ? box(g,.2,.24,8.0,x,y,-.51,manorRoofEdgeMaterial,false)
-      : box(g,.2,.24,9.02,x,y,0,manorRoofEdgeMaterial,false);
+    const fascia=box(g,.2,.24,8.04,x,y,-.04,manorRoofEdgeMaterial,false);
    fascia.rotation.z=angle;
    // Ритмичные резные кронштейны поддерживают длинный карниз главного дома.
    for(const z of [-3.65,-2.2,-.73,.73,2.2,3.65]){
-     // Правый край фронтона оставлен чистым, как левый: убран только выступающий крайний кронштейн.
-     if(x>0 && z===3.65) continue;
      const bracket=box(g,.16,.42,.2,x+(x<0?.12:-.12),y-.2,z,M.stone2,false);
      bracket.rotation.z=angle;
      sphere(g,.045,x+(x<0?.24:-.24),y-.34,z,M.gold,.8);
