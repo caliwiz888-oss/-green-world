@@ -909,12 +909,12 @@ function makeHouse(){
  // НОВАЯ КРОВЛЯ: единая параметрическая геометрия от общей оси конька.
  // Одинаковый уклон, толщина, длина и глубина; торцы совпадают с плоскостями фронтонов.
  const roofDepth=8.04, roofCenterZ=-.04, roofThickness=.30;
- const roofEaveY=4.74, roofRidgeY=6.82, roofAxisX=-.25;
+ const roofEaveY=4.74, roofRidgeY=6.82, roofAxisX=0;
  const roofSlopeLength=3.9279, roofSlopeAngle=0.5581;
- const roofLeftEaveX=-3.5820, roofRightEaveX=3.0820;
- const roofLeft=box(g,roofSlopeLength,roofThickness,roofDepth,-1.9160,5.7800,roofCenterZ,manorRoofMaterial,false);
+ const roofLeftEaveX=-3.3320, roofRightEaveX=3.3320;
+ const roofLeft=box(g,roofSlopeLength,roofThickness,roofDepth,-1.6660,5.7800,roofCenterZ,manorRoofMaterial,false);
  roofLeft.rotation.z=roofSlopeAngle;
- const roofRight=box(g,roofSlopeLength,roofThickness,roofDepth,1.4160,5.7800,roofCenterZ,manorRoofMaterial,false);
+ const roofRight=box(g,roofSlopeLength,roofThickness,roofDepth,1.6660,5.7800,roofCenterZ,manorRoofMaterial,false);
  roofRight.rotation.z=-roofSlopeAngle;
 
  // Карнизные балки установлены точно на концах обоих скатов.
@@ -956,8 +956,8 @@ function makeHouse(){
  makeGable(3.98);makeGable(-4.06);
  // Обрамления повторяют скаты с одинаковой длиной и зеркальными углами.
  const gableVergeSpecs=[
-   {length:roofSlopeLength,x:-1.9160,y:5.7800,angle:roofSlopeAngle},
-   {length:roofSlopeLength,x:1.4160,y:5.7800,angle:-roofSlopeAngle}
+   {length:roofSlopeLength,x:-1.6660,y:5.7800,angle:roofSlopeAngle},
+   {length:roofSlopeLength,x:1.6660,y:5.7800,angle:-roofSlopeAngle}
  ];
  for(const spec of gableVergeSpecs){
    const verge=box(g,spec.length,.09,.12,spec.x,spec.y,4.145,houseStoneTrim,false);
