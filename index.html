@@ -363,6 +363,13 @@ function makeSurfaceTexture(kind,seed){
    ctx.lineWidth=.45+rand()*.55;ctx.beginPath();
    ctx.moveTo(x,y);ctx.quadraticCurveTo(x+len*.48,y+drift,x+len,y+drift*.35);ctx.stroke();
   }
+  // Короткие ломаные минеральные трещинки добавляют камню естественную неоднородность.
+  for(let i=0;i<76;i++){
+   const x=rand()*size,y=rand()*size,len=3+rand()*12,bend=(rand()-.5)*5;
+   ctx.strokeStyle=rand()>.5?'rgba(245,239,220,.075)':'rgba(48,48,44,.065)';
+   ctx.lineWidth=.35+rand()*.55;ctx.beginPath();ctx.moveTo(x,y);
+   ctx.lineTo(x+len*.48,y+bend);ctx.lineTo(x+len,y+bend*.35);ctx.stroke();
+  }
  }
  if(kind==='roof'){
   // Низкоконтрастные дуги повторяют ритм черепицы, не превращая материал в плоский узор.
@@ -370,10 +377,13 @@ function makeSurfaceTexture(kind,seed){
    const y=row*48+24,offset=(row%2)*24;
    for(let col=-1;col<18;col++){
     const x=col*48+offset+24;
-    ctx.strokeStyle='rgba(75,35,29,.12)';ctx.lineWidth=1.6;
+    // Тень под краем и светлый кант придают каждой черепице небольшой объём.
+    ctx.strokeStyle='rgba(67,30,25,.16)';ctx.lineWidth=1.9;
     ctx.beginPath();ctx.moveTo(x-21,y-17);ctx.quadraticCurveTo(x,y-23,x+21,y-17);ctx.stroke();
-    ctx.strokeStyle='rgba(255,218,190,.10)';ctx.lineWidth=1;
+    ctx.strokeStyle='rgba(255,226,201,.14)';ctx.lineWidth=1.15;
     ctx.beginPath();ctx.moveTo(x-18,y-15);ctx.quadraticCurveTo(x,y-19,x+18,y-15);ctx.stroke();
+    ctx.strokeStyle='rgba(255,238,215,.055)';ctx.lineWidth=.7;
+    ctx.beginPath();ctx.moveTo(x-13,y-11);ctx.quadraticCurveTo(x,y-14,x+13,y-11);ctx.stroke();
    }
   }
  }
