@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261107-181000';
+const GREEN_WORLD_BUILD_ID = '20261107-183500';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3945,8 +3945,14 @@ function makeWorldDecor(){
   const gateShape=(outerR,innerR,springY)=>{
     const shape=new THREE.Shape();
     shape.moveTo(-outerR,0);shape.lineTo(-outerR,springY);shape.absarc(0,springY,outerR,Math.PI,0,true);shape.lineTo(outerR,0);shape.closePath();
+    // Отверстие должно иметь обратное направление обхода относительно внешнего контура.
+    // Иначе ShapeUtils может триангулировать проём как сплошную заливку.
     const hole=new THREE.Path();
-    hole.moveTo(-innerR,0);hole.lineTo(-innerR,springY);hole.absarc(0,springY,innerR,Math.PI,0,true);hole.lineTo(innerR,0);hole.closePath();
+    hole.moveTo(innerR,0);
+    hole.lineTo(innerR,springY);
+    hole.absarc(0,springY,innerR,0,Math.PI,false);
+    hole.lineTo(-innerR,0);
+    hole.closePath();
     shape.holes.push(hole);return shape;
   };
   const gateMesh=(outerR,innerR,springY,depth,material,z,bevel=.018)=>{
