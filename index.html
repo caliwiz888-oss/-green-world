@@ -4027,7 +4027,7 @@ function makeWorldDecor(){
  }
  // Small natural ground-cover clusters soften the transition from the fenced farm to the hills.
  const grassA=mat(0x82966c),grassB=mat(0x9baa7b),pebble=mat(0xb9ae95);
- for(const [x,z,s] of [[-16,-18,.9],[-20,-12,.8],[-16,4,.75],[-20,12,.95],[16,-18,.85],[20,-11,.9],[16,5,.8],[20,12,.95],[-12,17,.7],[12,17,.8]]){
+ for(const [x,z,s] of [[-16,-18,.9],[-20,-12,.8],[-16,4,.75],[-20,12,.95],[20,-11,.9],[16,5,.8],[20,12,.95],[-12,17,.7],[12,17,.8]]){
    for(let k=0;k<4;k++){
      const blade=cone(world,.12*s,.55*s,x+(k-1.5)*.16*s,.27*s,z+((k%2)-.5)*.12*s,k%2?grassA:grassB,5);
      blade.rotation.z=(k-1.5)*.13;
