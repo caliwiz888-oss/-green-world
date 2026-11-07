@@ -996,7 +996,15 @@ function makeHouse(){
  // Верхние окна, их рамы, основные скаты и карниз сохранены.
  // Старое центральное круглое окно удалено: оно накладывалось на медальон фронтона.
  // Сохранено одно верхнее слуховое окно с каменным и латунным обрамлением.
- // Central entrance, gold cross details and symmetrical windows.
+ // Отдельные материалы лицевого декора двери с разнесённым приоритетом глубины.
+  const manorDoorPanel=manorDoorTrim.clone();
+  const manorDoorGold=M.gold.clone();
+  const manorDoorStone=houseStoneTrim.clone();
+  const manorDoorCarved=entranceCarvedStone.clone();
+  for(const [material,offset] of [[manorDoorPanel,-1],[manorDoorStone,-2],[manorDoorCarved,-2],[manorDoorGold,-3]]){
+    material.polygonOffset=true;material.polygonOffsetFactor=offset;material.polygonOffsetUnits=offset;material.needsUpdate=true;
+  }
+  // Central entrance, gold cross details and symmetrical windows.
  box(g,1.65,2.7,.24,0,1.35,4.12,manorDoor);
  box(g,.16,2.3,.28,-.65,1.35,4.27,M.gold,false);
  box(g,.16,2.3,.28,.65,1.35,4.27,M.gold,false);
@@ -1031,42 +1039,42 @@ function makeHouse(){
    }
  }
  // Raised timber door panels, a stone lintel and a small brass handle finish the main entrance.
- box(g,1.16,.88,.055,0,1.92,4.255,manorDoorTrim,false);
- box(g,1.16,.48,.055,0,.58,4.255,manorDoorTrim,false);
- box(g,1.42,.12,.32,0,2.78,4.18,entranceCarvedStone);
- sphere(g,.085, .48,1.32,4.34,M.gold,.9);
+ box(g,1.16,.88,.055,0,1.92,4.255,manorDoorPanel,false);
+ box(g,1.16,.48,.055,0,.58,4.255,manorDoorPanel,false);
+ box(g,1.42,.12,.32,0,2.78,4.18,manorDoorCarved);
+ sphere(g,.085, .48,1.32,4.34,manorDoorGold,.9);
  // Entrance door craftsmanship: inset panel mouldings, brass hinge straps and a knocker.
  for(const y of [.62,1.12,1.62,2.12]){
-   box(g,.045,.36,.045,-.53,y,4.326,M.gold,false);
-   box(g,.045,.36,.045,.53,y,4.326,M.gold,false);
+   box(g,.045,.36,.045,-.53,y,4.326,manorDoorGold,false);
+   box(g,.045,.36,.045,.53,y,4.326,manorDoorGold,false);
  }
  for(const x of [-.69,.69]){
    for(const y of [.62,1.18,1.74,2.3]){
-     box(g,.09,.22,.055,x,y,4.33,M.gold,false);
-     sphere(g,.035,x,y,4.37,houseStoneTrim,.8);
+     box(g,.09,.22,.055,x,y,4.33,manorDoorGold,false);
+     sphere(g,.035,x,y,4.37,manorDoorStone,.8);
    }
  }
  // Парадная дверь: рельефные филёнки, латунная нижняя накладка и точечный крепёж.
  for(const x of [-.34,.34]){
    // Внутренние рамки двух створочных панелей подчёркивают натуральную фактуру дерева.
    box(g,.48,.72,.045,x,1.92,4.34,manorDoor,false);
-   box(g,.42,.045,.035,x,2.28,4.37,M.gold,false);
-   box(g,.42,.045,.035,x,1.56,4.37,M.gold,false);
+   box(g,.42,.045,.035,x,2.28,4.37,manorDoorGold,false);
+   box(g,.42,.045,.035,x,1.56,4.37,manorDoorGold,false);
    for(const dx of [-.24,.24]){
-     box(g,.035,.72,.035,x+dx,1.92,4.37,M.gold,false);
+     box(g,.035,.72,.035,x+dx,1.92,4.37,manorDoorGold,false);
    }
    for(const y of [1.62,2.22]){
-     for(const dx of [-.19,.19])sphere(g,.022,x+dx,y,4.395,M.gold,.75);
+     for(const dx of [-.19,.19])sphere(g,.022,x+dx,y,4.395,manorDoorGold,.75);
    }
  }
- box(g,1.34,.16,.045,0,.34,4.35,M.gold,false);
+ box(g,1.34,.16,.045,0,.34,4.35,manorDoorGold,false);
  for(const x of [-.7,.7]){
-   box(g,.055,.38,.05,x,.36,4.35,houseStoneTrim,false);
-   sphere(g,.03,x,.55,4.39,M.gold,.8);
+   box(g,.055,.38,.05,x,.36,4.35,manorDoorStone,false);
+   sphere(g,.03,x,.55,4.39,manorDoorGold,.8);
  }
  // Каменный верхний фриз с центральным замковым акцентом завершает дверное обрамление.
- box(g,1.82,.13,.22,0,2.91,4.28,entranceCarvedStone,false);
- box(g,.34,.2,.12,0,2.98,4.39,M.gold,false);
+ box(g,1.82,.13,.22,0,2.91,4.28,manorDoorCarved,false);
+ box(g,.34,.2,.12,0,2.98,4.39,manorDoorGold,false);
  // Fine brass door knocker and a pair of crisp stone step nosings.
  box(g,.16,.22,.06,0,1.38,4.34,M.gold,false);
  sphere(g,.075,0,1.25,4.38,M.gold,.9);
@@ -1419,15 +1427,21 @@ function makeHouse(){
  // Оба верхних окна фронтона вместе с рамами, переплётами и выступающими опорами удалены по просьбе пользователя.
   // Зелёный медальон со значком и его латунное обрамление удалены по просьбе пользователя.
   // Дублирующие наличники верхних окон фронтона удалены: основные каменные рамы и переплёты сохранены.
-  // Small projecting balconies on the two front towers.
+  // // Материалы балконных накладок с разнесённым приоритетом глубины.
+  const towerBalconyGold=M.gold.clone();
+  const towerBalconyStone=houseStoneTrim.clone();
+  for(const [material,offset] of [[towerBalconyStone,-1],[towerBalconyGold,-3]]){
+    material.polygonOffset=true;material.polygonOffsetFactor=offset;material.polygonOffsetUnits=offset;material.needsUpdate=true;
+  }
+  Small projecting balconies on the two front towers.
  for(const x of [-4.35,4.35]){
-   box(g,1.75,.18,.9,x,3.05,4.55,houseStoneTrim);
-   for(const dx of [-.78,-.26,.26,.78])box(g,.09,.62,.09,x+dx,3.42,4.91,M.gold);
-   box(g,1.72,.1,.1,x,3.72,4.91,M.gold);
+   box(g,1.75,.18,.9,x,3.05,4.55,towerBalconyStone);
+   for(const dx of [-.78,-.26,.26,.78])box(g,.09,.62,.09,x+dx,3.42,4.91,towerBalconyGold);
+   box(g,1.72,.1,.1,x,3.72,4.91,towerBalconyGold);
    for(const dx of [-.52,0,.52]){
-     box(g,.07,.5,.07,x+dx,3.39,5.33,M.gold,false);
+     box(g,.07,.5,.07,x+dx,3.39,5.33,towerBalconyGold,false);
    }
-   box(g,1.68,.08,.08,x,3.65,5.33,M.gold,false);
+   box(g,1.68,.08,.08,x,3.65,5.33,towerBalconyGold,false);
 
  }
  // Тонкие каменные консоли под главными окнами поддерживают глубокие подоконники.
@@ -4489,6 +4503,10 @@ function makeWorldDecor(){
   const fenceIron=new THREE.MeshStandardMaterial({color:0x26333a,roughness:.72,metalness:.34});
   const fenceIronEdge=new THREE.MeshStandardMaterial({color:0x46545a,roughness:.68,metalness:.38});
   const fenceGold=new THREE.MeshStandardMaterial({color:0xd9a844,roughness:.48,metalness:.56});
+   // Накладной металл вынесен вперёд по глубине относительно каменной кладки.
+   for(const [material,offset] of [[fenceIronEdge,-1],[fenceIron,-2],[fenceGold,-3]]){
+     material.polygonOffset=true;material.polygonOffsetFactor=offset;material.polygonOffsetUnits=offset;material.needsUpdate=true;
+   }
   const ironBar=(w,h,d,x,y,z,material=fenceIron)=>{const m=box(world,w,h,d,x,y,z,material,false);m.castShadow=false;m.receiveShadow=false;};
   for(const z of [-14.34,14.34]){
     const spans=z===14.34?[[-14,-3.8],[3.8,16.5]]:[[-14,16.5]];
