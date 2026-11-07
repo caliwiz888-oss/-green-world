@@ -3849,7 +3849,7 @@ function makeWorldDecor(){
 
   // Декоративная каменная отделка ограждения: цоколь, карниз и рельефные панели.
   // Парадная арка центрального въезда: массивная классическая каменная кладка с полукруглым сводом.
-  const gateCenterY=2.45,gateOuterR=2.95,gateInnerR=2.12,gateFrontZ=14.285;
+  const gateCenterY=2.45,gateOuterR=2.95,gateInnerR=2.12,gateFrontZ=14.42;
   const entranceGateShape=new THREE.Shape();
   entranceGateShape.moveTo(-gateOuterR,0);
   entranceGateShape.lineTo(-gateOuterR,gateCenterY);
@@ -4483,6 +4483,13 @@ function makeWorldDecor(){
   fenceRelief.roughness=.93;
   fenceMat.needsUpdate=true;fenceCap.needsUpdate=true;fenceJoint.needsUpdate=true;
   fenceBaseTrim.needsUpdate=true;fenceLightTrim.needsUpdate=true;fenceRelief.needsUpdate=true;
+  // Приоритет глубины для накладного декора: исключаем совпадение лицевых поверхностей на мобильном depth buffer.
+  for(const [material,offset] of [[fenceCap,-1],[fenceJoint,-2],[fenceBaseTrim,-2],[fenceLightTrim,-3],[fenceRelief,-4]]){
+    material.polygonOffset=true;
+    material.polygonOffsetFactor=offset;
+    material.polygonOffsetUnits=offset;
+    material.needsUpdate=true;
+  }
   // Небольшие замковые камни на верхнем поясе ограды подчёркивают ритм кладки.
   // Они размещены только на прямых участках и обходят центральный въезд.
   for(const z of [-14,14]){
