@@ -3831,112 +3831,101 @@ function makeHouse(){
  for(let i=0;i<5;i++){
   box(center,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,cream);
  }
- // Роскошная архитектура главной крыши: крупная многогранная стеклянная мансарда.
- // Четыре высоких ската сходятся к приподнятому центральному фонарю; силуэт не круглый.
- const roofY=4.58,baseX=3.88,baseZ=2.86,topX=1.48,topZ=1.18,roofRise=2.48,roofCenterZ=-.08;
+ // Новая архитектура: дворцовая стеклянная крыша соборного типа с высоким коньком.
+ // Два крутых симметричных ската образуют выразительный треугольный силуэт вместо мансарды.
+ const roofY=4.58,halfW=3.88,halfD=2.86,ridgeY=7.32,roofZ=-.08;
  const roofGlass=new THREE.MeshPhysicalMaterial({
-  color:0x9be5e8,roughness:.13,metalness:.10,
-  transparent:true,opacity:.64,transmission:.10,thickness:.10,
+  color:0x9ce8ed,roughness:.12,metalness:.09,
+  transparent:true,opacity:.62,transmission:.10,thickness:.09,
   ior:1.46,side:THREE.DoubleSide,depthWrite:false,
-  emissive:0x16434a,emissiveIntensity:.12
+  emissive:0x174d55,emissiveIntensity:.13
  });
- // Многоярусное каменное основание с золотой окантовкой.
- box(center,7.92,.22,5.88,0,roofY-.11,roofCenterZ,stone);
- box(center,7.78,.10,5.72,0,roofY+.025,roofCenterZ,cream);
- box(center,7.62,.055,5.56,0,roofY+.095,roofCenterZ,gold);
- // Четыре фасеточных стеклянных ската, каждый разделён на крупные панели.
- const roofCorners=[
-  {x:-baseX,z:-baseZ},{x:baseX,z:-baseZ},
-  {x:baseX,z:baseZ},{x:-baseX,z:baseZ}
- ];
- const roofUpper=[
-  {x:-topX,z:-topZ},{x:topX,z:-topZ},
-  {x:topX,z:topZ},{x:-topX,z:topZ}
- ];
- function addGlassRoofFace(a,b,c,d,nu,nv){
-  const verts=[],indices=[],uv=[];
-  for(let j=0;j<=nv;j++){
-   const v=j/nv;
-   for(let i=0;i<=nu;i++){
-    const u=i/nu;
-    const x=(1-v)*((1-u)*a.x+u*b.x)+v*((1-u)*d.x+u*c.x);
-    const z=(1-v)*((1-u)*a.z+u*b.z)+v*((1-u)*d.z+u*c.z);
-    const y=roofY+roofRise*v;
-    verts.push(x,y,roofCenterZ+z);uv.push(u,v);
-   }
-  }
-  for(let j=0;j<nv;j++)for(let i=0;i<nu;i++){
-   const p=j*(nu+1)+i;
-   indices.push(p,p+1,p+nu+1,p+1,p+nu+2,p+nu+1);
-  }
+ // Многослойный каменный карниз и позолоченный периметр.
+ box(center,7.98,.22,5.94,0,roofY-.11,roofZ,stone);
+ box(center,7.82,.10,5.78,0,roofY+.025,roofZ,cream);
+ box(center,7.68,.055,5.64,0,roofY+.095,roofZ,gold);
+ // Два больших наклонных стеклянных полотна от карниза к высокому продольному коньку.
+ function makeGableSlope(side){
+  const x0=side*halfW,x1=0;
+  const verts=[
+   x0,roofY,roofZ-halfD, x1,ridgeY,roofZ-halfD,
+   x1,ridgeY,roofZ+halfD, x0,roofY,roofZ+halfD
+  ];
   const geo=new THREE.BufferGeometry();
   geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
-  geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
-  geo.setIndex(indices);geo.computeVertexNormals();
-  const mesh=new THREE.Mesh(geo,roofGlass);
-  mesh.castShadow=false;mesh.receiveShadow=false;center.add(mesh);
-  // Золотые рёбра по сетке формируют выразительный дворцовый каркас.
-  for(let i=0;i<=nu;i++){
-   const u=i/nu,pts=[];
-   for(let j=0;j<=nv;j++){
-    const v=j/nv;
-    const x=(1-v)*((1-u)*a.x+u*b.x)+v*((1-u)*d.x+u*c.x);
-    const z=(1-v)*((1-u)*a.z+u*b.z)+v*((1-u)*d.z+u*c.z);
-    pts.push(new THREE.Vector3(x,roofY+roofRise*v,roofCenterZ+z));
-   }
-   const rib=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),32,.025,8,false),gold);
+  geo.setIndex([0,1,2,0,2,3]);geo.computeVertexNormals();
+  const pane=new THREE.Mesh(geo,roofGlass);
+  pane.castShadow=false;pane.receiveShadow=false;center.add(pane);
+  // Продольные золотые рёбра делят стекло на высокие дворцовые панели.
+  for(let j=0;j<=8;j++){
+   const z=roofZ-halfD+2*halfD*j/8;
+   const pts=[
+    new THREE.Vector3(x0,roofY,z),
+    new THREE.Vector3(x1,ridgeY,z)
+   ];
+   const rib=new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(pts[0],pts[1]),20,.027,8,false),gold);
    rib.castShadow=false;rib.receiveShadow=false;center.add(rib);
   }
-  for(let j=1;j<nv;j++){
-   const v=j/nv,pts=[];
-   for(let i=0;i<=nu;i++){
-    const u=i/nu;
-    const x=(1-v)*((1-u)*a.x+u*b.x)+v*((1-u)*d.x+u*c.x);
-    const z=(1-v)*((1-u)*a.z+u*b.z)+v*((1-u)*d.z+u*c.z);
-    pts.push(new THREE.Vector3(x,roofY+roofRise*v,roofCenterZ+z));
-   }
-   const rail=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),32,.014,6,false),bronze);
-   rail.castShadow=false;rail.receiveShadow=false;center.add(rail);
+  // Тонкие поперечные перемычки создают регулярный ритм стеклянных секций.
+  for(let k=1;k<6;k++){
+   const z=roofZ-halfD+2*halfD*k/6;
+   const rail=new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(
+    new THREE.Vector3(x0,roofY+.025,z),
+    new THREE.Vector3(x1,ridgeY+.025,z)
+   ),20,.014,6,false),bronze);
+   rail.castShadow=false;center.add(rail);
   }
  }
- for(let side=0;side<4;side++){
-  const next=(side+1)%4;
-  addGlassRoofFace(roofCorners[side],roofCorners[next],roofUpper[next],roofUpper[side],8,5);
+ makeGableSlope(-1);makeGableSlope(1);
+ // Торцевые треугольные стеклянные фронтоны с бронзовым контуром.
+ const gableShape=new THREE.Shape();
+ gableShape.moveTo(-halfW,0);gableShape.lineTo(0,ridgeY-roofY);
+ gableShape.lineTo(halfW,0);gableShape.closePath();
+ const gableGeo=new THREE.ShapeGeometry(gableShape,32);
+ for(const z of [roofZ-halfD+.018,roofZ+halfD-.018]){
+  const glassEnd=new THREE.Mesh(gableGeo,roofGlass);
+  glassEnd.position.set(0,roofY,z);glassEnd.castShadow=false;glassEnd.receiveShadow=false;center.add(glassEnd);
+  const outlinePts=[
+   new THREE.Vector3(-halfW,roofY,z),
+   new THREE.Vector3(0,ridgeY,z),
+   new THREE.Vector3(halfW,roofY,z)
+  ];
+  const outline=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(outlinePts),48,.045,8,false),gold);
+  outline.castShadow=false;center.add(outline);
+  box(center,7.72,.12,.12,0,roofY+.02,z,cream);
  }
- // Верхний прямоугольный фонарь с четырьмя стеклянными стенами и профилированной короной.
- const lanternY=roofY+roofRise,lanternW=2.96,lanternD=2.36;
- box(center,3.18,.16,2.58,0,lanternY+.04,roofCenterZ,stone);
- box(center,3.08,.075,2.48,0,lanternY+.15,roofCenterZ,gold);
- box(center,2.92,.08,2.32,0,lanternY+.22,roofCenterZ,cream);
- for(const x of [-lanternW/2,lanternW/2]){
-  box(center,.10,.92,lanternD,x,lanternY+.70,roofCenterZ,bronze);
-  box(center,.055,.78,lanternD-.18,x,lanternY+.70,roofCenterZ,roofGlass);
+ // Мощный продольный конёк с золотым гребнем и повторяющимися навершиями.
+ box(center,.24,.22,5.92,0,ridgeY+.035,roofZ,stone);
+ box(center,.15,.10,5.98,0,ridgeY+.17,roofZ,gold);
+ for(let j=0;j<=6;j++){
+  const z=roofZ-halfD+2*halfD*j/6;
+  sphere(center,.095,0,ridgeY+.27,z,gold,.9);
  }
- for(const z of [-lanternD/2,lanternD/2]){
-  box(center,lanternW,.92,.10,0,lanternY+.70,roofCenterZ+z,bronze);
-  box(center,lanternW-.18,.78,.055,0,lanternY+.70,roofCenterZ+z,roofGlass);
+ // Два выступающих стеклянных люкарна на каждом скате с золотой рамой.
+ for(const side of [-1,1])for(const z of [-1.48,1.48]){
+  const x=side*2.12;
+  const y=roofY+(ridgeY-roofY)*(1-Math.abs(x)/halfW);
+  const dormer=box(center,1.02,.78,.82,x,y+.37,roofZ+z,roofGlass);
+  dormer.rotation.z=side*.12;
+  box(center,1.18,.12,.94,x,y+.78,roofZ+z,cream);
+  box(center,1.24,.055,1.00,x,y+.86,roofZ+z,gold);
+  box(center,.075,.78,.90,x-side*.52,y+.38,roofZ+z,bronze);
+  box(center,.075,.78,.90,x+side*.52,y+.38,roofZ+z,bronze);
  }
- box(center,3.28,.14,2.68,0,lanternY+1.20,roofCenterZ,cream);
- box(center,3.38,.065,2.78,0,lanternY+1.30,roofCenterZ,gold);
- // Небольшая ступенчатая стеклянная корона над фонарём.
- box(center,2.35,.12,1.78,0,lanternY+1.40,roofCenterZ,stone);
- box(center,2.20,.08,1.63,0,lanternY+1.50,roofCenterZ,roofGlass);
- box(center,1.92,.12,1.38,0,lanternY+1.62,roofCenterZ,gold);
- // Угловые каменные пилоны, золотые навершия и декоративные пики подчёркивают силуэт.
- for(const x of [-3.78,3.78])for(const z of [-2.76,2.76]){
-  box(center,.28,.42,.28,x,roofY+.20,roofCenterZ+z,cream);
-  cylinder(center,.13,.10,.16,x,roofY+.48,roofCenterZ+z,gold,12);
-  sphere(center,.10,x,roofY+.61,roofCenterZ+z,gold,.85);
+ // Угловые каменные устои и высокие золотые пики завершают дворцовый силуэт.
+ for(const x of [-3.82,3.82])for(const z of [roofZ-halfD+.08,roofZ+halfD-.08]){
+  box(center,.30,.34,.30,x,roofY+.18,z,cream);
+  cylinder(center,.13,.09,.18,x,roofY+.43,z,gold,12);
+  sphere(center,.105,x,roofY+.57,z,gold,.9);
  }
- // Золотые коньковые линии связывают четыре грани с верхним фонарём.
- for(const p of roofUpper){
-  const rail=new THREE.Mesh(new THREE.TubeGeometry(
-   new THREE.LineCurve3(
-    new THREE.Vector3(p.x,lanternY,roofCenterZ+p.z),
-    new THREE.Vector3(p.x,lanternY+.32,roofCenterZ+p.z)
-   ),8,.035,8,false),gold);
-  rail.castShadow=false;center.add(rail);
- }
+ // Витражный центральный фонарь вытянут вдоль конька.
+ box(center,1.22,.12,2.42,0,ridgeY+.34,roofZ,stone);
+ box(center,1.12,.08,2.30,0,ridgeY+.44,roofZ,gold);
+ box(center,1.00,.62,2.18,0,ridgeY+.78,roofZ,roofGlass);
+ for(const x of [-.54,.54])box(center,.055,.62,2.18,x,ridgeY+.78,roofZ,bronze);
+ for(const z of [-1.02,0,1.02])box(center,1.00,.62,.045,0,ridgeY+.78,roofZ+z,bronze);
+ box(center,1.32,.12,2.52,0,ridgeY+1.12,roofZ,cream);
+ box(center,1.40,.06,2.60,0,ridgeY+1.21,roofZ,gold);
  // Центральный фронтон и его декор удалены по просьбе пользователя.
  // Центральная двускатная крыша удалена по просьбе пользователя.
  // Две башни по утверждённому эталону: выразительное каменное основание,
