@@ -3945,14 +3945,7 @@ function makeWorldDecor(){
     const lampBase=new THREE.Mesh(new THREE.CylinderGeometry(.12,.17,.12,8),fenceGold);
     lampBase.position.set(x,3.12,14.02);fenceNoShadow(lampBase);world.add(lampBase);
   }
-  // Боковые крылья связывают портал с ближайшими столбами ограды без щелей.
-  for(const side of [-1,1]){
-    const x=side*3.20;
-    fenceNoShadow(box(world,.42,2.34,.84,x,1.48,14.02,fenceStone,false));
-    fenceNoShadow(box(world,.50,.14,.94,x,.31,14.02,fenceIvory,false));
-    fenceNoShadow(box(world,.50,.14,.94,x,2.70,14.02,fenceIvory,false));
-    fenceNoShadow(box(world,.035,1.78,.035,x,1.48,14.465,fenceGold,false));
-  }
+  // Боковые крылья между аркой и забором временно удалены по запросу.
   // Центральный замковый камень и золотой ромбовидный герб на вершине дуги.
   const crestY=.02+gateSpring+gateOuter+.10,crestZ=gateFrontZ+.62;
   const crestFrame=new THREE.Mesh(new THREE.OctahedronGeometry(.38,0),fenceGold);
