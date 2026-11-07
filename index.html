@@ -295,7 +295,7 @@ const atmosphereRim=new THREE.DirectionalLight(0xc9e3f5,.34);atmosphereRim.posit
 const worldBounce=new THREE.DirectionalLight(0xffe8c9,.22);worldBounce.position.set(18,7,30);worldBounce.castShadow=false;scene.add(worldBounce);
 const mat=(c,r=.82)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.025,dithering:true});
 const windowInterior=new THREE.MeshStandardMaterial({color:0xffdca0,emissive:0xb87932,emissiveIntensity:.2,roughness:.42,dithering:true});
-const M={grass:mat(0x91a77d,.94),grass2:mat(0x879b75,.95),soil:mat(0x98734a,.96),path:mat(0xe2cfad,.88),stone:new THREE.MeshStandardMaterial({color:0xe8ddc5,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x526d88,roughness:.82,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0x34495e,roughness:.84,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x426b3c,roughness:.94,metalness:0,sheen:.28,sheenColor:0x91a77d,sheenRoughness:.9}),leaf2:new THREE.MeshPhysicalMaterial({color:0x668653,roughness:.93,metalness:0,sheen:.32,sheenColor:0xb3c28e,sheenRoughness:.9}),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xd6b45d,roughness:.34,metalness:.58}),glass:new THREE.MeshStandardMaterial({color:0x9bdde1,roughness:.3,metalness:.04,emissive:0x102b34,emissiveIntensity:.06,transparent:false,opacity:1,depthWrite:true})};
+const M={grass:mat(0x91a77d,.94),grass2:mat(0x91a77d,.94),soil:mat(0x98734a,.96),path:mat(0xe2cfad,.88),stone:new THREE.MeshStandardMaterial({color:0xe8ddc5,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x526d88,roughness:.82,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0x34495e,roughness:.84,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x426b3c,roughness:.94,metalness:0,sheen:.28,sheenColor:0x91a77d,sheenRoughness:.9}),leaf2:new THREE.MeshPhysicalMaterial({color:0x668653,roughness:.93,metalness:0,sheen:.32,sheenColor:0xb3c28e,sheenRoughness:.9}),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xd6b45d,roughness:.34,metalness:.58}),glass:new THREE.MeshStandardMaterial({color:0x9bdde1,roughness:.3,metalness:.04,emissive:0x102b34,emissiveIntensity:.06,transparent:false,opacity:1,depthWrite:true})};
 
 function makeSurfaceTexture(kind,seed){
  const size=768,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
@@ -548,14 +548,13 @@ const surfaceMaps={
  stone:makeSurfaceTexture('stone',37),wood:makeSurfaceTexture('wood',51),
  roof:makeSurfaceTexture('roof',67)
 };
-for(const m of [M.grass,M.grass2])m.map=surfaceMaps.grass;
+// Газон оставляем ровным однотонным цветом; текстуры дорожек не затрагиваем.
 M.soil.map=surfaceMaps.soil;M.stone.map=surfaceMaps.stone;M.stone2.map=surfaceMaps.stone;
 for(const m of [M.wood,M.wood2])m.map=surfaceMaps.wood;
 for(const m of [M.roof,M.roof2])m.map=surfaceMaps.roof;
 // Микрорельеф материалов: неглубокие неровности делают камень, дерево и черепицу объёмнее.
 const surfaceBumps=[
  // Микрорельеф травы и грунта чуть выразительнее, но остаётся мягким на больших плоскостях.
- [M.grass,surfaceMaps.grass,.038],[M.grass2,surfaceMaps.grass,.038],
  [M.soil,surfaceMaps.soil,.09],[M.stone,surfaceMaps.stone,.08],
  [M.stone2,surfaceMaps.stone,.069],[M.wood,surfaceMaps.wood,.046],
  [M.wood2,surfaceMaps.wood,.041],[M.roof,surfaceMaps.roof,.034],
