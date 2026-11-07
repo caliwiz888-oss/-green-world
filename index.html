@@ -3826,30 +3826,32 @@ function makeWorldDecor(){
   const fenceStone=mat(0xe8dcc4),fenceIvory=mat(0xf5ead5),fenceReliefStone=mat(0xcbb995);
   const fenceIron=mat(0x242321),fenceIronLight=mat(0x39332d),fenceGold=mat(0xd9a83f),fenceGoldLight=mat(0xf0c85d);
   const fenceNoShadow=mesh=>{mesh.castShadow=false;mesh.receiveShadow=false;return mesh;};
+  // Забор собирается в отдельной группе: его можно целиком заменить без дублей геометрии.
+  const fenceGroup=new THREE.Group();world.add(fenceGroup);
   // Полный декоративный периметр по утверждённому эталону GREEN WORLD.
   // Светлые известняковые столбы, тёмная кованая решётка и золотые медальоны.
   const fencePost=(x,z)=>{
-    fenceNoShadow(box(world,.54,.30,.58,x,.16,z,fenceReliefStone,false));
-    fenceNoShadow(box(world,.48,.12,.52,x,.37,z,fenceIvory,false));
-    fenceNoShadow(box(world,.36,1.68,.40,x,1.25,z,fenceStone,false));
-    fenceNoShadow(box(world,.42,.10,.46,x,2.13,z,fenceReliefStone,false));
-    fenceNoShadow(box(world,.58,.16,.62,x,2.25,z,fenceIvory,false));
-    fenceNoShadow(box(world,.64,.07,.68,x,2.36,z,fenceGold,false));
-    fenceNoShadow(box(world,.52,.10,.56,x,2.45,z,fenceStone,false));
-    fenceNoShadow(box(world,.23,1.12,.025,x,1.25,z+.207,fenceReliefStone,false));
-    fenceNoShadow(box(world,.17,1.02,.028,x,1.25,z+.226,fenceIvory,false));
-    fenceNoShadow(box(world,.025,.90,.018,x-.055,1.25,z+.247,fenceGold,false));
-    fenceNoShadow(box(world,.025,.90,.018,x+.055,1.25,z+.247,fenceGold,false));
+    fenceNoShadow(box(fenceGroup,.54,.30,.58,x,.16,z,fenceReliefStone,false));
+    fenceNoShadow(box(fenceGroup,.48,.12,.52,x,.37,z,fenceIvory,false));
+    fenceNoShadow(box(fenceGroup,.36,1.68,.40,x,1.25,z,fenceStone,false));
+    fenceNoShadow(box(fenceGroup,.42,.10,.46,x,2.13,z,fenceReliefStone,false));
+    fenceNoShadow(box(fenceGroup,.58,.16,.62,x,2.25,z,fenceIvory,false));
+    fenceNoShadow(box(fenceGroup,.64,.07,.68,x,2.36,z,fenceGold,false));
+    fenceNoShadow(box(fenceGroup,.52,.10,.56,x,2.45,z,fenceStone,false));
+    fenceNoShadow(box(fenceGroup,.23,1.12,.025,x,1.25,z+.207,fenceReliefStone,false));
+    fenceNoShadow(box(fenceGroup,.17,1.02,.028,x,1.25,z+.226,fenceIvory,false));
+    fenceNoShadow(box(fenceGroup,.025,.90,.018,x-.055,1.25,z+.247,fenceGold,false));
+    fenceNoShadow(box(fenceGroup,.025,.90,.018,x+.055,1.25,z+.247,fenceGold,false));
     const lampBase=new THREE.Mesh(new THREE.CylinderGeometry(.10,.14,.10,8),fenceGold);
-    lampBase.position.set(x,2.55,z);fenceNoShadow(lampBase);world.add(lampBase);
+    lampBase.position.set(x,2.55,z);fenceNoShadow(lampBase);fenceGroup.add(lampBase);
     const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.14,0),fenceGoldLight);
-    finial.position.set(x,2.69,z);finial.scale.set(.82,1.35,.82);fenceNoShadow(finial);world.add(finial);
+    finial.position.set(x,2.69,z);finial.scale.set(.82,1.35,.82);fenceNoShadow(finial);fenceGroup.add(finial);
   };
   const fenceBay=(x1,z1,x2,z2)=>{
     const dx=x2-x1,dz=z2-z1,length=Math.hypot(dx,dz);
     if(length<.3)return;
     const angle=Math.atan2(dz,dx),cx=(x1+x2)/2,cz=(z1+z2)/2;
-    const panel=new THREE.Group();panel.position.set(cx,0,cz);panel.rotation.y=-angle;world.add(panel);
+    const panel=new THREE.Group();panel.position.set(cx,0,cz);panel.rotation.y=-angle;fenceGroup.add(panel);
     fenceNoShadow(box(panel,length-.12,.105,.105,0,.62,0,fenceIron,false));
     fenceNoShadow(box(panel,length-.12,.105,.105,0,1.92,0,fenceIron,false));
     fenceNoShadow(box(panel,length-.12,.035,.12,0,2.00,0,fenceGold,false));
@@ -3880,11 +3882,10 @@ function makeWorldDecor(){
     for(const p of points)fencePost(p.x,p.z);
     for(let i=0;i<count;i++)fenceBay(points[i].x,points[i].z,points[i+1].x,points[i+1].z);
   };
-  // Забор расположен за главным домом и правее завода — передний двор остаётся открытым.
-  // Задняя линия проходит за задней стеной дома; правая линия вынесена за правый фасад завода.
-  fenceRun(-14,-19.15,18.5,-19.15,2.45);
-  fenceRun(-14,-19.15,-14,2.5,2.45);
-  fenceRun(18.5,-21,18.5,2.5,2.45);
+  // Периметр восстановлен заново, симметрично: задняя, левая и правая стороны участка.
+  fenceRun(-18.5,-19.15,18.5,-19.15,2.45);
+  fenceRun(-18.5,-19.15,-18.5,2.5,2.45);
+  fenceRun(18.5,-19.15,18.5,2.5,2.45);
   // Входная арка повторяет геометрию эталона: прямые массивные устои и полукруглый верх с тремя ступенями обрамления.
   const gateSpring=2.12,gateOuter=2.78,gateInner=2.12,gateFrontZ=13.98,gateBackZ=13.76;
   const gateShape=(outerR,innerR,springY)=>{
