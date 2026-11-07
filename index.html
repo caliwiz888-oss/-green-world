@@ -3902,13 +3902,12 @@ function makeHouse(){
   // между башнями и не заходят на их цилиндрические корпуса.
   const beam=box(g,2.02,.18,.30,side*.91,5.30,2.72,cream);
   beam.rotation.z=side===-1?.52:-.52;
-  const line=box(g,1.96,.05,.32,side*.88,5.38,2.79,gold);
-  line.rotation.z=side===-1?.52:-.52;
+  // Золотую полосу на скате фронтона убрали.
   const inner=box(g,1.86,.07,.24,side*.82,5.14,2.75,stone);
   inner.rotation.z=side===-1?.52:-.52;
  }
  box(g,6.32,.16,.42,0,4.48,2.48,cream);
- box(g,6.40,.055,.44,0,4.37,2.52,gold);
+ // Золотую горизонтальную полосу под фронтоном убрали.
  // Круглый витраж расположен вертикально на передней плоскости фронтона.
  const roseOuter=cylinder(g,.48,.48,.14,0,5.39,2.83,gold,48);
  roseOuter.rotation.x=Math.PI/2;
@@ -3924,10 +3923,7 @@ function makeHouse(){
  gableLeft.rotation.z=.52;
  const gableRight=box(g,3.62,.10,.20,1.72,5.26,2.88,cream,false);
  gableRight.rotation.z=-.52;
- const gableGoldL=box(g,3.55,.045,.22,-1.70,5.34,2.94,gold,false);
- gableGoldL.rotation.z=.52;
- const gableGoldR=box(g,3.55,.045,.22,1.70,5.34,2.94,gold,false);
- gableGoldR.rotation.z=-.52;
+ // Золотые полосы вдоль скатов фронтона удалены.
  // Ряд небольших рельефных медальонов под круглым витражом.
  for(const x of [-2.35,-1.88,-1.41,-.94,-.47,.47,.94,1.41,1.88,2.35]){
   sphere(g,.075,x,4.68,2.91,gold,.86);
@@ -3971,8 +3967,7 @@ function makeHouse(){
   // Торцевые накладки ската также укорочены, чтобы не перекрывать башни.
   const fascia=box(g,2.02,.22,.36,side*.91,5.34,2.61,slateDark);
   fascia.rotation.z=side===-1?.48:-.48;
-  const edge=box(g,1.98,.055,.39,side*.89,5.45,2.67,gold);
-  edge.rotation.z=side===-1?.48:-.48;
+  // Золотую линейную накладку торца ската убрали.
   box(g,.18,.18,5.48,side*3.50,4.43,-.07,slateDark);
  }
  box(g,.16,.16,5.52,0,6.27,-.07,slateDark);
