@@ -4620,46 +4620,55 @@ function makeWorldLandscape(){
  rollingHills.position.set(0,.015,-24.5);
  rollingHills.receiveShadow=false;rollingHills.castShadow=false;world.add(rollingHills);
 
- // Новая архитектура: три самостоятельных скальных массива с открытыми седловинами и ледниковыми цирками.
- const massifRock=new THREE.Color(0x394246);
- const massifMid=new THREE.Color(0x727b7c);
- const massifLight=new THREE.Color(0xa5a69f);
- const massifSnow=new THREE.Color(0xf3f4ef);
- const massifIceShade=new THREE.Color(0xbac8cc);
- const massifSmooth=(a,b,v)=>{const t=THREE.MathUtils.clamp((v-a)/(b-a),0,1);return t*t*(3-2*t);};
- const makeRockMassif=(cfg)=>{
-   const {name,x,z,width,depth,height,rotation,shape,cliffs,snowline}=cfg;
-   const nx=112,nz=96;
+ // Новая архитектура: острые альпийские пики, зубчатые гребни и отвесные скальные стены.
+ const peakRockDark=new THREE.Color(0x303a3e);
+ const peakRockMid=new THREE.Color(0x687477);
+ const peakRockSun=new THREE.Color(0x9b9e98);
+ const peakSnow=new THREE.Color(0xf2f4f0);
+ const peakSnowBlue=new THREE.Color(0xb5c4ca);
+ const peakSmooth=(a,b,v)=>{const t=THREE.MathUtils.clamp((v-a)/(b-a),0,1);return t*t*(3-2*t);};
+ const makeJaggedAlpinePeak=(cfg)=>{
+   const {name,x,z,width,depth,height,rotation,peaks,gullies,rockFaces,snowline}=cfg;
+   const nx=144,nz=112;
    const geometry=new THREE.PlaneGeometry(width*2,depth*2,nx,nz);
    const pos=geometry.attributes.position,uv=geometry.attributes.uv;
+   const crestAt=(u)=>{
+     let crest=0;
+     for(const p of peaks){
+       const d=Math.abs(u-p.x);
+       const triangular=Math.max(0,1-d/p.span);
+       const shoulder=Math.max(0,1-d/(p.span*1.8));
+       crest=Math.max(crest,p.height*(Math.pow(triangular,p.sharp)+.12*Math.pow(shoulder,1.35)));
+     }
+     return crest;
+   };
    for(let i=0;i<pos.count;i++){
      const u=uv.getX(i)*2-1,v=uv.getY(i)*2-1;
-     const angle=Math.atan2(v,u);
-     const radial=Math.sqrt(u*u*.92+v*v*1.08);
-     const angular=(Math.sin(angle*3+shape.phase)*shape.a+
-       Math.sin(angle*5-shape.phase*.7)*shape.b+
-       Math.cos(angle*7+shape.phase*1.4)*shape.c);
-     const distorted=radial*(1+angular*.16);
-     const core=Math.max(0,1-distorted);
-     let h=height*Math.pow(core,shape.power);
-     // Уступы и длинные скальные рёбра направлены от вершины к подножию.
-     for(let k=0;k<cliffs.length;k++){
-       const ridge=cliffs[k];
-       const lineAngle=angle-ridge.angle;
-       const ray=Math.exp(-.5*Math.pow(Math.sin(lineAngle)*radial/ridge.width,2));
-       h+=height*ridge.raise*ray*massifSmooth(.2,.48,radial)*(1-massifSmooth(.78,1,radial));
+     const ridgeLine=.08*Math.sin(u*4.2+.7)+.035*Math.sin(u*11.5)+.045*u;
+     const across=v-ridgeLine;
+     const side=across>=0?1:0;
+     const sideWidth=side?.92:.74;
+     const cross= Math.max(0,1-Math.abs(across)/sideWidth);
+     // Поперечный профиль — крутой скальный склон, а не округлая полусфера.
+     let h=height*crestAt(u)*Math.pow(cross,side?.72:.58);
+     // Отдельные контрфорсы образуют длинные рёбра от вершины вниз.
+     for(const r of rockFaces){
+       const line=r.x+r.drift*across;
+       const ridge=Math.exp(-.5*Math.pow((u-line)/r.width,2));
+       h+=height*r.raise*ridge*peakSmooth(.12,.38,Math.abs(across))*
+         (1-peakSmooth(.78,.99,Math.abs(across)));
      }
-     // Ледниковые цирки — чашеобразные выемки ниже острого гребня.
-     for(let k=0;k<shape.cirques.length;k++){
-       const c=shape.cirques[k];
-       const dx=u-c.x,dy=v-c.y;
-       const bowl=Math.exp(-.5*(dx*dx/(c.rx*c.rx)+dy*dy/(c.ry*c.ry)));
-       h-=height*c.depth*bowl;
+     // Узкие ледниковые кулуары прорезают стену и разделяют скальные рёбра.
+     for(const g of gullies){
+       const line=g.x+g.drift*across;
+       const channel=Math.exp(-.5*Math.pow((u-line)/g.width,2))*
+         peakSmooth(.12,.32,Math.abs(across))*(1-peakSmooth(.76,.98,Math.abs(across)));
+       h-=height*g.cut*channel;
      }
-     const terraces=(Math.sin(angle*11+radial*19)*.13+
-       Math.cos(angle*17-radial*27)*.075+
-       Math.sin(u*39+v*31)*.045);
-     h=Math.max(0,h+terraces*massifSmooth(.15,.45,core));
+     // Горизонтальные уступы и осыпные террасы ломают гладкость склонов.
+     const strata=(Math.sin(u*29+across*8)*.075+Math.sin(u*61-across*17)*.035);
+     const ledge=Math.sin((1-cross)*23+u*5)*.055*peakSmooth(.18,.5,h/height);
+     h=Math.max(0,h+(strata+ledge)*peakSmooth(.08,.3,cross));
      pos.setZ(i,h);
    }
    geometry.computeVertexNormals();
@@ -4668,36 +4677,48 @@ function makeWorldLandscape(){
    for(let i=0;i<pos.count;i++){
      const u=uv.getX(i)*2-1,v=uv.getY(i)*2-1;
      const h=pos.getZ(i),up=normal.getZ(i);
-     const illumination=THREE.MathUtils.clamp(.34+.46*(1-up)+.12*Math.sin(u*11+v*8),.1,.98);
-     const rock=massifRock.clone().lerp(massifMid,illumination).lerp(massifLight,Math.max(0,illumination-.58)*.72);
-     const cap=massifSmooth(snowline,height*.91,h)*THREE.MathUtils.clamp((up+.015)*1.55,0,1);
-     const windDrift=THREE.MathUtils.clamp(.78+.15*Math.sin(u*24+v*17)+.1*Math.cos(u*39-v*21),.3,1);
-     rock.lerp(massifIceShade,cap*windDrift*.35).lerp(massifSnow,cap*windDrift*.65);
+     const illumination=THREE.MathUtils.clamp(.34+.5*(1-up)+.1*Math.sin(u*13+v*7),.08,.99);
+     const rock=peakRockDark.clone().lerp(peakRockMid,illumination).lerp(peakRockSun,Math.max(0,illumination-.58)*.72);
+     const snowAmount=peakSmooth(snowline,height*.94,h)*THREE.MathUtils.clamp((up+.015)*1.5,0,1);
+     const snowDrift=THREE.MathUtils.clamp(.78+.14*Math.sin(u*37+v*13)+.1*Math.cos(u*51-v*19),.25,1);
+     rock.lerp(peakSnowBlue,snowAmount*snowDrift*.38).lerp(peakSnow,snowAmount*snowDrift*.62);
      colors[i*3]=rock.r;colors[i*3+1]=rock.g;colors[i*3+2]=rock.b;
    }
    geometry.setAttribute('color',new THREE.BufferAttribute(colors,3));
    const mesh=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({
      color:0xffffff,vertexColors:true,map:alpineRockTexture,bumpMap:alpineRockBump,
-     bumpScale:.09,roughness:.97,metalness:0,side:THREE.DoubleSide
+     bumpScale:.1,roughness:.98,metalness:0,side:THREE.DoubleSide,flatShading:true
    }));
    mesh.name=name;mesh.rotation.x=-Math.PI/2;mesh.rotation.z=rotation;
    mesh.position.set(x,0,z);mesh.castShadow=false;mesh.receiveShadow=false;world.add(mesh);
    return mesh;
  };
- makeRockMassif({
-   name:'Western alpine massif - broad broken crown',x:-28,z:-57,width:18,depth:12.5,height:15.2,rotation:-.12,snowline:10.8,
-   shape:{phase:.8,a:.17,b:.11,c:.065,power:.78,cirques:[{x:.34,y:.28,rx:.2,ry:.15,depth:.16},{x:-.42,y:-.12,rx:.16,ry:.22,depth:.1}]},
-   cliffs:[{angle:-.55,width:.045,raise:.12},{angle:1.1,width:.055,raise:.1},{angle:2.6,width:.05,raise:.085}]
+ makeJaggedAlpinePeak({
+   name:'Western alpine massif - jagged serrated ridge',x:-29,z:-57,width:18,depth:13.5,height:16.4,rotation:-.1,snowline:11.3,
+   peaks:[
+     {x:-.78,height:.52,span:.3,sharp:.62},{x:-.36,height:.82,span:.31,sharp:.48},
+     {x:.08,height:1,span:.29,sharp:.42},{x:.53,height:.67,span:.32,sharp:.55}
+   ],
+   rockFaces:[{x:-.58,drift:.12,width:.035,raise:.13},{x:-.12,drift:-.1,width:.04,raise:.16},{x:.36,drift:.15,width:.035,raise:.12}],
+   gullies:[{x:-.38,drift:.13,width:.035,cut:.2},{x:.15,drift:-.12,width:.03,cut:.24},{x:.62,drift:.1,width:.04,cut:.18}]
  });
- makeRockMassif({
-   name:'Central alpine horn - steep glacial peak',x:0,z:-59,width:17,depth:14,height:20.2,rotation:.06,snowline:14.8,
-   shape:{phase:2.1,a:.2,b:.13,c:.08,power:.64,cirques:[{x:.25,y:.25,rx:.18,ry:.13,depth:.2},{x:-.3,y:-.28,rx:.16,ry:.18,depth:.14},{x:.42,y:-.35,rx:.13,ry:.17,depth:.1}]},
-   cliffs:[{angle:-.2,width:.035,raise:.16},{angle:1.25,width:.045,raise:.14},{angle:2.55,width:.04,raise:.13},{angle:3.5,width:.05,raise:.1}]
+ makeJaggedAlpinePeak({
+   name:'Central alpine horn - sharp pyramidal summit',x:0,z:-60,width:17.5,depth:15,height:21.5,rotation:.045,snowline:15.6,
+   peaks:[
+     {x:-.72,height:.46,span:.28,sharp:.55},{x:-.28,height:.74,span:.29,sharp:.48},
+     {x:.08,height:1,span:.24,sharp:.34},{x:.48,height:.64,span:.3,sharp:.5},{x:.82,height:.42,span:.25,sharp:.58}
+   ],
+   rockFaces:[{x:-.66,drift:.12,width:.032,raise:.13},{x:-.34,drift:-.12,width:.03,raise:.15},{x:.03,drift:.08,width:.028,raise:.19},{x:.43,drift:-.1,width:.035,raise:.16},{x:.72,drift:.14,width:.032,raise:.12}],
+   gullies:[{x:-.48,drift:-.12,width:.03,cut:.2},{x:-.12,drift:.13,width:.026,cut:.25},{x:.31,drift:-.14,width:.03,cut:.24},{x:.62,drift:.1,width:.03,cut:.18}]
  });
- makeRockMassif({
-   name:'Eastern alpine massif - twin fractured summit',x:29,z:-56,width:17.5,depth:12.5,height:16.1,rotation:.1,snowline:11.6,
-   shape:{phase:1.35,a:.16,b:.12,c:.07,power:.73,cirques:[{x:-.28,y:.25,rx:.2,ry:.16,depth:.17},{x:.38,y:-.18,rx:.17,ry:.2,depth:.12}]},
-   cliffs:[{angle:.1,width:.05,raise:.13},{angle:1.55,width:.045,raise:.11},{angle:2.9,width:.055,raise:.12}]
+ makeJaggedAlpinePeak({
+   name:'Eastern alpine massif - fractured twin spires',x:29,z:-57,width:18,depth:13.5,height:17.2,rotation:.1,snowline:12.2,
+   peaks:[
+     {x:-.78,height:.48,span:.27,sharp:.58},{x:-.4,height:.72,span:.3,sharp:.5},
+     {x:.12,height:1,span:.27,sharp:.38},{x:.58,height:.88,span:.28,sharp:.4}
+   ],
+   rockFaces:[{x:-.58,drift:.13,width:.035,raise:.12},{x:-.18,drift:-.12,width:.032,raise:.15},{x:.28,drift:.1,width:.03,raise:.16},{x:.68,drift:-.13,width:.035,raise:.13}],
+   gullies:[{x:-.38,drift:.12,width:.03,cut:.19},{x:.02,drift:-.13,width:.028,cut:.24},{x:.48,drift:.12,width:.03,cut:.22}]
  });
  // Новая цельная альпийская гряда заменяет предыдущие отдельные модели гор; задний план остаётся открытым.
  // Весь лес удалён по запросу: хвойные и лиственные деревья не создаются.
