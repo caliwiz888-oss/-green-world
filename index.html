@@ -3675,19 +3675,44 @@ function makeWorldDecor(){
   const bridgeDeckMat=mat(0x777f7e,.96),bridgeStone=mat(0xb5b4a6,.97),bridgeStoneLight=mat(0xd0cabb,.96),bridgeStoneShade=mat(0x747c78,.98);
   const bridgeProfile=(t)=>.1475+.48*Math.pow(Math.sin(Math.PI*t),2);
   const bridgeSlope=(t)=>.48*Math.PI/bridgeLength*Math.sin(2*Math.PI*t);
-  // Сплошная несущая плита повторяет плавный подъём арки, а её торцы заподлицо с дорогой.
-  for(let row=0;row<20;row++){
-    const t=(row+.5)/20,z=bridgeStart+t*bridgeLength,angle=-Math.atan(bridgeSlope(t));
-    const slab=box(world,4.08,.30,bridgeLength/20+.025,0,bridgeProfile(t)-.19,z,bridgeDeckMat,false);
-    slab.rotation.x=angle;
+  // Единая параметрическая геометрия настила: нет перекрывающихся коробчатых сегментов
+  // и касающихся друг друга наклонных плоскостей, которые могли вызывать Z-fighting.
+  function bridgePrism(x0,x1,z0,z1,bottomOffset,topOffset,material,segments=1){
+    const positions=[],indices=[];
+    const addQuad=(a,b,c,d)=>{
+      const n=positions.length/3;
+      positions.push(...a,...b,...c,...d);
+      indices.push(n,n+1,n+2,n,n+2,n+3);
+    };
+    const sample=(x,z,offset)=>[x,bridgeProfile((z-bridgeStart)/bridgeLength)+offset,z];
+    const zs=Array.from({length:segments+1},(_,i)=>z0+(z1-z0)*i/segments);
+    for(let i=0;i<segments;i++){
+      const a=zs[i],b=zs[i+1];
+      addQuad(sample(x0,a,topOffset),sample(x0,b,topOffset),sample(x1,b,topOffset),sample(x1,a,topOffset));
+      addQuad(sample(x1,a,bottomOffset),sample(x1,b,bottomOffset),sample(x0,b,bottomOffset),sample(x0,a,bottomOffset));
+      addQuad(sample(x0,a,bottomOffset),sample(x0,b,bottomOffset),sample(x0,b,topOffset),sample(x0,a,topOffset));
+      addQuad(sample(x1,b,bottomOffset),sample(x1,a,bottomOffset),sample(x1,a,topOffset),sample(x1,b,topOffset));
+    }
+    addQuad(sample(x0,z0,bottomOffset),sample(x0,z0,topOffset),sample(x1,z0,topOffset),sample(x1,z0,bottomOffset));
+    addQuad(sample(x1,z1,bottomOffset),sample(x1,z1,topOffset),sample(x0,z1,topOffset),sample(x0,z1,bottomOffset));
+    const geometry=new THREE.BufferGeometry();
+    geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+    geometry.setIndex(indices);geometry.computeVertexNormals();
+    const mesh=new THREE.Mesh(geometry,material);
+    mesh.castShadow=false;mesh.receiveShadow=false;world.add(mesh);
+    return mesh;
   }
-  // Гранитная мостовая продолжает рисунок главной дороги: ровные ряды, без щели на стыке.
+  // Одна непрерывная несущая плита точно повторяет профиль моста по всей длине.
+  bridgePrism(-2.04,2.04,bridgeStart,bridgeEnd,-.34,-.04,bridgeDeckMat,80);
+  // Каждая гранитная плитка повторяет кривизну настила по краям; между плитками остаются
+  // одинаковые открытые швы, а верхняя поверхность не пересекается с несущей плитой.
   for(let row=0;row<20;row++){
-    const t=(row+.5)/20,z=bridgeStart+t*bridgeLength,angle=-Math.atan(bridgeSlope(t));
+    const t=(row+.5)/20,z=bridgeStart+t*bridgeLength;
+    const halfLength=(bridgeLength/20-.025)/2;
     for(let col=0;col<9;col++){
       const x=-1.64+col*.41,shade=(row+col)%2===0;
-      const tile=box(world,.392,.075,bridgeLength/20-.025,x,bridgeProfile(t)+.046,z,shade?roadBrickLight:roadBrickDark,false);
-      tile.rotation.x=angle;
+      bridgePrism(x-.196,x+.196,z-halfLength,z+halfLength,.0085,.0835,
+        shade?roadBrickLight:roadBrickDark,2);
     }
   }
   // Новая несущая архитектура: три крупные каменные арки вместо двух длинных тонких рёбер.
