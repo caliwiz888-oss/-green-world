@@ -5369,7 +5369,13 @@ function makeWorldLandscape(){
      const bandStrength=THREE.MathUtils.clamp(.075+.035*Math.sin(u*31+across*9)+cliffFace*.035,.025,.14);
      const rockBand=Math.pow(Math.max(0,Math.sin(bandPhase)),12)*bandStrength;
      const paleVein=Math.pow(Math.max(0,Math.sin(bandPhase+1.1)),18)*(.025+cliffFace*.018);
+     // Редкие тонкие минеральные трещины подчёркивают крупные скальные плоскости, не дробя их на мелкий узор.
+     const fractureTrace=Math.pow(Math.max(0,Math.sin(u*38+across*23+.22*Math.sin(u*17-across*31))),34);
+     const fractureBranch=Math.pow(Math.max(0,Math.sin(u*71-across*19+.18*Math.sin(u*29+across*13))),42);
+     const fractureStain=THREE.MathUtils.clamp(fractureTrace*.72+fractureBranch*.28,0,1)*
+       cliffFace*peakSmooth(.16,.38,h/height);
      rock.multiplyScalar(1-rockBand*(1-snowCoverage));
+     rock.multiplyScalar(1-fractureStain*.105*(1-snowCoverage));
      rock.lerp(new THREE.Color(0xb0a18a),paleVein*(1-snowCoverage));
      rock.lerp(peakSnowBlue,snowCoverage*(.24+coldShadow*.22)).lerp(peakSnow,snowCoverage*(.76-coldShadow*.12));
      colors[i*3]=rock.r;colors[i*3+1]=rock.g;colors[i*3+2]=rock.b;
