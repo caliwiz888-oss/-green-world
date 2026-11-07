@@ -5382,6 +5382,9 @@ function makeWorldLandscape(){
      rock.lerp(new THREE.Color(0xb0a18a),paleVein*(1-snowCoverage));
      rock.lerp(new THREE.Color(0xc3ced0),frostCatch*.115*(1-snowCoverage));
      rock.lerp(peakSnowBlue,snowCoverage*(.24+coldShadow*.22)).lerp(peakSnow,snowCoverage*(.76-coldShadow*.12));
+     // Мягкие голубоватые тени повторяют ледниковые ложбины и места накопления плотного снега.
+     const snowHollowShade=snowCoverage*THREE.MathUtils.clamp(leePocket*.075+chuteTongue*.035+exposedRidge*.018,0,.11);
+     rock.lerp(peakSnowBlue,snowHollowShade);
      colors[i*3]=rock.r;colors[i*3+1]=rock.g;colors[i*3+2]=rock.b;
    }
    geometry.setAttribute('color',new THREE.BufferAttribute(colors,3));
