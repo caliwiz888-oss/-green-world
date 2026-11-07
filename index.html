@@ -3739,6 +3739,16 @@ function makeHouse(){
  box(g,7.35,.30,5.42,0,.16,0,stone);
  box(g,7.20,.13,5.30,0,.37,0,cream);
  box(g,6.92,.12,5.12,0,.49,0,gold);
+ // Каменная кладка фасада: горизонтальные тяги и рустованные угловые блоки.
+ for(const y of [.82,2.62,3.82,4.12]){
+  box(g,5.92,.065,.13,0,y,2.43,stone,false);
+  box(g,5.98,.035,.14,0,y+.07,2.44,cream,false);
+ }
+ for(const x of [-2.72,2.72]){
+  for(const y of [1.05,1.52,2.92,3.38]){
+   box(g,.28,.34,.16,x,y,2.48,y===1.52?stone:cream,false);
+  }
+ }
  // Главный объём не плоский прямоугольник: центральный ризалит выступает вперёд,
  // а боковые части имеют собственные каменные пояса и глубокие оконные ниши.
  box(g,5.72,3.82,4.48,0,2.42,-.08,ivory);
@@ -3846,6 +3856,13 @@ function makeHouse(){
   const mesh=new THREE.Mesh(geo,roofMat);mesh.castShadow=false;mesh.receiveShadow=false;g.add(mesh);
  }
  roofSide(-1);roofSide(1);
+ // Тонкие ряды сланцевой черепицы повторяют скаты основной крыши.
+ for(const side of [-1,1]){
+  for(let k=1;k<=6;k++){
+   const ax=k*.48,yy=6.22-(ax/3.48)*1.75;
+   box(g,.028,.026,5.34,side*ax,yy,-.07,slateDark,false);
+  }
+ }
  for(const side of [-1,1]){
   const fascia=box(g,4.00,.22,.36,side*1.74,5.34,2.61,slateDark);
   fascia.rotation.z=side===-1?.48:-.48;
@@ -3864,41 +3881,53 @@ function makeHouse(){
  }
  // Две массивные круглые башни: цельный каменный цилиндр начинается у земли
  // и поднимается непрерывно до основания конической кровли, как на эталоне.
+ // Две круглые башни, каждая с одним нижним и одним верхним окном.
  for(const x of [-2.92,2.92]){
   const t=group(g,x,0,1.62);
   cylinder(t,1.04,1.04,5.18,0,2.59,0,ivory,n);
   cylinder(t,1.10,1.04,.22,0,.12,0,stone,n);
   cylinder(t,1.07,1.07,.12,0,.29,0,cream,n);
-  for(const y of [1.03,2.12,3.23,4.34,5.02]){
+  // Пояса расположены между окнами, чтобы не перекрывать остекление.
+  for(const y of [.70,2.68,4.02,4.90]){
    cylinder(t,1.06,1.06,.11,0,y,0,stone,n);
    cylinder(t,1.09,1.09,.07,0,y+.08,0,gold,n);
   }
-  // На каждой башне ровно два арочных окна: одно нижнее и одно верхнее.
-  for(const y of [1.75,2.94]){
-   for(const wx of [.22]){
-    const sh=new THREE.Shape();sh.moveTo(-.22,0);sh.lineTo(-.22,.67);sh.absarc(0,.67,.22,Math.PI,0,true);sh.lineTo(.22,0);sh.closePath();
-    const frame=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.10,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.02,bevelThickness:.02}),bronze);
-    frame.position.set(wx-.22,y,1.08);frame.castShadow=false;frame.receiveShadow=false;t.add(frame);
-    const glass=new THREE.Mesh(new THREE.ShapeGeometry(sh),teal);
-    glass.position.set(wx-.22,y,1.19);glass.castShadow=false;glass.receiveShadow=false;t.add(glass);
-    box(t,.035,.88,.035,wx-.22,y+.32,1.22,gold,false);
-    sphere(t,.14,wx-.22,y+.68,1.20,tealLight,.70);
-    box(t,.54,.10,.22,wx-.22,y-.08,1.13,cream);
-    box(t,.58,.06,.24,wx-.22,y+.96,1.13,gold);
+  // Ровно два окна на башню: одно нижнее и одно верхнее.
+  for(const y of [1.15,3.05]){
+   const sh=new THREE.Shape();
+   sh.moveTo(-.22,0);sh.lineTo(-.22,.67);
+   sh.absarc(0,.67,.22,Math.PI,0,true);
+   sh.lineTo(.22,0);sh.closePath();
+   const frame=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.10,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.02,bevelThickness:.02}),bronze);
+   frame.position.set(0,y,1.08);frame.castShadow=false;frame.receiveShadow=false;t.add(frame);
+   const glass=new THREE.Mesh(new THREE.ShapeGeometry(sh),teal);
+   glass.position.set(0,y,1.19);glass.castShadow=false;glass.receiveShadow=false;t.add(glass);
+   box(t,.035,.88,.035,0,y+.32,1.22,gold,false);
+   sphere(t,.14,0,y+.68,1.20,tealLight,.70);
+   box(t,.54,.10,.22,0,y-.08,1.13,cream);
+   box(t,.58,.06,.24,0,y+.96,1.13,gold);
+  }
+  // Два круглых балкона — под нижним и верхним ярусом окон.
+  for(const balconyY of [2.12,4.02]){
+   cylinder(t,1.04,1.04,.14,0,balconyY,0,stone,n);
+   cylinder(t,1.13,1.13,.12,0,balconyY+.12,0,cream,n);
+   cylinder(t,1.15,1.15,.05,0,balconyY+.20,0,gold,n);
+   for(let j=0;j<32;j++){
+    const a=j*Math.PI/16,px=Math.sin(a)*1.07,pz=Math.cos(a)*1.07;
+    cylinder(t,.042,.052,.30,px,balconyY+.39,pz,cream,10);
+    sphere(t,.055,px,balconyY+.55,pz,gold,.75);
+   }
+   cylinder(t,1.15,1.15,.07,0,balconyY+.57,0,cream,n);
+   cylinder(t,1.18,1.18,.05,0,balconyY+.65,0,gold,n);
+   // Цветы на передней дуге каждого балкона.
+   for(let j=0;j<9;j++){
+    const a=-1.05+j*.2625,px=Math.sin(a)*1.17,pz=Math.cos(a)*1.17;
+    box(t,.20,.10,.18,px,balconyY+.24,pz,stone,false);
+    sphere(t,.07,px,balconyY+.38,pz,green,.78);
+    sphere(t,.075,px,balconyY+.47,pz,j%3===0?lilac:(j%2?white:pink),.82);
    }
   }
-  // Круглый каменный балкон с широким выносом, точёными балясинами и поручнем.
-  cylinder(t,1.03,1.03,.18,0,4.00,0,stone,n);
-  cylinder(t,1.13,1.13,.12,0,4.15,0,cream,n);
-  cylinder(t,1.15,1.15,.05,0,4.23,0,gold,n);
-  for(let j=0;j<32;j++){
-   const a=j*Math.PI/16,px=Math.sin(a)*1.07,pz=Math.cos(a)*1.07;
-   cylinder(t,.042,.052,.34,px,4.42,pz,cream,10);
-   sphere(t,.055,px,4.61,pz,gold,.75);
-  }
-  cylinder(t,1.15,1.15,.07,0,4.64,0,cream,n);
-  cylinder(t,1.18,1.18,.05,0,4.71,0,gold,n);
-  // Аттик, ступенчатое основание и высокая коническая синяя кровля башни.
+  // Аттик, ступенчатое основание и высокая коническая синяя кровля.
   cylinder(t,.94,.94,.14,0,4.84,0,stone,n);
   cylinder(t,1.00,1.00,.12,0,4.97,0,cream,n);
   cylinder(t,1.03,1.03,.08,0,5.08,0,gold,n);
@@ -3907,18 +3936,11 @@ function makeHouse(){
   cylinder(t,.075,.075,.22,0,7.75,0,gold,16);
   sphere(t,.11,0,7.91,0,gold,.9);
   cone(t,.06,.22,0,8.08,0,gold,16);
-  // Золотые вертикальные рёбра подчёркивают конический профиль.
+  // Золотые рёбра и тонкие горизонтальные пояса на конусе крыши.
   for(let j=0;j<8;j++){
    const a=j*Math.PI/4,px=Math.sin(a)*.48,pz=Math.cos(a)*.48;
    const rib=box(t,.032,1.60,.032,px,6.48,pz,gold,false);
    rib.rotation.z=Math.sin(a)*.22;rib.rotation.x=Math.cos(a)*.22;
-  }
-  // Цветочные ящики и бутоны вдоль передней части балкона.
-  for(let j=0;j<11;j++){
-   const a=-1.18+j*.236,px=Math.sin(a)*1.17,pz=Math.cos(a)*1.17;
-   box(t,.22,.12,.20,px,4.28,pz,stone,false);
-   sphere(t,.078,px,4.42,pz,green,.78);
-   sphere(t,.078,px,4.52,pz,j%3===0?lilac:(j%2?white:pink),.82);
   }
  }
  // Цветочные ящики только под двумя фасадными окнами главного дома.
