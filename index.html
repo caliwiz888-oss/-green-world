@@ -4965,91 +4965,19 @@ function drawPlayer(){
   // Дом, завод и лавка — постоянные декоративные объекты мира.
   if(buildingObjects.length===0){
   // Завод создаётся первым и независимо от остальных объектов мира.
-  const factoryChildrenBefore=new Set(world.children);
-  let factory=null;
-  try{factory=makeFactory()}
-  catch(factoryError){
-    console.error('[render] Detailed factory construction failed:',factoryError);
-    for(const child of [...world.children])if(!factoryChildrenBefore.has(child))world.remove(child);
-  }
-  if(!factory){
-    factory=group(world,11.8,0,-10);
-    const fallbackBrick=mat(0x985b43),fallbackStone=mat(0xb5a58b),fallbackRoof=mat(0x39474a);
-    box(factory,7.25,3.35,5.25,0,1.85,0,fallbackBrick);
-    box(factory,7.55,.24,5.5,0,3.62,0,fallbackStone);
-    const roofLeft=box(factory,3.95,.28,5.8,-1.45,4.48,0,fallbackRoof);roofLeft.rotation.z=.34;
-    const roofRight=box(factory,3.95,.28,5.8,1.45,4.48,0,fallbackRoof);roofRight.rotation.z=-.34;
-    box(factory,1.45,3.2,1.35,2.55,5.15,-1.35,fallbackBrick);
-    box(factory,1.65,.22,1.55,2.55,6.82,-1.35,fallbackStone);
-    box(factory,2.15,2.35,.18,0,1.48,2.72,fallbackStone);
-    box(factory,1.78,2.05,.1,0,1.42,2.86,fallbackRoof);
-  }
-  factory.visible=true;
-  factory.traverse(object=>{object.visible=true;if(object.isMesh)object.frustumCulled=false});
-  factory.updateMatrixWorld(true);
-  buildingObjects.push(factory);
-  // Центральный главный дом и обе его башни удалены по запросу пользователя.
-  // Боковые здания, ограда, арка, мост и ландшафт остаются без изменений.
-  window.GREEN_WORLD_HOUSE_MODEL='removed';
-  window.GREEN_WORLD_HOUSE_ERROR=null;
-  // Сохраняем лавку даже при сбое отдельной декоративной детали в подробной модели.
-  const marketChildrenBefore=new Set(world.children);
-  let market=null;
-  try{market=makeMarket();window.GREEN_WORLD_MARKET_MODEL='detailed';window.GREEN_WORLD_MARKET_ERROR=null}
-  catch(marketError){
-    window.GREEN_WORLD_MARKET_MODEL='fallback';window.GREEN_WORLD_MARKET_ERROR=String(marketError?.stack||marketError);
-    console.error('[render] Detailed market construction failed; using safe storefront:',marketError);
-    for(const child of [...world.children])if(!marketChildrenBefore.has(child))world.remove(child);
-    const fallback=group(world,-10.8,0,-8.5);
-    fallback.scale.setScalar(1.2);
-    const shopWall=mat(0xe8dcc5),shopTimber=mat(0x55483b),shopRoof=new THREE.MeshStandardMaterial({color:0x526d88,roughness:.84,metalness:.035}),shopTrim=mat(0xb99a55);
-    // Matching stone plinth for the fallback storefront, visible around the full building perimeter.
-    const fallbackPlinthBase=M.stone2.clone();fallbackPlinthBase.color.setHex(0x626663);fallbackPlinthBase.roughness=.88;
-    const fallbackPlinthCap=M.stone.clone();fallbackPlinthCap.color.setHex(0x858982);fallbackPlinthCap.roughness=.82;
-    for(const z of [-2.34]){
-      box(fallback,5.92,.34,.12,0,.225,z,fallbackPlinthBase,false);
-      box(fallback,5.98,.075,.17,0,.425,z,fallbackPlinthCap,false);
-    }
-    for(const x of [-2.96,2.96]){
-      box(fallback,.12,.34,3.58,x,.225,-.38,fallbackPlinthBase,false);
-      box(fallback,.17,.075,3.64,x,.425,-.38,fallbackPlinthCap,false);
-    }
-    box(fallback,5.4,2.8,4.4,0,1.4,0,shopWall);
-    box(fallback,5.65,.24,4.65,0,2.86,0,M.gold);
-    box(fallback,5.1,2.45,.18,0,1.42,2.22,shopTimber);
-    box(fallback,3.65,1.25,.12,0,1.65,2.34,M.glass);
-    box(fallback,3.38,.96,.035,0,1.65,2.255,windowInterior,false);
-    // Noticeable matching display trim for the safe fallback storefront.
-    box(fallback,3.82,.16,.2,0,2.34,2.39,shopTimber,false);
-    box(fallback,3.9,.045,.23,0,2.435,2.4,M.gold,false);
-    box(fallback,3.82,.13,.2,0,.94,2.39,shopTrim,false);
-    box(fallback,3.9,.04,.23,0,.855,2.4,M.gold,false);
-    for(const x of [-1.78,-.9,0,.9,1.78]){
-      box(fallback,.055,.24,.07,x,2.34,2.52,M.gold,false);
-      box(fallback,.055,.24,.07,x,.94,2.52,M.gold,false);
-    }
-    // Raised central sign surround and matching corner caps.
-    box(fallback,2.35,.12,.18,0,2.98,2.38,shopTrim,false);
-    box(fallback,2.42,.04,.2,0,3.06,2.39,M.gold,false);
-    for(const x of [-2.35,-1.25,0,1.25,2.35])box(fallback,.13,2.5,.22,x,1.42,2.4,M.gold);
-    box(fallback,1.1,2.25,.22,0,1.35,2.48,shopTimber);
-    box(fallback,6.2,.25,6.2,0,3.85,0,shopRoof);
-    box(fallback,.22,.28,4.9,0,4.48,0,M.gold);
-    for(let i=0;i<7;i++)box(fallback,.72,.18,.85,-2.52+i*.84,2.75,2.72,i%2?shopRoof:shopTrim);
-    box(fallback,2.05,.62,.16,0,4.05,2.62,shopTimber);
-    box(fallback,1.78,.34,.08,0,4.05,2.73,M.gold,false);
-    box(fallback,1.7,.29,.025,0,4.05,2.785,mat(0x304c38),false);
-    box(fallback,6.3,.12,1.45,0,.035,3.55,shopTrim,false);
-    // Disable all shadow casting and receiving on the fallback market as well.
-    fallback.traverse(object=>{if(object.isMesh){object.castShadow=false;object.receiveShadow=false}});
-    market=fallback;
-  }
-  if(market){
-    market.visible=true;
-    market.traverse(object=>{object.visible=true;if(object.isMesh)object.frustumCulled=false});
-    market.updateMatrixWorld(true);
-    buildingObjects.push(market);
-  }
+  // Магазин и завод удалены; пустые опорные группы сохраняют исходные координаты.
+  const factoryAnchor=group(world,11.8,0,-9.61);
+  factoryAnchor.name='factory-coordinate-anchor';
+  factoryAnchor.userData.buildingRemoved=true;
+  buildingObjects.push(factoryAnchor);
+  const marketAnchor=group(world,-10.8,0,-8.5);
+  marketAnchor.name='market-coordinate-anchor';
+  marketAnchor.userData.buildingRemoved=true;
+  buildingObjects.push(marketAnchor);
+  window.GREEN_WORLD_FACTORY_MODEL='removed';
+  window.GREEN_WORLD_MARKET_MODEL='removed';
+  window.GREEN_WORLD_FACTORY_ERROR=null;
+  window.GREEN_WORLD_MARKET_ERROR=null;
   }
 }
 function applyPlayer(){$('login').style.display='none';try{drawPlayer()}catch(e){console.error('[render] World drawing failed:',e);$('login-error').textContent='Ошибка отображения мира: '+(e?.message||e)}}
