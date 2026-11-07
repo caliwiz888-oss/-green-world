@@ -3888,6 +3888,25 @@ function makeHouse(){
  cylinder(g,.29,.29,.05,0,5.39,2.97,gold,48);
  box(g,.045,.65,.035,0,5.39,3.01,gold,false);
  box(g,.55,.045,.035,0,5.39,3.01,gold,false);
+ // Усиленный декор фронтона по крупному плану эталона: три профиля,
+ // золотая линия вдоль скатов и симметричные каменные/золотые акценты.
+ const gableLeft=box(g,3.62,.10,.20,-1.72,5.26,2.88,cream,false);
+ gableLeft.rotation.z=.52;
+ const gableRight=box(g,3.62,.10,.20,1.72,5.26,2.88,cream,false);
+ gableRight.rotation.z=-.52;
+ const gableGoldL=box(g,3.55,.045,.22,-1.70,5.34,2.94,gold,false);
+ gableGoldL.rotation.z=.52;
+ const gableGoldR=box(g,3.55,.045,.22,1.70,5.34,2.94,gold,false);
+ gableGoldR.rotation.z=-.52;
+ // Ряд небольших рельефных медальонов под круглым витражом.
+ for(const x of [-2.35,-1.88,-1.41,-.94,-.47,.47,.94,1.41,1.88,2.35]){
+  sphere(g,.075,x,4.68,2.91,gold,.86);
+  sphere(g,.035,x,4.68,2.97,cream,.88);
+ }
+ // Каменное обрамление круглого витража и аккуратный золотой внешний обод.
+ cylinder(g,.58,.58,.10,0,5.39,2.78,cream,64);
+ cylinder(g,.52,.52,.055,0,5.39,2.90,gold,64);
+ cylinder(g,.45,.45,.035,0,5.39,2.94,bronze,64);
  // Главная двускатная кровля: широкие сланцевые скаты, выступающие свесы и конёк.
  const roofMat=new THREE.MeshStandardMaterial({color:0x29445f,roughness:.78,metalness:.025,side:THREE.DoubleSide});
  function roofSide(side){
@@ -4009,15 +4028,21 @@ function makeHouse(){
    rib.rotation.z=Math.sin(a)*.22;rib.rotation.x=Math.cos(a)*.22;
   }
  }
- // Цветочные ящики только под двумя фасадными окнами главного дома.
+ // Цветочные каменные ящики расположены непосредственно под поднятыми окнами,
+ // как на эталоне; короткие кронштейны поддерживают выступающую плиту.
  for(const x of [-2.05,2.05]){
-  const y=.88;
-  box(g,.72,.14,.32,x,y,2.70,stone);
-  box(g,.76,.05,.34,x,y+.09,2.72,gold);
-  for(let j=0;j<6;j++){
-   const px=x-.25+j*.10;
-   sphere(g,.065,px,y+.17,2.78,green,.76);
-   sphere(g,.068,px,y+.25,2.80,j%3===0?lilac:(j%2?white:pink),.82);
+  const y=2.04;
+  box(g,.78,.14,.36,x,y,2.70,stone);
+  box(g,.82,.055,.38,x,y+.09,2.72,gold);
+  box(g,.66,.055,.34,x,y+.15,2.73,cream);
+  for(const bx of [-.25,.25]){
+   const bracket=box(g,.10,.22,.12,x+bx,y-.11,2.62,stone,false);
+   bracket.rotation.z=bx<0?-.22:.22;
+  }
+  for(let j=0;j<8;j++){
+   const px=x-.30+j*.085;
+   sphere(g,.065,px,y+.20,2.80,green,.76);
+   sphere(g,.070,px,y+.29,2.82,j%3===0?lilac:(j%2?white:pink),.82);
   }
  }
  // Дымоходы остаются частью силуэта главной кровли.
