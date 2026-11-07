@@ -1878,6 +1878,23 @@ function makeMarket(){
  const roof=new THREE.MeshStandardMaterial({color:0x34483a,roughness:.84,metalness:.015});
  const roofEdge=new THREE.MeshStandardMaterial({color:0x202e25,roughness:.88,metalness:.01});
  const roofAccent=new THREE.MeshStandardMaterial({color:0x52664d,roughness:.84,metalness:.01});
+ // Ткань переднего навеса получает тонкое плетение вместо гладкой окрашенной поверхности.
+ const awningCanvas=document.createElement('canvas');awningCanvas.width=256;awningCanvas.height=256;
+ const awningCtx=awningCanvas.getContext('2d');
+ awningCtx.fillStyle='#eee9d9';awningCtx.fillRect(0,0,256,256);
+ for(let i=0;i<256;i+=4){
+   awningCtx.strokeStyle=i%8===0?'rgba(72,78,57,.10)':'rgba(255,255,255,.18)';
+   awningCtx.lineWidth=1;awningCtx.beginPath();awningCtx.moveTo(i,0);awningCtx.lineTo(i,256);awningCtx.stroke();
+   awningCtx.strokeStyle='rgba(75,72,54,.07)';awningCtx.beginPath();awningCtx.moveTo(0,i);awningCtx.lineTo(256,i);awningCtx.stroke();
+ }
+ const awningTexture=new THREE.CanvasTexture(awningCanvas);
+ awningTexture.colorSpace=THREE.SRGBColorSpace;
+ awningTexture.wrapS=awningTexture.wrapT=THREE.RepeatWrapping;
+ awningTexture.repeat.set(1.6,1.2);
+ awningTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const awningMatA=new THREE.MeshStandardMaterial({color:0x9eaa83,map:awningTexture,roughness:.96,metalness:0});
+ const awningMatB=new THREE.MeshStandardMaterial({color:0xe5dfca,map:awningTexture,roughness:.98,metalness:0});
+
  // Едва заметная фактура окрашенного кровельного покрытия: мелкое зерно и спокойные продольные полосы без новых деталей.
  const marketRoofCanvas=document.createElement('canvas');marketRoofCanvas.width=512;marketRoofCanvas.height=512;
  const marketRoofCtx=marketRoofCanvas.getContext('2d');
@@ -2142,14 +2159,14 @@ function makeMarket(){
  // Полосатый тканевый навес над торговым фронтом усиливает образ рынка.
  for(let i=0;i<8;i++){
    const x=-2.45+i*.7;
-   box(g,.64,.09,.78,x,2.48,2.62,i%2?roofAccent:roof);
+   box(g,.64,.09,.78,x,2.48,2.62,i%2?awningMatA:awningMatB);
    box(g,.62,.12,.08,x,2.39,3.0,i%2?roofEdge:roofAccent);
  }
  // Завершающая кромка тканевого навеса: ровный кант и мягкий ритм коротких полотняных фестонов.
  box(g,5.22,.045,.055,0,2.385,3.045,roofEdge,false);
  for(let i=0;i<8;i++){
    const x=-2.45+i*.7;
-   const fabric=i%2?roof:roofAccent;
+   const fabric=i%2?awningMatB:awningMatA;
    box(g,.48,.105,.075,x,2.315,3.055,fabric,false);
    box(g,.16,.035,.085,x,2.245,3.06,roofEdge,false);
  }
