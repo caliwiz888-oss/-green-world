@@ -348,6 +348,24 @@ function makeSurfaceTexture(kind,seed){
    const x=rand()*size,y=rand()*size,r=2+rand()*5;
    ctx.fillStyle='rgba(125,125,125,.12)';ctx.beginPath();ctx.ellipse(x,y,r,r*.55,rand()*Math.PI,0,Math.PI*2);ctx.fill();
   }
+  // Небольшие группы разнотонных травинок создают естественные островки плотности газона.
+  for(let i=0;i<190;i++){
+   const x=rand()*size,y=rand()*size,base=rand()>.5?1:-1;
+   const h=3+rand()*8,lean=(rand()-.5)*5;
+   for(let blade=0;blade<3;blade++){
+    const spread=(blade-1)*(1.1+rand()*1.1),tone=rand()>.5?'rgba(224,235,164,.13)':'rgba(39,76,37,.12)';
+    ctx.strokeStyle=tone;ctx.lineWidth=.45+rand()*.45;ctx.beginPath();
+    ctx.moveTo(x+spread,y);
+    ctx.quadraticCurveTo(x+spread+lean*.35,y-h*.55,x+spread+lean*base,y-h);
+    ctx.stroke();
+   }
+  }
+  // Редкие тёплые и холодные пятна разбивают однотонные участки без крупных декоративных объектов.
+  for(let i=0;i<24;i++){
+   const x=rand()*size,y=rand()*size,rx=8+rand()*20,ry=4+rand()*11;
+   ctx.fillStyle=rand()>.5?'rgba(191,177,112,.035)':'rgba(63,91,49,.04)';
+   ctx.beginPath();ctx.ellipse(x,y,rx,ry,(rand()-.5)*.8,0,Math.PI*2);ctx.fill();
+  }
  }
  if(kind==='stone'){
   // Мелкие минеральные включения и редкие мягкие прожилки оживляют камень и мощение.
