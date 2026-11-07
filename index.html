@@ -3694,18 +3694,19 @@ function makeWorldDecor(){
   rightRoadBorder.position.x=1.965;
   rightRoadBorder.scale.x=-1;
   world.add(rightRoadBorder);
-  // Тёмные боковые линии поперечной дороги обрамляют плиточное мощение по всей ширине двора.
+  // Непрерывная окантовка горизонтальной дороги: по одной цельной линии
+  // от левой до правой ограды, без разрыва у главной дороги и возле зданий.
   for(const side of [-1,1]){
     const z=-4.55+side*.99;
-    for(const segment of [{x:-8.125,length:11.75},{x:9.375,length:14.25}]){
-      box(world,segment.length,.13,.19,segment.x,.105,z,roadEdgeMat,false);
-      box(world,segment.length-.07,.035,.075,segment.x,.184,z-side*.012,roadEdgeTop,false);
-      box(world,segment.length-.45,.018,.025,segment.x,.169,z-side*.105,roadEdgeInlay,false);
-    }
-    for(let i=0;i<16;i++){
-      const x=-12.55+i*1.84;
-      if(Math.abs(x)<2.25)continue;
-      box(world,.025,.018,.195,x,.18,z,roadEdgeTop,false);
+    // Сплошное тёмное основание исключает щели между отдельными сегментами.
+    box(world,30.5,.14,.20,1.25,.105,z,roadEdgeMat,false);
+    // Более широкая верхняя фаска и светлая тонкая вставка делают кромку чёткой.
+    box(world,30.42,.045,.092,1.25,.184,z-side*.012,roadEdgeTop,false);
+    box(world,30.18,.022,.032,1.25,.169,z-side*.105,roadEdgeInlay,false);
+    // Поперечные стыки — равномерные и одинаковые по всей длине.
+    for(let i=0;i<17;i++){
+      const x=-13.25+i*1.81;
+      box(world,.028,.022,.205,x,.18,z,roadEdgeTop,false);
     }
   }
   // Каменный арочный мост продолжает главную дорогу по той же оси и без ступеньки.
