@@ -4022,9 +4022,15 @@ function makeHouse(){
  cylinder(center,.82,.82,.18,0,topY+.22,roofZ,stone,64);
  cylinder(center,.78,.78,.09,0,topY+.34,roofZ,goldRoof,64);
  cylinder(center,.73,.73,.10,0,topY+.43,roofZ,copperDark,64);
- const domeMatGW=copperMats[0];
- const domeGW=new THREE.Mesh(new THREE.SphereGeometry(.76,48,24,0,Math.PI*2,0,Math.PI/2),domeMatGW);
- domeGW.position.set(0,topY+.48,roofZ);domeGW.castShadow=true;domeGW.receiveShadow=true;center.add(domeGW);
+ // Купол облицован отдельными радиальными медными сегментами, как основная крыша — не гладкая одноцветная сфера.
+ const domeBaseGW=topY+.48;
+ for(let panelGW=0;panelGW<16;panelGW++){
+  const phiGW=panelGW*Math.PI*2/16;
+  const domePanelGeoGW=new THREE.SphereGeometry(.76,8,24,phiGW,Math.PI*2/16,0,Math.PI/2);
+  const domePanelGW=new THREE.Mesh(domePanelGeoGW,copperMats[(panelGW+1)%copperMats.length]);
+  domePanelGW.position.set(0,domeBaseGW,roofZ);
+  domePanelGW.castShadow=true;domePanelGW.receiveShadow=true;center.add(domePanelGW);
+ }
  // Радиальные фальцевые рёбра повторяют металлическую отделку основной мансарды.
  for(let j=0;j<16;j++){
   const a=j*Math.PI*2/16,pts=[];
