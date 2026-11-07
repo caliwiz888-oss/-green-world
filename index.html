@@ -3686,7 +3686,7 @@ function makeWorldDecor(){
     const t=(row+.5)/20,z=bridgeStart+t*bridgeLength,angle=-Math.atan(bridgeSlope(t));
     for(let col=0;col<9;col++){
       const x=-1.64+col*.41,shade=(row+col)%2===0;
-      const tile=box(world,.392,.075,bridgeLength/20-.025,x,bridgeProfile(t)+.018,z,shade?roadBrickLight:roadBrickDark,false);
+      const tile=box(world,.392,.075,bridgeLength/20-.025,x,bridgeProfile(t)+.046,z,shade?roadBrickLight:roadBrickDark,false);
       tile.rotation.x=angle;
     }
   }
