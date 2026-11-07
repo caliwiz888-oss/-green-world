@@ -4665,7 +4665,10 @@ function makeWorldLandscape(){
          peakSmooth(.12,.32,Math.abs(across))*(1-peakSmooth(.76,.98,Math.abs(across)));
        h-=height*g.cut*channel;
      }
-     // Горизонтальные уступы и осыпные террасы ломают гладкость склонов.
+     // Мелкие диагональные трещины и скальные пласты усиливают природную структуру массива.
+      const fracture=(Math.sin(u*47+across*19)*Math.sin(u*17-across*53)+Math.sin(u*91+across*27)*.32);
+      h+=height*fracture*.012*peakSmooth(.16,.42,h/height)*(1-peakSmooth(.82,.98,Math.abs(across)));
+      // Горизонтальные уступы и осыпные террасы ломают гладкость склонов.
      const strata=(Math.sin(u*29+across*8)*.095+Math.sin(u*61-across*17)*.052+Math.sin(u*103+across*37)*.018);
      const ledge=Math.sin((1-cross)*23+u*5)*.075*peakSmooth(.18,.5,h/height);
      h=Math.max(0,(h+(strata+ledge)*peakSmooth(.08,.3,cross))*peakSmooth(.015,.24,1-Math.abs(u)));
