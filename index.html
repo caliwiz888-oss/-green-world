@@ -954,6 +954,25 @@ function makeHouse(){
    const mesh=new THREE.Mesh(new THREE.ShapeGeometry(shape),houseStoneTrim);mesh.position.z=z;mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);
  };
  makeGable(3.98);makeGable(-4.06);
+ // Центральное круглое окно фронтона: вся геометрия привязана к оси фасада x=0.
+ // Плоскость стекла находится перед каменной кладкой и не пересекает наклонные обрамления крыши.
+ const oculusGlass=mat(0x4d9fa5,.28);
+ oculusGlass.metalness=.12;
+ const oculusCenterY=5.72,oculusFrontZ=4.205;
+ const oculusGlassMesh=new THREE.Mesh(new THREE.CircleGeometry(.405,64),oculusGlass);
+ oculusGlassMesh.position.set(0,oculusCenterY,oculusFrontZ+.018);
+ oculusGlassMesh.castShadow=false;oculusGlassMesh.receiveShadow=false;g.add(oculusGlassMesh);
+ const oculusStoneRing=new THREE.Mesh(new THREE.TorusGeometry(.49,.105,12,64),houseStoneTrim);
+ oculusStoneRing.position.set(0,oculusCenterY,oculusFrontZ+.035);
+ oculusStoneRing.castShadow=false;oculusStoneRing.receiveShadow=false;g.add(oculusStoneRing);
+ const oculusGoldRing=new THREE.Mesh(new THREE.TorusGeometry(.385,.025,8,64),M.gold);
+ oculusGoldRing.position.set(0,oculusCenterY,oculusFrontZ+.055);
+ oculusGoldRing.castShadow=false;oculusGoldRing.receiveShadow=false;g.add(oculusGoldRing);
+ // Узкий центральный и горизонтальный переплёты образуют ровный крест.
+ const oculusVertical=box(g,.035,.73,.035,0,oculusCenterY,oculusFrontZ+.075,M.gold,false);
+ const oculusHorizontal=box(g,.73,.035,.035,0,oculusCenterY,oculusFrontZ+.075,M.gold,false);
+ oculusVertical.castShadow=false;oculusVertical.receiveShadow=false;
+ oculusHorizontal.castShadow=false;oculusHorizontal.receiveShadow=false;
  // Обрамления повторяют скаты с одинаковой длиной и зеркальными углами.
  const gableVergeSpecs=[
    {length:roofSlopeLength,x:-1.6660,y:5.7800,angle:roofSlopeAngle},
