@@ -3699,14 +3699,14 @@ function makeWorldDecor(){
   for(const side of [-1,1]){
     const z=-4.55+side*.99;
     // Сплошное тёмное основание исключает щели между отдельными сегментами.
-    box(world,30.5,.14,.20,1.25,.105,z,roadEdgeMat,false);
+    box(world,30.5,.10,.20,1.25,.205,z,roadEdgeMat,false);
     // Более широкая верхняя фаска и светлая тонкая вставка делают кромку чёткой.
-    box(world,30.42,.045,.092,1.25,.184,z-side*.012,roadEdgeTop,false);
-    box(world,30.18,.022,.032,1.25,.169,z-side*.105,roadEdgeInlay,false);
+    box(world,30.42,.035,.092,1.25,.267,z-side*.012,roadEdgeTop,false);
+    box(world,30.18,.018,.032,1.25,.258,z-side*.105,roadEdgeInlay,false);
     // Поперечные стыки — равномерные и одинаковые по всей длине.
     for(let i=0;i<17;i++){
       const x=-13.25+i*1.81;
-      box(world,.028,.022,.205,x,.18,z,roadEdgeTop,false);
+      box(world,.028,.022,.205,x,.267,z,roadEdgeTop,false);
     }
   }
   // Каменный арочный мост продолжает главную дорогу по той же оси и без ступеньки.
