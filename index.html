@@ -4654,9 +4654,18 @@ function makeWorldLandscape(){
      // Отдельные контрфорсы образуют длинные рёбра от вершины вниз.
      for(const r of rockFaces){
        const line=r.x+r.drift*across;
-       const ridge=Math.exp(-.5*Math.pow((u-line)/r.width,2));
-       h+=height*r.raise*ridge*peakSmooth(.09,.32,Math.abs(across))*
-         (1-peakSmooth(.78,.99,Math.abs(across)));
+       const offset=(u-line)/r.width;
+       // Асимметричный острый гребень: одна грань обрывается круче другой.
+       const knife=Math.pow(Math.max(0,1-Math.abs(offset)/(offset<0?1.35:.82)),1.4);
+       const shoulder=.14*Math.exp(-.5*Math.pow(offset/2.2,2));
+       const ridge=(knife+shoulder)*peakSmooth(.07,.25,Math.abs(across))*
+         (1-peakSmooth(.78,.98,Math.abs(across)));
+       h+=height*r.raise*ridge;
+       // Боковой контрфорс ответвляется от главного ребра и растворяется у подножия.
+       const spurLine=line+r.width*1.65;
+       const spur=Math.exp(-.5*Math.pow((u-spurLine)/(r.width*.58),2))*
+         peakSmooth(.22,.46,Math.abs(across))*(1-peakSmooth(.68,.91,Math.abs(across)));
+       h+=height*r.raise*.17*spur;
      }
      // Узкие ледниковые кулуары прорезают стену и разделяют скальные рёбра.
      for(const g of gullies){
