@@ -1176,6 +1176,22 @@ function makeHouse(){
        seam.rotation.y=-ang;
      }
    }
+   // На диагональных гранях добавлены короткие смещённые швы,
+   // чтобы кладка читалась как отдельные каменные блоки, а не гладкий цилиндр.
+   for(let a=0;a<8;a++){
+     if(a%2===0) continue;
+     const ang=Math.PI/8+a*Math.PI/4;
+     const radius=1.229;
+     const offset=a%4===1?-.27:.27;
+     for(const y of [2.72,3.78]){
+       const seam=box(t,.012,.24,.018,
+         Math.cos(ang)*radius-Math.sin(ang)*offset,
+         y,
+         Math.sin(ang)*radius+Math.cos(ang)*offset,
+         towerMortar,false);
+       seam.rotation.y=-ang;
+     }
+   }
    // Небольшие светлые фаски на гранях смягчают переход от ствола к верхнему карнизу.
    for(let a=0;a<8;a++){
      const ang=Math.PI/8+a*Math.PI/4;
