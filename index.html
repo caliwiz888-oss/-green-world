@@ -3568,17 +3568,30 @@ function makeWorldDecor(){
       tile.rotation.x=angle;
     }
   }
-  // Две выразительные каменные арки несут мост над водой; просвет под ними остаётся открытым.
-  const archMat=new THREE.MeshStandardMaterial({color:0xaaa99b,roughness:.98,metalness:0});
+  // Новая несущая архитектура: три крупные каменные арки вместо двух длинных тонких рёбер.
+  // Геометрия настила и гранитная дорога выше остаются без изменений.
+  const archMat=new THREE.MeshStandardMaterial({color:0xa6a397,roughness:.98,metalness:0});
+  const pierMat=new THREE.MeshStandardMaterial({color:0x918f83,roughness:.99,metalness:0});
   for(const side of [-1,1]){
-    const archPoints=[];
-    for(let i=0;i<=40;i++){
-      const t=i/40,z=bridgeStart+t*bridgeLength;
-      archPoints.push(new THREE.Vector3(side*1.91,.075+.34*Math.sin(Math.PI*t),z));
+    for(let span=0;span<3;span++){
+      const t0=span/3,t1=(span+1)/3,points=[];
+      for(let j=0;j<=24;j++){
+        const u=j/24,t=t0+(t1-t0)*u,z=bridgeStart+t*bridgeLength;
+        const y=.015+.66*Math.sin(Math.PI*u);
+        points.push(new THREE.Vector3(side*1.91,y,z));
+      }
+      const archCurve=new THREE.CatmullRomCurve3(points);
+      const arch=new THREE.Mesh(new THREE.TubeGeometry(archCurve,64,.23,12,false),archMat);
+      arch.castShadow=false;arch.receiveShadow=false;world.add(arch);
     }
-    const archCurve=new THREE.CatmullRomCurve3(archPoints);
-    const arch=new THREE.Mesh(new THREE.TubeGeometry(archCurve,80,.17,10,false),archMat);
-    arch.castShadow=false;arch.receiveShadow=false;world.add(arch);
+    // Массивные простенки между пролётами формируют цельный каменный мост.
+    for(let support=0;support<=3;support++){
+      const t=support/3,z=bridgeStart+t*bridgeLength,y=bridgeProfile(t);
+      const pier=box(world,.48,.72,.48,side*1.91,y-.43,z,pierMat,false);
+      pier.rotation.x=-Math.atan(bridgeSlope(t));
+      const pierCap=box(world,.56,.13,.58,side*1.91,y-.055,z,bridgeStoneLight,false);
+      pierCap.rotation.x=-Math.atan(bridgeSlope(t));
+    }
   }
   // Невысокие каменные парапеты повторяют профиль настила, сохраняя открытый вид на реку.
   // Арочные каменные перила: повторяющиеся плавные пролёты с открытыми арочными просветами.
