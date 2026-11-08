@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-104800';
+const GREEN_WORLD_BUILD_ID = '20261108-105500';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3169,10 +3169,16 @@ function makeWorldLandscape(){
  const hillPositions=rollingHillsGeometry.attributes.position;
  const hillColors=[];
  const hillBaseColor=new THREE.Color(0x668f58),hillSunColor=new THREE.Color(0x86a96a),hillShadeColor=new THREE.Color(0x557b4d);
+ // Три яруса протяжённых природных гряд: от внешней стороны ограждения к подножию гор.
+ // Гряды вытянуты и смещены относительно друг друга, чтобы не возникала сетка квадратных холмов.
  const hillRidges=[
-   [-29,-4.8,3.1,7.5,5.2],[-17,-1.8,3.8,8.2,5.7],[-4,-5.1,3.2,7.8,5.1],
-   [10,-2.2,4.1,8.8,5.8],[24,-5.3,3.3,7.7,5.2],[34,-1.5,2.7,6.5,4.8],
-   [-23,5.2,2.1,8.5,4.3],[-7,6.4,2.5,9.2,4.7],[12,5.7,2.2,8.8,4.4],[29,5.1,2.4,8.1,4.5]
+   [-31,-4.0,4.4,10.5,3.5],[-17,-2.4,5.0,11.8,4.0],[-2,-4.8,4.6,10.8,3.6],
+   [14,-2.0,5.2,12.0,4.0],[30,-4.2,4.1,9.8,3.4],
+   [-27,2.2,3.8,12.5,3.8],[-11,1.4,4.6,13.5,4.1],[7,2.8,4.9,13.0,4.0],
+   [25,1.6,4.2,12.2,3.8],
+   [-31,8.2,4.9,10.8,4.2],[-15,7.4,5.8,12.6,4.6],[3,8.8,5.5,12.8,4.4],
+   [22,7.6,5.1,11.8,4.1],[-28,14.0,3.8,9.5,3.6],[-8,14.8,4.5,11.5,3.9],
+   [13,14.2,4.7,11.2,3.8],[31,13.4,3.9,9.2,3.5]
  ];
  for(let i=0;i<hillPositions.count;i++){
    const x=hillPositions.getX(i),z=hillPositions.getY(i);
@@ -3190,8 +3196,12 @@ function makeWorldLandscape(){
    const edgeFront=18+frontWave+z;
    const edgeDistance=Math.min(edgeX,edgeBack,edgeFront);
    const edge=smoothstepTerrain(edgeDistance/5.2);
+   // Неровные гребни, ложбины и короткие ответвления формируют цельный ландшафтный рельеф.
+   const broadWave=Math.sin(x*.19+z*.28)*.30+Math.cos(x*.33-z*.17)*.19;
+   const ridgeNoise=Math.sin(x*.52+z*.37)*.13+Math.sin(x*.91-z*.43)*.075;
+   const crossRidges=Math.pow(Math.max(0,Math.sin(x*.22+z*.12+Math.sin(x*.11)*.8)),5)*.42;
    const gentleNoise=(Math.sin(x*.37+z*.21)+Math.cos(x*.23-z*.31))*.12;
-   height=Math.max(0,(height+gentleNoise)*edge);
+   height=Math.max(0,(height*1.18+broadWave+ridgeNoise+crossRidges+gentleNoise)*edge);
    // Внутри ограждённого квадрата рельеф полностью убран: поверхность ровная, как передний двор.
    // По внешней стороне периметра делаем мягкий переход, чтобы не образовалась резкая стенка.
    const worldZ=-27.5-z;
@@ -3208,7 +3218,8 @@ function makeWorldLandscape(){
    const flatten=1-smooth01(reliefDistance/reliefTransition);
    height*=1-flatten;
    hillPositions.setZ(i,height);
-   const shade=THREE.MathUtils.clamp(.5+height*.09+Math.sin(x*.16+z*.12)*.055,.28,.92);
+   const slopeShade=Math.sin(x*.31+z*.24)*.045+Math.cos(x*.17-z*.29)*.035;
+   const shade=THREE.MathUtils.clamp(.48+height*.075+slopeShade,.24,.94);
    const color=hillBaseColor.clone().lerp(hillSunColor,shade*.42).lerp(hillShadeColor,(1-shade)*.22);
    // Прозрачное растворение по волнистому краю убирает прямоугольный контур плоскости.
    const edgeAlpha=THREE.MathUtils.clamp(edgeDistance/4.8,0,1);
