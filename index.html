@@ -3757,10 +3757,10 @@ function makeHouse(){
  for(let y=0;y<256;y++)for(let x=0;x<256;x++){
   const p=(y*256+x)*4;
   const grain=(manorWallRand()-.5)*13+Math.sin(y*.22)*1.2+Math.sin((x+y)*.035)*1.1;
-  const v=Math.max(0,Math.min(255,235+grain));
+  const v=Math.max(0,Math.min(255,232+grain));
   manorWallImage.data[p]=v;
-  manorWallImage.data[p+1]=Math.max(0,Math.min(255,v-5));
-  manorWallImage.data[p+2]=Math.max(0,Math.min(255,v-16));
+  manorWallImage.data[p+1]=Math.max(0,Math.min(255,v-8));
+  manorWallImage.data[p+2]=Math.max(0,Math.min(255,v-22));
   manorWallImage.data[p+3]=255;
  }
  manorWallCtx.putImageData(manorWallImage,0,0);
@@ -3821,7 +3821,7 @@ function makeHouse(){
  const manorWallBump=manorWallTexture.clone();
  manorWallBump.colorSpace=THREE.NoColorSpace;manorWallBump.needsUpdate=true;
  const manorWallMaterial=new THREE.MeshStandardMaterial({
-  color:0xfff5e6,map:manorWallTexture,bumpMap:manorWallBump,
+  color:0xffedda,map:manorWallTexture,bumpMap:manorWallBump,
   bumpScale:.012,roughness:.96,metalness:0
  });
  // Для круглых башен используется та же кремовая кладка с масштабом по окружности.
@@ -3830,7 +3830,7 @@ function makeHouse(){
  const towerWallBump=manorWallBump.clone();
  towerWallBump.repeat.set(4,2.5);towerWallBump.needsUpdate=true;
  const towerWallMaterial=new THREE.MeshStandardMaterial({
-  color:0xfff5e6,map:towerWallTexture,bumpMap:towerWallBump,
+  color:0xffedda,map:towerWallTexture,bumpMap:towerWallBump,
   roughnessMap:towerWallBump,bumpScale:.019,roughness:.92,metalness:0
  });
  // Отдельная настройка материала только для уже существующих колонн:
