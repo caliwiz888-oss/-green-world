@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-327000';
+const GREEN_WORLD_BUILD_ID = '20261108-328000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3250,32 +3250,49 @@ function makeWorldLandscape(){
      new THREE.MeshStandardMaterial({color:0x92999a,roughness:.96,metalness:.01}),
      new THREE.MeshStandardMaterial({color:0x68777a,roughness:.95,metalness:.01})
    ];
-   const rockGeo=new THREE.IcosahedronGeometry(1,2);
-   function cliffRock(x,y,z,sx,sy,sz,seed,matIndex){
-     const mesh=new THREE.Mesh(rockGeo,rockMats[matIndex%rockMats.length]);
-     mesh.position.set(x,y,z);mesh.scale.set(sx,sy,sz);
-     mesh.rotation.set((seed%7)*.055,(seed%11)*.19,(seed%5)*.065);
+   // Цельные скальные стены с ломаным природным силуэтом вместо округлых отдельных валунов.
+   function buildCliff(points,material,depth=3.4){
+     const shape=new THREE.Shape();
+     shape.moveTo(points[0][0],points[0][1]);
+     for(let i=1;i<points.length;i++)shape.lineTo(points[i][0],points[i][1]);
+     shape.lineTo(points[points.length-1][0],0);shape.lineTo(points[0][0],0);shape.closePath();
+     const geo=new THREE.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.28,bevelThickness:.24,curveSegments:8});
+     geo.computeVertexNormals();
+     const mesh=new THREE.Mesh(geo,material);mesh.position.z=-44.2;
      mesh.castShadow=false;mesh.receiveShadow=true;falls.add(mesh);return mesh;
    }
-   // Две высокие неровные скальные стены оставляют широкий открытый проём под водопад.
-   const left=[[-12.2,3.1,-43,4.2,3.5,2.0],[-11.0,6.2,-43.4,4.1,4.0,2.2],[-9.8,9.4,-43.8,3.5,3.2,2.1],[-7.6,11.8,-44,3.3,2.3,2.0],[-5.5,9.1,-43.5,2.0,3.0,1.8],[-13.4,7.0,-45.2,2.5,4.5,2.1]];
-   const right=[[12.2,3.0,-43,4.2,3.4,2.0],[11.0,6.3,-43.4,4.0,4.0,2.2],[9.8,9.5,-43.8,3.5,3.2,2.1],[7.6,11.7,-44,3.3,2.3,2.0],[5.5,9.0,-43.5,2.0,3.0,1.8],[13.4,7.0,-45.2,2.5,4.5,2.1]];
-   let rid=0;
-   for(const row of [left,right])for(const v of row)cliffRock(...v,rid++,rid%5);
-   // Верхний уступ скалы образует естественную чашу, откуда начинается падение воды.
-   for(let i=0;i<13;i++){
-     const x=-8.4+i*1.4;
-     cliffRock(x,12.35+(i%3)*.42,-44.1,1.25+(i%2)*.28,.95+(i%3)*.22,1.75,i+31,(i+2)%5);
+   const leftProfile=[[-17,0],[-17,3.2],[-15.4,4.8],[-15.1,7.4],[-13.2,8.6],[-12.4,11.4],[-10.6,12.5],[-9.4,11.1],[-8.1,10.3],[-7.3,7.6],[-5.8,6.2],[-4.6,3.8],[-4.5,0]];
+   const rightProfile=leftProfile.slice().reverse().map(([x,y])=>[-x,y]);
+   buildCliff(leftProfile,rockMats[0]);buildCliff(rightProfile,rockMats[0]);
+   // Дополнительные наклонные пласты подчёркивают слоистость скалы, не дробя её на шары.
+   const strataMat=[rockMats[1],rockMats[2],rockMats[3]];
+   for(let side of [-1,1]){
+     for(let i=0;i<4;i++){
+       const x=side*(8.7+i*.9),y=2.0+i*2.25;
+       const ledge=new THREE.Mesh(new THREE.BoxGeometry(5.2-i*.35,.22,.48),strataMat[i%3]);
+       ledge.position.set(x,y,-43.78);ledge.rotation.z=side*(.08+i*.035);falls.add(ledge);
+     }
+     for(let i=0;i<3;i++){
+       const spur=new THREE.Mesh(new THREE.BoxGeometry(2.3,.48,.8),rockMats[(i+2)%5]);
+       spur.position.set(side*(5.0+i*.55),2.1+i*1.5,-43.45);
+       spur.rotation.z=side*(.16+i*.08);falls.add(spur);
+     }
    }
-   // Каменные глыбы и выступы у подножия связывают оба массива в единый уступ.
-   for(let i=0;i<18;i++){
-     const side=i%2?1:-1,x=side*(5.2+(i%5)*1.55),z=-42.5-(i%3)*.65;
-     cliffRock(x,1.0+(i%4)*.42,z,1.2+(i%3)*.38,.9+(i%4)*.2,1.25,i+61,(i+1)%5);
+   // Неровный верхний уступ над широким водяным проёмом.
+   for(let i=0;i<11;i++){
+     const x=-7.4+i*1.48;
+     const cap=new THREE.Mesh(new THREE.BoxGeometry(1.75,.52,1.15),rockMats[i%5]);
+     cap.position.set(x,12.05+(i%3)*.38,-43.8);cap.rotation.z=((i%3)-1)*.07;falls.add(cap);
    }
-   // Слоистая светлая кромка над потоком подчёркивает место срыва воды.
+   // Каменные выступы у основания связывают обе стены с нижней чашей.
+   for(let side of [-1,1])for(let i=0;i<4;i++){
+     const boulder=new THREE.Mesh(new THREE.DodecahedronGeometry(1,1),rockMats[(i+side+5)%5]);
+     boulder.position.set(side*(5.2+i*.95),.8+(i%2)*.45,-43.7);
+     boulder.scale.set(1.35,.72,1.0);boulder.rotation.set(.1*i,.23*i,.12*side);falls.add(boulder);
+   }
    const lipMat=new THREE.MeshStandardMaterial({color:0xaab2ad,roughness:.88});
-   const lip=new THREE.Mesh(new THREE.BoxGeometry(10.6,.42,1.05),lipMat);
-   lip.position.set(0,12.18,-42.75);lip.rotation.z=.018;falls.add(lip);
+   const lip=new THREE.Mesh(new THREE.BoxGeometry(9.6,.38,1.0),lipMat);
+   lip.position.set(0,12.0,-43.8);lip.rotation.z=.012;falls.add(lip);
    // Текстура вертикального потока: несколько оттенков бирюзы и тонкие белые струи.
    const flowCanvas=document.createElement('canvas');flowCanvas.width=512;flowCanvas.height=768;
    const fctx=flowCanvas.getContext('2d');
@@ -3336,7 +3353,7 @@ function makeWorldLandscape(){
        crown.position.set(x,h*(.43+j*.17),z);crown.scale.z=.82;falls.add(crown);
      }
    }
-   falls.position.set(0,0,0);world.add(falls);
+   falls.position.set(0,0,-14.0);world.add(falls);
  }
 
  // Материалы гор и снега удалены вместе с горной геометрией.
