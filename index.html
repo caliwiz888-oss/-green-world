@@ -1715,8 +1715,8 @@ function makeWorldLandscape(){
   layer.points.forEach(([x,y],i)=>i===0?shape.moveTo(x,y):shape.lineTo(x,y));
   shape.closePath();
   const ridge=new THREE.Mesh(new THREE.ShapeGeometry(shape,2),new THREE.MeshBasicMaterial({
-   color:layer.color,transparent:true,opacity:layer.opacity,side:THREE.DoubleSide,
-   depthWrite:false,fog:true
+   color:layer.color,transparent:true,opacity:Math.min(.96,layer.opacity+.20),side:THREE.DoubleSide,
+   depthWrite:false,fog:false
   }));
   ridge.name='GREEN_WORLD_Distant_Mountain_Ridge';
   ridge.position.set(0,0,layer.z);
@@ -1726,7 +1726,7 @@ function makeWorldLandscape(){
  // Лёгкая атмосферная дымка отделяет дальние хребты от ближнего леса.
  const distantHaze=new THREE.Mesh(
   new THREE.PlaneGeometry(190,25),
-  new THREE.MeshBasicMaterial({color:0xc5e0df,transparent:true,opacity:.105,depthWrite:false,side:THREE.DoubleSide,fog:false})
+  new THREE.MeshBasicMaterial({color:0xc5e0df,transparent:true,opacity:.025,depthWrite:false,side:THREE.DoubleSide,fog:false})
  );
  distantHaze.position.set(0,7.5,-76);
  world.add(distantHaze);
