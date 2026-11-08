@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-221500';
+const GREEN_WORLD_BUILD_ID = '20261108-223000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2830,30 +2830,51 @@ function makeWorldDecor(){
  const gwPineGeos=[new THREE.ConeGeometry(1,1,9),new THREE.ConeGeometry(.82,.92,9),new THREE.ConeGeometry(.63,.82,9)];
  const gwCrownGeo=new THREE.SphereGeometry(1,9,7);
  function gwAddPine(x,z,h,seed=0,baseY=0){
-   const g=new THREE.Group();g.position.set(x,baseY,z);g.scale.setScalar(1);gwForest.add(g);
-   const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);trunk.position.y=h*.34;trunk.scale.set(.58,h*.72,.58);g.add(trunk);
-   for(let k=0;k<3;k++){
-     const crown=new THREE.Mesh(gwPineGeos[k],k===0?gwPineA:(k===1?gwPineB:gwPineC));
-     crown.position.set(Math.sin(seed+k)*.07,h*(.34+k*.19),Math.cos(seed+k)*.06);
-     crown.scale.set(h*(.17-k*.018),h*(.42-k*.045),h*(.17-k*.018));g.add(crown);
+   const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
+   const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
+   trunk.position.y=h*.34;trunk.scale.set(.58,h*.72,.58);g.add(trunk);
+   // Пять ярусов хвои разной ширины создают более естественный силуэт ели.
+   for(let k=0;k<5;k++){
+     const tier=k/4;
+     const geo=k<3?gwPineGeos[k]:gwPineGeos[2];
+     const crown=new THREE.Mesh(geo,k%3===0?gwPineA:(k%3===1?gwPineB:gwPineC));
+     const radius=h*(.205-tier*.027);
+     crown.position.set(Math.sin(seed+k*1.7)*.045,h*(.27+k*.135),Math.cos(seed+k*1.3)*.045);
+     crown.scale.set(radius,h*(.34-tier*.045),radius);
+     g.add(crown);
    }
-   g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=false;}});
+   // Небольшие ветви под нижним ярусом добавляют объём, не утяжеляя модель.
+   for(let k=0;k<4;k++){
+     const a=seed+k*Math.PI*.5;
+     const branch=new THREE.Mesh(new THREE.ConeGeometry(h*.075,h*.28,6),gwPineB);
+     branch.position.set(Math.cos(a)*h*.12,h*.34,Math.sin(a)*h*.12);
+     branch.rotation.z=Math.cos(a)*-.42;branch.rotation.x=Math.sin(a)*.42;g.add(branch);
+   }
+   g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
  function gwAddBlossom(x,z,h,seed=0,baseY=0){
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
-   const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);trunk.position.y=h*.34;trunk.scale.set(.52,h*.68,.52);g.add(trunk);
-   for(let k=0;k<5;k++){
-     const a=seed+k*Math.PI*2/5,branch=new THREE.Mesh(new THREE.CylinderGeometry(.035,.065,h*.23,5),gwBark);
-     branch.position.set(Math.cos(a)*h*.19,h*.66,Math.sin(a)*h*.19);branch.rotation.z=Math.cos(a)*-.65;branch.rotation.x=Math.sin(a)*.65;g.add(branch);
+   const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
+   trunk.position.y=h*.34;trunk.scale.set(.52,h*.68,.52);g.add(trunk);
+   for(let k=0;k<6;k++){
+     const a=seed+k*Math.PI*2/6;
+     const branch=new THREE.Mesh(new THREE.CylinderGeometry(.035,.065,h*.25,6),gwBark);
+     branch.position.set(Math.cos(a)*h*.2,h*.66,Math.sin(a)*h*.2);
+     branch.rotation.z=Math.cos(a)*-.62;branch.rotation.x=Math.sin(a)*.62;g.add(branch);
    }
+   // Многослойная крона из отдельных цветочных кластеров вместо простого шара.
    const crownColors=[gwPinkA,gwPinkB,gwPinkC,gwLeaf,gwPinkB,gwPinkA,gwPinkC];
-   for(let k=0;k<7;k++){
-     const a=k*Math.PI*2/7+seed,rad=k===0?0:h*.20;
-     const crown=new THREE.Mesh(gwCrownGeo,crownColors[k]);
-     crown.position.set(Math.cos(a)*rad,h*.79+(k%3)*h*.025,Math.sin(a)*rad);
-     crown.scale.set(h*.19,h*.16,h*.19);g.add(crown);
+   for(let k=0;k<13;k++){
+     const a=k*Math.PI*2/9+seed+(k%3)*.17;
+     const ring=k<9?1:0;
+     const rad=ring?h*.205:0;
+     const crown=new THREE.Mesh(gwCrownGeo,crownColors[(k*3+Math.floor(seed*2))%crownColors.length]);
+     crown.position.set(Math.cos(a)*rad,h*(ring?.78+(k%3)*.025:.82),Math.sin(a)*rad);
+     const size=h*(ring?.145:.17);
+     crown.scale.set(size*(.92+(k%2)*.12),size*.82,size*(.9+(k%3)*.06));
+     g.add(crown);
    }
-   g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=false;}});
+   g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
  // Непрерывный лесной пояс у подножия гор: деревья стоят на плавном склоне,
  // повторяются по всей ширине заднего горизонта и не заходят на здания.
