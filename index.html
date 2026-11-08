@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-338000';
+const GREEN_WORLD_BUILD_ID = '20261108-339000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -283,6 +283,30 @@ window.GREEN_WORLD_RENDER_DIAGNOSTICS={reversedDepthBuffer:!!renderer.capabiliti
 console.info('[GREEN WORLD] Render diagnostics',window.GREEN_WORLD_RENDER_DIAGNOSTICS);
 // Используем стандартный буфер глубины для стабильной совместимости с WebGL в Android Telegram WebView.
 const applyRenderResolution=()=>{const pixelCap=innerWidth<700?8:10;renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,pixelCap));renderer.setSize(innerWidth,innerHeight);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();};applyRenderResolution();renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.14;renderer.useLegacyLights=false;renderer.setClearColor(0x9acbe8,1);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();
+// Низкоразрешённая копия небосвода используется как физическая карта окружения.
+// Она добавляет согласованные отражения неба на стекле, глазури, металле и влажных поверхностях,
+// не меняя фон сцены и не дублируя тяжёлую 8K-текстуру в памяти.
+try{
+ const environmentCanvas=document.createElement('canvas');
+ environmentCanvas.width=1024;environmentCanvas.height=512;
+ environmentCanvas.getContext('2d').drawImage(skyCanvas,0,0,1024,512);
+ const environmentEquirect=new THREE.CanvasTexture(environmentCanvas);
+ environmentEquirect.mapping=THREE.EquirectangularReflectionMapping;
+ environmentEquirect.colorSpace=THREE.SRGBColorSpace;
+ environmentEquirect.generateMipmaps=true;
+ environmentEquirect.minFilter=THREE.LinearMipmapLinearFilter;
+ environmentEquirect.magFilter=THREE.LinearFilter;
+ const environmentPMREM=new THREE.PMREMGenerator(renderer);
+ environmentPMREM.compileEquirectangularShader();
+ const environmentTarget=environmentPMREM.fromEquirectangular(environmentEquirect);
+ scene.environment=environmentTarget.texture;
+ scene.environmentIntensity=.42;
+ window.GREEN_WORLD_ENVIRONMENT_TARGET=environmentTarget;
+ environmentPMREM.dispose();
+ environmentEquirect.dispose();
+}catch(environmentError){
+ console.warn('[GREEN WORLD] Environment reflections unavailable; using direct lighting.',environmentError);
+}
 // Мягкое небесное заполнение сохраняет детали в тенях на фасадах, листве и горном рельефе.
 scene.add(new THREE.HemisphereLight(0xeaf7ff,0x5a7447,2.28));
 scene.add(new THREE.AmbientLight(0xffffff,.27));
