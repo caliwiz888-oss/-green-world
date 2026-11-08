@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-261000';
+const GREEN_WORLD_BUILD_ID = '20261108-262000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3116,7 +3116,7 @@ function makeWorldDecor(){
    if(i%3===1)gwAddUndergrowth(x+(lane?1.0:-1.1),z+.8,.78+(i%3)*.06,i*.61);
  }  // Лесная подстилка: тысячи тонких травинок и мха с естественной цветовой вариацией.
   const gwForestFloor=new THREE.Group();gwForestFloor.name='green-world-forest-floor-detail';world.add(gwForestFloor);
-  const gwGrassGeo=new THREE.ConeGeometry(.018,.34,4,1),gwGrassMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
+  const gwGrassGeo=new THREE.ConeGeometry(.026,.38,5,1),gwGrassMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
   const gwGrassCount=2600,gwGrass=new THREE.InstancedMesh(gwGrassGeo,gwGrassMat,gwGrassCount),gwGrassDummy=new THREE.Object3D();
   const gwGrassColors=[0x315d36,0x547a43,0x78904b,0x263f2c];
   for(let n=0;n<gwGrassCount;n++){
@@ -3138,6 +3138,27 @@ function makeWorldDecor(){
     gwMossDummy.rotation.y=n*1.71;gwMossDummy.updateMatrix();gwMoss.setMatrixAt(n,gwMossDummy.matrix);
   }
   gwForestFloor.add(gwMoss);
+  // Низкие папоротники и широкие листовые розетки заполняют промежутки между травой и кустами.
+  const gwFernLeafGeo=new THREE.SphereGeometry(1,8,5);
+  const gwFernMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.96});
+  const gwFernCount=480,gwFernLeaves=new THREE.InstancedMesh(gwFernLeafGeo,gwFernMat,gwFernCount*4),gwFernDummy=new THREE.Object3D();
+  const gwFernColors=[0x315b35,0x426d3d,0x5c8044,0x71894a];
+  for(let n=0;n<gwFernCount;n++){
+    const u=((n*197.3)%991)/991,v=((n*271.9)%983)/983;let x,z,y;
+    if(n%3===0){x=-47+u*94;z=-42+v*16;const t=THREE.MathUtils.clamp((-(z+36.5)-15.5)/31,0,1);y=.08+3*THREE.MathUtils.smoothstep(t,.02,.98);}
+    else{const side=n%2?1:-1;x=side*(19.6+u*8.8);z=-24+v*46;y=0;}
+    const tint=new THREE.Color(gwFernColors[n%4]),rot=u*Math.PI*2;
+    for(let k=0;k<4;k++){
+      const angle=rot+k*Math.PI*.5,reach=.22+(n%4)*.025;
+      gwFernDummy.position.set(x+Math.cos(angle)*reach*.42,y+.09+(k%2)*.025,z+Math.sin(angle)*reach*.42);
+      gwFernDummy.scale.set(.065,.018,reach);gwFernDummy.rotation.set(-.12,angle,.08*Math.sin(n+k));
+      gwFernDummy.updateMatrix();const index=n*4+k;gwFernLeaves.setMatrixAt(index,gwFernDummy.matrix);
+      gwFernLeaves.setColorAt(index,tint);
+    }
+  }
+  gwFernLeaves.instanceMatrix.needsUpdate=true;if(gwFernLeaves.instanceColor)gwFernLeaves.instanceColor.needsUpdate=true;
+  gwForestFloor.add(gwFernLeaves);
+
 
  // Удалены мелкие светлые камешки за правой стороной ограды, чтобы убрать тонкую светлую отметку.
 }
