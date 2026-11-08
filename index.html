@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-201500';
+const GREEN_WORLD_BUILD_ID = '20261108-204500';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -4767,12 +4767,21 @@ function drawPlayer(){
    window.GREEN_WORLD_HOUSE_ERROR=error?.message||String(error);
    throw error;
   }
-  const factoryAnchor=group(world,11.8,0,-9.61);
-  factoryAnchor.name='factory-coordinate-anchor';factoryAnchor.userData.buildingRemoved=true;buildingObjects.push(factoryAnchor);
-  const marketAnchor=group(world,-10.8,0,-8.5);
-  marketAnchor.name='market-coordinate-anchor';marketAnchor.userData.buildingRemoved=true;buildingObjects.push(marketAnchor);
-  window.GREEN_WORLD_FACTORY_MODEL='removed';window.GREEN_WORLD_MARKET_MODEL='removed';
-  window.GREEN_WORLD_FACTORY_ERROR=null;window.GREEN_WORLD_MARKET_ERROR=null;
+  // Возвращаем утверждённые магазин и склад на прежние координаты.
+  // Магазин: (-10.8, 0, -8.5), масштаб 1.2.
+  // Склад: (11.8, 0, -9.61). Геометрия зданий восстановлена из сохранённых функций.
+  try{
+   const market=makeMarket();market.name='green-world-market-restored';buildingObjects.push(market);
+   window.GREEN_WORLD_MARKET_MODEL='restored';window.GREEN_WORLD_MARKET_ERROR=null;
+  }catch(error){
+   window.GREEN_WORLD_MARKET_MODEL='error';window.GREEN_WORLD_MARKET_ERROR=error?.message||String(error);throw error;
+  }
+  try{
+   const factory=makeFactory();factory.name='green-world-warehouse-restored';buildingObjects.push(factory);
+   window.GREEN_WORLD_FACTORY_MODEL='restored';window.GREEN_WORLD_FACTORY_ERROR=null;
+  }catch(error){
+   window.GREEN_WORLD_FACTORY_MODEL='error';window.GREEN_WORLD_FACTORY_ERROR=error?.message||String(error);throw error;
+  }
  }
 }
 function applyPlayer(){$('login').style.display='none';try{drawPlayer()}catch(e){console.error('[render] World drawing failed:',e);$('login-error').textContent='Ошибка отображения мира: '+(e?.message||e)}}
