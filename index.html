@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-376100';
+const GREEN_WORLD_BUILD_ID = '20261108-377100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1424,12 +1424,12 @@ function makeMarket(){
 function makeFactory(){
  // Полностью новая архитектура экологического производства. Координаты и общий габарит участка сохранены.
  const g=group(world,12.53,0,-9.61);
- const wall=new THREE.MeshPhysicalMaterial({color:0xd9d2c2,roughness:.86,metalness:.015,clearcoat:.08,clearcoatRoughness:.82});
+ const wall=new THREE.MeshPhysicalMaterial({color:0xd9d2c2,roughness:.78,metalness:.025,clearcoat:.16,clearcoatRoughness:.68});
  const wallLight=new THREE.MeshStandardMaterial({color:0xf0e9d9,roughness:.82});
  const panel=new THREE.MeshStandardMaterial({color:0x9eaa9e,roughness:.78,metalness:.08});
- const frame=new THREE.MeshStandardMaterial({color:0x344f58,roughness:.48,metalness:.42});
- const roof=new THREE.MeshPhysicalMaterial({color:0x526d69,roughness:.72,metalness:.16,clearcoat:.18,clearcoatRoughness:.62});
- const glass=new THREE.MeshPhysicalMaterial({color:0x8bd9d4,roughness:.2,metalness:.08,clearcoat:.72,clearcoatRoughness:.13,envMapIntensity:1.12});
+ const frame=new THREE.MeshStandardMaterial({color:0x344f58,roughness:.38,metalness:.55});
+ const roof=new THREE.MeshPhysicalMaterial({color:0x526d69,roughness:.66,metalness:.2,clearcoat:.26,clearcoatRoughness:.5});
+ const glass=new THREE.MeshPhysicalMaterial({color:0x8bd9d4,roughness:.16,metalness:.1,clearcoat:.82,clearcoatRoughness:.1,envMapIntensity:1.12});
  const door=new THREE.MeshStandardMaterial({color:0x536b70,roughness:.68,metalness:.22});
  const trim=new THREE.MeshStandardMaterial({color:0xc5a56a,roughness:.38,metalness:.62});
  // Низкий широкий производственный корпус с плоской ступенчатой кровлей — новый силуэт вместо старого кирпичного здания.
@@ -1586,6 +1586,39 @@ function makeFactory(){
    for(const z of [1.22,2.22]){
      box(g,.1,.09,.1,x,3.84,z,solarFoot,false);
    }
+ }
+ // Износостойкая каменная облицовка цоколя небольшими ровными панелями.
+ const plinthStone=new THREE.MeshPhysicalMaterial({color:0x78827a,roughness:.82,metalness:.025,clearcoat:.12,clearcoatRoughness:.8});
+ const plinthJoint=new THREE.MeshStandardMaterial({color:0x485c59,roughness:.72,metalness:.18});
+ for(const x of [-3.35,-2.85,-.15,.35,1.05,1.75,2.25,2.85,3.35]){
+   if(x<-.35||x>.35){
+     box(g,.42,.28,.055,x,.68,2.855,plinthStone,false);
+     box(g,.025,.3,.06,x+.22,.68,2.86,plinthJoint,false);
+   }
+ }
+ // Отдельная сервисная дверь на задней стене и защитная рамка.
+ box(g,1.02,2.08,.11,-2.55,1.52,-2.83,frame,false);
+ box(g,.82,1.88,.045,-2.55,1.52,-2.91,door,false);
+ box(g,.055,1.9,.055,-2.55,1.52,-2.95,trim,false);
+ box(g,.12,.08,.08,-2.22,1.48,-2.98,trim,false);
+ // Вентиляционная решётка технологической зоны на заднем фасаде.
+ const ventMat=new THREE.MeshStandardMaterial({color:0x526a69,roughness:.54,metalness:.48});
+ box(g,.92,.72,.07,1.75,1.78,-2.84,frame,false);
+ box(g,.78,.58,.035,1.75,1.78,-2.895,ventMat,false);
+ for(let y=1.55;y<=2.0;y+=.11){
+   box(g,.72,.035,.045,1.75,y,-2.925,trim,false);
+ }
+ // Предупреждающая жёлто-тёмная разметка на кромке погрузочной площадки.
+ const safetyYellow=new THREE.MeshStandardMaterial({color:0xe0b64e,roughness:.62,metalness:.12});
+ const safetyDark=new THREE.MeshStandardMaterial({color:0x344348,roughness:.7,metalness:.18});
+ for(let i=0;i<8;i++){
+   const x=-2.72+i*.335;
+   box(g,.19,.018,.055,x,.694,3.425,i%2===0?safetyYellow:safetyDark,false);
+ }
+ // Защитные накладки на нижние углы корпуса.
+ for(const x of [-3.55,3.55]){
+   box(g,.16,.72,.14,x,.98,2.84,baseTrim,false);
+   box(g,.19,.07,.16,x,1.35,2.84,trim,false);
  }
  // Небольшая маркировка на фасаде — без крупной вывески и без изменения общего облика двора.
  const signCanvas=document.createElement('canvas');signCanvas.width=512;signCanvas.height=96;
