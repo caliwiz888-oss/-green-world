@@ -4030,6 +4030,13 @@ function makeHouse(){
   box(center,.34,.12,.32,x,3.18,2.74,facadeGold,false);
   box(center,.32,.14,.30,x,3.29,2.74,facadeStone,false);
  }
+ // Три тонкие вертикальные каннелюры на каждой пилястре добавляют
+ // классический ритм каменной поверхности, не меняя её ширину и высоту.
+ for(const x of [-1.18,1.18]){
+  for(const dx of [-.052,0,.052]){
+   box(center,.014,2.18,.012,x+dx,1.88,2.846,facadeStoneShade,false);
+  }
+ }
  // Вместо лёгкого навеса — небольшой классический каменный портик,
  // с низкой двускатной сланцевой кровлей и двумя опорными колоннами.
  const porticoBlue=new THREE.MeshStandardMaterial({color:0x29445f,roughness:.68,metalness:.10,side:THREE.DoubleSide});
