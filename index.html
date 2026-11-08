@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-266000';
+const GREEN_WORLD_BUILD_ID = '20261108-267000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3491,26 +3491,27 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  // Процедурная микротекстура травы: мягкие цветовые вариации и короткие травинки
  // делают большую поверхность живой, но не превращают её в шумную пятнистую заливку.
  const groundDetailCanvas=document.createElement('canvas');
- groundDetailCanvas.width=512;groundDetailCanvas.height=512;
+ groundDetailCanvas.width=1024;groundDetailCanvas.height=1024;
  const groundDetailCtx=groundDetailCanvas.getContext('2d');
- groundDetailCtx.fillStyle='#f2f5e9';groundDetailCtx.fillRect(0,0,512,512);
+ groundDetailCtx.fillStyle='#f2f5e9';groundDetailCtx.fillRect(0,0,1024,1024);
  let groundSeed=7319;
  const groundRand=()=>{groundSeed=(groundSeed*1664525+1013904223)>>>0;return groundSeed/4294967296;};
- for(let i=0;i<18000;i++){
-   const x=groundRand()*512,y=groundRand()*512;
+ for(let i=0;i<72000;i++){
+    const x=groundRand()*1024,y=groundRand()*1024;
    const light=groundRand()>.48;
    groundDetailCtx.fillStyle=light?'rgba(255,255,244,.24)':'rgba(94,125,72,.12)';
    groundDetailCtx.fillRect(x,y,.7+groundRand()*1.5,.7+groundRand()*1.5);
  }
- for(let i=0;i<1700;i++){
-   const x=groundRand()*512,y=groundRand()*512;
+ for(let i=0;i<6800;i++){
+    const x=groundRand()*1024,y=groundRand()*1024;
    const len=1.8+groundRand()*4.2;
    groundDetailCtx.strokeStyle=groundRand()>.5?'rgba(111,145,82,.18)':'rgba(178,190,128,.18)';
    groundDetailCtx.lineWidth=.55+groundRand()*.45;
    groundDetailCtx.beginPath();groundDetailCtx.moveTo(x,y);groundDetailCtx.lineTo(x+(groundRand()-.5)*1.8,y-len);groundDetailCtx.stroke();
  }
  const groundDetailTexture=new THREE.CanvasTexture(groundDetailCanvas);
- groundDetailTexture.colorSpace=THREE.SRGBColorSpace;
+  groundDetailTexture.colorSpace=THREE.SRGBColorSpace;
+  const groundDetailBump=groundDetailTexture.clone();groundDetailBump.colorSpace=THREE.NoColorSpace;groundDetailBump.needsUpdate=true;
  groundDetailTexture.wrapS=groundDetailTexture.wrapT=THREE.RepeatWrapping;
  groundDetailTexture.repeat.set(8,7);
  groundDetailTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
@@ -3528,7 +3529,7 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  newTerrainGeometry.setAttribute('color',new THREE.Float32BufferAttribute(newTerrainColors,3));
  newTerrainGeometry.computeVertexNormals();
  const newMeadow=new THREE.Mesh(newTerrainGeometry,new THREE.MeshStandardMaterial({
-   color:0xffffff,vertexColors:true,map:groundDetailTexture,roughness:.98,metalness:0,side:THREE.DoubleSide
+   color:0xffffff,vertexColors:true,map:groundDetailTexture,bumpMap:groundDetailBump,bumpScale:.018,roughness:.98,metalness:0,side:THREE.DoubleSide
  }));
  newMeadow.name='GREEN_WORLD_Expanded_Exterior_Terrain';
  newMeadow.rotation.x=-Math.PI/2;
@@ -3784,7 +3785,7 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  outerFoothillGeometry.setAttribute('color',new THREE.Float32BufferAttribute(outerFoothillColors,3));
  outerFoothillGeometry.computeVertexNormals();
  const outerFoothillMaterial=new THREE.MeshStandardMaterial({
-   color:0xffffff,vertexColors:true,map:groundDetailTexture,roughness:1,metalness:0,side:THREE.DoubleSide,depthWrite:true
+   color:0xffffff,vertexColors:true,map:groundDetailTexture,bumpMap:groundDetailBump,bumpScale:.024,roughness:1,metalness:0,side:THREE.DoubleSide,depthWrite:true
  });
  const outerFoothill=new THREE.Mesh(outerFoothillGeometry,outerFoothillMaterial);
  outerFoothill.name='GREEN_WORLD_Continuous_Foreground_Hill_Hiding_Mountain_Bases';
