@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-390100';
+const GREEN_WORLD_BUILD_ID = '20261108-391100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1041,6 +1041,17 @@ function makeWorldDecor(){
     fenceNoShadow(box(panel,.34,.045,.045,0,1.10,depth/2+.082,fenceTeal,false));
     const centerGem=new THREE.Mesh(new THREE.OctahedronGeometry(.10,1),fenceGoldLight);
     centerGem.position.set(0,1.10,depth/2+.13);centerGem.scale.set(1,.78,.34);fenceNoShadow(centerGem);panel.add(centerGem);
+    // Резной медальон с двойным каменным и бронзовым ободком вокруг центрального герба.
+    const medallionOuter=new THREE.Mesh(new THREE.TorusGeometry(.178,.022,8,32),fenceIvory);
+    medallionOuter.position.set(0,1.10,depth/2+.105);fenceNoShadow(medallionOuter);panel.add(medallionOuter);
+    const medallionInner=new THREE.Mesh(new THREE.TorusGeometry(.137,.012,8,32),fenceGold);
+    medallionInner.position.set(0,1.10,depth/2+.125);fenceNoShadow(medallionInner);panel.add(medallionInner);
+    // Парные миниатюрные розетки связывают центральную панель с боковыми пилонами.
+    for(const side of [-1,1]){
+      const sideRose=new THREE.Mesh(new THREE.OctahedronGeometry(.055,1),fenceGoldLight);
+      sideRose.position.set(side*(insetW*.34),1.10,depth/2+.105);
+      sideRose.scale.set(.8,1.15,.34);fenceNoShadow(sideRose);panel.add(sideRose);
+    }
     // Боковые массивные пилоны с рустами, капителями и золотистыми тонкими профилями.
     for(const side of [-1,1]){
       const x=side*(half-.16);
@@ -1049,6 +1060,15 @@ function makeWorldDecor(){
       for(let j=0;j<3;j++){
         fenceNoShadow(box(panel,.305,.035,depth+.085,x,.94+j*.22,0,fenceReliefStone,false));
       }
+      // Три тонкие вертикальные каннелюры на лицевой стороне каждого пилона.
+      for(const fluteSide of [-1,0,1]){
+        fenceNoShadow(box(panel,.018,.48,.026,x+fluteSide*.075,1.22,depth/2+.055,
+          fluteSide===0?fenceGold:fenceIvory,false));
+      }
+      // Небольшая резная розетка завершает нижнюю часть бокового пилона.
+      const pierRosette=new THREE.Mesh(new THREE.OctahedronGeometry(.052,1),fenceGoldLight);
+      pierRosette.position.set(x,.84,depth/2+.075);pierRosette.scale.set(.85,1.1,.32);
+      fenceNoShadow(pierRosette);panel.add(pierRosette);
       fenceNoShadow(box(panel,.43,.12,depth+.13,x,1.57,0,fenceReliefStone,false));
       fenceNoShadow(box(panel,.38,.065,depth+.10,x,1.665,0,fenceIvory,false));
     }
