@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-386100';
+const GREEN_WORLD_BUILD_ID = '20261108-387100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1013,37 +1013,42 @@ function makeWorldDecor(){
     if(length<.3)return;
     const angle=Math.atan2(dz,dx),cx=(x1+x2)/2,cz=(z1+z2)/2;
     const panel=new THREE.Group();panel.position.set(cx,baseY,cz);panel.rotation.y=-angle+faceOffset;fenceGroup.add(panel);
-    // Новые секции: строгая бронзово-графитовая рама с повторяющимся ромбовидным орнаментом.
-    // Существующие каменные столбы и их навершия не меняются.
-    const span=length-.16;
-    fenceNoShadow(box(panel,span,.105,.13,0,.70,0,fenceIron,false));
-    fenceNoShadow(box(panel,span,.105,.13,0,1.91,0,fenceIron,false));
-    fenceNoShadow(box(panel,span,.035,.145,0,1.985,0,fenceGold,false));
-    fenceNoShadow(box(panel,span,.045,.145,0,.775,0,fenceIronLight,false));
-    // Тонкие вертикальные прутья формируют равномерный ритм между столбами.
-    const count=Math.max(4,Math.floor(span/.34));
-    for(let i=0;i<=count;i++){
-      const x=-span/2+span*i/count;
-      fenceNoShadow(box(panel,.045,1.02,.075,x,1.305,0,fenceIron,false));
-      // Небольшие латунные втулки на концах прутьев.
-      for(const y of [.80,1.81]){
-        const collar=box(panel,.075,.055,.105,x,y,0,fenceGold,false);
+    // Массивная каменная секция с полноценным арочным верхом; металлическая решётка удалена.
+    const span=length-.16,half=span/2,depth=.38;
+    fenceNoShadow(box(panel,span,.62,depth,0,.34,0,fenceStone,false));
+    fenceNoShadow(box(panel,span+.04,.12,depth+.08,0,.68,0,fenceReliefStone,false));
+    fenceNoShadow(box(panel,span+.02,.075,depth+.045,0,.755,0,fenceIvory,false));
+    // Каменные боковые опоры плавно переходят в существующие столбы.
+    for(const side of [-1,1]){
+      const x=side*(half-.12);
+      fenceNoShadow(box(panel,.30,.82,depth,x,1.12,0,fenceStone,false));
+      fenceNoShadow(box(panel,.38,.12,depth+.10,x,1.58,0,fenceReliefStone,false));
+      fenceNoShadow(box(panel,.34,.07,depth+.07,x,1.68,0,fenceIvory,false));
+    }
+    // Арочный каменный свод из крупных клиновидных блоков.
+    const innerHalf=Math.max(.25,half-.27),springY=1.58,rise=Math.min(.82,span*.22);
+    const archPoints=[];
+    for(let i=0;i<=48;i++){
+      const t=i/48;
+      archPoints.push(new THREE.Vector3(-innerHalf+2*innerHalf*t,springY+rise*Math.sin(Math.PI*t),0));
+    }
+    const archCurve=new THREE.CatmullRomCurve3(archPoints);
+    const archBand=new THREE.Mesh(new THREE.TubeGeometry(archCurve,96,.205,12,false),fenceStone);
+    fenceNoShadow(archBand);panel.add(archBand);
+    const innerCurve=new THREE.CatmullRomCurve3(archPoints.map(p=>new THREE.Vector3(p.x,p.y-.20,.205)));
+    const innerTrim=new THREE.Mesh(new THREE.TubeGeometry(innerCurve,96,.045,8,false),fenceReliefStone);
+    fenceNoShadow(innerTrim);panel.add(innerTrim);
+    // Выделенный замковый камень на вершине каждой арки.
+    const keystone=box(panel,.30,.34,.48,0,springY+rise-.015,0,fenceIvory,false);
+    keystone.rotation.z=0;
+    const crown=box(panel,.42,.10,.50,0,springY+rise+.20,0,fenceReliefStone,false);
+    crown.rotation.z=0;
+    // Каменные рустованные блоки по обе стороны арочного проёма.
+    for(const side of [-1,1]){
+      for(let j=0;j<3;j++){
+        const joint=box(panel,.34,.055,depth+.035,side*(half-.12),.91+j*.38,0,fenceReliefStone,false);
       }
     }
-    // Ряд вытянутых ромбов вместо прежних копий и центральных медальонов.
-    const diamonds=Math.max(2,Math.floor(span/.72));
-    for(let i=0;i<diamonds;i++){
-      const x=-span/2+span*(i+.5)/diamonds;
-      const diamond=box(panel,.235,.235,.065,x,1.305,.075,fenceGold,false);
-      diamond.rotation.z=Math.PI/4;
-      const inset=box(panel,.125,.125,.075,x,1.305,.12,fenceIronLight,false);
-      inset.rotation.z=Math.PI/4;
-      const pin=new THREE.Mesh(new THREE.SphereGeometry(.035,10,8),fenceGoldLight);
-      pin.position.set(x,1.305,.17);fenceNoShadow(pin);panel.add(pin);
-    }
-    // Нижняя тонкая линия и верхний декоративный пояс завершают каждую секцию.
-    fenceNoShadow(box(panel,span,.035,.15,0,.585,0,fenceGold,false));
-    fenceNoShadow(box(panel,span,.035,.15,0,2.025,0,fenceIronLight,false));
   };
   const fenceRun=(x1,z1,x2,z2,spacing=2.45,startY=0,endY=startY,options={})=>{
     const length=Math.hypot(x2-x1,z2-z1),count=Math.max(1,Math.ceil(length/spacing));
