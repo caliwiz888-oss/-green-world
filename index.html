@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-302000';
+const GREEN_WORLD_BUILD_ID = '20261108-303000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3079,7 +3079,7 @@ function makeWorldDecor(){
   // Передняя сторона, боковые стороны и задняя сторона; въезд и дорожки свободны.
   for(const [x,z,h,seed] of [
     [-10.8,17.4,4.35,12],[10.9,17.8,4.5,18],[-19.0,8.2,4.3,23],[-19.4,-7.0,4.55,29],
-    [20.8,6.5,4.4,34],[20.2,-11.5,4.5,41],[-11.5,-31.0,4.4,47],[0.8,-32.0,4.55,53],[12.0,-31.3,4.35,59]
+    [20.8,6.5,4.4,34],[20.2,-11.5,4.5,41],[-11.5,-47.0,4.4,47],[0.8,-50.0,4.55,53],[12.0,-47.9,4.35,59]
   ])gwAddBlossom(x,z,h,seed,.08);
  // Редкий дополнительный ряд перенесён глубже к лесному фону, чтобы заполнить дальние просветы,
  // не создавать третью тесную полосу позади основных деревьев.
