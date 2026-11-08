@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-342000';
+const GREEN_WORLD_BUILD_ID = '20261108-343000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -698,7 +698,7 @@ function makeMarket(){
  marketBeamMaterial.needsUpdate=true;
  const roof=new THREE.MeshStandardMaterial({color:0x526d88,roughness:.84,metalness:.035});
  const roofEdge=new THREE.MeshStandardMaterial({color:0x34495e,roughness:.88,metalness:.02});
- const roofAccent=new THREE.MeshStandardMaterial({color:0xb99a55,roughness:.84,metalness:.08});
+ const roofAccent=new THREE.MeshPhysicalMaterial({color:0xb99a55,roughness:.72,metalness:.16,clearcoat:.16,clearcoatRoughness:.58,envMapIntensity:.52});
  // Ткань переднего навеса получает тонкое плетение вместо гладкой окрашенной поверхности.
  const awningCanvas=document.createElement('canvas');awningCanvas.width=256;awningCanvas.height=256;
  const awningCtx=awningCanvas.getContext('2d');
@@ -1548,7 +1548,7 @@ function makeFactory(){
  roofTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const roofBump=roofTexture.clone();roofBump.colorSpace=THREE.NoColorSpace;roofBump.needsUpdate=true;
  // Матовая сланцево-синяя кровля повторяет утверждённую гамму главного дома и лавки.
- const roofMetal=new THREE.MeshStandardMaterial({color:0x526d88,map:roofTexture,bumpMap:roofBump,bumpScale:.016,roughness:.7,metalness:.24});
+ const roofMetal=new THREE.MeshPhysicalMaterial({color:0x526d88,map:roofTexture,bumpMap:roofBump,bumpScale:.016,roughness:.66,metalness:.24,clearcoat:.24,clearcoatRoughness:.48,envMapIntensity:.62});
  // Отдельные материалы ворот и карнизов склада: тёплое дерево и состаренная бронза.
  // Направленный микрорельеф существующих деревянных ворот без изменения их оттенка.
  const factoryDoorBumpCanvas=document.createElement('canvas');factoryDoorBumpCanvas.width=128;factoryDoorBumpCanvas.height=128;
@@ -2608,8 +2608,8 @@ function makeWorldDecor(){
   // Невысокие каменные парапеты повторяют профиль настила, сохраняя открытый вид на реку.
   // Круглые арочные перила: ровно три больших полукруглых секции на каждой стороне.
   // Более тёмный графитово-коричневый камень отделяет перила от светлого дорожного настила.
-  const railMat=new THREE.MeshStandardMaterial({color:0x34495e,roughness:.86,metalness:.035});
-  const railCapMat=new THREE.MeshStandardMaterial({color:0x607d98,roughness:.88,metalness:.035});
+  const railMat=new THREE.MeshPhysicalMaterial({color:0x34495e,roughness:.78,metalness:.07,clearcoat:.16,clearcoatRoughness:.62,envMapIntensity:.48});
+  const railCapMat=new THREE.MeshPhysicalMaterial({color:0x607d98,roughness:.8,metalness:.07,clearcoat:.14,clearcoatRoughness:.66,envMapIntensity:.42});
   for(const side of [-1,1]){
     // Непрерывный низкий каменный бортик повторяет продольный профиль моста.
     for(let row=0;row<20;row++){
@@ -3805,8 +3805,8 @@ function makeHouse(){
   material.roughnessMap=facadeMetalRoughness;
   material.needsUpdate=true;
  }
- const facadeGold=new THREE.MeshStandardMaterial({color:0xc69a43,roughness:.3,metalness:.82,roughnessMap:facadeMetalRoughness});
- const facadeBronze=new THREE.MeshStandardMaterial({color:0x493326,roughness:.46,metalness:.38,roughnessMap:facadeMetalRoughness});
+ const facadeGold=new THREE.MeshPhysicalMaterial({color:0xc69a43,roughness:.3,metalness:.82,roughnessMap:facadeMetalRoughness,clearcoat:.24,clearcoatRoughness:.3,envMapIntensity:.92});
+ const facadeBronze=new THREE.MeshPhysicalMaterial({color:0x493326,roughness:.46,metalness:.38,roughnessMap:facadeMetalRoughness,clearcoat:.16,clearcoatRoughness:.48,envMapIntensity:.58});
  // Тонкая вертикальная текстура натурального дерева только для входной двери и её филёнок.
  const doorGrainCanvas=document.createElement('canvas');
  doorGrainCanvas.width=128;doorGrainCanvas.height=256;
@@ -4036,7 +4036,7 @@ function makeHouse(){
  // с низкой двускатной сланцевой кровлей и двумя опорными колоннами.
  const porticoBlue=new THREE.MeshStandardMaterial({color:0x29445f,roughness:.68,metalness:.10,side:THREE.DoubleSide});
  const porticoTile=new THREE.MeshStandardMaterial({color:0x385775,roughness:.65,metalness:.08});
- const porticoGold=new THREE.MeshStandardMaterial({color:0xc9a04e,roughness:.32,metalness:.7,roughnessMap:facadeMetalRoughness});
+ const porticoGold=new THREE.MeshPhysicalMaterial({color:0xc9a04e,roughness:.32,metalness:.7,roughnessMap:facadeMetalRoughness,clearcoat:.22,clearcoatRoughness:.34,envMapIntensity:.82});
  const px=1.48,pz=3.42,py=3.42,pr=4.00;
  function porticoPanel(points,material){
   const geo=new THREE.BufferGeometry();
@@ -4166,7 +4166,7 @@ for(const material of [...copperMats,copperBright,copperDark]){
  const manorRoofTileA=new THREE.MeshStandardMaterial({color:0x355675,roughness:.68,metalness:.08,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.011});
  const manorRoofTileB=new THREE.MeshStandardMaterial({color:0x294662,roughness:.74,metalness:.07,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.011});
  const manorRoofSeam=new THREE.MeshStandardMaterial({color:0x1d344e,roughness:.72,metalness:.10,bumpMap:slateReliefTexture,bumpScale:.006});
- const manorRoofGold=new THREE.MeshStandardMaterial({color:0xc9a04e,roughness:.34,metalness:.68,roughnessMap:facadeMetalRoughness});
+ const manorRoofGold=new THREE.MeshPhysicalMaterial({color:0xc9a04e,roughness:.34,metalness:.68,roughnessMap:facadeMetalRoughness,clearcoat:.2,clearcoatRoughness:.38,envMapIntensity:.78});
  const manorRoofHalf=3.38,manorRoofEaveY=4.48,manorRoofPeakY=6.08;
  const manorRoofFrontZ=2.42,manorRoofBackZ=-2.48;
  const manorRoofV=(x,y,z)=>new THREE.Vector3(x,y,z);
