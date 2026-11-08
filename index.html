@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-380100';
+const GREEN_WORLD_BUILD_ID = '20261108-381100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1727,6 +1727,46 @@ function makeFactory(){
  const signTexture=new THREE.CanvasTexture(signCanvas);signTexture.colorSpace=THREE.SRGBColorSpace;
  const signMaterial=new THREE.MeshBasicMaterial({map:signTexture,transparent:false});
  box(g,2.45,.42,.045,0,2.78,2.91,signMaterial,false);
+ // Физически детализированные поверхности: тонкая минеральная фактура стен,
+ // микрорельеф окрашенного металла и направленная шлифовка кровельных панелей.
+ const makeFactorySurface=(kind)=>{
+   const canvas=document.createElement('canvas');canvas.width=512;canvas.height=512;
+   const ctx=canvas.getContext('2d');const image=ctx.createImageData(512,512);
+   for(let y=0;y<512;y++)for(let x=0;x<512;x++){
+     const i=(y*512+x)*4;
+     const wave=kind==='roof'?Math.sin(x*.72)*3+Math.sin(x*.19)*2:kind==='wall'?Math.sin(y*.31)*2:Math.sin(x*.42+y*.08)*2;
+     const noise=((x*17+y*31+(x*y)%97)%13)-6;
+     const v=Math.max(0,Math.min(255,246+noise+wave));
+     image.data[i]=v;image.data[i+1]=v;image.data[i+2]=v;image.data[i+3]=255;
+   }
+   ctx.putImageData(image,0,0);
+   const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
+   texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.repeat.set(2,2);
+   texture.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),16);
+   return texture;
+ };
+ const makeFactoryBump=(kind)=>{
+   const canvas=document.createElement('canvas');canvas.width=512;canvas.height=512;
+   const ctx=canvas.getContext('2d');const image=ctx.createImageData(512,512);
+   for(let y=0;y<512;y++)for(let x=0;x<512;x++){
+     const i=(y*512+x)*4;
+     const grain=((x*29+y*11+(x*y)%53)%19)-9;
+     const rib=kind==='metal'&&x%32<2?18:0;
+     const v=Math.max(0,Math.min(255,128+grain+rib));
+     image.data[i]=image.data[i+1]=image.data[i+2]=v;image.data[i+3]=255;
+   }
+   const texture=new THREE.CanvasTexture(canvas);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+   texture.repeat.set(2,2);texture.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),16);
+   return texture;
+ };
+ const wallTexture=makeFactorySurface('wall'),metalTexture=makeFactorySurface('metal'),roofTexture=makeFactorySurface('roof');
+ const wallBump=makeFactoryBump('wall'),metalBump=makeFactoryBump('metal'),roofBump=makeFactoryBump('roof');
+ wall.map=wallTexture;wall.bumpMap=wallBump;wall.bumpScale=.035;wall.roughnessMap=wallTexture;
+ wallLight.map=wallTexture;wallLight.bumpMap=wallBump;wallLight.bumpScale=.022;
+ panel.map=metalTexture;panel.bumpMap=metalBump;panel.bumpScale=.018;
+ door.map=metalTexture;door.bumpMap=metalBump;door.bumpScale=.026;
+ roof.map=roofTexture;roof.bumpMap=roofBump;roof.bumpScale=.02;
+ for(const material of [wall,wallLight,panel,door,roof])material.needsUpdate=true;
  // Тонкий металлический кант основания аккуратно завершает новый корпус.
  box(g,7.62,.08,.08,0,.57,2.99,trim,false);
  box(g,7.62,.08,.08,0,.57,-2.99,trim,false);
