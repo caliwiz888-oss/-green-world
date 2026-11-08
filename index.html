@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-233000';
+const GREEN_WORLD_BUILD_ID = '20261108-234500';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2885,6 +2885,14 @@ function makeWorldDecor(){
      bough.rotation.z=Math.cos(a)*-.58;bough.rotation.x=Math.sin(a)*.58;
      bough.rotation.y=a;g.add(bough);
    }
+   // Корневые наплывы и короткие нижние ветви делают основание ели менее геометричным.
+   for(let k=0;k<7;k++){
+     const a=seed+k*Math.PI*2/7;
+     const root=new THREE.Mesh(new THREE.CylinderGeometry(.012,.085,h*.19,6),gwBark);
+     root.position.set(Math.cos(a)*h*.085,h*.055,Math.sin(a)*h*.085);
+     root.rotation.z=Math.cos(a)*-.72;root.rotation.x=Math.sin(a)*.72;g.add(root);
+   }
+   g.rotation.y=seed*.19;g.scale.set(1+.045*Math.sin(seed*2),1+.035*Math.cos(seed),1+.045*Math.cos(seed*1.7));
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
  function gwAddBlossom(x,z,h,seed=0,baseY=0){
@@ -2910,6 +2918,21 @@ function makeWorldDecor(){
      bloom.scale.set(size*(.88+(k%3)*.14),size*(.78+(k%2)*.13),size*(.9+(k%4)*.045));
      g.add(bloom);
    }
+   // Несколько мелких соцветий по внешнему краю разбивают ровный контур кроны.
+   for(let k=0;k<12;k++){
+     const a=seed+k*2.399963;
+     const petal=new THREE.Mesh(gwCrownGeo,k%3===0?gwPinkB:gwPinkA);
+     petal.position.set(Math.cos(a)*h*.29,h*(.72+(k%4)*.045),Math.sin(a)*h*.29);
+     petal.scale.set(h*.075,h*.065,h*.075);g.add(petal);
+   }
+   // Расширение корневой шейки и индивидуальный наклон ствола.
+   for(let k=0;k<5;k++){
+     const a=seed+k*Math.PI*2/5;
+     const root=new THREE.Mesh(new THREE.CylinderGeometry(.012,.07,h*.16,6),gwBark);
+     root.position.set(Math.cos(a)*h*.07,h*.045,Math.sin(a)*h*.07);
+     root.rotation.z=Math.cos(a)*-.68;root.rotation.x=Math.sin(a)*.68;g.add(root);
+   }
+   g.rotation.y=seed*.13;g.scale.set(1+.05*Math.sin(seed),1+.035*Math.cos(seed*1.4),1+.05*Math.cos(seed));
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
  function gwAddUndergrowth(x,z,scale=1,seed=0,baseY=0){
@@ -2962,6 +2985,7 @@ function makeWorldDecor(){
    const x=-19+i*3.8,z=-25.5+(i%2)*.55,h=5.2+(i%4)*.42;
    if(i===2||i===8)gwAddBlossom(x,z,4.35,i*.8);
    else gwAddPine(x,z,h,i*.55);
+   if(i%2===1)gwAddUndergrowth(x+1.35,z+1.0,.82+(i%3)*.06,i*.61);
  }
  // Удалены мелкие светлые камешки за правой стороной ограды, чтобы убрать тонкую светлую отметку.
 }
