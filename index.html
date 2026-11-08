@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-124500';
+const GREEN_WORLD_BUILD_ID = '20261108-131500';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3165,41 +3165,49 @@ function makeWorldLandscape(){
  for(const m of [snow]){m.map=snowTexture;m.bumpMap=snowBump;m.bumpScale=.026;m.roughness=.94;m.metalness=0;m.needsUpdate=true;}
  // Естественный пояс пологих холмов занимает место удалённого леса.
  // Одна непрерывная рельефная поверхность вместо отдельных круглых насыпей.
- const rollingHillsGeometry=new THREE.PlaneGeometry(76,54,152,128);
+ const rollingHillsGeometry=new THREE.PlaneGeometry(76,66,152,156);
  const hillPositions=rollingHillsGeometry.attributes.position;
  const hillColors=[];
  const hillBaseColor=new THREE.Color(0x668f58),hillSunColor=new THREE.Color(0x86a96a),hillShadeColor=new THREE.Color(0x557b4d);
  // Три яруса протяжённых природных гряд: от внешней стороны ограждения к подножию гор.
  // Гряды вытянуты и смещены относительно друг друга, чтобы не возникала сетка квадратных холмов.
  // Новая форма на прежней высоте: длинные плавные гряды, разделённые широкими ложбинами.
- const ridgeBands=[
-   {z:-5.0,amp:.88,width:2.25,phase:.2},
-   {z:-.2,amp:1.08,width:2.55,phase:1.4},
-   {z:5.0,amp:1.12,width:2.65,phase:2.5},
-   {z:10.0,amp:.92,width:2.35,phase:3.6},
-   {z:14.8,amp:.72,width:2.0,phase:4.5},
-   {z:18.7,amp:.58,width:3.0,phase:5.3},
-   {z:22.0,amp:.34,width:3.4,phase:6.1}
+ // Нерегулярная система природных гряд: изгибы, ответвления и широкие чашеобразные долины.
+ const ridgePaths=[
+   {base:-5.0,slope:.105,wave:1.35,phase:.4,amp:.92,width:1.75},
+   {base:1.5,slope:-.075,wave:1.05,phase:2.1,amp:1.08,width:2.05},
+   {base:8.0,slope:.13,wave:1.55,phase:3.3,amp:1.02,width:1.9},
+   {base:15.0,slope:-.10,wave:1.25,phase:4.6,amp:.82,width:2.15},
+   {base:22.0,slope:.07,wave:1.0,phase:5.4,amp:.58,width:2.7},
+   {base:28.0,slope:-.045,wave:.85,phase:1.7,amp:.34,width:3.0}
  ];
  for(let i=0;i<hillPositions.count;i++){
    const x=hillPositions.getX(i),z=hillPositions.getY(i);
    let height=0;
-   for(const band of ridgeBands){
-     const center=band.z+Math.sin(x*.115+band.phase)*1.15+Math.sin(x*.27+band.phase*.7)*.34;
-     const across=(z-center)/band.width;
+   for(const path of ridgePaths){
+     const center=path.base+path.slope*x+Math.sin(x*.105+path.phase)*path.wave+
+       Math.sin(x*.245+path.phase*1.7)*.38;
+     const across=(z-center)/path.width;
      const crest=Math.exp(-.5*across*across);
-     const shoulder=Math.exp(-.5*Math.pow(across/1.9,2));
-     height+=band.amp*(crest*.72+shoulder*.28);
+     const shoulder=Math.exp(-.5*Math.pow(across/2.15,2));
+     const endFade=.62+.38*Math.exp(-Math.pow(Math.abs(x)/43,4));
+     const alongVariation=.78+.22*(.5+.5*Math.sin(x*.17+path.phase));
+     height+=path.amp*endFade*alongVariation*(crest*.66+shoulder*.34);
    }
-   // Узкие размывные ложбины пересекают гряды и убирают эффект параллельных валов.
-   const drainage=Math.pow(Math.max(0,Math.cos(x*.19-z*.31+Math.sin(z*.12))),8)*.16;
-   height=Math.max(0,height-drainage);
+   // Диагональные боковые отроги и плавные водосборные долины связывают основные гряды.
+   const spurA=Math.exp(-.5*Math.pow((z-(.34*x+5+Math.sin(x*.13)*1.1))/1.35,2))*
+     Math.exp(-.5*Math.pow((x+8)/25,2))*.34;
+   const spurB=Math.exp(-.5*Math.pow((z-(-.29*x+13+Math.sin(x*.16+2)*.9))/1.5,2))*
+     Math.exp(-.5*Math.pow((x-10)/23,2))*.27;
+   const valleyA=Math.exp(-.5*Math.pow((z-(.16*x+3+Math.sin(x*.09)*1.4))/1.05,2));
+   const valleyB=Math.exp(-.5*Math.pow((z-(-.21*x+11+Math.sin(x*.12+1)*1.1))/1.2,2));
+   height=Math.max(0,height+spurA+spurB-.20*valleyA-.16*valleyB);
    // Неровная природная линия горизонта: край холмов больше не читается квадратной рамкой.
    const sideWave=Math.sin(z*.31+1.2)*2.1+Math.sin(z*.73-.8)*.8;
    const backWave=Math.sin(x*.24)*2.4+Math.sin(x*.61+1.4)*.9;
    const frontWave=Math.sin(x*.29+2.1)*1.7+Math.sin(x*.67)*.65;
    const edgeX=38+sideWave-Math.abs(x);
-   const edgeBack=22+backWave-z;
+   const edgeBack=31+backWave-z;
    const edgeFront=18+frontWave+z;
    const edgeDistance=Math.min(edgeX,edgeBack,edgeFront);
    const edge=smoothstepTerrain(edgeDistance/5.2);
