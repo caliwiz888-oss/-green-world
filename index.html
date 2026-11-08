@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-281000';
+const GREEN_WORLD_BUILD_ID = '20261108-282000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3125,7 +3125,7 @@ function makeWorldDecor(){
      const t=THREE.MathUtils.clamp((localV+15.5)/31,0,1);
      const baseY=.08+3.0*THREE.MathUtils.smoothstep(t,.02,.98);
      const seed=i*.73+row*2.1;
-     if((i+row*3)%7===2)gwAddBlossom(x-(row===0&&i===16?14:0),z,4.35+(i%2)*.3,seed,baseY);
+     if((i+row*3)%7===2)gwAddBlossom(x-(row===0&&i===16?24:0),z,4.35+(i%2)*.3,seed,baseY);
      
      if(i%2===0)gwAddUndergrowth(x+(row===0?-1.35:1.4),z+.85,.78+(i%3)*.08,seed+.4,baseY);
    }
@@ -3159,7 +3159,7 @@ function makeWorldDecor(){
    const x=-27+i*3.8+(lane?1.35:-.7)+Math.sin(i*1.4)*.85;
    const z=-26.0+lane*3.0+Math.cos(i*1.67)*1.25;
    const h=5.0+(i%4)*.4;
-   if(i===3||i===11)gwAddBlossom(x,z-(i===11?14:0),4.25,i*.8);
+   if(i===3||i===11){const blossomZ=z-(i===11?14:0);const localV=-(blossomZ+36.5);const terrainT=THREE.MathUtils.clamp((localV+15.5)/31,0,1);const blossomBaseY=.08+3*THREE.MathUtils.smoothstep(terrainT,.02,.98);gwAddBlossom(x,blossomZ,4.25,i*.8,blossomBaseY);}
    
    if(i%3===1)gwAddUndergrowth(x+(lane?1.0:-1.1),z+.8,.78+(i%3)*.06,i*.61);
  }  // Лесная подстилка: тысячи тонких травинок и мха с естественной цветовой вариацией.
