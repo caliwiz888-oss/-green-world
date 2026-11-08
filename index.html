@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-282000';
+const GREEN_WORLD_BUILD_ID = '20261108-283000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3119,11 +3119,14 @@ function makeWorldDecor(){
      const wave=Math.sin(i*1.71+row*1.9),cross=Math.cos(i*1.13+row*.8);
      const x=-44+i*5.5+(row===0?0:2.25)+wave*1.15;
      const z=baseZ+cross*1.65+(i%3-1)*.48;
-     const localV=-(z+36.5);
+     const moveRightBloom=(row===0&&i===16);
+     const treeX=moveRightBloom?12:x;
+     const treeZ=moveRightBloom?-32.5:z;
+     const localV=-(treeZ+36.5);
      const t=THREE.MathUtils.clamp((localV+15.5)/31,0,1);
      const baseY=.08+3.0*THREE.MathUtils.smoothstep(t,.02,.98);
      const seed=i*.73+row*2.1;
-     if((i+row*3)%7===2)gwAddBlossom(x-(row===0&&i===16?24:0),z,4.35+(i%2)*.3,seed,baseY);
+     if((i+row*3)%7===2)gwAddBlossom(treeX,treeZ,4.35+(i%2)*.3,seed,baseY);
      
      if(i%2===0)gwAddUndergrowth(x+(row===0?-1.35:1.4),z+.85,.78+(i%3)*.08,seed+.4,baseY);
    }
