@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-233000';
+const GREEN_WORLD_BUILD_ID = '20261108-235000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2593,8 +2593,10 @@ function makeWorldDecor(){
   };
   // По четыре передние секции с каждой стороны арки; крайние линии совмещены
   // с наружными гранями площадок магазина и завода.
-  const frontFenceLeft=-14.40;
-  const frontFenceRight=16.40;
+  // Новый увеличенный периметр участка: немного шире по X и длиннее в глубину.
+  // Центральный вход остаётся на прежней оси и не сдвигает внутренний двор.
+  const frontFenceLeft=-15.40;
+  const frontFenceRight=17.40;
   const frontFenceZ=14.02;
   // Передняя ограда: по четыре секции с каждой стороны арки.
   const leftFrontSpacing=(Math.abs(frontFenceLeft)-3.20)/4;
@@ -2602,7 +2604,7 @@ function makeWorldDecor(){
   fenceRun(-3.20,frontFenceZ,frontFenceLeft,frontFenceZ,leftFrontSpacing,0,0,{bayFaceAngle:Math.PI});
   fenceRun(3.20,frontFenceZ,frontFenceRight,frontFenceZ,rightFrontSpacing);
   // Боковые и задняя линии идут строго горизонтально на одном уровне с передним ограждением.
-  const sideFenceEndZ=-21.10;
+  const sideFenceEndZ=-23.00;
   // Угловые столбы уже создаются передними и задней линиями; боковые пролёты используют их без дублирования.
   fenceRun(frontFenceLeft,frontFenceZ,frontFenceLeft,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:Math.PI/2});
   fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
@@ -3031,11 +3033,10 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  snowTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const snowBump=snowTexture.clone();snowBump.colorSpace=THREE.NoColorSpace;snowBump.needsUpdate=true;
  for(const m of [snow]){m.map=snowTexture;m.bumpMap=snowBump;m.bumpScale=.026;m.roughness=.94;m.metalness=0;m.needsUpdate=true;}
- // GREEN WORLD — полностью ровный внешний ландшафт на уровне территории дома.
- // Вся сетка имеет одну высоту: никаких холмов, склонов, впадин или перепадов.
- // Нулевая локальная высота совпадает с уровнем внутренней земли; сохранены границы
- // внешней площадки и исходные горы. Архитектура двора и ограждение не изменяются.
- const newTerrainGeometry=new THREE.PlaneGeometry(84,74,224,196);
+ // GREEN WORLD — новая увеличенная ровная внешняя площадка.
+ // Старая плоскость заменена одной цельной поверхностью 88 x 78 без дополнительных слоёв.
+ // Внутренний двор и исходные горы сохранены; участок расширен под новый периметр.
+ const newTerrainGeometry=new THREE.PlaneGeometry(88,78,232,208);
  const newTerrainPositions=newTerrainGeometry.attributes.position;
  const newTerrainColors=[];
  const flatMeadowColor=new THREE.Color(0x659653);
@@ -3048,7 +3049,7 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  const newMeadow=new THREE.Mesh(newTerrainGeometry,new THREE.MeshStandardMaterial({
    color:0xffffff,vertexColors:true,roughness:.99,metalness:0,side:THREE.DoubleSide
  }));
- newMeadow.name='GREEN_WORLD_Flat_Exterior_Terrain';
+ newMeadow.name='GREEN_WORLD_Expanded_Exterior_Terrain';
  newMeadow.rotation.x=-Math.PI/2;
  newMeadow.position.set(0,.018,-29.5);
  newMeadow.receiveShadow=false;newMeadow.castShadow=false;world.add(newMeadow);
