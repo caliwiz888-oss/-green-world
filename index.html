@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-346000';
+const GREEN_WORLD_BUILD_ID = '20261108-347000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -615,6 +615,29 @@ for(const [material,texture,scale] of surfaceBumps){
  material.roughnessMap=bump;
  material.needsUpdate=true;
 }
+// Физическая отделка существующего бежевого мощения и каменных плит двора.
+// Цветовые карты, bump/roughness-карты и исходные параметры поверхности сохраняются.
+function upgradeStoneSurface(material,clearcoat,envIntensity){
+ const physical=new THREE.MeshPhysicalMaterial({
+  color:material.color.clone(),
+  map:material.map,
+  bumpMap:material.bumpMap,
+  roughnessMap:material.roughnessMap,
+  bumpScale:material.bumpScale,
+  roughness:material.roughness,
+  metalness:material.metalness,
+  side:material.side,
+  clearcoat,
+  clearcoatRoughness:.9,
+  envMapIntensity:envIntensity
+ });
+ physical.name=material.name;
+ physical.needsUpdate=true;
+ return physical;
+}
+M.stone=upgradeStoneSurface(M.stone,.075,.32);
+M.stone2=upgradeStoneSurface(M.stone2,.065,.3);
+M.path=upgradeStoneSurface(M.path,.055,.24);
 // Preserve the device-specific render caps configured above; surface detail is increased independently.
 
 function box(parent,w,h,d,x,y,z,material,cast=true){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=cast;o.receiveShadow=cast;parent.add(o);return o}
