@@ -3897,9 +3897,10 @@ function makeHouse(){
   const line=new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(new THREE.Vector3(x,doorY+doorH,doorZ+.18),new THREE.Vector3(x*.72,doorY+doorH+.32,doorZ+.18)),8,.018,6,false),facadeGold);
   center.add(line);
  }
- // Парные вытянутые окна с арочным завершением и строгим вертикальным членением.
- facadeFrame(-2.12,1.30,2.68,1.02,1.82);
- facadeFrame( 2.12,1.30,2.68,1.02,1.82);
+ // Парные окна уменьшены примерно на четверть: сохраняем арочную форму,
+ // симметрию и расположение по сторонам портала, не меняя дверь и портик.
+ facadeFrame(-2.12,1.48,2.68,.78,1.42);
+ facadeFrame( 2.12,1.48,2.68,.78,1.42);
  // Пилястры по сторонам портала визуально связывают дверь с каменной архитектурой.
  for(const x of [-1.18,1.18]){
   box(center,.20,2.70,.22,x,1.88,2.73,facadeStone,false);
