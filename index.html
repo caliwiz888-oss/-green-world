@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-297000';
+const GREEN_WORLD_BUILD_ID = '20261108-298000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2777,25 +2777,6 @@ function makeWorldDecor(){
     leaf.position.set(side*.48,crestY+.19,crestZ+.04);leaf.rotation.z=-side*.55;fenceNoShadow(leaf);world.add(leaf);
   }
   // Decorative entrance arch is built above; continue with natural ground-cover details.
- // Естественные группы валунов: крупный камень дополнен меньшими сколотыми фрагментами.
- const rockLight=mat(0xa19d8d,.94),rockShade=mat(0x77796f,.97);
- for(const [x,z,r] of [[17,-17,.8],[18,15,1.0]]){
-   const main=sphere(world,r,x,.22,z,rockMat,.62);
-   main.scale.set(1.12,.72,.9);main.rotation.set(.08,.22,-.12);
-   main.castShadow=false;main.receiveShadow=false;
-   const fragments=[
-     [-.72,.10,.24,.43,.32,.34,rockLight],
-     [.68,.08,-.28,.36,.28,.31,rockShade],
-     [.18,.045,.72,.27,.19,.24,rockLight]
-   ];
-   for(const [dx,dy,dz,sx,sy,sz,material] of fragments){
-     const shard=sphere(world,r,x+dx*r,.12+dy*r,z+dz*r,material,.68);
-     shard.scale.set(sx,sy,sz);
-     shard.rotation.set(.12,dx*.3,dz*.18);
-     shard.castShadow=false;shard.receiveShadow=false;
-   }
- }
-
  // Внешний декоративный лес по обеим сторонам бокового забора.
  // Деревья стоят снаружи периметра, не перекрывают проходы и не меняют геометрию двора.
  const gwForest=new THREE.Group();gwForest.name='green-world-perimeter-forest';world.add(gwForest);
