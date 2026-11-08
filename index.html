@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261107-222700';
+const GREEN_WORLD_BUILD_ID = '20261108-190500';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3966,7 +3966,7 @@ function makeHouse(){
  const manorRoofTileB=new THREE.MeshStandardMaterial({color:0x294662,roughness:.74,metalness:.07});
  const manorRoofSeam=new THREE.MeshStandardMaterial({color:0x1d344e,roughness:.72,metalness:.10});
  const manorRoofGold=new THREE.MeshStandardMaterial({color:0xc9a04e,roughness:.34,metalness:.68});
- const manorRoofHalf=3.38,manorRoofEaveY=4.48,manorRoofPeakY=5.86;
+ const manorRoofHalf=3.38,manorRoofEaveY=4.48,manorRoofPeakY=6.08;
  const manorRoofFrontZ=2.42,manorRoofBackZ=-2.48;
  const manorRoofV=(x,y,z)=>new THREE.Vector3(x,y,z);
  function manorRoofPlane(points,material){
@@ -3982,16 +3982,16 @@ function makeHouse(){
  // Каменный треугольный фронтон под передним скатом — как на эталонной картинке.
  const manorGableShape=new THREE.Shape();
  manorGableShape.moveTo(-3.25,4.34);manorGableShape.lineTo(3.25,4.34);
- manorGableShape.lineTo(0,5.84);manorGableShape.closePath();
+ manorGableShape.lineTo(0,6.04);manorGableShape.closePath();
  const manorGable=new THREE.Mesh(new THREE.ExtrudeGeometry(manorGableShape,{depth:.10,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.025,bevelThickness:.018}),ivory);
  manorGable.position.z=2.13;manorGable.castShadow=true;manorGable.receiveShadow=true;center.add(manorGable);
  // Круглое бирюзовое окно в центре фронтона с золотым ободом.
  const manorGableGlass=new THREE.Mesh(new THREE.CircleGeometry(.285,48),teal);
- manorGableGlass.position.set(0,5.12,2.255);center.add(manorGableGlass);
+ manorGableGlass.position.set(0,5.20,2.255);center.add(manorGableGlass);
  const manorGableRing=new THREE.Mesh(new THREE.TorusGeometry(.315,.045,10,48),facadeGold);
- manorGableRing.position.set(0,5.12,2.27);center.add(manorGableRing);
- box(center,.035,.48,.035,0,5.12,2.285,facadeGold,false);
- box(center,.48,.035,.035,0,5.12,2.285,facadeGold,false);
+ manorGableRing.position.set(0,5.20,2.27);center.add(manorGableRing);
+ box(center,.035,.48,.035,0,5.20,2.285,facadeGold,false);
+ box(center,.48,.035,.035,0,5.20,2.285,facadeGold,false);
  // Два широких ската от центрального конька к длинным боковым карнизам.
  manorRoofPlane([
   manorRoofV(0,manorRoofPeakY,manorRoofFrontZ),
