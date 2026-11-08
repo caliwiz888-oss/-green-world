@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-377100';
+const GREEN_WORLD_BUILD_ID = '20261108-378100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1619,6 +1619,39 @@ function makeFactory(){
  for(const x of [-3.55,3.55]){
    box(g,.16,.72,.14,x,.98,2.84,baseTrim,false);
    box(g,.19,.07,.16,x,1.35,2.84,trim,false);
+ }
+ // Промышленные резиновые отбойники по сторонам секционных ворот.
+ const bumperMat=new THREE.MeshStandardMaterial({color:0x263b40,roughness:.88,metalness:.04});
+ for(const x of [-2.84,-.26]){
+   box(g,.16,.78,.18,x,.98,3.02,bumperMat,false);
+   box(g,.19,.1,.2,x,1.38,3.02,safetyYellow,false);
+ }
+ // Защитные металлические столбики перед погрузочной зоной.
+ const bollardMat=new THREE.MeshPhysicalMaterial({color:0xd6b34f,roughness:.42,metalness:.48,clearcoat:.25});
+ for(const x of [-3.28,.28]){
+   box(g,.18,.78,.18,x,.48,3.92,bollardMat,false);
+   box(g,.2,.12,.2,x,.9,3.92,frame,false);
+   box(g,.22,.1,.22,x,.09,3.92,baseTrim,false);
+ }
+ // Два наружных шкафа электроснабжения и автоматики на боковой стене.
+ const cabinetMat=new THREE.MeshStandardMaterial({color:0x89958c,roughness:.62,metalness:.28});
+ const cabinetFace=new THREE.MeshStandardMaterial({color:0x536b70,roughness:.48,metalness:.38});
+ for(const z of [-2.05,-.95]){
+   box(g,.2,1.05,.72,3.78,.92,z,cabinetMat,false);
+   box(g,.045,.82,.56,3.9,.94,z,cabinetFace,false);
+   box(g,.035,.12,.035,3.94,.9,z+.2,trim,false);
+   box(g,.035,.12,.035,3.94,.9,z-.2,trim,false);
+ }
+ // Наружный кабельный короб и вертикальная сервисная труба.
+ const conduitMat=new THREE.MeshStandardMaterial({color:0x9aa49a,roughness:.55,metalness:.42});
+ box(g,.11,.1,2.25,3.78,2.05,-2.55,conduitMat,false);
+ box(g,.11,1.55,.11,3.78,1.22,-2.55,pipeMat,false);
+ for(const y of [.62,1.25,1.88]){
+   box(g,.18,.07,.18,3.78,y,-2.55,trim,false);
+ }
+ // Небольшие световые маркеры погрузочной зоны.
+ for(const x of [-2.8,-.3]){
+   box(g,.12,.18,.07,x,2.82,3.04,lamp,false);
  }
  // Небольшая маркировка на фасаде — без крупной вывески и без изменения общего облика двора.
  const signCanvas=document.createElement('canvas');signCanvas.width=512;signCanvas.height=96;
