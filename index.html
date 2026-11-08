@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-315000';
+const GREEN_WORLD_BUILD_ID = '20261108-316000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3259,149 +3259,200 @@ function makeWorldLandscape(){
  newMeadow.position.set(0,.018,-29.5);
  newMeadow.receiveShadow=false;newMeadow.castShadow=false;world.add(newMeadow);
 
- // Большой природный горный хребет вместо вертикальных стен: пики, седловины, передние склоны и дальние гребни.
- // Главная водная линия спускается с центральной вершины; игровые постройки и деревья не перемещаются.
+ // Натуральный горный массив: асимметричные вершины, эрозионные ложбины, пласты породы и осыпи.
+ // Водопады повторяют рельеф переднего склона; дома, деревья, ограждение и русло реки не перемещаются.
  {
-   const palette=[0x35443f,0x46564d,0x59665a,0x6d7565,0x858574,0x9b9a87,0x293a37];
-   const mats=palette.map(c=>mat(c,.98));
-   const colors=palette.map(c=>new THREE.Color(c));
-   const noise=(x,z)=>Math.sin(x*.17+z*.11)*.58+Math.sin(x*.43-z*.29)*.27+
-     Math.cos(x*.91+z*.37)*.12+Math.sin(x*2.7+z*1.9)*.045;
-   const peak=(x)=>8.5+
-     16*Math.exp(-Math.pow((x+29)/8.5,2))+
-     21*Math.exp(-Math.pow((x-1)/9.2,2))+
-     17*Math.exp(-Math.pow((x-31)/8.0,2))+
-     9*Math.exp(-Math.pow((x+49)/6.5,2))+
-     8*Math.exp(-Math.pow((x-51)/6.5,2))+
-     1.9*Math.sin(x*.24)+1.2*Math.sin(x*.51+1.4);
-   const crestZ=(x)=>-79+2.3*Math.sin(x*.12)+1.1*Math.sin(x*.31);
-   // Единый рельефный массив: передний склон поднимается к острому хребту, затем уходит назад.
-   const nx=190,nz=86,xMin=-62,xMax=62,zFront=-63,zBack=-101;
-   const pos=[],col=[],ind=[];
+   const rockPalette=[0x303c39,0x3e4b45,0x505b50,0x667064,0x7d806f,0x96917d,0xb0a58c,0x263532];
+   const rockColors=rockPalette.map(c=>new THREE.Color(c));
+   const rockMats=rockPalette.map(c=>mat(c,.99));
+   const fractal=(x,z)=>Math.sin(x*.115+z*.073)*.72+
+     Math.sin(x*.31-z*.19)*.34+Math.cos(x*.73+z*.41)*.16+
+     Math.sin(x*1.83+z*1.27)*.075+Math.cos(x*3.7-z*2.9)*.028;
+   const crestZ=x=>-78.8+2.05*Math.sin(x*.105)+1.05*Math.sin(x*.29+1.1)+.48*fractal(x,-79);
+   const peak=x=>7.2+
+     15.8*Math.exp(-Math.pow((x+30)/9.7,2))+
+     20.5*Math.exp(-Math.pow((x-1)/10.8,2))+
+     16.2*Math.exp(-Math.pow((x-31)/9.1,2))+
+     7.2*Math.exp(-Math.pow((x+49)/7.1,2))+
+     6.8*Math.exp(-Math.pow((x-51)/7.4,2))+
+     1.15*Math.sin(x*.22)+.72*Math.sin(x*.49+1.7)+.42*Math.sin(x*.91);
+   const frontEdge=-63.1,backEdge=-103.5;
+   const surfaceY=(x,z)=>{
+     const cz=crestZ(x),h=peak(x),front=z>cz;
+     const span=front?frontEdge-cz:cz-backEdge;
+     const d=Math.abs(z-cz),t=THREE.MathUtils.clamp(1-d/Math.max(1,span),0,1);
+     if(t<=0)return .08;
+     const p=Math.pow(t,front?.68:.86);
+     const ravine=(Math.sin(x*.39+z*.18)+Math.sin(x*.91-z*.23)*.42)*.38*p;
+     const terraces=Math.sin(d*.71+fractal(x,z)*1.7)*.42*p+
+       Math.sin(d*1.63+x*.17)*.19*p;
+     return Math.max(.1,.2+h*p+ravine+terraces+fractal(x,z)*(.19+p*.72));
+   };
+   // Высокодетальная сетка с естественной асимметрией склонов и разной высотой гребней.
+   const nx=252,nz=116,xMin=-64,xMax=64,zMin=-63.1,zMax=-103.5;
+   const positions=[],vertexColors=[],indices=[];
    for(let j=0;j<=nz;j++){
-     const v=j/nz,z=zFront+(zBack-zFront)*v;
+     const z=zMin+(zMax-zMin)*j/nz;
      for(let i=0;i<=nx;i++){
-       const x=xMin+(xMax-xMin)*i/nx,cz=crestZ(x),h=peak(x);
-       const d=Math.abs(z-cz),front=z>cz;
-       const span=front?Math.max(1,zFront-cz):Math.max(1,cz-zBack);
-       const t=THREE.MathUtils.clamp(1-d/span,0,1);
-       const profile=Math.pow(t,front?.78:.92);
-       const terraces=.55*Math.sin(d*.82+noise(x,z)*1.7)+.24*Math.sin(d*1.9+x*.2);
-       const y=.22+h*profile+terraces*profile+noise(x,z)*(.22+profile*.9);
-       pos.push(x,Math.max(.12,y),z);
-       const altitude=y/h,band=Math.abs(Math.sin(y*.53+noise(x,z)*2.5));
-       let ci=altitude>.78?5:Math.min(4,Math.floor(band*5));
-       if(altitude<.25)ci=1+(Math.floor(Math.abs(noise(x,z))*3)%2);
-       const shade=.82+.13*Math.sin(i*.22+j*.39)+.055*Math.cos(i*.61-j*.17);
-       const c=colors[ci].clone().multiplyScalar(Math.max(.65,Math.min(1.13,shade)));
-       col.push(c.r,c.g,c.b);
-       if(i<nx&&j<nz){const a=j*(nx+1)+i,b=a+1,d=a+nx+1,e=d+1;ind.push(a,d,b,b,d,e);}
+       const x=xMin+(xMax-xMin)*i/nx;
+       const y=surfaceY(x,z);
+       positions.push(x,y,z);
+       const h=peak(x),alt=y/h;
+       const strata=Math.sin(y*.72+fractal(x,z)*2.3);
+       let ci=alt>.83?6:alt>.64?5:alt>.39?3:alt>.17?2:1;
+       if(strata>.78&&alt>.22)ci=Math.min(6,ci+1);
+       if(strata<-.82&&alt>.2)ci=Math.max(0,ci-1);
+       const variation=.91+.09*Math.sin(i*.19+j*.31)+.055*Math.cos(i*.53-j*.23);
+       const c=rockColors[ci].clone().multiplyScalar(THREE.MathUtils.clamp(variation,.72,1.12));
+       vertexColors.push(c.r,c.g,c.b);
+       if(i<nx&&j<nz){
+         const a=j*(nx+1)+i,b=a+1,d=a+nx+1,e=d+1;
+         if((i+j)%2){indices.push(a,d,e,a,e,b);}else{indices.push(a,d,b,b,d,e);}
+       }
      }
    }
    const mountainGeo=new THREE.BufferGeometry();
-   mountainGeo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
-   mountainGeo.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
-   mountainGeo.setIndex(ind);mountainGeo.computeVertexNormals();
-   const mountain=new THREE.Mesh(mountainGeo,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,side:THREE.DoubleSide}));
-   mountain.name='GREEN_WORLD_Mountain_Ridge_Main';mountain.castShadow=true;mountain.receiveShadow=true;world.add(mountain);
-   // Второй дальний гребень создаёт глубину горного горизонта, не повторяя передний контур.
-   for(let layer=0;layer<2;layer++){
+   mountainGeo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+   mountainGeo.setAttribute('color',new THREE.Float32BufferAttribute(vertexColors,3));
+   mountainGeo.setIndex(indices);mountainGeo.computeVertexNormals();
+   const mountain=new THREE.Mesh(mountainGeo,new THREE.MeshStandardMaterial({
+     vertexColors:true,roughness:1,metalness:0,side:THREE.DoubleSide
+   }));
+   mountain.name='GREEN_WORLD_Natural_Eroded_Mountain_Massif';
+   mountain.castShadow=true;mountain.receiveShadow=true;world.add(mountain);
+
+   // Слоистые геологические уступы идут по форме склонов, а не прямыми декоративными полосами.
+   for(const level of [.22,.34,.47,.61,.74]){
      const pts=[];
-     for(let i=0;i<=90;i++){
-       const x=-65+i*130/90;
-       const y=(layer===0?peak(x)*.88:peak(x+11)*.7)+3.5+noise(x,layer)*1.4;
-       pts.push(new THREE.Vector3(x,y,layer===0?-96:-105));
+     for(let k=0;k<=150;k++){
+       const x=xMin+(xMax-xMin)*k/150;
+       const cz=crestZ(x),span=frontEdge-cz;
+       const d=span*(1-Math.pow(level,1/.68));
+       const z=cz+d;
+       const y=surfaceY(x,z)+.045;
+       pts.push(new THREE.Vector3(x,y,z));
      }
-     const ridgeCurve=new THREE.CatmullRomCurve3(pts);
-     const ridgeMesh=new THREE.Mesh(new THREE.TubeGeometry(ridgeCurve,180,layer===0?.42:.7,7,false),mats[layer===0?2:1]);
-     ridgeMesh.castShadow=true;ridgeMesh.receiveShadow=true;world.add(ridgeMesh);
+     const lineMat=new THREE.MeshStandardMaterial({
+       color:level>.6?0x9a927d:0x303c38,roughness:1,metalness:0
+     });
+     const strataLine=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),220,.018+(level%0.2)*.07,5,false),lineMat);
+     strataLine.name='GREEN_WORLD_Rock_Strata_'+Math.round(level*100);
+     strataLine.castShadow=false;strataLine.receiveShadow=false;world.add(strataLine);
    }
-   // Скальные гребни и диагональные ребра следуют поверхности склонов, формируя реальные горные грани.
-   for(let side of [-1,1]){
-     for(let r=0;r<15;r++){
-       const pts=[];
-       const x0=side*(7+r*3.35);
-       for(let q=0;q<=22;q++){
-         const t=q/22,x=x0+side*Math.sin(t*2.4+r)*1.3;
-         const z=crestZ(x)+(side>0?1:-1)*(3+t*12);
-         const h=peak(x),d=Math.abs(z-crestZ(x)),span=z>crestZ(x)?zFront-crestZ(x):crestZ(x)-zBack;
-         const y=.22+h*Math.pow(Math.max(.02,1-d/span),.8)+noise(x,z);
-         pts.push(new THREE.Vector3(x,y+.15,z));
-       }
-       const ridgeLine=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),50,.09+(r%4)*.055,5,false),mats[(r+2)%mats.length]);
-       ridgeLine.castShadow=true;world.add(ridgeLine);
+
+   // Небольшие естественные скальные выступы встроены в поверхность, без одинаковых круглых валунов.
+   for(let i=0;i<54;i++){
+     const x=-59+((i*43)%117),z=-64.2-((i*23)%36);
+     const ground=surfaceY(x,z);
+     const size=.55+(i%6)*.22;
+     const geo=new THREE.IcosahedronGeometry(1,2),p=geo.attributes.position;
+     for(let k=0;k<p.count;k++){
+       const f=1+fractal(p.getX(k)*4+i,p.getZ(k)*4-i)*.17;
+       p.setXYZ(k,p.getX(k)*f,p.getY(k)*(1+Math.sin(k*2.1+i)*.09),p.getZ(k)*f);
+     }
+     geo.computeVertexNormals();
+     const rock=new THREE.Mesh(geo,rockMats[(i*5)%rockMats.length]);
+     const sy=size*(.28+(i%4)*.12);
+     rock.position.set(x,ground-sy*.24,z);
+     rock.scale.set(size*(.9+(i%3)*.24),sy,size*(.72+(i%4)*.16));
+     rock.rotation.set(.12*Math.sin(i),i*.71,.16*Math.cos(i));
+     rock.castShadow=true;rock.receiveShadow=true;world.add(rock);
+   }
+
+   // Короткие осыпные шлейфы у основания скал создают переход от крупных плит к мелкому камню.
+   const screeMats=[0x62675d,0x777767,0x898574].map(c=>mat(c,1));
+   for(let fan=0;fan<9;fan++){
+     const x0=-48+fan*12,z0=-65.2-(fan%3)*1.1;
+     for(let n=0;n<13;n++){
+       const x=x0+(n%4-1.5)*(.34+(n%3)*.12);
+       const z=z0-(Math.floor(n/4))*.48;
+       const y=surfaceY(x,z)+.025;
+       const pebble=new THREE.Mesh(new THREE.DodecahedronGeometry(.12+(n%3)*.045,0),screeMats[(fan+n)%3]);
+       pebble.position.set(x,y,z);pebble.scale.set(1.5,.48,.8);
+       pebble.rotation.y=n*1.7;pebble.castShadow=false;pebble.receiveShadow=true;world.add(pebble);
      }
    }
-   // Крупные выступы и обломки у подножия, разбросанные неравномерно по склонам.
-   for(let i=0;i<92;i++){
-     const x=-58+((i*37)%113),z=-65-((i*19)%29),h=peak(x);
-     const d=Math.abs(z-crestZ(x)),span=z>crestZ(x)?zFront-crestZ(x):crestZ(x)-z;
-     const y=.25+h*Math.pow(Math.max(.02,1-d/span),.8);
-     const g=new THREE.IcosahedronGeometry(1,2),p=g.attributes.position;
-     for(let k=0;k<p.count;k++){const f=1+noise(p.getX(k)*3+i,p.getY(k)*4)*.2;p.setXYZ(k,p.getX(k)*f,p.getY(k)*f,p.getZ(k)*(1+noise(k,i)*.15));}
-     g.computeVertexNormals();
-     const rock=new THREE.Mesh(g,mats[(i*3)%mats.length]);
-     rock.position.set(x,y,z);rock.scale.set(.8+(i%5)*.55,.35+(i%4)*.3,.8+(i%3)*.45);
-     rock.rotation.set(.16*Math.sin(i),i*.63,.2*Math.cos(i));rock.castShadow=true;rock.receiveShadow=true;world.add(rock);
-   }
-   // Несколько водопадов спускаются по рельефу хребта; главный — с центральной вершины.
+
+   // Полупрозрачная вода повторяет рельеф скалы и выходит к чашам у подножия.
    const wc=document.createElement('canvas');wc.width=512;wc.height=1024;
    const ctx=wc.getContext('2d'),grad=ctx.createLinearGradient(0,0,0,1024);
-   grad.addColorStop(0,'rgba(228,252,246,.86)');grad.addColorStop(.2,'rgba(137,218,222,.93)');
-   grad.addColorStop(.75,'rgba(44,137,164,.96)');grad.addColorStop(1,'rgba(190,240,232,.9)');
+   grad.addColorStop(0,'rgba(237,255,249,.94)');
+   grad.addColorStop(.22,'rgba(146,222,225,.96)');
+   grad.addColorStop(.68,'rgba(55,151,174,.97)');
+   grad.addColorStop(1,'rgba(198,246,235,.95)');
    ctx.fillStyle=grad;ctx.fillRect(0,0,512,1024);
-   for(let i=0;i<310;i++){
-     const x=(i*97+13)%512,w=.5+(i%6)*.55,a=.04+(i%8)*.017;
+   for(let i=0;i<380;i++){
+     const x=(i*97+13)%512,w=.45+(i%7)*.48,a=.035+(i%9)*.014;
      ctx.fillStyle='rgba(255,255,255,'+a+')';ctx.fillRect(x,0,w,1024);
    }
-   for(let i=0;i<110;i++){
-     const x=(i*59+7)%512,y=(i*131+29)%1024,len=28+(i%8)*48;
+   for(let i=0;i<130;i++){
+     const x=(i*59+7)%512,y=(i*131+29)%1024,len=24+(i%9)*43;
      const gl=ctx.createLinearGradient(x,y,x+1,y+len);
-     gl.addColorStop(0,'rgba(255,255,255,0)');gl.addColorStop(.5,'rgba(255,255,255,.52)');gl.addColorStop(1,'rgba(255,255,255,0)');
-     ctx.fillStyle=gl;ctx.fillRect(x,y,1.6,len);
+     gl.addColorStop(0,'rgba(255,255,255,0)');
+     gl.addColorStop(.5,'rgba(255,255,255,.58)');
+     gl.addColorStop(1,'rgba(255,255,255,0)');
+     ctx.fillStyle=gl;ctx.fillRect(x,y,1.5,len);
    }
    const waterTex=new THREE.CanvasTexture(wc);waterTex.colorSpace=THREE.SRGBColorSpace;
-   waterTex.wrapS=waterTex.wrapT=THREE.RepeatWrapping;waterTex.anisotropy=renderer.capabilities.getMaxAnisotropy();
-   const waterMat=new THREE.MeshPhysicalMaterial({color:0xd8f8f2,map:waterTex,transparent:true,opacity:.91,
-     roughness:.12,metalness:.015,clearcoat:1,clearcoatRoughness:.06,side:THREE.DoubleSide,depthWrite:false});
-   const makeFall=(x,width,topY,bottomY,seed)=>{
-     const rows=64,cols=24,verts=[],uv=[],ids=[];
+   waterTex.wrapS=waterTex.wrapT=THREE.RepeatWrapping;
+   waterTex.anisotropy=renderer.capabilities.getMaxAnisotropy();
+   const waterfallMat=new THREE.MeshPhysicalMaterial({
+     color:0xe1fbf5,map:waterTex,transparent:true,opacity:.94,
+     roughness:.13,metalness:.01,clearcoat:1,clearcoatRoughness:.07,
+     side:THREE.DoubleSide,depthWrite:false
+   });
+   const makeFall=(x,width,seed)=>{
+     const rows=92,cols=28,verts=[],uv=[],ids=[];
+     const cz=crestZ(x);
      for(let j=0;j<=rows;j++){
-       const t=j/rows,y=topY+(bottomY-topY)*t;
-       const centerZ=-79+12*t+Math.sin(t*4+seed)*1.8;
-       const terrainX=x+Math.sin(t*5+seed)*.8;
+       const t=j/rows,z=cz+.45+(-62.75-(cz+.45))*t;
+       const ground=surfaceY(x,z);
        for(let i=0;i<=cols;i++){
          const u=i/cols,edge=Math.abs(u-.5)*2;
-         const w=width*(.72+.28*Math.sin(t*9+seed))*(1-.18*edge);
-         const px=terrainX+(u-.5)*2*w;
-         const pz=centerZ+Math.sin(u*9+t*8+seed)*.18;
-         const py=y+Math.sin(u*11+t*17+seed)*.16;
-         verts.push(px,py,pz);uv.push(u,t*2.4);
-         if(i<cols&&j<rows){const a=j*(cols+1)+i,b=a+1,d=a+cols+1,e=d+1;ids.push(a,b,d,b,e,d);}
+         const w=width*(.82+.18*Math.sin(t*8+seed))*(1-.13*edge);
+         const px=x+(u-.5)*2*w+Math.sin(t*5+seed)*.28;
+         const py=surfaceY(px,z)+.24+Math.sin(u*12+t*19+seed)*.075;
+         const pz=z+.22+Math.sin(u*8+t*7+seed)*.11;
+         verts.push(px,py,pz);uv.push(u,t*3.1);
+         if(i<cols&&j<rows){
+           const a=j*(cols+1)+i,b=a+1,d=a+cols+1,e=d+1;
+           ids.push(a,b,d,b,e,d);
+         }
        }
      }
-     const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
-     geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(ids);geo.computeVertexNormals();
-     const tex=waterTex.clone();tex.needsUpdate=true;tex.repeat.set(1.25,2.6);tex.offset.x=seed*.17;
-     const m=waterMat.clone();m.map=tex;m.needsUpdate=true;
-     const sheet=new THREE.Mesh(geo,m);sheet.name='GREEN_WORLD_Mountain_Waterfall_'+seed;world.add(sheet);waterfallFlowTextures.push(tex);
+     const geo=new THREE.BufferGeometry();
+     geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
+     geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+     geo.setIndex(ids);geo.computeVertexNormals();
+     const tex=waterTex.clone();tex.needsUpdate=true;tex.repeat.set(1.15,3.1);tex.offset.x=seed*.17;
+     const material=waterfallMat.clone();material.map=tex;material.needsUpdate=true;
+     const sheet=new THREE.Mesh(geo,material);
+     sheet.name='GREEN_WORLD_Natural_Waterfall_'+seed;
+     sheet.renderOrder=2;world.add(sheet);waterfallFlowTextures.push(tex);
    };
-   makeFall(0,4.8,27,1.1,1);
-   makeFall(-24,1.35,18,.8,2);
-   makeFall(27,1.65,19,.8,3);
-   // Разбрызгивание и бирюзовые чаши у подножия горного склона.
-   const poolMat=new THREE.MeshPhysicalMaterial({color:0x318da7,roughness:.12,metalness:.02,transparent:true,opacity:.84,clearcoat:1,side:THREE.DoubleSide});
-   for(const [x,z,r] of [[0,-66,5.2],[-24,-67,2.1],[27,-67,2.4]]){
+   makeFall(0,4.4,1);
+   makeFall(-24,1.45,2);
+   makeFall(27,1.65,3);
+
+   // Бирюзовые чаши у выхода водопадов, с мягкой пеной по краю.
+   const poolMat=new THREE.MeshPhysicalMaterial({
+     color:0x318da7,roughness:.13,metalness:.02,transparent:true,
+     opacity:.88,clearcoat:1,side:THREE.DoubleSide
+   });
+   for(const [x,z,r] of [[0,-62.25,5.2],[-24,-62.25,2.1],[27,-62.25,2.4]]){
      const pool=new THREE.Mesh(new THREE.CircleGeometry(r,96),poolMat);
-     pool.rotation.x=-Math.PI/2;pool.position.set(x,.12,z);pool.scale.set(1.5,.78,1);world.add(pool);
+     pool.rotation.x=-Math.PI/2;pool.position.set(x,.13,z);
+     pool.scale.set(1.5,.78,1);pool.renderOrder=1;world.add(pool);
    }
-   const foamMat=new THREE.MeshBasicMaterial({color:0xf1fff8,transparent:true,opacity:.42,depthWrite:false});
-   for(let i=0;i<54;i++){
-     const a=i*Math.PI*2/54,r=3.2+(i%7)*.48;
-     const foam=new THREE.Mesh(new THREE.SphereGeometry(.32,12,8),foamMat);
-     foam.position.set(Math.cos(a)*r,.2,-66+Math.sin(a)*2.3);foam.scale.set(.85,.035,.14);world.add(foam);
+   const foamMat=new THREE.MeshBasicMaterial({color:0xf1fff8,transparent:true,opacity:.38,depthWrite:false});
+   for(let i=0;i<66;i++){
+     const a=i*Math.PI*2/66,r=3.1+(i%9)*.39;
+     const foam=new THREE.Mesh(new THREE.SphereGeometry(.29,12,8),foamMat);
+     foam.position.set(Math.cos(a)*r,.2,-62.2+Math.sin(a)*2.25);
+     foam.scale.set(.9,.035,.15);world.add(foam);
    }
  }
+
  // Внешние горы и внешний ландшафт удалены полностью по запросу.
   // A broad river outside the farm boundary, with layered banks and a stone crossing.
  // Цельная сетчатая поверхность с реальной плавной волной вместо плоской коробки.
