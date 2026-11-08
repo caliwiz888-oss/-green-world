@@ -1231,18 +1231,43 @@ function makeMarket(){
    for(const y of [1.18,2.26])box(g,.075,.075,1.50,frameX,y,-.72,timberLight,false);
    for(const z of [-2.16,2.16])box(g,.14,1.90,.14,frameX,1.57,z,roofEdge,false);
  }
- // Три хвойные ели за магазином, в свободной полосе перед задней оградой.
- // Ярусные конические кроны повторяют тёмно-зелёные ели утверждённого эталона.
- const marketFirTrunk=mat(0x765034,.94);
- const marketFirDeep=new THREE.MeshStandardMaterial({color:0x244b32,roughness:.96});
- const marketFirMid=new THREE.MeshStandardMaterial({color:0x315f3d,roughness:.94});
- const marketFirLight=new THREE.MeshStandardMaterial({color:0x47764a,roughness:.92});
- for(const [tx,tz,fh] of [[-1.55,-7.15,5.2],[0,-7.35,5.5],[1.55,-7.15,5.2]]){
-   cylinder(g,.12,.16,.82,tx,.41,tz,marketFirTrunk,8);
-   for(const [base,r,h,material] of [[.95,.92,1.95,marketFirDeep],[1.72,.78,1.85,marketFirMid],[2.48,.62,1.72,marketFirDeep],[3.16,.44,1.48,marketFirLight]]){
-     const crown=cone(g,r*(fh/4.05),h*(fh/4.05),tx,base*(fh/4.05),tz,material,7);
-     crown.rotation.y=(tx<0?.12:tx>0?-.12:0);
+ // Три реалистичные ели за магазином: выраженный ствол, ярусные ветви и фактурная хвоя.
+ const marketFirBark=new THREE.MeshStandardMaterial({color:0x60432e,roughness:.98});
+ const marketFirBarkLight=new THREE.MeshStandardMaterial({color:0x896044,roughness:.96});
+ const marketFirNeedleDeep=new THREE.MeshStandardMaterial({color:0x183d2b,roughness:.96});
+ const marketFirNeedle=new THREE.MeshStandardMaterial({color:0x28583a,roughness:.94});
+ const marketFirNeedleLight=new THREE.MeshStandardMaterial({color:0x3c7048,roughness:.93});
+ const marketFirBud=new THREE.MeshStandardMaterial({color:0x527d4d,roughness:.92});
+ for(const [tx,tz,fh,seed] of [[-1.55,-7.15,5.2,2],[0,-7.35,5.5,5],[1.55,-7.15,5.2,8]]){
+   // Ствол слегка сужается к вершине, кора имеет тонкие вертикальные борозды.
+   cylinder(g,.105,.19,fh*.82,tx,fh*.41,tz,marketFirBark,10);
+   for(let k=0;k<7;k++){
+     const yy=.38+k*.52;
+     const barkLine=box(g,.018,.34,.012,tx+.105,yy,tz,marketFirBarkLight,false);
+     barkLine.rotation.z=.035;
    }
+   // Семь перекрывающихся ярусов, каждый с отдельными свисающими ветвями.
+   for(let tier=0;tier<7;tier++){
+     const y=.82+tier*.59;
+     const radius=(1.08-tier*.105)*(fh/5.35);
+     const branchLength=radius*.96;
+     const foliage=tier%3===0?marketFirNeedleDeep:tier%3===1?marketFirNeedle:marketFirNeedleLight;
+     const skirt=cone(g,radius,.94*(fh/5.35),tx,y,tz,foliage,9);
+     skirt.scale.set(1,.92,1);
+     for(let j=0;j<10;j++){
+       const angle=(j/10)*Math.PI*2+(tier%2)*.24+seed*.07;
+       const mid=branchLength*.48;
+       const branch=cone(g,.19*(fh/5.35),branchLength,tx+Math.cos(angle)*mid,y-.11,tz+Math.sin(angle)*mid,foliage,6);
+       branch.rotation.z=Math.PI/2+.32;
+       branch.rotation.y=-angle;
+       // Небольшие кончики хвои формируют естественный неровный силуэт.
+       const tip=cone(g,.105*(fh/5.35),.42*(fh/5.35),tx+Math.cos(angle)*branchLength*.92,y-.27,tz+Math.sin(angle)*branchLength*.92,marketFirBud,6);
+       tip.rotation.z=Math.PI/2+.48;
+       tip.rotation.y=-angle;
+     }
+   }
+   const crown=cone(g,.22,.72,tx,fh-.28,tz,marketFirNeedleLight,8);
+   crown.scale.set(.72,1,.72);
  }
  g.userData.sideFacades={left:true,right:true,outerWall:true,singleLayer:true,windowFrames:true};
   return disableCastShadows(g);
