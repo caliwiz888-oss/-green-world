@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-400100';
+const GREEN_WORLD_BUILD_ID = '20261108-401100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -719,7 +719,7 @@ function makeFlowerBed(x,z){
  for(const x of [-11,-7,7,11])makeFlowerBed(x,16.25);
 function makeWorldDecor(){
   // Двухцветная палитра ограды: тёплый известняк и приглушённый шалфейно-оливковый камень.
-  const fenceBaseTrim=mat(0x55483b),fenceLightTrim=mat(0xf0e2c8),fenceRelief=mat(0xb99a55),fenceShadow=mat(0x493b31);
+  const fenceBaseTrim=mat(0x4b4034),fenceLightTrim=mat(0xb6a58b),fenceRelief=mat(0x987642),fenceShadow=mat(0x382e26);
   // Открытая территория. Каменная дорожка идёт от главного дома к берегу реки.
   // var исключает TDZ для материалов дорожки при повторном/раннем вызове декораций.
   // Бело-серая гранитная гамма дорожек: светлый камень, холодный серый и графитовые швы.
@@ -982,9 +982,9 @@ function makeWorldDecor(){
     }
   }
   // Ограда по точному цветовому макету: светлые каменные столбы и тёмная кованая решётка с золотыми медальонами.
-  const fenceStone=mat(0xcbb99a,.94),fenceIvory=mat(0xd9c6a4,.92),fenceReliefStone=mat(0xa98d68,.94),fenceOutline=mat(0x51402f,.94);
-  const fenceSandstone=mat(0xb99a72,.94),fenceSlate=mat(0x526575,.9),fenceTeal=mat(0x367c78,.88);
-  const fenceIron=mat(0x514638),fenceIronLight=mat(0x76634b),fenceGold=mat(0xc99b52),fenceGoldLight=mat(0xe4c17a);
+  const fenceStone=mat(0x948775,.96),fenceIvory=mat(0xaaa08f,.94),fenceReliefStone=mat(0x796b58,.96),fenceOutline=mat(0x403329,.96);
+  const fenceSandstone=mat(0x927a5d,.96),fenceSlate=mat(0x465d70,.94),fenceTeal=mat(0x28736f,.92);
+  const fenceIron=mat(0x39332c),fenceIronLight=mat(0x62513d),fenceGold=mat(0xb98a43),fenceGoldLight=mat(0xd4ad67);
   const fenceNoShadow=mesh=>{mesh.castShadow=false;mesh.receiveShadow=false;return mesh;};
   // Забор собирается в отдельной группе: его можно целиком заменить без дублей геометрии.
   const fenceGroup=new THREE.Group();world.add(fenceGroup);
