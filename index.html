@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-255000';
+const GREEN_WORLD_BUILD_ID = '20261108-260000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3097,7 +3097,31 @@ function makeWorldDecor(){
    if(i===3||i===11)gwAddBlossom(x,z,4.25,i*.8);
    else gwAddPine(x,z,h,i*.55);
    if(i%3===1)gwAddUndergrowth(x+(lane?1.0:-1.1),z+.8,.78+(i%3)*.06,i*.61);
- }
+ }  // Лесная подстилка: тысячи тонких травинок и мха с естественной цветовой вариацией.
+  const gwForestFloor=new THREE.Group();gwForestFloor.name='green-world-forest-floor-detail';world.add(gwForestFloor);
+  const gwGrassGeo=new THREE.ConeGeometry(.018,.34,4,1),gwGrassMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
+  const gwGrassCount=2600,gwGrass=new THREE.InstancedMesh(gwGrassGeo,gwGrassMat,gwGrassCount),gwGrassDummy=new THREE.Object3D();
+  const gwGrassColors=[0x315d36,0x547a43,0x78904b,0x263f2c];
+  for(let n=0;n<gwGrassCount;n++){
+    const u=((n*127.1)%997)/997,v=((n*311.7)%991)/991;let x,z,y;
+    if(n%3===0){x=-48+u*96;z=-43+v*18;const t=THREE.MathUtils.clamp((-(z+36.5)-15.5)/31,0,1);y=.08+3*THREE.MathUtils.smoothstep(t,.02,.98);}
+    else{const side=n%2?1:-1;x=side*(19.2+u*10);z=-25+v*48;y=0;}
+    const h=.55+(n%7)*.12;gwGrassDummy.position.set(x,y+.08+h*.16,z);
+    gwGrassDummy.scale.set(.65+(n%4)*.15,h,.65+(n%3)*.18);gwGrassDummy.rotation.set(.12*Math.sin(n),u*Math.PI*2,.16*Math.cos(n));
+    gwGrassDummy.updateMatrix();gwGrass.setMatrixAt(n,gwGrassDummy.matrix);gwGrass.setColorAt(n,new THREE.Color(gwGrassColors[n%4]));
+  }
+  gwGrass.instanceMatrix.needsUpdate=true;if(gwGrass.instanceColor)gwGrass.instanceColor.needsUpdate=true;gwForestFloor.add(gwGrass);
+  // Небольшие пятна мха смягчают переходы между травой и кустарником.
+  const gwMossGeo=new THREE.SphereGeometry(1,7,5),gwMossMat=new THREE.MeshStandardMaterial({color:0x526b3c,roughness:1});
+  const gwMoss=new THREE.InstancedMesh(gwMossGeo,gwMossMat,190),gwMossDummy=new THREE.Object3D();
+  for(let n=0;n<190;n++){
+    const x=-46+((n*83)%911)/911*92,z=-42+((n*149)%887)/887*17;
+    const t=THREE.MathUtils.clamp((-(z+36.5)-15.5)/31,0,1),y=.08+3*THREE.MathUtils.smoothstep(t,.02,.98);
+    gwMossDummy.position.set(x,y+.035,z);gwMossDummy.scale.set(.18+(n%5)*.045,.035,.12+(n%4)*.035);
+    gwMossDummy.rotation.y=n*1.71;gwMossDummy.updateMatrix();gwMoss.setMatrixAt(n,gwMossDummy.matrix);
+  }
+  gwForestFloor.add(gwMoss);
+
  // Удалены мелкие светлые камешки за правой стороной ограды, чтобы убрать тонкую светлую отметку.
 }
 let riverWaterTexture=null;
