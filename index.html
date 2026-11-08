@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-195000';
+const GREEN_WORLD_BUILD_ID = '20261108-194000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2695,9 +2695,7 @@ function makeWorldDecor(){
   // Угловые столбы уже создаются передними и задней линиями; боковые пролёты используют их без дублирования.
   fenceRun(frontFenceLeft,frontFenceZ,frontFenceLeft,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:Math.PI/2});
   fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
-  // Задняя линия замыкает обе стороны; все её столбы и пролёты стоят на уровне переднего двора.
-  const rearFenceZ=sideFenceEndZ;
-  fenceRun(frontFenceLeft,rearFenceZ,frontFenceRight,rearFenceZ,2.37,0,0);
+  // Задние секции ограждения удалены по запросу; боковые линии сохранены.
   // Жёстко отключаем отбрасывание и приём теней у всех деталей ограждения, включая столбики и навершия.
   fenceGroup.traverse(object=>{if(object.isMesh){object.castShadow=false;object.receiveShadow=false;}});
   // Входная арка повторяет геометрию эталона: прямые массивные устои и полукруглый верх с тремя ступенями обрамления.
