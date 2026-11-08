@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-224000';
+const GREEN_WORLD_BUILD_ID = '20261108-225000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2832,47 +2832,47 @@ function makeWorldDecor(){
  function gwAddPine(x,z,h,seed=0,baseY=0){
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
-   trunk.position.y=h*.34;trunk.scale.set(.58,h*.72,.58);g.add(trunk);
-   // Пять ярусов хвои разной ширины создают более естественный силуэт ели.
-   for(let k=0;k<5;k++){
-     const tier=k/4;
-     const geo=k<3?gwPineGeos[k]:gwPineGeos[2];
-     const crown=new THREE.Mesh(geo,k%3===0?gwPineA:(k%3===1?gwPineB:gwPineC));
-     const radius=h*(.205-tier*.027);
-     crown.position.set(Math.sin(seed+k*1.7)*.045,h*(.27+k*.135),Math.cos(seed+k*1.3)*.045);
-     crown.scale.set(radius,h*(.34-tier*.045),radius);
+   trunk.position.y=h*.34;trunk.scale.set(.62,h*.76,.62);g.add(trunk);
+   // Реалистичная ярусная ель: широкий нижний ярус, несколько ступеней ветвей и выраженная вершина.
+   for(let k=0;k<6;k++){
+     const t=k/5;
+     const width=(.245-t*.032)*(1+.045*Math.sin(seed+k*1.9));
+     const crown=new THREE.Mesh(gwPineGeos[k%3],k%3===0?gwPineA:(k%3===1?gwPineB:gwPineC));
+     crown.position.set(Math.sin(seed+k*1.43)*.055,h*(.22+k*.112),Math.cos(seed+k*1.31)*.055);
+     crown.scale.set(h*width,h*(.31-t*.035),h*width);
      g.add(crown);
    }
-   // Небольшие ветви под нижним ярусом добавляют объём, не утяжеляя модель.
-   for(let k=0;k<4;k++){
-     const a=seed+k*Math.PI*.5;
-     const branch=new THREE.Mesh(new THREE.ConeGeometry(h*.075,h*.28,6),gwPineB);
-     branch.position.set(Math.cos(a)*h*.12,h*.34,Math.sin(a)*h*.12);
-     branch.rotation.z=Math.cos(a)*-.42;branch.rotation.x=Math.sin(a)*.42;g.add(branch);
+   // Тонкие боковые ветви под кроной добавляют объёмный контур.
+   for(let k=0;k<8;k++){
+     const a=seed+k*Math.PI/4;
+     const branch=new THREE.Mesh(new THREE.ConeGeometry(h*.052,h*.24,7),k%2?gwPineB:gwPineA);
+     branch.position.set(Math.cos(a)*h*.13,h*(.28+(k%3)*.085),Math.sin(a)*h*.13);
+     branch.rotation.z=Math.cos(a)*-.48;branch.rotation.x=Math.sin(a)*.48;g.add(branch);
    }
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
  function gwAddBlossom(x,z,h,seed=0,baseY=0){
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
-   trunk.position.y=h*.34;trunk.scale.set(.52,h*.68,.52);g.add(trunk);
-   for(let k=0;k<6;k++){
-     const a=seed+k*Math.PI*2/6;
-     const branch=new THREE.Mesh(new THREE.CylinderGeometry(.035,.065,h*.25,6),gwBark);
-     branch.position.set(Math.cos(a)*h*.2,h*.66,Math.sin(a)*h*.2);
-     branch.rotation.z=Math.cos(a)*-.62;branch.rotation.x=Math.sin(a)*.62;g.add(branch);
+   trunk.position.y=h*.35;trunk.scale.set(.56,h*.7,.56);g.add(trunk);
+   // Разветвлённый ствол и видимые боковые ветви формируют силуэт цветущего дерева.
+   for(let k=0;k<7;k++){
+     const a=seed+k*Math.PI*2/7;
+     const branch=new THREE.Mesh(new THREE.CylinderGeometry(.035,.075,h*.29,7),gwBark);
+     branch.position.set(Math.cos(a)*h*.22,h*(.58+(k%2)*.06),Math.sin(a)*h*.22);
+     branch.rotation.z=Math.cos(a)*-.67;branch.rotation.x=Math.sin(a)*.67;g.add(branch);
    }
-   // Многослойная крона из отдельных цветочных кластеров вместо простого шара.
-   const crownColors=[gwPinkA,gwPinkB,gwPinkC,gwLeaf,gwPinkB,gwPinkA,gwPinkC];
-   for(let k=0;k<13;k++){
-     const a=k*Math.PI*2/9+seed+(k%3)*.17;
-     const ring=k<9?1:0;
-     const rad=ring?h*.205:0;
-     const crown=new THREE.Mesh(gwCrownGeo,crownColors[(k*3+Math.floor(seed*2))%crownColors.length]);
-     crown.position.set(Math.cos(a)*rad,h*(ring?.78+(k%3)*.025:.82),Math.sin(a)*rad);
-     const size=h*(ring?.145:.17);
-     crown.scale.set(size*(.92+(k%2)*.12),size*.82,size*(.9+(k%3)*.06));
-     g.add(crown);
+   // Крона из отдельных розовых и светлых соцветий, не из одного гладкого шара.
+   const petals=[gwPinkA,gwPinkB,gwPinkC,gwLeaf,gwPinkB,gwPinkA,gwPinkC];
+   for(let k=0;k<19;k++){
+     const ring=k<12?1:2;
+     const a=k*2.399963+seed;
+     const rad=ring===1?h*(.19+(k%3)*.018):h*.085;
+     const bloom=new THREE.Mesh(gwCrownGeo,petals[(k*5+Math.floor(seed*3))%petals.length]);
+     bloom.position.set(Math.cos(a)*rad,h*(.73+(k%4)*.035),Math.sin(a)*rad);
+     const size=h*(ring===1?.135:.15);
+     bloom.scale.set(size*(.9+(k%3)*.12),size*(.82+(k%2)*.1),size*(.92+(k%4)*.035));
+     g.add(bloom);
    }
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
