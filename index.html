@@ -4085,6 +4085,27 @@ function makeHouse(){
   manorRoofLine([manorRoofV(x,y,manorRoofFrontZ+.012),manorRoofV(x,y,manorRoofBackZ-.012)],.012,material);
   manorRoofLine([manorRoofV(-x,y,manorRoofFrontZ+.012),manorRoofV(-x,y,manorRoofBackZ-.012)],.012,material);
  }
+ // Небольшие смещённые стыки формируют рисунок отдельных сланцевых плиток,
+ // не меняя контур, уклон, высоту или размеры двух скатов.
+ const shingleSeamPositions=[];
+ for(const side of [-1,1]){
+  for(let row=0;row<12;row++){
+   const t0=row/12,t1=(row+1)/12;
+   const x0=manorRoofHalf*t0+.025,x1=manorRoofHalf*t1-.025;
+   const y0=manorRoofPeakY+(manorRoofEaveY-manorRoofPeakY)*t0;
+   const y1=manorRoofPeakY+(manorRoofEaveY-manorRoofPeakY)*t1;
+   for(let col=0;col<12;col++){
+    const stagger=(row%2)*.5/12;
+    const z=manorRoofFrontZ-(manorRoofFrontZ-manorRoofBackZ)*(col/12+stagger);
+    if(z<manorRoofBackZ+.08)continue;
+    shingleSeamPositions.push(side*x0,y0+.018,z,side*x1,y1+.018,z);
+   }
+  }
+ }
+ const shingleSeamGeometry=new THREE.BufferGeometry();
+ shingleSeamGeometry.setAttribute('position',new THREE.Float32BufferAttribute(shingleSeamPositions,3));
+ const shingleSeams=new THREE.LineSegments(shingleSeamGeometry,new THREE.LineBasicMaterial({color:0x1d344e,transparent:true,opacity:.42}));
+ shingleSeams.castShadow=false;shingleSeams.receiveShadow=false;center.add(shingleSeams);
  // Тонкие вертикальные фальцы разбивают сланец на аккуратные панели.
  for(let seam=1;seam<=10;seam++){
   const z=manorRoofFrontZ-(manorRoofFrontZ-manorRoofBackZ)*seam/11;
