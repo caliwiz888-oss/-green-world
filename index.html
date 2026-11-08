@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-335000';
+const GREEN_WORLD_BUILD_ID = '20261108-336000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -551,6 +551,15 @@ const surfaceMaps={
  wood:makeSurfaceTexture('wood',51),
  roof:makeSurfaceTexture('roof',67)
 };
+// Масштабируем зерно по площади объектов: мелкие детали не растягиваются на весь двор.
+surfaceMaps.grass.wrapS=surfaceMaps.grass.wrapT=THREE.RepeatWrapping;
+surfaceMaps.grass.repeat.set(12,12);
+surfaceMaps.stone.wrapS=surfaceMaps.stone.wrapT=THREE.RepeatWrapping;
+surfaceMaps.stone.repeat.set(3,3);
+surfaceMaps.path.wrapS=surfaceMaps.path.wrapT=THREE.RepeatWrapping;
+surfaceMaps.path.repeat.set(3,3);
+surfaceMaps.soil.wrapS=surfaceMaps.soil.wrapT=THREE.RepeatWrapping;
+surfaceMaps.soil.repeat.set(3,3);
 // Естественная микрофактура теперь применяется и к газону, и к бежевому мощению.
 M.soil.map=surfaceMaps.soil;
 M.stone.map=surfaceMaps.stone;M.stone2.map=surfaceMaps.stone;
