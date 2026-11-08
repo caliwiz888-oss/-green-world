@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-370000';
+const GREEN_WORLD_BUILD_ID = '20261108-371000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2534,12 +2534,7 @@ function makeWorldDecor(){
   }
   // Гранитная дорога непрерывно проходит через арочный въезд и продолжается за пределы забора.
   addRoadGranite(9,50,-1.64,-9.72,.41,.565,.39,.535,()=>.1475,'x');
-  // Поперечная дорога выложена теми же камнями, без смены материала или рисунка.
-  // Главная дорога проходит через перекрёсток непрерывно.
-  // Плитки поперечной дороги, пересекающие ширину главной дороги, исключены из геометрии:
-  // поверхности больше не накладываются и не создают Z-fighting на мобильном depth buffer.
-  // Плитки подходят вплотную к краю главной дороги; их нижний уровень скрывает узкое перекрытие под главным полотном.
-  addRoadGranite(67,3,-13.95,-5.115,.45,.565,.428,.535,()=>.1425,'x',(x,z)=>Math.abs(x)<1.84);
+  // Поперечная дорога удалена; главная дорога сохранена непрерывной.
   // Тёмный контур и каменные бордюры подчёркивают геометрию всех основных дорожек.
   // Единый матовый материал окантовки без dithering: чёткий тёмный край без зернистого размытия.
   const roadEdgeMat=new THREE.MeshBasicMaterial({color:0x55483b,toneMapped:false});
@@ -2560,18 +2555,7 @@ function makeWorldDecor(){
   rightRoadBorder.position.x=1.965;
   rightRoadBorder.scale.x=-1;
   world.add(rightRoadBorder);
-  // Поперечные ряды смещаются вдоль дороги, а не поперёк: обе внешние кромки остаются строго прямыми.
-  // Чёрные полосы вынесены за точные границы плитки и не оказываются под брусчаткой.
-  // Два плеча с каждой стороны заканчиваются точно у внешних граней бордюров главной дороги.
-  const crossRoadEdgeSegments=[[-14.0,-2.06],[2.06,16.5]];
-  const crossRoadEdgeZ=[-5.46,-3.64];
-  for(const z of crossRoadEdgeZ){
-    for(const [x0,x1] of crossRoadEdgeSegments){
-      const length=x1-x0,center=(x0+x1)*.5;
-      // Одна цельная коробчатая полоса на плечо: без коротких накладок и стыковочных щелей.
-      box(world,length,.04,.15,center,.205,z,roadEdgeMat,false);
-    }
-  }
+  // Поперечные бордюры удалены вместе с горизонтальной дорогой.
   // Каменный арочный мост продолжает главную дорогу по той же оси и без ступеньки.
   // Начало настила точно совпадает с последним рядом гранитной дороги: z=18.2225, y=0.1475.
   const bridgeStart=18.2225,bridgeEnd=26.1775,bridgeLength=bridgeEnd-bridgeStart;
@@ -4662,12 +4646,7 @@ function drawPlayer(){
   }catch(error){
    window.GREEN_WORLD_MARKET_MODEL='error';window.GREEN_WORLD_MARKET_ERROR=error?.message||String(error);throw error;
   }
-  try{
-   const factory=makeFactory();factory.name='green-world-warehouse-restored';buildingObjects.push(factory);
-   window.GREEN_WORLD_FACTORY_MODEL='restored';window.GREEN_WORLD_FACTORY_ERROR=null;
-  }catch(error){
-   window.GREEN_WORLD_FACTORY_MODEL='error';window.GREEN_WORLD_FACTORY_ERROR=error?.message||String(error);throw error;
-  }
+  // Завод удалён из игрового мира; остальные здания остаются без изменений.
  }
 }
 function applyPlayer(){$('login').style.display='none';try{drawPlayer()}catch(e){console.error('[render] World drawing failed:',e);$('login-error').textContent='Ошибка отображения мира: '+(e?.message||e)}}
