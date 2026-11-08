@@ -3857,15 +3857,15 @@ function makeHouse(){
  for(let row=0;row<=4;row++){
   const y=row*64,offset=row%2?0:32;
   const horizontal=manorBumpCtx.createLinearGradient(0,y-1,0,y+3);
-  horizontal.addColorStop(0,'rgba(55,55,55,.16)');
-  horizontal.addColorStop(.48,'rgba(75,75,75,.25)');
-  horizontal.addColorStop(1,'rgba(205,205,205,.13)');
+  horizontal.addColorStop(0,'rgba(45,38,30,.28)');
+  horizontal.addColorStop(.48,'rgba(65,55,43,.38)');
+  horizontal.addColorStop(1,'rgba(225,215,198,.24)');
   manorBumpCtx.fillStyle=horizontal;manorBumpCtx.fillRect(0,y-1,256,4);
   for(let x=offset;x<256;x+=64){
    const vertical=manorBumpCtx.createLinearGradient(x-1,0,x+3,0);
-   vertical.addColorStop(0,'rgba(55,55,55,.14)');
-   vertical.addColorStop(.5,'rgba(75,75,75,.22)');
-   vertical.addColorStop(1,'rgba(205,205,205,.12)');
+   vertical.addColorStop(0,'rgba(45,38,30,.26)');
+   vertical.addColorStop(.5,'rgba(65,55,43,.36)');
+   vertical.addColorStop(1,'rgba(225,215,198,.22)');
    manorBumpCtx.fillStyle=vertical;manorBumpCtx.fillRect(x-1,y+3,4,61);
   }
  }
@@ -3916,13 +3916,13 @@ function makeHouse(){
  for(const material of [stone,stoneDark]){
   material.bumpMap=manorDetailBump;
   material.roughnessMap=manorDetailRoughness;
-  material.bumpScale=.008;
+  material.bumpScale=.016;
   material.roughness=material===stone?.89:.91;
   material.needsUpdate=true;
  }
  const manorWallMaterial=new THREE.MeshStandardMaterial({
   color:0xffedda,map:manorWallTexture,bumpMap:manorWallBump,
-  roughnessMap:manorWallRoughness,bumpScale:.018,roughness:.91,metalness:0
+  roughnessMap:manorWallRoughness,bumpScale:.032,roughness:.91,metalness:0
  });
  // Для круглых башен используется та же кремовая кладка с масштабом по окружности.
  const towerWallTexture=manorWallTexture.clone();
@@ -3933,7 +3933,7 @@ function makeHouse(){
  towerWallRoughness.repeat.set(4,2.5);towerWallRoughness.needsUpdate=true;
  const towerWallMaterial=new THREE.MeshStandardMaterial({
   color:0xffedda,map:towerWallTexture,bumpMap:towerWallBump,
-  roughnessMap:towerWallRoughness,bumpScale:.019,roughness:.92,metalness:0
+  roughnessMap:towerWallRoughness,bumpScale:.030,roughness:.92,metalness:0
  });
  // Отдельная настройка материала только для уже существующих колонн:
  // та же кремовая кладка, но более мелкий масштаб фактуры на узком круглом стволе.
@@ -3945,7 +3945,7 @@ function makeHouse(){
  towerColumnRoughness.repeat.set(.9,1.45);towerColumnRoughness.needsUpdate=true;
  const towerColumnMaterial=new THREE.MeshStandardMaterial({
   color:0xfff5e6,map:towerColumnTexture,bumpMap:towerColumnBump,
-  roughnessMap:towerColumnRoughness,bumpScale:.016,roughness:.93,metalness:0
+  roughnessMap:towerColumnRoughness,bumpScale:.022,roughness:.93,metalness:0
  });
  // Центральный корпус, фронтон, окна, двери и вся отделка смещаются единым блоком назад;
  // башни с колоннами остаются на своих местах.
@@ -4149,11 +4149,11 @@ function makeHouse(){
  facadeTrimRoughness.repeat.set(.72,.72);facadeTrimRoughness.needsUpdate=true;
  const facadeStone=new THREE.MeshStandardMaterial({
   color:0xfff0d9,map:facadeTrimTexture,bumpMap:facadeTrimBump,
-  roughnessMap:facadeTrimRoughness,bumpScale:.012,roughness:.88
+  roughnessMap:facadeTrimRoughness,bumpScale:.022,roughness:.88
  });
  const facadeStoneShade=new THREE.MeshStandardMaterial({
   color:0xcbb896,map:facadeTrimTexture,bumpMap:facadeTrimBump,
-  roughnessMap:facadeTrimRoughness,bumpScale:.010,roughness:.91
+  roughnessMap:facadeTrimRoughness,bumpScale:.018,roughness:.91
  });
  function facadeArch(w,h,base=0){
   const r=w/2,straight=h-r,sh=new THREE.Shape();
