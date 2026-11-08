@@ -3780,6 +3780,22 @@ function makeHouse(){
    manorWallCtx.fillRect(left,y+3,right-left,60);
   }
  }
+ // Лёгкая природная неоднородность отдельных каменных блоков:
+ // небольшие полутоновые пятна делают кладку менее повторяющейся, не меняя её цвет.
+ for(let row=0;row<4;row++){
+  const y=row*64,offset=row%2?0:32;
+  for(let x=offset-64;x<256;x+=64){
+   const left=Math.max(0,x+3),right=Math.min(256,x+62);
+   if(right<=left)continue;
+   const tone=manorWallRand()>.5?'rgba(194,166,126,.035)':'rgba(255,250,235,.055)';
+   manorWallCtx.fillStyle=tone;
+   manorWallCtx.fillRect(left,y+7,right-left,45);
+   const fleckX=left+manorWallRand()*Math.max(1,right-left-5);
+   const fleckY=y+12+manorWallRand()*34;
+   manorWallCtx.fillStyle='rgba(137,116,86,.055)';
+   manorWallCtx.fillRect(fleckX,fleckY,3+manorWallRand()*5,1);
+  }
+ }
  // Тёплая кладка из светлого известняка: горизонтальные швы и перевязка блоков.
  // Рисунок мелкий и спокойный, чтобы фасад оставался кремовым как на эталоне.
  for(let row=0;row<=4;row++){
