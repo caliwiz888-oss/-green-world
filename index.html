@@ -3947,6 +3947,12 @@ function makeHouse(){
   box(center,.52,.34,.04,x,doorY+1.91,doorZ+.18,facadeWood2,false);
   box(center,.43,.045,.045,x,doorY+1.73,doorZ+.20,facadeGold,false);
   box(center,.43,.045,.045,x,doorY+2.08,doorZ+.20,facadeGold,false);
+  // Небольшая бронзово-золотая розетка в центре каждой верхней филёнки.
+  // Декор повторяется зеркально и не меняет размеры или геометрию двери.
+  const doorRosette=new THREE.Mesh(new THREE.TorusGeometry(.078,.012,8,28),facadeGold);
+  doorRosette.position.set(x,doorY+1.905,doorZ+.225);
+  doorRosette.castShadow=false;doorRosette.receiveShadow=false;center.add(doorRosette);
+  sphere(center,.026,x,doorY+1.905,doorZ+.232,facadeStoneShade,.9);
   sphere(center,.045,x,doorY+.91,doorZ+.245,facadeGold,.9);
   box(center,.035,.20,.035,x,doorY+.78,doorZ+.23,facadeGold,false);
   for(const yy of [doorY+.38,doorY+1.48])box(center,.055,.17,.06,side*.82,yy,doorZ+.14,facadeGold,false);
