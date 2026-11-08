@@ -4234,10 +4234,39 @@ function makeHouse(){
  // Главная крыша — точная архитектурная форма утверждённого эталона:
  // высокая двускатная сланцево-синяя кровля, фронтон обращён к фасаду,
  // конёк проходит вдоль дома в глубину; золотая окантовка только по рёбрам.
- const manorRoofBase=new THREE.MeshStandardMaterial({color:0x263f5b,roughness:.74,metalness:.08,side:THREE.DoubleSide});
- const manorRoofTileA=new THREE.MeshStandardMaterial({color:0x355675,roughness:.68,metalness:.08});
- const manorRoofTileB=new THREE.MeshStandardMaterial({color:0x294662,roughness:.74,metalness:.07});
- const manorRoofSeam=new THREE.MeshStandardMaterial({color:0x1d344e,roughness:.72,metalness:.10});
+ // Отдельная микрофактура натурального сланца: мелкие минеральные зёрна и
+ // едва заметные слоистые прожилки усиливают реакцию кровли на свет без изменения геометрии.
+ const slateReliefCanvas=document.createElement('canvas');
+ slateReliefCanvas.width=256;slateReliefCanvas.height=256;
+ const slateReliefCtx=slateReliefCanvas.getContext('2d');
+ const slateReliefImage=slateReliefCtx.createImageData(256,256);
+ let slateReliefSeed=91827;
+ const slateReliefRand=()=>{slateReliefSeed=(slateReliefSeed*1664525+1013904223)>>>0;return slateReliefSeed/4294967296};
+ for(let y=0;y<256;y++)for(let x=0;x<256;x++){
+  const p=(y*256+x)*4;
+  const grain=(slateReliefRand()-.5)*42+Math.sin(y*.31+x*.045)*5+Math.sin(y*.075-x*.11)*3;
+  const v=Math.max(0,Math.min(255,128+grain));
+  slateReliefImage.data[p]=slateReliefImage.data[p+1]=slateReliefImage.data[p+2]=v;
+  slateReliefImage.data[p+3]=255;
+ }
+ slateReliefCtx.putImageData(slateReliefImage,0,0);
+ for(let y=18;y<256;y+=38){
+  const seamShade=slateReliefCtx.createLinearGradient(0,y-2,0,y+3);
+  seamShade.addColorStop(0,'rgba(35,48,62,.18)');
+  seamShade.addColorStop(.5,'rgba(235,241,245,.10)');
+  seamShade.addColorStop(1,'rgba(35,48,62,.12)');
+  slateReliefCtx.fillStyle=seamShade;slateReliefCtx.fillRect(0,y-2,256,5);
+ }
+ const slateReliefTexture=new THREE.CanvasTexture(slateReliefCanvas);
+ slateReliefTexture.colorSpace=THREE.NoColorSpace;
+ slateReliefTexture.wrapS=slateReliefTexture.wrapT=THREE.RepeatWrapping;
+ slateReliefTexture.repeat.set(2,2);
+ slateReliefTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ slateReliefTexture.needsUpdate=true;
+ const manorRoofBase=new THREE.MeshStandardMaterial({color:0x263f5b,roughness:.74,metalness:.08,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.012,side:THREE.DoubleSide});
+ const manorRoofTileA=new THREE.MeshStandardMaterial({color:0x355675,roughness:.68,metalness:.08,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.009});
+ const manorRoofTileB=new THREE.MeshStandardMaterial({color:0x294662,roughness:.74,metalness:.07,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.009});
+ const manorRoofSeam=new THREE.MeshStandardMaterial({color:0x1d344e,roughness:.72,metalness:.10,bumpMap:slateReliefTexture,bumpScale:.006});
  const manorRoofGold=new THREE.MeshStandardMaterial({color:0xc9a04e,roughness:.34,metalness:.68});
  const manorRoofHalf=3.38,manorRoofEaveY=4.48,manorRoofPeakY=6.08;
  const manorRoofFrontZ=2.42,manorRoofBackZ=-2.48;
