@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-203500';
+const GREEN_WORLD_BUILD_ID = '20261108-211500';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3831,102 +3831,128 @@ function makeHouse(){
   box(center,w+.28,.09,.32,x,y+h+.04,z+.08,stone);
   box(center,w+.20,.045,.34,x,y+h+.12,z+.08,gold);
  }
- // Парадный фасад: резная дубовая дверь, два арочных окна и отдельный козырёк
- // в сланцево-синей и золотой палитре главной крыши.
+ // Парадный фасад в едином классическом стиле усадьбы:
+ // высокая двустворчатая дверь, вытянутые арочные окна и каменный портик.
  const facadeGold=new THREE.MeshStandardMaterial({color:0xd9b15f,roughness:.3,metalness:.82});
- const facadeBronze=new THREE.MeshStandardMaterial({color:0x493326,roughness:.48,metalness:.34});
- const facadeWood=new THREE.MeshStandardMaterial({color:0x56351f,roughness:.62,metalness:.04});
- const facadeWoodLight=new THREE.MeshStandardMaterial({color:0x805333,roughness:.56,metalness:.05});
- const facadeGlass=new THREE.MeshStandardMaterial({color:0x39b9c2,roughness:.2,metalness:.18,transparent:true,opacity:.88,side:THREE.DoubleSide});
+ const facadeBronze=new THREE.MeshStandardMaterial({color:0x493326,roughness:.46,metalness:.38});
+ const facadeWood=new THREE.MeshStandardMaterial({color:0x3e3028,roughness:.56,metalness:.08});
+ const facadeWood2=new THREE.MeshStandardMaterial({color:0x634735,roughness:.55,metalness:.06});
+ const facadeGlass=new THREE.MeshStandardMaterial({color:0x35b9c1,roughness:.18,metalness:.22,transparent:true,opacity:.9,side:THREE.DoubleSide});
  const facadeStone=new THREE.MeshStandardMaterial({color:0xfff0d9,roughness:.86});
- function facadeArchShape(w,h,base=0){
-  const r=w/2,straight=h-r,shape=new THREE.Shape();
-  shape.moveTo(-r,base);shape.lineTo(-r,base+straight);
-  shape.absarc(0,base+straight,r,Math.PI,0,true);
-  shape.lineTo(r,base);shape.closePath();return shape;
+ const facadeStoneShade=new THREE.MeshStandardMaterial({color:0xcbb896,roughness:.9});
+ function facadeArch(w,h,base=0){
+  const r=w/2,straight=h-r,sh=new THREE.Shape();
+  sh.moveTo(-r,base);sh.lineTo(-r,base+straight);
+  sh.absarc(0,base+straight,r,Math.PI,0,true);
+  sh.lineTo(r,base);sh.closePath();return sh;
  }
- // Центральная дверь с каменным архивольтом и бронзовым контуром.
- const doorW=1.34,doorH=2.34,doorY=.56,doorZ=2.69;
- const doorOuter=facadeArchShape(doorW+.34,doorH+.22,-.06);
- const doorSurround=new THREE.Mesh(new THREE.ExtrudeGeometry(doorOuter,{depth:.13,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.035,bevelThickness:.025}),facadeStone);
- doorSurround.position.set(0,doorY,doorZ-.12);doorSurround.castShadow=true;center.add(doorSurround);
- const doorShape=facadeArchShape(doorW,doorH,.025);
- const doorLeaf=new THREE.Mesh(new THREE.ExtrudeGeometry(doorShape,{depth:.10,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.018,bevelThickness:.015}),facadeWood);
- doorLeaf.position.set(0,doorY,doorZ+.025);doorLeaf.castShadow=true;center.add(doorLeaf);
- // Две филёнки повторяют арочную форму полотна.
- for(const side of [-1,1]){
-  box(center,.48,1.03,.035,side*.32,doorY+.73,doorZ+.145,facadeWoodLight,false);
-  box(center,.40,.055,.045,side*.32,doorY+.20,doorZ+.15,facadeGold,false);
-  box(center,.40,.055,.045,side*.32,doorY+1.25,doorZ+.15,facadeGold,false);
-  box(center,.045,.98,.045,side*.32,doorY+.73,doorZ+.15,facadeGold,false);
- }
- // Арочная верхняя филёнка и декоративная бронзовая розетка.
- const doorArchInset=facadeArchShape(.82,.66,1.55);
- const doorArchMesh=new THREE.Mesh(new THREE.ShapeGeometry(doorArchInset),facadeWoodLight);
- doorArchMesh.position.set(0,doorY,doorZ+.151);center.add(doorArchMesh);
- sphere(center,.075,0,doorY+1.89,doorZ+.17,facadeGold,.9);
- // Ручки, замочная накладка и петли.
- sphere(center,.055,.43,doorY+.94,doorZ+.19,facadeGold,.9);
- box(center,.045,.24,.035,.43,doorY+.79,doorZ+.18,facadeGold,false);
- for(const side of [-1,1])for(const yy of [doorY+.48,doorY+1.72]){
-  box(center,.055,.16,.07,side*.66,yy,doorZ+.12,facadeGold,false);
- }
- // Два одинаковых арочных окна с бирюзовым стеклом по сторонам входа.
- for(const x of [-2.02,2.02]){
-  const w=.94,h=1.55,y=1.35,z=2.66;
-  const surroundShape=facadeArchShape(w+.22,h+.18,-.045);
-  const surround=new THREE.Mesh(new THREE.ExtrudeGeometry(surroundShape,{depth:.10,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.025,bevelThickness:.018}),facadeStone);
+ function facadeFrame(x,y,z,w,h,glassMat=facadeGlass){
+  const surround=new THREE.Mesh(new THREE.ExtrudeGeometry(facadeArch(w+.30,h+.22,-.05),{depth:.13,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.025,bevelThickness:.02}),facadeStone);
   surround.position.set(x,y,z-.10);surround.castShadow=true;center.add(surround);
-  const frameShape=facadeArchShape(w,h,0);
-  const frame=new THREE.Mesh(new THREE.ExtrudeGeometry(frameShape,{depth:.075,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.018,bevelThickness:.015}),facadeBronze);
-  frame.position.set(x,y,z+.015);center.add(frame);
-  const glassShape=facadeArchShape(w-.16,h-.14,.07);
-  const glass=new THREE.Mesh(new THREE.ShapeGeometry(glassShape),facadeGlass);
-  glass.position.set(x,y,z+.105);center.add(glass);
-  box(center,.045,1.18,.045,x,y+.68,z+.13,facadeGold,false);
-  box(center,.72,.045,.045,x,y+.66,z+.13,facadeGold,false);
-  box(center,1.12,.10,.26,x,y-.07,z+.07,cream,false);
-  box(center,1.08,.045,.28,x,y-.01,z+.10,facadeGold,false);
-  // Каменный замковый камень над аркой.
-  box(center,.16,.20,.10,x,y+1.47,z+.04,cream,false);
+  const bronzeFrame=new THREE.Mesh(new THREE.ExtrudeGeometry(facadeArch(w,h,0),{depth:.075,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.018,bevelThickness:.015}),facadeBronze);
+  bronzeFrame.position.set(x,y,z+.035);center.add(bronzeFrame);
+  const pane=new THREE.Mesh(new THREE.ShapeGeometry(facadeArch(w-.15,h-.14,.07)),glassMat);
+  pane.position.set(x,y,z+.125);center.add(pane);
+  // Центральный вертикальный импост и две горизонтальные перемычки.
+  box(center,.045,h-.28,.045,x,y+h*.43,z+.15,facadeGold,false);
+  box(center,w-.20,.045,.045,x,y+h*.42,z+.15,facadeGold,false);
+  box(center,w-.20,.045,.045,x,y+h*.70,z+.15,facadeGold,false);
+  // Выступающий подоконник, карниз и замковый камень.
+  box(center,w+.42,.14,.34,x,y-.08,z+.06,facadeStone,false);
+  box(center,w+.34,.055,.36,x,y-.005,z+.10,facadeGold,false);
+  box(center,w+.34,.13,.24,x,y+h+.10,z+.035,facadeStoneShade,false);
+  box(center,.20,.24,.13,x,y+h-.12,z+.09,facadeStone,false);
  }
- // Козырёк — миниатюрная двускатная кровля с золотыми рёбрами,
- // повторяющая геометрию и материалы главной крыши.
- const awningBaseY=3.13,awningPeakY=3.52,awningHalf=1.12,awningFrontZ=3.30,awningBackZ=2.43;
- const awningBlue=new THREE.MeshStandardMaterial({color:0x29445f,roughness:.66,metalness:.12,side:THREE.DoubleSide});
- const awningTile=new THREE.MeshStandardMaterial({color:0x385b78,roughness:.62,metalness:.10});
- const awningGold=new THREE.MeshStandardMaterial({color:0xc9a04e,roughness:.32,metalness:.72});
- function awningPlane(points,material){
+ // Парадный портал: широкая двустворчатая дверь с высокой арочной фрамугой.
+ const doorX=0,doorY=.53,doorZ=2.70,doorW=1.72,doorH=2.48;
+ const portal=new THREE.Mesh(new THREE.ExtrudeGeometry(facadeArch(doorW+.48,doorH+.30,-.08),{depth:.16,bevelEnabled:true,bevelSegments:4,steps:1,bevelSize:.035,bevelThickness:.025}),facadeStone);
+ portal.position.set(doorX,doorY,doorZ-.13);portal.castShadow=true;center.add(portal);
+ const door=new THREE.Mesh(new THREE.ExtrudeGeometry(facadeArch(doorW,doorH,.02),{depth:.11,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.02,bevelThickness:.018}),facadeWood);
+ door.position.set(doorX,doorY,doorZ+.025);door.castShadow=true;center.add(door);
+ // Две створки с глубокими филёнками и тонкой бронзовой окантовкой.
+ for(const side of [-1,1]){
+  const x=side*.43;
+  box(center,.62,1.42,.045,x,doorY+.83,doorZ+.16,facadeWood2,false);
+  box(center,.54,1.32,.035,x,doorY+.83,doorZ+.19,facadeWood,false);
+  box(center,.52,.055,.045,x,doorY+.17,doorZ+.20,facadeGold,false);
+  box(center,.52,.055,.045,x,doorY+1.48,doorZ+.20,facadeGold,false);
+  box(center,.055,1.28,.045,x-.26,doorY+.83,doorZ+.20,facadeGold,false);
+  box(center,.055,1.28,.045,x+.26,doorY+.83,doorZ+.20,facadeGold,false);
+  // Верхняя резная панель каждой створки.
+  box(center,.52,.34,.04,x,doorY+1.91,doorZ+.18,facadeWood2,false);
+  box(center,.43,.045,.045,x,doorY+1.73,doorZ+.20,facadeGold,false);
+  box(center,.43,.045,.045,x,doorY+2.08,doorZ+.20,facadeGold,false);
+  sphere(center,.045,x,doorY+.91,doorZ+.245,facadeGold,.9);
+  box(center,.035,.20,.035,x,doorY+.78,doorZ+.23,facadeGold,false);
+  for(const yy of [doorY+.38,doorY+1.48])box(center,.055,.17,.06,side*.82,yy,doorZ+.14,facadeGold,false);
+ }
+ // Полукруглая остеклённая фрамуга над дверью.
+ const transomShape=new THREE.Shape();
+ transomShape.moveTo(-.78,0);transomShape.lineTo(-.78,.34);
+ transomShape.absarc(0,.34,.78,Math.PI,0,true);transomShape.lineTo(.78,0);transomShape.closePath();
+ const transom=new THREE.Mesh(new THREE.ShapeGeometry(transomShape),facadeGlass);
+ transom.position.set(0,doorY+doorH-.02,doorZ+.16);center.add(transom);
+ for(let k=-2;k<=2;k++){
+  const x=k*.29;
+  const line=new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(new THREE.Vector3(x,doorY+doorH,doorZ+.18),new THREE.Vector3(x*.72,doorY+doorH+.32,doorZ+.18)),8,.018,6,false),facadeGold);
+  center.add(line);
+ }
+ // Парные вытянутые окна с арочным завершением и строгим вертикальным членением.
+ facadeFrame(-2.12,1.30,2.68,1.02,1.82);
+ facadeFrame( 2.12,1.30,2.68,1.02,1.82);
+ // Пилястры по сторонам портала визуально связывают дверь с каменной архитектурой.
+ for(const x of [-1.18,1.18]){
+  box(center,.20,2.70,.22,x,1.88,2.73,facadeStone,false);
+  box(center,.30,.16,.30,x,.62,2.74,facadeStoneShade,false);
+  box(center,.34,.12,.32,x,3.18,2.74,facadeGold,false);
+  box(center,.32,.14,.30,x,3.29,2.74,facadeStone,false);
+ }
+ // Вместо лёгкого навеса — небольшой классический каменный портик,
+ // с низкой двускатной сланцевой кровлей и двумя опорными колоннами.
+ const porticoBlue=new THREE.MeshStandardMaterial({color:0x29445f,roughness:.68,metalness:.10,side:THREE.DoubleSide});
+ const porticoTile=new THREE.MeshStandardMaterial({color:0x385775,roughness:.65,metalness:.08});
+ const porticoGold=new THREE.MeshStandardMaterial({color:0xc9a04e,roughness:.32,metalness:.7});
+ const px=1.48,pz=3.42,py=3.42,pr=4.00;
+ function porticoPanel(points,material){
   const geo=new THREE.BufferGeometry();
   geo.setAttribute('position',new THREE.Float32BufferAttribute(points.flatMap(v=>[v.x,v.y,v.z]),3));
   geo.setIndex([0,1,2,0,2,3]);geo.computeVertexNormals();
   const mesh=new THREE.Mesh(geo,material);mesh.castShadow=true;mesh.receiveShadow=true;center.add(mesh);
  }
- function awningLine(points,radius,material){
-  const mesh=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),28,radius,7,false),material);
+ function porticoLine(points,r,material){
+  const mesh=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),24,r,7,false),material);
   mesh.castShadow=false;mesh.receiveShadow=false;center.add(mesh);
  }
- const av=(x,y,z)=>new THREE.Vector3(x,y,z);
- awningPlane([av(0,awningPeakY,awningFrontZ),av(awningHalf,awningBaseY,awningFrontZ),av(awningHalf,awningBaseY,awningBackZ),av(0,awningPeakY,awningBackZ)],awningBlue);
- awningPlane([av(-awningHalf,awningBaseY,awningFrontZ),av(0,awningPeakY,awningFrontZ),av(0,awningPeakY,awningBackZ),av(-awningHalf,awningBaseY,awningBackZ)],awningBlue);
- for(let row=1;row<=5;row++){
-  const t=row/6,x=awningHalf*t,y=awningPeakY+(awningBaseY-awningPeakY)*t;
-  awningLine([av(x,y,awningFrontZ+.012),av(x,y,awningBackZ-.012)],.012,awningTile);
-  awningLine([av(-x,y,awningFrontZ+.012),av(-x,y,awningBackZ-.012)],.012,awningTile);
+ const pv=(x,y,z)=>new THREE.Vector3(x,y,z);
+ porticoPanel([pv(0,pr,pz),pv(px,py,pz),pv(px,py,2.48),pv(0,pr,2.48)],porticoBlue);
+ porticoPanel([pv(-px,py,pz),pv(0,pr,pz),pv(0,pr,2.48),pv(-px,py,2.48)],porticoBlue);
+ for(let i=1;i<=5;i++){
+  const t=i/6,x=px*t,y=pr+(py-pr)*t;
+  porticoLine([pv(x,y,pz+.012),pv(x,y,2.48)],.012,porticoTile);
+  porticoLine([pv(-x,y,pz+.012),pv(-x,y,2.48)],.012,porticoTile);
  }
- awningLine([av(-awningHalf,awningBaseY,awningFrontZ),av(0,awningPeakY,awningFrontZ)],.027,awningGold);
- awningLine([av(awningHalf,awningBaseY,awningFrontZ),av(0,awningPeakY,awningFrontZ)],.027,awningGold);
- awningLine([av(-awningHalf,awningBaseY,awningFrontZ),av(-awningHalf,awningBaseY,awningBackZ)],.03,awningGold);
- awningLine([av(awningHalf,awningBaseY,awningFrontZ),av(awningHalf,awningBaseY,awningBackZ)],.03,awningGold);
- awningLine([av(0,awningPeakY,awningFrontZ),av(0,awningPeakY,awningBackZ)],.025,awningGold);
- // Два кованых кронштейна держат козырёк, не перекрывая дверь.
- for(const side of [-1,1]){
-  const x=side*.88;
-  awningLine([av(x,awningBaseY-.04,2.78),av(x,awningBaseY-.35,3.04),av(x,awningBaseY-.35,3.24)],.035,facadeGold);
-  sphere(center,.065,x,awningBaseY-.04,2.78,facadeGold,.9);
+ porticoLine([pv(-px,py,pz),pv(0,pr,pz)],.035,porticoGold);
+ porticoLine([pv(px,py,pz),pv(0,pr,pz)],.035,porticoGold);
+ porticoLine([pv(-px,py,pz),pv(-px,py,2.48)],.035,porticoGold);
+ porticoLine([pv(px,py,pz),pv(px,py,2.48)],.035,porticoGold);
+ porticoLine([pv(0,pr,pz),pv(0,pr,2.48)],.03,porticoGold);
+ // Капители и круглые каменные колонны по краям входа.
+ for(const x of [-1.28,1.28]){
+  cylinder(center,.17,.17,2.55,x,1.95,3.30,facadeStone,32);
+  cylinder(center,.25,.25,.16,x,.70,3.30,facadeStoneShade,32);
+  cylinder(center,.22,.22,.09,x,.83,3.30,facadeGold,32);
+  cylinder(center,.24,.24,.14,x,3.18,3.30,facadeStone,32);
+  cylinder(center,.29,.29,.10,x,3.29,3.30,facadeStoneShade,32);
+  cylinder(center,.32,.32,.08,x,3.38,3.30,facadeGold,32);
  }
- box(center,2.28,.10,.16,0,awningBaseY-.04,3.23,facadeStone,false);
-
+ // Фронтальная балка и декоративный треугольный каменный щипец портика.
+ box(center,3.18,.20,.22,0,3.39,3.39,facadeStone,false);
+ box(center,3.12,.055,.24,0,3.51,3.40,facadeGold,false);
+ const pedimentShape=new THREE.Shape();
+ pedimentShape.moveTo(-1.52,3.54);pedimentShape.lineTo(1.52,3.54);pedimentShape.lineTo(0,4.02);pedimentShape.closePath();
+ const pediment=new THREE.Mesh(new THREE.ExtrudeGeometry(pedimentShape,{depth:.13,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.018,bevelThickness:.012}),facadeStone);
+ pediment.position.z=3.37;pediment.castShadow=true;center.add(pediment);
+ sphere(center,.09,0,3.72,3.53,facadeGold,.9);
  // Парадная лестница с широкими каменными ступенями.
  for(let i=0;i<5;i++){
   box(center,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,cream);
