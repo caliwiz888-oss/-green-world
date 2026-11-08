@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-372000';
+const GREEN_WORLD_BUILD_ID = '20261108-372100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3702,7 +3702,13 @@ function drawPlayer(){
   }catch(error){
    window.GREEN_WORLD_MARKET_MODEL='error';window.GREEN_WORLD_MARKET_ERROR=error?.message||String(error);throw error;
   }
-  // Завод удалён из игрового мира; остальные здания остаются без изменений.
+  try{
+   const factory=makeFactory();factory.name='green-world-eco-factory';buildingObjects.push(factory);
+   window.GREEN_WORLD_FACTORY_MODEL='new-eco-industrial';window.GREEN_WORLD_FACTORY_ERROR=null;
+  }catch(error){
+   window.GREEN_WORLD_FACTORY_MODEL='error';window.GREEN_WORLD_FACTORY_ERROR=error?.message||String(error);throw error;
+  }
+
  }
 }
 function applyPlayer(){$('login').style.display='none';try{drawPlayer()}catch(e){console.error('[render] World drawing failed:',e);$('login-error').textContent='Ошибка отображения мира: '+(e?.message||e)}}
