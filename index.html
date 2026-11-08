@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-303000';
+const GREEN_WORLD_BUILD_ID = '20261108-304000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2948,6 +2948,9 @@ function makeWorldDecor(){
  const gwPinkA=new THREE.MeshPhysicalMaterial({color:0xffd9e7,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.13,.13),bumpMap:gwBloomBump,bumpScale:.008,roughness:.95,sheen:.38,sheenColor:0xffc7dc,sheenRoughness:.96});
  const gwPinkB=new THREE.MeshPhysicalMaterial({color:0xffb9d1,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwBloomBump,bumpScale:.009,roughness:.95,sheen:.42,sheenColor:0xffd2e2,sheenRoughness:.97});
  const gwPinkC=new THREE.MeshPhysicalMaterial({color:0xffedf3,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.12,.12),bumpMap:gwBloomBump,bumpScale:.007,roughness:.96,sheen:.34,sheenColor:0xffdce8,sheenRoughness:.96});
+ const gwAmberA=new THREE.MeshPhysicalMaterial({color:0xffb52e,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.13,.13),bumpMap:gwBloomBump,bumpScale:.008,roughness:.95,sheen:.38,sheenColor:0xffc45a,sheenRoughness:.96});
+ const gwAmberB=new THREE.MeshPhysicalMaterial({color:0xe88718,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwBloomBump,bumpScale:.009,roughness:.95,sheen:.42,sheenColor:0xffa52b,sheenRoughness:.97});
+ const gwAmberC=new THREE.MeshPhysicalMaterial({color:0xffd77b,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.12,.12),bumpMap:gwBloomBump,bumpScale:.007,roughness:.96,sheen:.34,sheenColor:0xffe3a0,sheenRoughness:.96});
  const gwLeaf=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,bumpMap:gwPineBump,bumpScale:.012,roughness:.97,sheen:.3,sheenColor:0x9bbd7b,sheenRoughness:.94});
  const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,56,24);
  const gwPineGeos=[new THREE.ConeGeometry(1,1,56,12),new THREE.ConeGeometry(.82,.92,56,12),new THREE.ConeGeometry(.63,.82,56,12)];
@@ -2992,7 +2995,7 @@ function makeWorldDecor(){
  }
  gwAddBarkRelief(gwTrunkGeo,.018);gwAddBarkRelief(gwBlossomBranchGeo,.022);gwAddBarkRelief(gwRootGeo,.026);
  function gwAddPine(){ return null; }
- function gwAddBlossom(x,z,h,seed=0,baseY=0){
+ function gwAddBlossom(x,z,h,seed=0,baseY=0,palette='pink'){
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
    gwAddTreeContactShadow(g,h,1.02);
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
@@ -3006,7 +3009,7 @@ function makeWorldDecor(){
      branch.rotation.z=Math.cos(a)*-.68;branch.rotation.x=Math.sin(a)*.68;g.add(branch);
    }
    // Крона цветущего дерева собрана из разнокалиберных групп с естественной асимметрией.
-   const petals=[gwPinkA,gwPinkB,gwPinkC,gwPinkB,gwPinkA,gwPinkC,gwPinkB];
+   const petals=palette==='amber'?[gwAmberA,gwAmberB,gwAmberC,gwAmberB,gwAmberA,gwAmberC,gwAmberB]:[gwPinkA,gwPinkB,gwPinkC,gwPinkB,gwPinkA,gwPinkC,gwPinkB];
    const bloomCount=52+Math.abs(Math.floor(seed*7))%13;
    for(let k=0;k<bloomCount;k++){
      const a=k*2.399963+seed;
@@ -3081,6 +3084,8 @@ function makeWorldDecor(){
     [-10.8,17.4,4.35,12],[10.9,17.8,4.5,18],[-19.0,8.2,4.3,23],[-19.4,-7.0,4.55,29],
     [20.8,6.5,4.4,34],[20.2,-11.5,4.5,41],[-11.5,-47.0,4.4,47],[0.8,-50.0,4.55,53],[12.0,-47.9,4.35,59]
   ])gwAddBlossom(x,z,h,seed,.08);
+  // Три янтарных дерева разбросаны в разных точках за задним ограждением.
+  for(const [x,z,h,seed] of [[-24.0,-43.5,4.45,67],[2.5,-56.0,4.55,73],[25.0,-46.5,4.4,81]])gwAddBlossom(x,z,h,seed,.08,'amber');
  // Редкий дополнительный ряд перенесён глубже к лесному фону, чтобы заполнить дальние просветы,
  // не создавать третью тесную полосу позади основных деревьев.
  for(let i=0;i<13;i++){
