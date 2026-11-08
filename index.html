@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-269000';
+const GREEN_WORLD_BUILD_ID = '20261108-270000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2934,6 +2934,24 @@ function makeWorldDecor(){
  const gwRootGeo=new THREE.CylinderGeometry(.008,.095,1,28,8);
  const gwBlossomBranchGeo=new THREE.CylinderGeometry(.012,.082,1,36,10);
  const gwSproutGeo=new THREE.ConeGeometry(.075,.28,12,3);
+ // Лёгкая органическая неровность уже существующих крон убирает идеально конусные и шарообразные контуры.
+ function gwSoftenTreeSilhouette(geo,amount,mode='cone'){
+   const p=geo.attributes.position;
+   for(let i=0;i<p.count;i++){
+     const x=p.getX(i),y=p.getY(i),z=p.getZ(i),angle=Math.atan2(z,x);
+     const wave=Math.sin(angle*3.1+y*10.7)*.48+Math.sin(angle*5.3-y*7.1)*.32+Math.sin(angle*8.2+y*3.7)*.20;
+     if(mode==='sphere'){
+       const r=1+amount*wave;p.setXYZ(i,x*r,y*(1+amount*.34*wave),z*r);
+     }else{
+       const r=1+amount*wave;p.setXYZ(i,x*r,y,z*r);
+     }
+   }
+   p.needsUpdate=true;geo.computeVertexNormals();
+ }
+ gwPineGeos.forEach(geo=>gwSoftenTreeSilhouette(geo,.026));
+ gwSoftenTreeSilhouette(gwCrownGeo,.035,'sphere');
+ gwSoftenTreeSilhouette(gwPineBoughGeo,.018);
+ gwSoftenTreeSilhouette(gwPineTwigGeo,.014);
  function gwAddPine(x,z,h,seed=0,baseY=0){
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
    gwAddTreeContactShadow(g,h,.88);
