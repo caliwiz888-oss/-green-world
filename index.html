@@ -3764,14 +3764,22 @@ function makeHouse(){
   manorWallImage.data[p+3]=255;
  }
  manorWallCtx.putImageData(manorWallImage,0,0);
- for(let y=32;y<256;y+=64){
-  manorWallCtx.fillStyle='rgba(125,105,78,.045)';manorWallCtx.fillRect(0,y,256,1);
-  manorWallCtx.fillStyle='rgba(255,250,235,.10)';manorWallCtx.fillRect(0,y+1,256,1);
+ // Тёплая кладка из светлого известняка: горизонтальные швы и перевязка блоков.
+ // Рисунок мелкий и спокойный, чтобы фасад оставался кремовым как на эталоне.
+ for(let row=0;row<=4;row++){
+  const y=row*64;
+  manorWallCtx.fillStyle='rgba(139,119,91,.24)';manorWallCtx.fillRect(0,y,256,2);
+  manorWallCtx.fillStyle='rgba(255,252,239,.42)';manorWallCtx.fillRect(0,y+2,256,1);
+  const offset=row%2?0:32;
+  for(let x=offset;x<256;x+=64){
+   manorWallCtx.fillStyle='rgba(139,119,91,.20)';manorWallCtx.fillRect(x,y+3,1,61);
+   manorWallCtx.fillStyle='rgba(255,252,239,.34)';manorWallCtx.fillRect(x+1,y+3,1,61);
+  }
  }
- for(let i=0;i<110;i++){
+ for(let i=0;i<180;i++){
   const x=manorWallRand()*256,y=manorWallRand()*256;
-  manorWallCtx.fillStyle=manorWallRand()>.5?'rgba(255,250,235,.11)':'rgba(116,98,75,.055)';
-  manorWallCtx.fillRect(x,y,1+manorWallRand()*2,1);
+  manorWallCtx.fillStyle=manorWallRand()>.5?'rgba(255,250,235,.12)':'rgba(116,98,75,.07)';
+  manorWallCtx.fillRect(x,y,1+manorWallRand()*2,1+manorWallRand()*2);
  }
  const manorWallTexture=new THREE.CanvasTexture(manorWallCanvas);
  manorWallTexture.colorSpace=THREE.SRGBColorSpace;
@@ -3782,6 +3790,15 @@ function makeHouse(){
  manorWallBump.colorSpace=THREE.NoColorSpace;manorWallBump.needsUpdate=true;
  const manorWallMaterial=new THREE.MeshStandardMaterial({
   color:0xfff5e6,map:manorWallTexture,bumpMap:manorWallBump,
+  bumpScale:.012,roughness:.96,metalness:0
+ });
+ // Для круглых башен используется та же кремовая кладка с масштабом по окружности.
+ const towerWallTexture=manorWallTexture.clone();
+ towerWallTexture.repeat.set(4,2.5);towerWallTexture.needsUpdate=true;
+ const towerWallBump=manorWallBump.clone();
+ towerWallBump.repeat.set(4,2.5);towerWallBump.needsUpdate=true;
+ const towerWallMaterial=new THREE.MeshStandardMaterial({
+  color:0xfff5e6,map:towerWallTexture,bumpMap:towerWallBump,
   bumpScale:.012,roughness:.96,metalness:0
  });
  // Центральный корпус, фронтон, окна, двери и вся отделка смещаются единым блоком назад;
@@ -3804,11 +3821,11 @@ function makeHouse(){
  // Главный объём не плоский прямоугольник: центральный ризалит выступает вперёд,
  // а боковые части имеют собственные каменные пояса и глубокие оконные ниши.
  box(center,6.62,3.82,4.48,0,2.42,-.08,manorWallMaterial);
- box(center,6.98,3.55,.34,0,2.48,2.18,cream);
- box(center,2.00,3.48,.40,-2.00,2.40,2.14,stone);
- box(center,2.00,3.48,.40,2.00,2.40,2.14,stone);
- box(center,1.78,3.35,.18,-2.00,2.42,2.26,ivory);
- box(center,1.78,3.35,.18,2.00,2.42,2.26,ivory);
+ box(center,6.98,3.55,.34,0,2.48,2.18,manorWallMaterial);
+ box(center,2.00,3.48,.40,-2.00,2.40,2.14,manorWallMaterial);
+ box(center,2.00,3.48,.40,2.00,2.40,2.14,manorWallMaterial);
+ box(center,1.78,3.35,.18,-2.00,2.42,2.26,manorWallMaterial);
+ box(center,1.78,3.35,.18,2.00,2.42,2.26,manorWallMaterial);
  // Цокольные тяги и широкий профилированный карниз под кровлей.
  for(const y of [.64,.78,4.13,4.28]){
   box(center,7.08,.09,.38,0,y,2.25,y===.64?stone:cream);
@@ -4224,7 +4241,7 @@ function makeHouse(){
   cylinder(t,1.09,1.04,.14,0,.25,0,cream,n);
   cylinder(t,1.06,1.04,.12,0,.37,0,gold,n);
   // Основной круглый каменный объём башни.
-  cylinder(t,1.04,1.00,4.70,0,2.70,0,ivory,n);
+  cylinder(t,1.04,1.00,4.70,0,2.70,0,towerWallMaterial,n);
   // Горизонтальные тяги делят корпус на два архитектурных яруса.
   for(const [y,r,h,m] of [
    [.58,1.07,.10,stone],[.70,1.10,.07,cream],
