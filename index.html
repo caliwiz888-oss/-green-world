@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-264000';
+const GREEN_WORLD_BUILD_ID = '20261108-265000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2851,20 +2851,20 @@ function makeWorldDecor(){
      q.fillStyle='#286b48';q.fillRect(0,0,size,size);
      for(let i=0;i<19000;i++){
        const x=(i*197)%size,y=(i*313)%size;
-       q.fillStyle=i%3===0?'rgba(164,205,133,.34)':i%3===1?'rgba(24,78,48,.14)':'rgba(78,145,88,.28)';
+       q.fillStyle=i%3===0?'rgba(190,220,153,.30)':i%3===1?'rgba(112,164,91,.16)':'rgba(145,190,119,.24)';
        q.beginPath();q.ellipse(x,y,1+(i%5),1+(i%4),((i%7)-3)*.15,0,Math.PI*2);q.fill();
      }
      // Направленные группы иголок добавляют хвое тонкую объёмную фактуру.
      for(let i=0;i<1800;i++){
        const x=(i*157+31)%size,y=(i*239+71)%size;
-       q.strokeStyle=i%3===0?'rgba(205,231,166,.38)':'rgba(31,91,55,.12)';
+       q.strokeStyle=i%3===0?'rgba(205,231,166,.34)':'rgba(112,164,91,.14)';
        q.lineWidth=.8+(i%3)*.35;q.beginPath();
        q.moveTo(x,y);q.lineTo(x+3+(i%5),y-2-(i%4));q.stroke();
      }
      // Мелкие иголки и редкие светлые кончики хвои создают тонкую неоднородную фактуру.
      for(let i=0;i<12000;i++){
        const x=(i*283+17)%size,y=(i*421+29)%size,len=2+(i%8);
-       q.strokeStyle=i%4===0?'rgba(196,225,151,.28)':'rgba(34,94,57,.11)';
+       q.strokeStyle=i%4===0?'rgba(204,229,163,.27)':'rgba(119,170,98,.13)';
        q.lineWidth=.55+(i%3)*.35;q.beginPath();q.moveTo(x,y);
        q.lineTo(x+len*.45,y-len*.3);q.stroke();
      }
@@ -2910,20 +2910,20 @@ function makeWorldDecor(){
    shadow.renderOrder=1;shadow.castShadow=false;shadow.receiveShadow=false;g.add(shadow);
  }
 
- const gwBark=new THREE.MeshStandardMaterial({color:0xffffff,map:gwBarkMap,bumpMap:gwBarkMap,bumpScale:.085,roughness:.97});
- const gwPineA=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineMap,bumpScale:.045,roughness:1});
+ const gwBark=new THREE.MeshStandardMaterial({color:0xffffff,map:gwBarkMap,bumpMap:gwBarkMap,bumpScale:.052,roughness:.97});
+ const gwPineA=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineMap,bumpScale:.022,roughness:1});
  const gwPineB=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineMap,bumpScale:.045,roughness:1});
  const gwPineC=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineMap,bumpScale:.045,roughness:1});
  const gwPinkA=new THREE.MeshStandardMaterial({color:0xffd9e7,map:gwBloomMap,bumpMap:gwBloomMap,bumpScale:.035,roughness:.96});
  const gwPinkB=new THREE.MeshStandardMaterial({color:0xffb9d1,map:gwBloomMap,bumpMap:gwBloomMap,bumpScale:.035,roughness:.95});
  const gwPinkC=new THREE.MeshStandardMaterial({color:0xffedf3,map:gwBloomMap,bumpMap:gwBloomMap,bumpScale:.035,roughness:.97});
  const gwLeaf=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,roughness:.98});
- const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,22,8);
- const gwPineGeos=[new THREE.ConeGeometry(1,1,20,4),new THREE.ConeGeometry(.82,.92,20,4),new THREE.ConeGeometry(.63,.82,20,4)];
- const gwCrownGeo=new THREE.SphereGeometry(1,20,14);
+ const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,32,12);
+ const gwPineGeos=[new THREE.ConeGeometry(1,1,32,6),new THREE.ConeGeometry(.82,.92,32,6),new THREE.ConeGeometry(.63,.82,32,6)];
+ const gwCrownGeo=new THREE.SphereGeometry(1,28,18);
  // Общие формы ветвей и корней переиспользуются всеми деревьями.
- const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,16,3);
- const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,14,4);
+ const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,24,4);
+ const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,20,5);
   const gwNeedleGeo=new THREE.ConeGeometry(.012,.105,5,1);
   const gwPetalGeo=new THREE.SphereGeometry(1,9,6);
  const gwRootGeo=new THREE.CylinderGeometry(.008,.095,1,12,3);
@@ -3761,12 +3761,12 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  });
  // Единый передний склон закрывает нижние рваные края гор, как на эталонном скриншоте.
  // Склон расположен перед плоскостью гор: плавно поднимается от двора к скалам.
- const outerFoothillGeometry=new THREE.PlaneGeometry(112,31,280,124);
+ const outerFoothillGeometry=new THREE.PlaneGeometry(112,31,360,160);
  const outerFoothillPos=outerFoothillGeometry.attributes.position;
  const outerFoothillColors=[];
- const foothillFrontColor=new THREE.Color(0xa6c879);
- const foothillMiddleColor=new THREE.Color(0x79a953);
- const foothillBackColor=new THREE.Color(0x4d783b);
+ const foothillFrontColor=new THREE.Color(0xa9c77d);
+ const foothillMiddleColor=new THREE.Color(0x80ad59);
+ const foothillBackColor=new THREE.Color(0x557f40);
  for(let i=0;i<outerFoothillPos.count;i++){
    const x=outerFoothillPos.getX(i),v=outerFoothillPos.getY(i);
    const t=THREE.MathUtils.clamp((v+15.5)/31,0,1);
@@ -3777,7 +3777,7 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
    const color=foothillFrontColor.clone()
      .lerp(foothillMiddleColor,THREE.MathUtils.smoothstep(t,.08,.62))
      .lerp(foothillBackColor,THREE.MathUtils.smoothstep(t,.62,1));
-   const variation=1+.018*Math.sin(x*.13+v*.08)+.009*Math.cos(x*.25-v*.1)+.006*Math.sin(x*.41+v*.22);
+   const variation=1+.012*Math.sin(x*.13+v*.08)+.006*Math.cos(x*.25-v*.1)+.004*Math.sin(x*.41+v*.22);
    color.multiplyScalar(variation);
    outerFoothillColors.push(color.r,color.g,color.b);
  }
