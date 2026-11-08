@@ -265,6 +265,26 @@ for(let i=0;i<14;i++){
  skyCtx.beginPath();skyCtx.moveTo(x-w,y+h*.25);
  skyCtx.quadraticCurveTo(x,y-h*.9,x+w,y-h*.12);skyCtx.stroke();
 }
+// Небольшие объёмные облачные скопления: мягкие тени снизу и светлые края сверху.
+for(let i=0;i<7;i++){
+ const cx=78+i*151,cy=270+(i%3)*19,spread=62+(i%3)*15;
+ const cloudShadow=skyCtx.createRadialGradient(cx,cy+10,4,cx,cy+10,spread);
+ cloudShadow.addColorStop(0,'rgba(91,139,157,.075)');
+ cloudShadow.addColorStop(.62,'rgba(115,158,171,.035)');
+ cloudShadow.addColorStop(1,'rgba(255,255,255,0)');
+ skyCtx.fillStyle=cloudShadow;
+ skyCtx.beginPath();skyCtx.ellipse(cx,cy+9,spread,18+(i%2)*5,0,0,Math.PI*2);skyCtx.fill();
+ for(let p=0;p<5;p++){
+  const px=cx-spread*.62+p*spread*.31;
+  const py=cy-5-Math.sin(p/4*Math.PI)*(10+(i%3)*3);
+  const radius=13+(p%3)*5+(i%2)*2;
+  const puff=skyCtx.createRadialGradient(px-radius*.24,py-radius*.35,2,px,py,radius*1.65);
+  puff.addColorStop(0,'rgba(255,255,255,.19)');
+  puff.addColorStop(.58,'rgba(255,255,255,.105)');
+  puff.addColorStop(1,'rgba(255,255,255,0)');
+  skyCtx.fillStyle=puff;skyCtx.beginPath();skyCtx.ellipse(px,py,radius*1.55,radius*.72,0,0,Math.PI*2);skyCtx.fill();
+ }
+}
 // Едва тёплая дымка у горизонта мягко связывает небо с дальним ландшафтом.
 const horizonGlow=skyCtx.createLinearGradient(0,330,0,512);
 horizonGlow.addColorStop(0,'rgba(255,238,208,0)');
