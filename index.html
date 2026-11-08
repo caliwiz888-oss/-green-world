@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-243000';
+const GREEN_WORLD_BUILD_ID = '20261108-244000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2820,32 +2820,56 @@ function makeWorldDecor(){
  const gwForest=new THREE.Group();gwForest.name='green-world-perimeter-forest';world.add(gwForest);
  // Детальные процедурные карты коры, хвои и лепестков — без внешних файлов и загрузок.
  function gwMakeTreeTexture(kind){
-   const c=document.createElement('canvas');c.width=512;c.height=512;
+   // Текстуры деревьев создаются в 1024x1024: вся площадь холста заполняется деталями.
+   const size=1024,c=document.createElement('canvas');c.width=size;c.height=size;
    const q=c.getContext('2d');
    if(kind==='bark'){
-     q.fillStyle='#765039';q.fillRect(0,0,256,256);
-     for(let i=0;i<420;i++){
-       const x=(i*73)%256,y=(i*131)%256,w=1+(i%4),h=10+(i*17)%55;
+     q.fillStyle='#765039';q.fillRect(0,0,size,size);
+     for(let i=0;i<3600;i++){
+       const x=(i*173)%size,y=(i*293)%size,w=1+(i%5),h=12+(i*37)%115;
        q.fillStyle=i%3===0?'rgba(35,20,12,.25)':'rgba(205,157,105,.13)';q.fillRect(x,y,w,h);
      }
-     for(let i=0;i<38;i++){const x=(i*47)%256;q.strokeStyle='rgba(30,18,12,.22)';q.lineWidth=1+(i%2);q.beginPath();q.moveTo(x,0);q.lineTo(x+(i%5-2)*5,256);q.stroke();}
+     for(let i=0;i<112;i++){
+       const x=(i*137)%size;q.strokeStyle='rgba(30,18,12,.22)';q.lineWidth=1+(i%3);
+       q.beginPath();q.moveTo(x,0);q.lineTo(x+(i%5-2)*11,size);q.stroke();
+     }
+     // Короткие поперечные трещины и мягкие светлые волокна добавляют коре природный рельеф.
+     for(let i=0;i<620;i++){
+       const x=(i*191+23)%size,y=(i*127+41)%size,len=5+(i*19)%34;
+       q.strokeStyle=i%4===0?'rgba(225,177,126,.19)':'rgba(35,20,13,.13)';
+       q.lineWidth=.5+(i%3)*.45;q.beginPath();q.moveTo(x,y);
+       q.quadraticCurveTo(x+len*.45,y+(i%7-3)*2,x+len,y+(i%5-2)*3);q.stroke();
+     }
    }else if(kind==='pine'){
-     q.fillStyle='#174d35';q.fillRect(0,0,256,256);
-     for(let i=0;i<4200;i++){
-       const x=(i*97)%256,y=(i*151)%256;
+     q.fillStyle='#174d35';q.fillRect(0,0,size,size);
+     for(let i=0;i<15000;i++){
+       const x=(i*197)%size,y=(i*313)%size;
        q.fillStyle=i%3===0?'rgba(129,178,105,.30)':i%3===1?'rgba(5,37,25,.32)':'rgba(54,117,69,.30)';
-       q.beginPath();q.ellipse(x,y,1+(i%4),1+(i%3),((i%7)-3)*.15,0,Math.PI*2);q.fill();
+       q.beginPath();q.ellipse(x,y,1+(i%5),1+(i%4),((i%7)-3)*.15,0,Math.PI*2);q.fill();
+     }
+     // Мелкие иголки и редкие светлые кончики хвои создают тонкую неоднородную фактуру.
+     for(let i=0;i<9000;i++){
+       const x=(i*283+17)%size,y=(i*421+29)%size,len=2+(i%8);
+       q.strokeStyle=i%4===0?'rgba(180,210,139,.24)':'rgba(8,43,28,.22)';
+       q.lineWidth=.55+(i%3)*.35;q.beginPath();q.moveTo(x,y);
+       q.lineTo(x+len*.45,y-len*.3);q.stroke();
      }
    }else{
-     q.fillStyle='#f0a5c1';q.fillRect(0,0,256,256);
-     for(let i=0;i<2400;i++){
-       const x=(i*89)%256,y=(i*137)%256;
+     q.fillStyle='#f0a5c1';q.fillRect(0,0,size,size);
+     for(let i=0;i<8500;i++){
+       const x=(i*181)%size,y=(i*277)%size;
        q.fillStyle=i%3===0?'rgba(255,239,245,.55)':i%3===1?'rgba(173,67,119,.20)':'rgba(255,255,255,.25)';
-       q.beginPath();q.arc(x,y,1+(i%3),0,Math.PI*2);q.fill();
+       q.beginPath();q.arc(x,y,1+(i%4),0,Math.PI*2);q.fill();
+     }
+     // Мягкие мелкие лепестковые блики с разной прозрачностью.
+     for(let i=0;i<2600;i++){
+       const x=(i*239+13)%size,y=(i*157+31)%size,r=1+(i%3)*.65;
+       q.fillStyle=i%2?'rgba(255,250,252,.32)':'rgba(190,82,132,.13)';
+       q.beginPath();q.ellipse(x,y,r,r*1.6,(i%7-3)*.18,0,Math.PI*2);q.fill();
      }
    }
    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
-   t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+   t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());
    t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;return t;
  }
  const gwBarkMap=gwMakeTreeTexture('bark');
