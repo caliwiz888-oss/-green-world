@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-211000';
+const GREEN_WORLD_BUILD_ID = '20261108-213000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3118,6 +3118,84 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  snowTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const snowBump=snowTexture.clone();snowBump.colorSpace=THREE.NoColorSpace;snowBump.needsUpdate=true;
  for(const m of [snow]){m.map=snowTexture;m.bumpMap=snowBump;m.bumpScale=.026;m.roughness=.94;m.metalness=0;m.needsUpdate=true;}
+
+ // Новая горная система GREEN WORLD: массивная реалистичная скальная гряда.
+ // Две глубинные линии вершин создают масштаб, перспективу и естественный силуэт.
+ const mountainNoise=(x,z,seed=0)=>{
+   return .52*Math.sin(x*.43+z*.21+seed)+.28*Math.sin(x*.91-z*.37+seed*1.7)
+        +.14*Math.cos(x*1.83+z*.74-seed)+.06*Math.sin(x*3.7-z*1.4+seed);
+ };
+ const buildMountainRange=(cfg)=>{
+   const cols=224,rows=72,xMin=-66,xMax=66,zFront=cfg.front,zBack=cfg.back;
+   const positions=[],colors=[],indices=[];
+   const peaks=cfg.peaks;
+   for(let iz=0;iz<=rows;iz++){
+     const t=iz/rows,z=zFront+(zBack-zFront)*t;
+     const depthRise=Math.pow(Math.sin(Math.PI*t),.72)*(.58+.42*t);
+     for(let ix=0;ix<=cols;ix++){
+       const x=xMin+(xMax-xMin)*ix/cols;
+       let ridge=0;
+       for(let p=0;p<peaks.length;p++){
+         const pk=peaks[p],dx=(x-pk.x)/pk.width;
+         ridge+=pk.height*Math.exp(-.5*dx*dx);
+       }
+       const sideFade=Math.pow(Math.max(0,1-Math.pow(Math.abs(x)/70,6)),.45);
+       const crag=mountainNoise(x,z,cfg.seed)*cfg.roughness;
+       const cliffBands=.48*Math.sin(x*.31+z*.12+cfg.seed)*Math.sin(t*Math.PI);
+       let h=cfg.base+depthRise*sideFade*(ridge+crag+cliffBands);
+       h=Math.max(cfg.base,h);
+       positions.push(x,h,z);
+       const altitude=THREE.MathUtils.clamp((h-cfg.base)/cfg.heightScale,0,1);
+       const stoneLow=new THREE.Color(cfg.low);
+       const stoneMid=new THREE.Color(cfg.mid);
+       const stoneHigh=new THREE.Color(cfg.high);
+       const color=stoneLow.lerp(stoneMid,THREE.MathUtils.smoothstep(altitude,.08,.68))
+         .lerp(stoneHigh,THREE.MathUtils.smoothstep(altitude,.62,1));
+       const faceNoise=1+crag*.018+Math.sin(x*.17+z*.23)*.018;
+       color.multiplyScalar(faceNoise);
+       colors.push(color.r,color.g,color.b);
+     }
+   }
+   for(let iz=0;iz<rows;iz++)for(let ix=0;ix<cols;ix++){
+     const a=iz*(cols+1)+ix,b=a+1,c=a+cols+1,d=c+1;
+     indices.push(a,b,c,b,d,c);
+   }
+   const geometry=new THREE.BufferGeometry();
+   geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+   geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+   geometry.setIndex(indices);geometry.computeVertexNormals();
+   const material=new THREE.MeshStandardMaterial({
+     color:0xffffff,vertexColors:true,map:alpineRockTexture,bumpMap:alpineRockBump,
+     bumpScale:.12,roughness:.96,metalness:0,side:THREE.DoubleSide,flatShading:true
+   });
+   const range=new THREE.Mesh(geometry,material);
+   range.name=cfg.name;range.castShadow=false;range.receiveShadow=false;
+   world.add(range);return range;
+ };
+ // Дальние вершины приглушены атмосферой и дают глубину за главным массивом.
+ buildMountainRange({
+   name:'GREEN_WORLD_Distant_Mountain_Ridge',front:-62,back:-91,base:-.12,
+   heightScale:15,roughness:.48,seed:7,low:0x596a70,mid:0x78878a,high:0xa0aaab,
+   peaks:[
+     {x:-58,width:8,height:8},{x:-43,width:7,height:12},{x:-27,width:9,height:10},
+     {x:-9,width:7,height:14},{x:8,width:9,height:11},{x:27,width:8,height:15},
+     {x:45,width:9,height:10},{x:60,width:7,height:12}
+   ]
+ });
+ // Главный массив: крупные широкие основания, острые пики, глубокие седловины и ломаные скальные грани.
+ buildMountainRange({
+   name:'GREEN_WORLD_Massive_Realistic_Mountain_Range',front:-39.5,back:-70,
+   base:-.10,heightScale:27,roughness:1.05,seed:19,
+   low:0x353d3d,mid:0x68716f,high:0x9ba19a,
+   peaks:[
+     {x:-62,width:8.5,height:19},{x:-49,width:6.8,height:24},
+     {x:-35,width:8.2,height:18},{x:-20,width:6.5,height:26},
+     {x:-5,width:8.8,height:21},{x:11,width:7.0,height:29},
+     {x:27,width:8.4,height:20},{x:42,width:7.2,height:25},
+     {x:57,width:9.0,height:19},{x:68,width:6.5,height:16}
+   ]
+ });
+
  // Внешние горы и внешний ландшафт удалены полностью по запросу.
   // A broad river outside the farm boundary, with layered banks and a stone crossing.
  // Цельная сетчатая поверхность с реальной плавной волной вместо плоской коробки.
