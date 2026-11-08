@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-372100';
+const GREEN_WORLD_BUILD_ID = '20261108-373100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1481,6 +1481,42 @@ function makeFactory(){
  box(g,1.12,.92,.055,2.55,1.02,4.07,glass,false);
  box(g,.08,1.0,.09,1.98,1.02,4.12,frame,false);
  box(g,.08,1.0,.09,3.12,1.02,4.12,frame,false);
+ // Архитектурная деталировка: нижний цоколь, фасадные швы и аккуратные вертикальные рёбра.
+ const baseTrim=new THREE.MeshStandardMaterial({color:0x687a75,roughness:.66,metalness:.18});
+ box(g,7.34,.18,.12,0,.72,2.88,baseTrim,false);
+ box(g,7.34,.18,.12,0,.72,-2.88,baseTrim,false);
+ for(const x of [-3.0,-2.0,-1.0,0,1.0,2.0,3.0]){
+   if(x<-.25||x>-.25){
+     box(g,.035,1.85,.055,x,1.82,2.875,wallLight,false);
+   }
+ }
+ // Защищённый козырёк над промышленными воротами и две опорные стойки.
+ box(g,2.95,.16,.92,-1.55,3.13,3.38,roof,false);
+ box(g,3.02,.07,.98,-1.55,3.23,3.38,trim,false);
+ for(const x of [-2.92,-.18]){
+   box(g,.09,1.62,.09,x,2.25,3.72,frame,false);
+   box(g,.22,.09,.22,x,1.48,3.72,baseTrim,false);
+ }
+ // Низкая погрузочная платформа с контрастной кромкой.
+ box(g,2.72,.22,.48,-1.55,.55,3.17,baseTrim,false);
+ box(g,2.78,.055,.5,-1.55,.68,3.17,trim,false);
+ // Шесть аккуратных фотоэлектрических модулей на свободной части кровли.
+ const solarFrame=new THREE.MeshStandardMaterial({color:0x344a55,roughness:.42,metalness:.48});
+ const solarGlass=new THREE.MeshPhysicalMaterial({color:0x244c60,roughness:.24,metalness:.38,clearcoat:.65,clearcoatRoughness:.18,envMapIntensity:.85});
+ for(const x of [-2.72,-1.63,-.54,.54,1.63,2.72]){
+   box(g,.88,.055,1.02,x,3.88,1.72,solarFrame,false);
+   box(g,.79,.025,.91,x,3.925,1.72,solarGlass,false);
+   box(g,.018,.018,.88,x,3.948,1.72,trim,false);
+ }
+ // Ритм тонких горизонтальных ламелей на боковом фасаде.
+ for(let y=1.15;y<=2.55;y+=.28){
+   box(g,.055,.045,2.45,3.72,y,-.35,frame,false);
+ }
+ // Светильники под козырьком и над административным входом.
+ const lamp=new THREE.MeshStandardMaterial({color:0xffe6ad,emissive:0xffc66b,emissiveIntensity:.42,roughness:.38});
+ for(const x of [-2.55,-.55,2.55]){
+   box(g,.22,.055,.12,x,2.98,3.02,lamp,false);
+ }
  // Небольшая маркировка на фасаде — без крупной вывески и без изменения общего облика двора.
  const signCanvas=document.createElement('canvas');signCanvas.width=512;signCanvas.height=96;
  const signCtx=signCanvas.getContext('2d');
