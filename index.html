@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-308000';
+const GREEN_WORLD_BUILD_ID = '20261108-309000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3003,8 +3003,9 @@ function makeWorldDecor(){
    trunk.position.y=h*.43;trunk.scale.set(.72,h*.86,.72);g.add(trunk);
     // Центральная цветочная масса перекрывает верх ствола и устраняет видимый зазор.
     const crownCore=new THREE.Mesh(gwCrownGeo,palette==='amber'?gwAmberB:gwPinkB);
-    crownCore.position.set(0,h*.755,0);
-    crownCore.scale.set(h*.235,h*.205,h*.235);
+    crownCore.position.set(0,h*.735,0);
+    // Широкая, слегка приплюснутая основа вместо правильного шара.
+    crownCore.scale.set(h*.285,h*.155,h*.265);
     g.add(crownCore);
    // Разветвлённая крона с открытыми промежутками между ветвями.
    for(let k=0;k<24;k++){
@@ -3021,18 +3022,20 @@ function makeWorldDecor(){
    for(let k=0;k<bloomCount;k++){
      const a=k*2.399963+seed;
      const ring=k<Math.floor(bloomCount*.56)?1:(k<Math.floor(bloomCount*.86)?2:0);
-     const rad=ring===1?h*(.17+(k%4)*.022):ring===2?h*(.10+(k%3)*.017):h*.025;
+     const irregular=.78+.16*Math.sin(a*3.1+seed)+.09*Math.cos(a*5.3-seed*.7);
+     const rad=(ring===1?h*(.19+(k%4)*.024):ring===2?h*(.115+(k%3)*.02):h*.035)*irregular;
      const bloom=new THREE.Mesh(gwCrownGeo,petals[(k*5+Math.floor(seed*3))%petals.length]);
-     bloom.position.set(Math.cos(a)*rad*.82,h*(.615+(k%5)*.04)+Math.sin(seed+k)*h*.01,Math.sin(a)*rad*.82);
-     const size=h*(ring===1?.122:(ring===2?.108:.14))*(.9+(k%4)*.065);
-     bloom.scale.set(size*(.84+(k%3)*.17),size*(.75+(k%2)*.17),size*(.88+(k%4)*.05));
+     const crownY=.625+(k%5)*.027+.035*Math.sin(a*2.2+seed)+.018*Math.cos(a*4.1);
+     bloom.position.set(Math.cos(a)*rad*.9,h*crownY,Math.sin(a)*rad*.9);
+     const size=h*(ring===1?.116:(ring===2?.103:.132))*(.84+(k%4)*.075)*(.91+.09*Math.sin(a*3+seed));
+     bloom.scale.set(size*(.9+(k%3)*.19),size*(.68+(k%2)*.16),size*(.9+(k%4)*.07));
      g.add(bloom);
    }
    // Отдельные лепестки поверх цветочных масс создают мелкий живой силуэт кроны.
    const petalCount=240,petalsMesh=new THREE.InstancedMesh(gwPetalGeo,palette==='amber'?gwAmberC:gwPinkC,petalCount),petalDummy=new THREE.Object3D();
    for(let n=0;n<petalCount;n++){
-     const a=seed+n*2.399963,ring=n%3,rad=h*(.13+ring*.075+(n%5)*.008);
-     petalDummy.position.set(Math.cos(a)*rad*.84,h*(.615+(n%11)*.022),Math.sin(a)*rad*.84);
+     const a=seed+n*2.399963,ring=n%3,rad=h*(.145+ring*.078+(n%5)*.009)*(.88+.12*Math.sin(a*2.7));
+     petalDummy.position.set(Math.cos(a)*rad*.9,h*(.615+(n%11)*.018+.025*Math.sin(a*2.4)),Math.sin(a)*rad*.9);
      const ps=h*(.018+(n%4)*.003);petalDummy.scale.set(ps*.72,ps*1.35,ps*.34);
      petalDummy.rotation.set(.25*Math.sin(a),a,.35*Math.cos(a));petalDummy.updateMatrix();petalsMesh.setMatrixAt(n,petalDummy.matrix);
       const shade=.88+(n%7)*.025;petalsMesh.setColorAt(n,new THREE.Color(shade,shade*(.97+(n%3)*.015),shade*(.94+(n%5)*.012)));
@@ -3042,8 +3045,9 @@ function makeWorldDecor(){
    for(let k=0;k<40;k++){
      const a=seed+k*2.399963;
      const petal=new THREE.Mesh(gwCrownGeo,palette==='amber'?(k%3===0?gwAmberB:gwAmberA):(k%3===0?gwPinkB:gwPinkA));
-     petal.position.set(Math.cos(a)*h*.255,h*(.675+(k%4)*.038),Math.sin(a)*h*.255);
-     petal.scale.set(h*(.062+(k%3)*.009),h*(.052+(k%2)*.01),h*(.062+(k%4)*.006));g.add(petal);
+     const edgeRadius=h*(.245+.035*Math.sin(a*2.8+seed)+.018*Math.cos(a*4.7));
+     petal.position.set(Math.cos(a)*edgeRadius,h*(.665+(k%4)*.029+.025*Math.sin(a*2.1+seed)),Math.sin(a)*edgeRadius);
+     petal.scale.set(h*(.064+(k%3)*.01),h*(.045+(k%2)*.009),h*(.066+(k%4)*.007));g.add(petal);
    }
    // Корневая шейка плавно расширяет ствол у самой земли; выступающие наружу корни удалены.
     const rootFlare=new THREE.Mesh(gwTrunkGeo,gwBark);
