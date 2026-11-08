@@ -3831,7 +3831,17 @@ function makeHouse(){
  towerWallBump.repeat.set(4,2.5);towerWallBump.needsUpdate=true;
  const towerWallMaterial=new THREE.MeshStandardMaterial({
   color:0xfff5e6,map:towerWallTexture,bumpMap:towerWallBump,
-  bumpScale:.012,roughness:.96,metalness:0
+  bumpScale:.017,roughness:.93,metalness:0
+ });
+ // Отдельная настройка материала только для уже существующих колонн:
+ // та же кремовая кладка, но более мелкий масштаб фактуры на узком круглом стволе.
+ const towerColumnTexture=towerWallTexture.clone();
+ towerColumnTexture.repeat.set(.9,1.45);towerColumnTexture.needsUpdate=true;
+ const towerColumnBump=towerWallBump.clone();
+ towerColumnBump.repeat.set(.9,1.45);towerColumnBump.needsUpdate=true;
+ const towerColumnMaterial=new THREE.MeshStandardMaterial({
+  color:0xfff5e6,map:towerColumnTexture,bumpMap:towerColumnBump,
+  bumpScale:.014,roughness:.94,metalness:0
  });
  // Центральный корпус, фронтон, окна, двери и вся отделка смещаются единым блоком назад;
  // башни с колоннами остаются на своих местах.
@@ -4337,16 +4347,16 @@ function makeHouse(){
    // Расстановка как на эталоне: на передней стороне башни две колонны
    // обрамляют окно, не перекрывая его; все колонны входят в группу башни.
    const a=(j+.5)*Math.PI/4,px=Math.sin(a)*.985,pz=Math.cos(a)*.985;
-   cylinder(t,.155,.155,3.92,px,2.72,pz,cream,32);
-   // Более выразительные профили круглых колонн: ступенчатые базы, шейки и капители.
+   cylinder(t,.155,.155,3.92,px,2.72,pz,towerColumnMaterial,32);
+   // Материал ствола продолжается на существующие светлые профили колонны.
    cylinder(t,.235,.235,.18,px,.78,pz,stone,32);
-   cylinder(t,.265,.265,.075,px,.88,pz,cream,32);
-   cylinder(t,.195,.195,.12,px,.99,pz,cream,32);
+   cylinder(t,.265,.265,.075,px,.88,pz,towerColumnMaterial,32);
+   cylinder(t,.195,.195,.12,px,.99,pz,towerColumnMaterial,32);
    cylinder(t,.175,.175,.055,px,1.09,pz,gold,32);
    cylinder(t,.185,.185,.055,px,4.35,pz,gold,32);
    cylinder(t,.245,.245,.16,px,4.60,pz,stone,32);
-   cylinder(t,.275,.275,.075,px,4.68,pz,cream,32);
-   cylinder(t,.195,.195,.11,px,4.78,pz,cream,32);
+   cylinder(t,.275,.275,.075,px,4.68,pz,towerColumnMaterial,32);
+   cylinder(t,.195,.195,.11,px,4.78,pz,towerColumnMaterial,32);
   }
   // Два окна на башню: одно нижнее и одно верхнее, с каменным обрамлением.
   for(const y of [1.15,3.05]){
