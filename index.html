@@ -3739,13 +3739,12 @@ function makeHouse(){
  const slate=mat(0x29445f,.78),slateDark=mat(0x182f49,.82),teal=mat(0x25b8c4,.24),tealLight=mat(0x8be2df,.2);
  const gold=mat(0xd9ad4f,.34),bronze=mat(0x493326,.58),wood=mat(0x684126,.65),terra=mat(0xa95735,.8);
  const pink=mat(0xe78bb4,.8),lilac=mat(0xb7a0db,.8),white=mat(0xffe8d4,.78),green=mat(0x4c7c49,.9);
- // Материалы медной кровли башен: объявлены в области makeHouse,
- // чтобы обе башни создавались полностью без ReferenceError.
+ // Сланцево-синие материалы конических крыш башен — в тон главной крыше.
  const copperMats=[
-  mat(0x557d70,.48),mat(0x668e7d,.46),mat(0x789b86,.44),
-  mat(0x456c62,.52),mat(0x8aa58a,.43)
+  mat(0x355675,.68),mat(0x294662,.74),mat(0x263f5b,.74),
+  mat(0x3d5d79,.70),mat(0x456783,.66)
  ];
- const copperBright=mat(0x9ab59a,.38),copperDark=mat(0x365c55,.56),goldRoof=mat(0xc9a04e,.32);
+ const copperBright=mat(0x52718d,.48),copperDark=mat(0x1d344e,.72),goldRoof=mat(0xc9a04e,.32);
  const n=64;
  // Центральный корпус, фронтон, окна, двери и вся отделка смещаются единым блоком назад;
  // башни с колоннами остаются на своих местах.
@@ -4163,8 +4162,8 @@ function makeHouse(){
   // Тонкое профилированное каменное кольцо у основания синего купола — как в эталоне.
   cylinder(t,1.105,1.105,.075,0,5.29,0,stone,n);
   cylinder(t,1.125,1.125,.025,0,5.34,0,cream,n);
-  // Коническая кровля башни сохранена по форме, но теперь выполнена
-  // из той же патинированной зелёной меди и с той же панельной отделкой, что и крыша дома.
+  // Коническая кровля башни сохранена по форме; сланцево-синий цвет и золотой наконечник
+  // согласованы с главной двускатной крышей усадьбы.
   const towerRoofY=5.34,towerRoofH=2.48,towerRoofR=1.08;
   const towerRoofPoint=(y,a,offset=0)=>{
    const r=towerRoofR*(1-(y-towerRoofY)/towerRoofH)+offset;
