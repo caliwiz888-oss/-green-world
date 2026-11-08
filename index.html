@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-319000';
+const GREEN_WORLD_BUILD_ID = '20261108-321000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3320,7 +3320,7 @@ function makeWorldLandscape(){
    const stream=new THREE.Mesh(new THREE.PlaneGeometry(.22+i*.08,2.0+i*.45,2,18),gwSideWaterMat);
    stream.position.set(side*(2.5+i*.48),5.1+i*1.25,-56.18);stream.rotation.z=side*(.08+i*.035);gwFalls.add(stream);
  }
- gwFalls.scale.set(1.72,1.72,1.72);gwFalls.position.set(0,0,-43.5);world.add(gwFalls);
+ gwFalls.scale.set(1.72,1.72,1.72);gwFalls.position.set(0,0,37.5);world.add(gwFalls);
  window.GREEN_WORLD_WATERFALL_STATUS='grey-rocks-central-waterfall-built';
 
  // Материалы гор и снега удалены вместе с горной геометрией.
