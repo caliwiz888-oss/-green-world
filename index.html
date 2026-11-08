@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-300000';
+const GREEN_WORLD_BUILD_ID = '20261108-301000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2993,8 +2993,6 @@ function makeWorldDecor(){
  gwAddBarkRelief(gwTrunkGeo,.018);gwAddBarkRelief(gwBlossomBranchGeo,.022);gwAddBarkRelief(gwRootGeo,.026);
  function gwAddPine(){ return null; }
  function gwAddBlossom(x,z,h,seed=0,baseY=0){
-   // Все розовые деревья отключены по прямому запросу.
-   return null;
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
    gwAddTreeContactShadow(g,h,1.02);
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
@@ -3060,7 +3058,7 @@ function makeWorldDecor(){
      const t=THREE.MathUtils.clamp((localV+15.5)/31,0,1);
      const baseY=.08+3.0*THREE.MathUtils.smoothstep(t,.02,.98);
      const seed=i*.73+row*2.1;
-     if((i+row*3)%7===2 && !(row===0&&i===16))gwAddBlossom(treeX,treeZ,4.35+(i%2)*.3,seed,baseY);
+     // Старые фоновые розовые деревья не используются.
 
    }
  }
@@ -3077,6 +3075,12 @@ function makeWorldDecor(){
    // Два розовых дерева стоят снаружи бокового забора, рядом с уровнем дороги.
    // Два розовых дерева у бокового забора удалены по запросу.
  }
+  // Новые розовые деревья расставлены СНАРУЖИ периметра ограды.
+  // Передняя сторона, боковые стороны и задняя сторона; въезд и дорожки свободны.
+  for(const [x,z,h,seed] of [
+    [-10.8,17.4,4.35,12],[10.9,17.8,4.5,18],[-19.0,8.2,4.3,23],[-19.4,-7.0,4.55,29],
+    [20.8,6.5,4.4,34],[20.2,-11.5,4.5,41],[-11.5,-25.0,4.4,47],[0.8,-26.0,4.55,53],[12.0,-25.3,4.35,59]
+  ])gwAddBlossom(x,z,h,seed,.08);
  // Редкий дополнительный ряд перенесён глубже к лесному фону, чтобы заполнить дальние просветы,
  // не создавать третью тесную полосу позади основных деревьев.
  for(let i=0;i<13;i++){
@@ -3092,7 +3096,7 @@ function makeWorldDecor(){
    const x=-27+i*3.8+(lane?1.35:-.7)+Math.sin(i*1.4)*.85;
    const z=-26.0+lane*3.0+Math.cos(i*1.67)*1.25;
    const h=5.0+(i%4)*.4;
-   if(i===3||i===11){const blossomX=x-(i===11?9:0);const blossomZ=z-(i===11?14:0);const localV=-(blossomZ+39);const terrainT=THREE.MathUtils.clamp((localV+20)/40,0,1);const blossomBaseY=.08+4.8*THREE.MathUtils.smoothstep(terrainT,0,1);gwAddBlossom(blossomX,blossomZ,4.25,i*.8,blossomBaseY);}
+   // Старые фоновые розовые деревья не используются.
 
  }
   // Удалены мелкие светлые камешки за правой стороной ограды, чтобы убрать тонкую светлую отметку.
