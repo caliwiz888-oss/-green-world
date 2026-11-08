@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-397100';
+const GREEN_WORLD_BUILD_ID = '20261108-398100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -982,7 +982,7 @@ function makeWorldDecor(){
     }
   }
   // Ограда по точному цветовому макету: светлые каменные столбы и тёмная кованая решётка с золотыми медальонами.
-  const fenceStone=mat(0xe9dfcc),fenceIvory=mat(0xf8f2e7),fenceReliefStone=mat(0xc8b493);
+  const fenceStone=mat(0xe9dfcc),fenceIvory=mat(0xf8f2e7),fenceReliefStone=mat(0xc8b493),fenceOutline=mat(0x665442,.92);
   const fenceSandstone=mat(0xd9c7a8),fenceSlate=mat(0x657789),fenceTeal=mat(0x438d89);
   const fenceIron=mat(0x514638),fenceIronLight=mat(0x76634b),fenceGold=mat(0xc99b52),fenceGoldLight=mat(0xe4c17a);
   const fenceNoShadow=mesh=>{mesh.castShadow=false;mesh.receiveShadow=false;return mesh;};
@@ -1006,6 +1006,7 @@ function makeWorldDecor(){
     fenceNoShadow(box(fenceGroup,.56,.12,.60,x,baseY+2.40,z,fenceStone,false));
     const relief=new THREE.Group();relief.position.set(x,baseY,z);relief.rotation.y=faceAngle;fenceGroup.add(relief);
     // Утопленная панель с тонкой сланцевой окантовкой и бирюзовым центральным камнем.
+    fenceNoShadow(box(relief,.275,1.22,.018,0,1.27,.279,fenceOutline,false));
     fenceNoShadow(box(relief,.255,1.20,.035,0,1.27,.235,fenceReliefStone,false));
     fenceNoShadow(box(relief,.205,1.12,.038,0,1.27,.259,fenceIvory,false));
     fenceNoShadow(box(relief,.105,.74,.045,0,1.27,.286,fenceSlate,false));
@@ -1098,6 +1099,9 @@ function makeWorldDecor(){
       new THREE.CatmullRomCurve3(archPoints.map(p=>new THREE.Vector3(p.x,p.y-.075,p.z+.012))),
       128,.018,8,false),fenceGold);
     fenceNoShadow(goldTrim);panel.add(goldTrim);
+    // Тонкая тёмная линия подчёркивает внешний силуэт арки.
+    const darkArchOutline=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(outerPoints.map(p=>new THREE.Vector3(p.x,p.y+.105,p.z+.035))),128,.024,8,false),fenceOutline);
+    fenceNoShadow(darkArchOutline);panel.add(darkArchOutline);
     // Внешний рельефный архивольт подчёркивает силуэт арки вторым каменным контуром.
     const outerPoints=[];
     for(let i=0;i<=64;i++){
