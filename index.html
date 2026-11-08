@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-348000';
+const GREEN_WORLD_BUILD_ID = '20261108-349000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1262,15 +1262,28 @@ function makeMarket(){
    material.bumpScale=material===marketPlinthBase?.018:.012;
    material.needsUpdate=true;
  }
+// Физическая отделка существующего светлого каменного цоколя лавки.
+// Бело-кремовые оттенки, зернистая карта, рельеф и контур основания остаются прежними.
+ const marketPlinthPhysical=(source,coat,intensity)=>{
+   const physical=new THREE.MeshPhysicalMaterial({
+     color:source.color.clone(),map:source.map,bumpMap:source.bumpMap,
+     bumpScale:source.bumpScale,roughnessMap:source.roughnessMap,
+     roughness:source.roughness,metalness:source.metalness,side:source.side,
+     clearcoat:coat,clearcoatRoughness:.92,envMapIntensity:intensity
+   });
+   physical.name=source.name;physical.needsUpdate=true;return physical;
+ };
+ const marketPlinthBasePhysical=marketPlinthPhysical(marketPlinthBase,.06,.28);
+ const marketPlinthCapPhysical=marketPlinthPhysical(marketPlinthCap,.07,.3);
  // Передняя и задняя стороны — белая фасадная полоса почти от земли.
  for(const z of [-2.455,2.455]){
-   box(g,5.92,.34,.12,0,.225,z,marketPlinthBase,false);
-   box(g,5.98,.075,.17,0,.425,z,marketPlinthCap,false);
+   box(g,5.92,.34,.12,0,.225,z,marketPlinthBasePhysical,false);
+   box(g,5.98,.075,.17,0,.425,z,marketPlinthCapPhysical,false);
  }
  // Боковые стороны соединяют пояс в единый замкнутый периметр.
  for(const x of [-2.955,2.955]){
-   box(g,.12,.34,4.82,x,.225,0,marketPlinthBase,false);
-   box(g,.17,.075,4.88,x,.425,0,marketPlinthCap,false);
+   box(g,.12,.34,4.82,x,.225,0,marketPlinthBasePhysical,false);
+   box(g,.17,.075,4.88,x,.425,0,marketPlinthCapPhysical,false);
  }
 
  // Деревянные диагональные подкосы связывают передние колонны с широким свесом.
