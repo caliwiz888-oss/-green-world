@@ -4055,6 +4055,12 @@ function makeHouse(){
  manorRoofLine([manorRoofV(-manorRoofHalf,manorRoofEaveY,manorRoofFrontZ),manorRoofV(-manorRoofHalf,manorRoofEaveY,manorRoofBackZ)],.045,manorRoofGold);
  manorRoofLine([manorRoofV(manorRoofHalf,manorRoofEaveY,manorRoofFrontZ),manorRoofV(manorRoofHalf,manorRoofEaveY,manorRoofBackZ)],.045,manorRoofGold);
  manorRoofLine([manorRoofV(0,manorRoofPeakY+.025,manorRoofFrontZ),manorRoofV(0,manorRoofPeakY+.025,manorRoofBackZ)],.035,manorRoofSeam);
+ // Отдельные короткие накладные элементы конька дают крыше завершённый сланцевый профиль.
+ // Они лежат вдоль оси конька и не меняют высоту, силуэт или размеры двускатной крыши.
+ for(let cap=0;cap<13;cap++){
+  const ridgeCap=cylinder(center,.073,.073,.35,0,manorRoofPeakY+.045,2.22-cap*.375,manorRoofTileA,16);
+  ridgeCap.rotation.x=Math.PI/2;
+ }
  sphere(center,.085,0,manorRoofPeakY+.045,manorRoofFrontZ,manorRoofGold,.9);
  cone(center,.045,.16,0,manorRoofPeakY+.16,manorRoofFrontZ,manorRoofGold,12);
  // Две башни по утверждённому эталону: выразительное каменное основание,
