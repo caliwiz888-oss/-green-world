@@ -3813,6 +3813,22 @@ function makeHouse(){
   manorWallCtx.fillStyle=manorWallRand()>.5?'rgba(255,250,235,.12)':'rgba(116,98,75,.07)';
   manorWallCtx.fillRect(x,y,1+manorWallRand()*2,1+manorWallRand()*2);
  }
+ // Микропоры и минеральные вкрапления: мелкий масштаб делает известняк
+ // визуально натуральнее вблизи, не затемняя общий тёплый кремовый тон.
+ for(let i=0;i<520;i++){
+  const x=manorWallRand()*256,y=manorWallRand()*256,r=.35+manorWallRand()*.8;
+  manorWallCtx.beginPath();manorWallCtx.arc(x,y,r,0,Math.PI*2);
+  manorWallCtx.fillStyle=manorWallRand()>.54?'rgba(255,253,243,.19)':'rgba(112,91,66,.105)';
+  manorWallCtx.fill();
+ }
+ // Редкие короткие кальцитовые прожилки с очень низким контрастом.
+ for(let i=0;i<22;i++){
+  const x=manorWallRand()*256,y=manorWallRand()*256;
+  manorWallCtx.beginPath();manorWallCtx.moveTo(x,y);
+  manorWallCtx.quadraticCurveTo(x+(manorWallRand()-.5)*9,y+2+manorWallRand()*5,x+(manorWallRand()-.5)*18,y+4+manorWallRand()*9);
+  manorWallCtx.strokeStyle=manorWallRand()>.5?'rgba(255,252,238,.16)':'rgba(150,126,94,.075)';
+  manorWallCtx.lineWidth=.45+manorWallRand()*.45;manorWallCtx.stroke();
+ }
  const manorWallTexture=new THREE.CanvasTexture(manorWallCanvas);
  manorWallTexture.colorSpace=THREE.SRGBColorSpace;
  manorWallTexture.wrapS=manorWallTexture.wrapT=THREE.RepeatWrapping;
