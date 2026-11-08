@@ -3896,6 +3896,23 @@ function makeHouse(){
   manorBumpCtx.quadraticCurveTo(x+(manorBumpRand()-.5)*7,y+2,x+(manorBumpRand()-.5)*14,y+3+manorBumpRand()*5);
   manorBumpCtx.stroke();
  }
+ // Микросколы по кромкам кладочных швов: очень мелкие неровности,
+ // которые смягчают идеально ровный машинный рисунок блоков.
+ for(let i=0;i<76;i++){
+  const horizontal=manorBumpRand()>.5;
+  const joint= Math.floor(manorBumpRand()*5)*64;
+  const along=manorBumpRand()*256;
+  const x=horizontal?along:joint+(Math.floor(joint/64)%2?0:32)+(manorBumpRand()-.5)*2.4;
+  const y=horizontal?joint+(manorBumpRand()-.5)*2.2:along;
+  const length=.8+manorBumpRand()*2.8;
+  const direction=manorBumpRand()>.5?1:-1;
+  manorBumpCtx.strokeStyle=manorBumpRand()>.5?'rgba(30,27,23,.17)':'rgba(244,235,218,.19)';
+  manorBumpCtx.lineWidth=.35+manorBumpRand()*.45;
+  manorBumpCtx.beginPath();
+  manorBumpCtx.moveTo(x,y);
+  manorBumpCtx.lineTo(x+ (horizontal?length:direction*.7),y+(horizontal?direction*.65:length));
+  manorBumpCtx.stroke();
+ }
  const manorWallBump=new THREE.CanvasTexture(manorBumpCanvas);
  manorWallBump.colorSpace=THREE.NoColorSpace;
  manorWallBump.wrapS=manorWallBump.wrapT=THREE.RepeatWrapping;
