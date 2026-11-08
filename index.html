@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-344000';
+const GREEN_WORLD_BUILD_ID = '20261108-345000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2563,6 +2563,23 @@ function makeWorldDecor(){
       clearcoat:.08,clearcoatRoughness:.9,envMapIntensity:.32
     });
   }
+  // Та же тонкая фактура наносится на существующие плиты настила и основания.
+  // Цвета, размеры, швы и положение каменных деталей остаются прежними.
+  function applyBridgeStoneSurface(material,repeatX=2,repeatY=2,bumpScale=.014){
+    const textured=bridgePhysicalStone(material.color,material.roughness,repeatX,repeatY,bumpScale);
+    material.map=textured.map;
+    material.bumpMap=textured.bumpMap;
+    material.roughnessMap=textured.roughnessMap;
+    material.bumpScale=textured.bumpScale;
+    material.clearcoat=.07;
+    material.clearcoatRoughness=.92;
+    material.envMapIntensity=.3;
+    material.needsUpdate=true;
+  }
+  applyBridgeStoneSurface(bridgeDeckMat,2.4,1.8,.013);
+  applyBridgeStoneSurface(bridgeStone,2.1,1.6,.014);
+  applyBridgeStoneSurface(bridgeStoneLight,2.1,1.6,.012);
+  applyBridgeStoneSurface(bridgeStoneShade,1.7,1.7,.012);
   const archMat=bridgePhysicalStone(0xd6c7aa,.98,2.2,1.35,.02);
   const pierMat=bridgePhysicalStone(0xb6a88e,.99,1.35,1.8,.018);
   for(const side of [-1,1]){
