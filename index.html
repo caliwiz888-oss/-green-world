@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-1938';
+const GREEN_WORLD_BUILD_ID = '20261108-2218';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1703,34 +1703,47 @@ function makeWorldLandscape(){
  skyGeo.setAttribute('color',new THREE.Float32BufferAttribute(skyColors,3));
  const skyDome=new THREE.Mesh(skyGeo,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,depthWrite:false,fog:false}));
  skyDome.position.y=10;skyDome.renderOrder=-2;world.add(skyDome);
- // Многослойный горный горизонт возвращает глубину пейзажу за пределами двора.
- // Силуэты расположены за внешней площадкой и не затрагивают игровую геометрию.
- const mountainLayers=[
-  {z:-82,color:0xaaa993,opacity:.94,points:[[-100,-8],[-100,3],[-82,7],[-68,5],[-49,10],[-32,6],[-12,12],[5,6],[25,10],[43,5],[62,9],[79,5],[100,7],[100,-8]]},
-  {z:-91,color:0x929982,opacity:.96,points:[[-100,-9],[-100,2],[-83,6],[-67,4],[-48,8],[-29,5],[-8,10],[12,5],[31,8],[52,4],[72,7],[88,4],[100,6],[100,-9]]},
-  {z:-100,color:0x78876e,opacity:.98,points:[[-100,-10],[-100,1],[-82,4],[-65,3],[-47,6],[-29,4],[-8,8],[12,4],[31,6],[50,3],[69,5],[86,3],[100,4],[100,-10]]}
+ // Природный горный горизонт GREEN WORLD: компактный дальний хребет,
+ // зелёные лесистые склоны, каменные уступы и несколько каскадных водопадов.
+ // Все элементы остаются за пределами двора и не меняют его геометрию.
+ const alpineRidges=[
+  {z:-103,color:0x9da98f,points:[[-100,-9],[-100,1],[-88,3],[-76,2],[-63,5],[-51,3],[-38,7],[-25,4],[-11,8],[3,4],[17,7],[31,3],[46,6],[61,3],[77,5],[90,2],[100,4],[100,-9]]},
+  {z:-94,color:0x718b65,points:[[-100,-9],[-100,0],[-88,3],[-76,2],[-64,6],[-53,3],[-42,9],[-31,4],[-19,11],[-7,5],[5,10],[18,4],[30,9],[42,4],[54,8],[68,3],[80,7],[92,3],[100,5],[100,-9]]},
+  {z:-85,color:0x536f4b,points:[[-100,-10],[-100,0],[-88,2],[-77,1],[-67,4],[-56,2],[-45,6],[-34,2],[-23,7],[-12,3],[-2,8],[9,3],[20,7],[31,2],[42,6],[53,2],[64,5],[76,2],[88,4],[100,1],[100,-10]]}
  ];
- for(const layer of mountainLayers){
-  const shape=new THREE.Shape();
-  layer.points.forEach(([x,y],i)=>i===0?shape.moveTo(x,y):shape.lineTo(x,y));
-  shape.closePath();
-  const ridge=new THREE.Mesh(new THREE.ShapeGeometry(shape,2),new THREE.MeshBasicMaterial({
-   color:layer.color,transparent:true,opacity:layer.opacity,side:THREE.DoubleSide,
-   depthWrite:false,fog:false
-  }));
-  ridge.name='GREEN_WORLD_Distant_Mountain_Ridge';
-  ridge.position.set(0,0,layer.z);
-  ridge.scale.y=.82;
-  ridge.renderOrder=-1;
-  world.add(ridge);
+ for(let layerIndex=0;layerIndex<alpineRidges.length;layerIndex++){
+  const layer=alpineRidges[layerIndex],shape=new THREE.Shape();
+  layer.points.forEach(([x,y],i)=>i===0?shape.moveTo(x,y):shape.lineTo(x,y));shape.closePath();
+  const ridge=new THREE.Mesh(new THREE.ShapeGeometry(shape,3),new THREE.MeshBasicMaterial({color:layer.color,side:THREE.DoubleSide,depthWrite:false,fog:false}));
+  ridge.name='GREEN_WORLD_Natural_Alpine_Ridge_'+layerIndex;
+  ridge.position.set(0,0,layer.z);ridge.scale.y=.82;ridge.renderOrder=-3+layerIndex;world.add(ridge);
  }
- // Лёгкая атмосферная дымка отделяет дальние хребты от ближнего леса.
- const distantHaze=new THREE.Mesh(
-  new THREE.PlaneGeometry(190,25),
-  new THREE.MeshBasicMaterial({color:0xc5e0df,transparent:true,opacity:.012,depthWrite:false,side:THREE.DoubleSide,fog:false})
- );
- distantHaze.position.set(0,7.5,-78);
- world.add(distantHaze);
+ // Скальные уступы на дальнем хребте добавляют природный рельеф, не увеличивая высоту гор.
+ const alpineRockMat=new THREE.MeshStandardMaterial({color:0x8c927d,roughness:1,flatShading:true});
+ for(const [x,y,z,sx,sy,sz] of [[-22,7.2,-84,2.4,1.4,.75],[-17,8.1,-84,1.5,1.1,.65],[13,7.1,-84,2.1,1.3,.7],[18,6.4,-84,1.7,1,.6],[43,5.8,-84,1.8,1.1,.6],[-49,5.4,-84,1.8,.9,.6]]){
+  const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(1,0),alpineRockMat);
+  rock.position.set(x,y,z);rock.scale.set(sx,sy,sz);rock.rotation.set(.12,x*.013,.18);rock.name='GREEN_WORLD_Alpine_Rock_Outcrop';world.add(rock);
+ }
+ // Несколько узких водопадов на склонах: светлая вода читается на фоне леса,
+ // а сами потоки остаются небольшими из-за дальнего расположения.
+ const waterfallMat=new THREE.MeshBasicMaterial({color:0xd8f5f2,transparent:true,opacity:.88,depthWrite:false,fog:false});
+ const waterfallGlowMat=new THREE.MeshBasicMaterial({color:0x8fd8dc,transparent:true,opacity:.34,depthWrite:false,fog:false});
+ const waterfallPaths=[
+  [[-43,6.0,-83.65],[-42.7,4.8,-83.65],[-43.2,3.5,-83.65],[-42.8,2.1,-83.65],[-42.5,.6,-83.65]],
+  [[-19,8.3,-83.55],[-18.7,6.6,-83.55],[-19.2,5.0,-83.55],[-18.8,3.2,-83.55],[-18.5,.5,-83.55]],
+  [[7,7.8,-83.55],[7.3,6.3,-83.55],[6.8,4.8,-83.55],[7.1,3.2,-83.55],[7.4,.6,-83.55]],
+  [[35,6.8,-83.65],[35.3,5.5,-83.65],[34.8,4.0,-83.65],[35.1,2.5,-83.65],[35.4,.5,-83.65]],
+  [[61,5.7,-83.7],[60.7,4.5,-83.7],[61.2,3.2,-83.7],[60.9,1.8,-83.7],[60.6,.5,-83.7]]
+ ];
+ for(let i=0;i<waterfallPaths.length;i++){
+  const curve=new THREE.CatmullRomCurve3(waterfallPaths[i].map(p=>new THREE.Vector3(...p)));
+  const flow=new THREE.Mesh(new THREE.TubeGeometry(curve,24,.105,5,false),waterfallMat);
+  flow.name='GREEN_WORLD_Distant_Waterfall';flow.renderOrder=2;world.add(flow);
+  const glint=new THREE.Mesh(new THREE.TubeGeometry(curve,24,.22,5,false),waterfallGlowMat);
+  glint.name='GREEN_WORLD_Waterfall_Glacier_Glint';glint.renderOrder=1;world.add(glint);
+ }
+ // Убираем отдельную голубую полосу перед горами: дальний ландшафт визуально
+ // перекрывает горизонт и плавно продолжается от общей зелёной площадки.
  // Удалены дальние облачные полосы вместе с горным фоном.
  // Fine high-altitude cirrus wisps add depth to the sky while staying translucent.
  const cirrusMat=new THREE.MeshBasicMaterial({color:0xf4f7f2,transparent:true,opacity:.085,depthWrite:false,fog:false});
