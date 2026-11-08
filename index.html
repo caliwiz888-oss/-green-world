@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-274000';
+const GREEN_WORLD_BUILD_ID = '20261108-275000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2951,15 +2951,15 @@ function makeWorldDecor(){
  }
 
  // Физически корректный мягкий блеск подчёркивает уже существующую микрофактуру коры и хвои.
- const gwBark=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwBarkMap,bumpMap:gwBarkBump,bumpScale:.032,roughness:.96,clearcoat:.07,clearcoatRoughness:.88});
- const gwPineA=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineBump,bumpScale:.011,roughness:.96,sheen:.24,sheenColor:0x8cae70,sheenRoughness:.92});
- const gwPineB=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineBump,bumpScale:.013,roughness:.97,sheen:.29,sheenColor:0x9bbd7b,sheenRoughness:.94});
- const gwPineC=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineBump,bumpScale:.012,roughness:.96,sheen:.26,sheenColor:0x829f68,sheenRoughness:.93});
+ const gwBark=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwBarkMap,roughnessMap:gwBarkBump,bumpMap:gwBarkBump,bumpScale:.032,roughness:.96,clearcoat:.07,clearcoatRoughness:.88});
+ const gwPineA=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,bumpMap:gwPineBump,bumpScale:.011,roughness:.96,sheen:.24,sheenColor:0x8cae70,sheenRoughness:.92});
+ const gwPineB=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,bumpMap:gwPineBump,bumpScale:.013,roughness:.97,sheen:.29,sheenColor:0x9bbd7b,sheenRoughness:.94});
+ const gwPineC=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,bumpMap:gwPineBump,bumpScale:.012,roughness:.96,sheen:.26,sheenColor:0x829f68,sheenRoughness:.93});
  // Лепестки получают широкий матовый световой отклик, без пластикового блеска.
- const gwPinkA=new THREE.MeshPhysicalMaterial({color:0xffd9e7,map:gwBloomMap,bumpMap:gwBloomBump,bumpScale:.016,roughness:.95,sheen:.38,sheenColor:0xffc7dc,sheenRoughness:.96});
- const gwPinkB=new THREE.MeshPhysicalMaterial({color:0xffb9d1,map:gwBloomMap,bumpMap:gwBloomBump,bumpScale:.018,roughness:.95,sheen:.42,sheenColor:0xffd2e2,sheenRoughness:.97});
- const gwPinkC=new THREE.MeshPhysicalMaterial({color:0xffedf3,map:gwBloomMap,bumpMap:gwBloomBump,bumpScale:.014,roughness:.96,sheen:.34,sheenColor:0xffdce8,sheenRoughness:.96});
- const gwLeaf=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineBump,bumpScale:.012,roughness:.97,sheen:.3,sheenColor:0x9bbd7b,sheenRoughness:.94});
+ const gwPinkA=new THREE.MeshPhysicalMaterial({color:0xffd9e7,map:gwBloomMap,roughnessMap:gwBloomBump,bumpMap:gwBloomBump,bumpScale:.016,roughness:.95,sheen:.38,sheenColor:0xffc7dc,sheenRoughness:.96});
+ const gwPinkB=new THREE.MeshPhysicalMaterial({color:0xffb9d1,map:gwBloomMap,roughnessMap:gwBloomBump,bumpMap:gwBloomBump,bumpScale:.018,roughness:.95,sheen:.42,sheenColor:0xffd2e2,sheenRoughness:.97});
+ const gwPinkC=new THREE.MeshPhysicalMaterial({color:0xffedf3,map:gwBloomMap,roughnessMap:gwBloomBump,bumpMap:gwBloomBump,bumpScale:.014,roughness:.96,sheen:.34,sheenColor:0xffdce8,sheenRoughness:.96});
+ const gwLeaf=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,bumpMap:gwPineBump,bumpScale:.012,roughness:.97,sheen:.3,sheenColor:0x9bbd7b,sheenRoughness:.94});
  const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,56,24);
  const gwPineGeos=[new THREE.ConeGeometry(1,1,56,12),new THREE.ConeGeometry(.82,.92,56,12),new THREE.ConeGeometry(.63,.82,56,12)];
  const gwCrownGeo=new THREE.SphereGeometry(1,48,32);
