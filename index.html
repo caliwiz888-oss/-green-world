@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-200000';
+const GREEN_WORLD_BUILD_ID = '20261108-201000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3363,35 +3363,38 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
    rockFaces:[{x:-.58,drift:.13,width:.035,raise:.12},{x:-.18,drift:-.12,width:.032,raise:.15},{x:.28,drift:.1,width:.03,raise:.16},{x:.68,drift:-.13,width:.035,raise:.13}],
    gullies:[{x:-.38,drift:.12,width:.03,cut:.28},{x:.02,drift:-.13,width:.028,cut:.34},{x:.48,drift:.12,width:.03,cut:.32}]
  });
- // Плавная альпийская предгорная терраса закрывает неровную линию стыка гор с равниной.
- // Она образует цельный мягкий переход в спокойной серо-шалфейной гамме.
- const foothillGeometry=new THREE.PlaneGeometry(76,9.2,228,36);
- const foothillPos=foothillGeometry.attributes.position;
- const foothillColors=[];
- const foothillFront=new THREE.Color(0x91a88a);
- const foothillMid=new THREE.Color(0x718a79);
- const foothillBack=new THREE.Color(0x667c72);
- for(let i=0;i<foothillPos.count;i++){
-   const x=foothillPos.getX(i),v=foothillPos.getY(i);
-   const t=(v+4.6)/9.2;
-   const profile=Math.pow(Math.sin(Math.PI*t),1.15);
-   const gentleContour=.045*Math.sin(x*.19)+.025*Math.sin(x*.43+1.2);
-   const edgeFade=Math.pow(Math.max(0,1-Math.pow(Math.abs(x)/39,8)),.35);
-   const h=(.58*profile+gentleContour*profile)*edgeFade;
-   foothillPos.setZ(i,h);
-   const color=foothillFront.clone().lerp(foothillMid,THREE.MathUtils.smoothstep(t,.12,.68))
-     .lerp(foothillBack,THREE.MathUtils.smoothstep(t,.68,1));
-   color.multiplyScalar(.97+.025*Math.sin(x*.16));
-   foothillColors.push(color.r,color.g,color.b);
+ // Внешний ландшафт за задней линией ограды: широкое предгорное плато
+ // с плавным рельефом и отдельной серо-шалфейной палитрой, отличной от газона двора.
+ // Плато перекрывает нижние неровные края гор и соединяет их с внешней равниной.
+ const outerFoothillGeometry=new THREE.PlaneGeometry(100,27,250,72);
+ const outerFoothillPos=outerFoothillGeometry.attributes.position;
+ const outerFoothillColors=[];
+ const outerFront=new THREE.Color(0x929982);
+ const outerMid=new THREE.Color(0x7e9085);
+ const outerBack=new THREE.Color(0x687d78);
+ for(let i=0;i<outerFoothillPos.count;i++){
+   const x=outerFoothillPos.getX(i),v=outerFoothillPos.getY(i);
+   const t=THREE.MathUtils.clamp((v+13.5)/27,0,1);
+   const broadRoll=.035*Math.sin(x*.105+v*.075)+.022*Math.sin(x*.21-v*.11);
+   const edgeEase=Math.sin(Math.PI*t);
+   outerFoothillPos.setZ(i,.035+.055*edgeEase+broadRoll*edgeEase);
+   const color=outerFront.clone()
+     .lerp(outerMid,THREE.MathUtils.smoothstep(t,.08,.62))
+     .lerp(outerBack,THREE.MathUtils.smoothstep(t,.62,1));
+   const naturalVariation=1+.018*Math.sin(x*.17+v*.12)+.009*Math.cos(x*.31-v*.2);
+   color.multiplyScalar(naturalVariation);
+   outerFoothillColors.push(color.r,color.g,color.b);
  }
- foothillGeometry.setAttribute('color',new THREE.Float32BufferAttribute(foothillColors,3));
- foothillGeometry.computeVertexNormals();
- const foothillMaterial=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:1,metalness:0,side:THREE.DoubleSide});
- const foothillTerrace=new THREE.Mesh(foothillGeometry,foothillMaterial);
- foothillTerrace.name='GREEN_WORLD_Smooth_Alpine_Foothill_Transition';
- foothillTerrace.rotation.x=-Math.PI/2;
- foothillTerrace.position.set(0,.035,-43.4);
- foothillTerrace.receiveShadow=false;foothillTerrace.castShadow=false;world.add(foothillTerrace);
+ outerFoothillGeometry.setAttribute('color',new THREE.Float32BufferAttribute(outerFoothillColors,3));
+ outerFoothillGeometry.computeVertexNormals();
+ const outerFoothillMaterial=new THREE.MeshStandardMaterial({
+   color:0xffffff,vertexColors:true,roughness:1,metalness:0,side:THREE.DoubleSide
+ });
+ const outerFoothill=new THREE.Mesh(outerFoothillGeometry,outerFoothillMaterial);
+ outerFoothill.name='GREEN_WORLD_Exterior_Sage_Foothill_Plateau';
+ outerFoothill.rotation.x=-Math.PI/2;
+ outerFoothill.position.set(0,.045,-36.5);
+ outerFoothill.receiveShadow=false;outerFoothill.castShadow=false;world.add(outerFoothill);
  // Новая цельная альпийская гряда заменяет предыдущие отдельные модели гор; задний план остаётся открытым.
  // Весь лес удалён по запросу: хвойные и лиственные деревья не создаются.
   // A broad river outside the farm boundary, with layered banks and a stone crossing.
