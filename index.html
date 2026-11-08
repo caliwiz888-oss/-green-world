@@ -3834,8 +3834,44 @@ function makeHouse(){
  manorWallTexture.wrapS=manorWallTexture.wrapT=THREE.RepeatWrapping;
  manorWallTexture.repeat.set(2,2);
  manorWallTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- const manorWallBump=manorWallTexture.clone();
- manorWallBump.colorSpace=THREE.NoColorSpace;manorWallBump.needsUpdate=true;
+ // Отдельная карта высот: углублённые швы и мягкие перепады поверхности
+ // дают камню самостоятельный рельеф, не влияя на его кремовый цвет.
+ const manorBumpCanvas=document.createElement('canvas');
+ manorBumpCanvas.width=256;manorBumpCanvas.height=256;
+ const manorBumpCtx=manorBumpCanvas.getContext('2d');
+ const manorBumpImage=manorBumpCtx.createImageData(256,256);
+ let manorBumpSeed=73191;
+ const manorBumpRand=()=>{manorBumpSeed=(manorBumpSeed*1664525+1013904223)>>>0;return manorBumpSeed/4294967296};
+ for(let y=0;y<256;y++)for(let x=0;x<256;x++){
+  const p=(y*256+x)*4;
+  const grain=(manorBumpRand()-.5)*13+Math.sin(x*.19+y*.13)*1.8;
+  const value=Math.max(0,Math.min(255,128+grain));
+  manorBumpImage.data[p]=manorBumpImage.data[p+1]=manorBumpImage.data[p+2]=value;
+  manorBumpImage.data[p+3]=255;
+ }
+ manorBumpCtx.putImageData(manorBumpImage,0,0);
+ // Тонкая фаска по горизонтальным и вертикальным швам кладки.
+ for(let row=0;row<=4;row++){
+  const y=row*64,offset=row%2?0:32;
+  const horizontal=manorBumpCtx.createLinearGradient(0,y-1,0,y+3);
+  horizontal.addColorStop(0,'rgba(55,55,55,.16)');
+  horizontal.addColorStop(.48,'rgba(75,75,75,.25)');
+  horizontal.addColorStop(1,'rgba(205,205,205,.13)');
+  manorBumpCtx.fillStyle=horizontal;manorBumpCtx.fillRect(0,y-1,256,4);
+  for(let x=offset;x<256;x+=64){
+   const vertical=manorBumpCtx.createLinearGradient(x-1,0,x+3,0);
+   vertical.addColorStop(0,'rgba(55,55,55,.14)');
+   vertical.addColorStop(.5,'rgba(75,75,75,.22)');
+   vertical.addColorStop(1,'rgba(205,205,205,.12)');
+   manorBumpCtx.fillStyle=vertical;manorBumpCtx.fillRect(x-1,y+3,4,61);
+  }
+ }
+ const manorWallBump=new THREE.CanvasTexture(manorBumpCanvas);
+ manorWallBump.colorSpace=THREE.NoColorSpace;
+ manorWallBump.wrapS=manorWallBump.wrapT=THREE.RepeatWrapping;
+ manorWallBump.repeat.set(2,2);
+ manorWallBump.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ manorWallBump.needsUpdate=true;
  const manorWallMaterial=new THREE.MeshStandardMaterial({
   color:0xffedda,map:manorWallTexture,bumpMap:manorWallBump,
   roughnessMap:manorWallBump,bumpScale:.018,roughness:.91,metalness:0
