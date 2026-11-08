@@ -3831,7 +3831,7 @@ function makeHouse(){
  towerWallBump.repeat.set(4,2.5);towerWallBump.needsUpdate=true;
  const towerWallMaterial=new THREE.MeshStandardMaterial({
   color:0xfff5e6,map:towerWallTexture,bumpMap:towerWallBump,
-  bumpScale:.017,roughness:.93,metalness:0
+  roughnessMap:towerWallBump,bumpScale:.019,roughness:.92,metalness:0
  });
  // Отдельная настройка материала только для уже существующих колонн:
  // та же кремовая кладка, но более мелкий масштаб фактуры на узком круглом стволе.
@@ -3841,7 +3841,7 @@ function makeHouse(){
  towerColumnBump.repeat.set(.9,1.45);towerColumnBump.needsUpdate=true;
  const towerColumnMaterial=new THREE.MeshStandardMaterial({
   color:0xfff5e6,map:towerColumnTexture,bumpMap:towerColumnBump,
-  bumpScale:.014,roughness:.94,metalness:0
+  roughnessMap:towerColumnBump,bumpScale:.016,roughness:.93,metalness:0
  });
  // Центральный корпус, фронтон, окна, двери и вся отделка смещаются единым блоком назад;
  // башни с колоннами остаются на своих местах.
