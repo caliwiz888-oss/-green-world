@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-398100';
+const GREEN_WORLD_BUILD_ID = '20261108-399100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -982,8 +982,8 @@ function makeWorldDecor(){
     }
   }
   // Ограда по точному цветовому макету: светлые каменные столбы и тёмная кованая решётка с золотыми медальонами.
-  const fenceStone=mat(0xe9dfcc),fenceIvory=mat(0xf8f2e7),fenceReliefStone=mat(0xc8b493),fenceOutline=mat(0x665442,.92);
-  const fenceSandstone=mat(0xd9c7a8),fenceSlate=mat(0x657789),fenceTeal=mat(0x438d89);
+  const fenceStone=mat(0xcbb99a,.94),fenceIvory=mat(0xd9c6a4,.92),fenceReliefStone=mat(0xa98d68,.94),fenceOutline=mat(0x51402f,.94);
+  const fenceSandstone=mat(0xb99a72,.94),fenceSlate=mat(0x526575,.9),fenceTeal=mat(0x367c78,.88);
   const fenceIron=mat(0x514638),fenceIronLight=mat(0x76634b),fenceGold=mat(0xc99b52),fenceGoldLight=mat(0xe4c17a);
   const fenceNoShadow=mesh=>{mesh.castShadow=false;mesh.receiveShadow=false;return mesh;};
   // Забор собирается в отдельной группе: его можно целиком заменить без дублей геометрии.
