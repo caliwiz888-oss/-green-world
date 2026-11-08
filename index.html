@@ -3822,7 +3822,7 @@ function makeHouse(){
  manorWallBump.colorSpace=THREE.NoColorSpace;manorWallBump.needsUpdate=true;
  const manorWallMaterial=new THREE.MeshStandardMaterial({
   color:0xffedda,map:manorWallTexture,bumpMap:manorWallBump,
-  bumpScale:.012,roughness:.96,metalness:0
+  roughnessMap:manorWallBump,bumpScale:.018,roughness:.91,metalness:0
  });
  // Для круглых башен используется та же кремовая кладка с масштабом по окружности.
  const towerWallTexture=manorWallTexture.clone();
