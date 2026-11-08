@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-241000';
+const GREEN_WORLD_BUILD_ID = '20261108-242000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2963,12 +2963,24 @@ function makeWorldDecor(){
      leaf.scale.set(.31+(k%2)*.045,.24+(k%3)*.025,.29+(k%2)*.035);
      g.add(leaf);
    }
-   // Несколько молодых побегов у основания смягчают переход от травы к кусту.
-   for(let k=0;k<3;k++){
-     const sprout=new THREE.Mesh(gwSproutGeo,k===1?gwPineA:gwPineB);
-     const a=seed+k*2.1;sprout.position.set(Math.cos(a)*.31,.13,Math.sin(a)*.31);
-     sprout.rotation.z=Math.cos(a)*-.25;sprout.rotation.x=Math.sin(a)*.25;g.add(sprout);
+   // Низкая листва у самой земли закрывает резкий переход между кустом и травой.
+   for(let k=0;k<7;k++){
+     const a=seed*.37+k*Math.PI*2/7;
+     const r=.34+(k%3)*.045;
+     const skirt=new THREE.Mesh(gwCrownGeo,k%3===1?gwPineC:gwLeaf);
+     skirt.position.set(Math.cos(a)*r,.075+(k%2)*.018,Math.sin(a)*r);
+     skirt.scale.set(.205+(k%2)*.035,.085+(k%3)*.012,.19+(k%2)*.025);
+     g.add(skirt);
    }
+   // Молодые побеги и травяные пучки разной высоты связывают куст с лесной подстилкой.
+   for(let k=0;k<5;k++){
+     const a=seed+k*2.1;
+     const sprout=new THREE.Mesh(gwSproutGeo,k%3===1?gwPineA:gwPineB);
+     sprout.position.set(Math.cos(a)*(.29+(k%2)*.09),.12+(k%2)*.025,Math.sin(a)*(.29+(k%2)*.09));
+     sprout.rotation.z=Math.cos(a)*-.25;sprout.rotation.x=Math.sin(a)*.25;
+     sprout.scale.setScalar(.72+(k%3)*.12);g.add(sprout);
+   }
+   g.rotation.y=seed*.19;
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
  // Непрерывный лесной пояс у подножия гор: деревья стоят на плавном склоне,
