@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-2245';
+const GREEN_WORLD_BUILD_ID = '20261108-2255';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1714,9 +1714,9 @@ function makeWorldLandscape(){
  for(let layerIndex=0;layerIndex<alpineRidges.length;layerIndex++){
   const layer=alpineRidges[layerIndex],shape=new THREE.Shape();
   layer.points.forEach(([x,y],i)=>i===0?shape.moveTo(x,y):shape.lineTo(x,y));shape.closePath();
-  const ridge=new THREE.Mesh(new THREE.ShapeGeometry(shape,3),new THREE.MeshBasicMaterial({color:layer.color,side:THREE.DoubleSide,depthWrite:false,depthTest:false,fog:false}));
+  const ridge=new THREE.Mesh(new THREE.ShapeGeometry(shape,3),new THREE.MeshBasicMaterial({color:layer.color,side:THREE.DoubleSide,depthWrite:false,fog:false}));
   ridge.name='GREEN_WORLD_Natural_Alpine_Ridge_'+layerIndex;
-  ridge.position.set(0,0,layer.z);ridge.scale.y=.82;ridge.renderOrder=-3+layerIndex;world.add(ridge);
+  ridge.position.set(0,0,layer.z);ridge.scale.y=.82;ridge.renderOrder=1;world.add(ridge);
  }
  // Скальные уступы на дальнем хребте добавляют природный рельеф, не увеличивая высоту гор.
  const alpineRockMat=new THREE.MeshStandardMaterial({color:0x8c927d,roughness:1,flatShading:true});
