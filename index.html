@@ -3872,7 +3872,27 @@ function makeHouse(){
  // высокая двустворчатая дверь, вытянутые арочные окна и каменный портик.
  const facadeGold=new THREE.MeshStandardMaterial({color:0xd9b15f,roughness:.3,metalness:.82});
  const facadeBronze=new THREE.MeshStandardMaterial({color:0x493326,roughness:.46,metalness:.38});
- const facadeWood=new THREE.MeshStandardMaterial({color:0x3e3028,roughness:.56,metalness:.08});
+ // Тонкая вертикальная текстура натурального дерева только для входной двери и её филёнок.
+ const doorGrainCanvas=document.createElement('canvas');
+ doorGrainCanvas.width=128;doorGrainCanvas.height=256;
+ const doorGrainCtx=doorGrainCanvas.getContext('2d');
+ const doorGrainImage=doorGrainCtx.createImageData(128,256);
+ let doorGrainSeed=73129;
+ const doorGrainRand=()=>{doorGrainSeed=(doorGrainSeed*1664525+1013904223)>>>0;return doorGrainSeed/4294967296};
+ for(let y=0;y<256;y++)for(let x=0;x<128;x++){
+  const p=(y*128+x)*4;
+  const grain=(doorGrainRand()-.5)*9+Math.sin(x*.19+Math.sin(y*.035)*2)*3+Math.sin(x*.47+y*.012)*1.4;
+  const v=Math.max(0,Math.min(255,224+grain));
+  doorGrainImage.data[p]=v;doorGrainImage.data[p+1]=v;doorGrainImage.data[p+2]=v;doorGrainImage.data[p+3]=255;
+ }
+ doorGrainCtx.putImageData(doorGrainImage,0,0);
+ const doorGrainTexture=new THREE.CanvasTexture(doorGrainCanvas);
+ doorGrainTexture.colorSpace=THREE.SRGBColorSpace;
+ doorGrainTexture.wrapS=doorGrainTexture.wrapT=THREE.RepeatWrapping;
+ doorGrainTexture.repeat.set(1.5,1);
+ const doorGrainBump=doorGrainTexture.clone();
+ doorGrainBump.colorSpace=THREE.NoColorSpace;doorGrainBump.needsUpdate=true;
+ const facadeWood=new THREE.MeshStandardMaterial({color:0x3e3028,map:doorGrainTexture,bumpMap:doorGrainBump,bumpScale:.018,roughness:.62,metalness:.04});
  const facadeWood2=new THREE.MeshStandardMaterial({color:0x634735,roughness:.55,metalness:.06});
  const facadeGlass=new THREE.MeshStandardMaterial({color:0x35b9c1,roughness:.18,metalness:.22,transparent:true,opacity:.9,side:THREE.DoubleSide});
  const facadeStone=new THREE.MeshStandardMaterial({color:0xfff0d9,roughness:.86});
