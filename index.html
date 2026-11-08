@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-252000';
+const GREEN_WORLD_BUILD_ID = '20261108-253000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -465,7 +465,7 @@ function makeSurfaceTexture(kind,seed){
    }
   }
   // Мелкая керамическая зернистость и редкие потёртые точки делают черепицу менее пластиковой.
-  for(let i=0;i<620;i++){
+  for(let i=0;i<900;i++){
    const x=rand()*size,y=rand()*size,r=.35+rand()*.85;
    const light=rand()>.56;
    ctx.fillStyle=light?'rgba(255,222,190,'+(.035+rand()*.055)+')':'rgba(63,31,27,'+(.035+rand()*.05)+')';
@@ -2825,13 +2825,20 @@ function makeWorldDecor(){
    const q=c.getContext('2d');
    if(kind==='bark'){
      q.fillStyle='#765039';q.fillRect(0,0,size,size);
-     for(let i=0;i<3600;i++){
+     for(let i=0;i<5200;i++){
        const x=(i*173)%size,y=(i*293)%size,w=1+(i%5),h=12+(i*37)%115;
        q.fillStyle=i%3===0?'rgba(35,20,12,.25)':'rgba(205,157,105,.13)';q.fillRect(x,y,w,h);
      }
      for(let i=0;i<112;i++){
        const x=(i*137)%size;q.strokeStyle='rgba(30,18,12,.22)';q.lineWidth=1+(i%3);
        q.beginPath();q.moveTo(x,0);q.lineTo(x+(i%5-2)*11,size);q.stroke();
+     }
+     // Мелкие сучки и годичные неровности делают кору менее плоской.
+     for(let i=0;i<180;i++){
+       const x=(i*137+53)%size,y=(i*211+97)%size,r=2+(i%5);
+       q.strokeStyle='rgba(38,22,13,.22)';q.lineWidth=1;
+       q.beginPath();q.ellipse(x,y,r*1.7,r,((i%9)-4)*.12,0,Math.PI*2);q.stroke();
+       q.strokeStyle='rgba(218,169,119,.18)';q.beginPath();q.moveTo(x-r,y);q.lineTo(x+r,y);q.stroke();
      }
      // Короткие поперечные трещины и мягкие светлые волокна добавляют коре природный рельеф.
      for(let i=0;i<620;i++){
@@ -2842,13 +2849,20 @@ function makeWorldDecor(){
      }
    }else if(kind==='pine'){
      q.fillStyle='#174d35';q.fillRect(0,0,size,size);
-     for(let i=0;i<15000;i++){
+     for(let i=0;i<19000;i++){
        const x=(i*197)%size,y=(i*313)%size;
        q.fillStyle=i%3===0?'rgba(129,178,105,.30)':i%3===1?'rgba(5,37,25,.32)':'rgba(54,117,69,.30)';
        q.beginPath();q.ellipse(x,y,1+(i%5),1+(i%4),((i%7)-3)*.15,0,Math.PI*2);q.fill();
      }
+     // Направленные группы иголок добавляют хвое тонкую объёмную фактуру.
+     for(let i=0;i<1800;i++){
+       const x=(i*157+31)%size,y=(i*239+71)%size;
+       q.strokeStyle=i%3===0?'rgba(190,220,151,.34)':'rgba(4,31,21,.28)';
+       q.lineWidth=.8+(i%3)*.35;q.beginPath();
+       q.moveTo(x,y);q.lineTo(x+3+(i%5),y-2-(i%4));q.stroke();
+     }
      // Мелкие иголки и редкие светлые кончики хвои создают тонкую неоднородную фактуру.
-     for(let i=0;i<9000;i++){
+     for(let i=0;i<12000;i++){
        const x=(i*283+17)%size,y=(i*421+29)%size,len=2+(i%8);
        q.strokeStyle=i%4===0?'rgba(180,210,139,.24)':'rgba(8,43,28,.22)';
        q.lineWidth=.55+(i%3)*.35;q.beginPath();q.moveTo(x,y);
@@ -2856,13 +2870,19 @@ function makeWorldDecor(){
      }
    }else{
      q.fillStyle='#f0a5c1';q.fillRect(0,0,size,size);
-     for(let i=0;i<8500;i++){
+     for(let i=0;i<10500;i++){
        const x=(i*181)%size,y=(i*277)%size;
        q.fillStyle=i%3===0?'rgba(255,239,245,.55)':i%3===1?'rgba(173,67,119,.20)':'rgba(255,255,255,.25)';
        q.beginPath();q.arc(x,y,1+(i%4),0,Math.PI*2);q.fill();
      }
+     // Лепестки разного направления дают цветочной кроне более живую фактуру.
+     for(let i=0;i<1200;i++){
+       const x=(i*163+19)%size,y=(i*251+43)%size;
+       q.fillStyle=i%3===0?'rgba(255,248,251,.42)':'rgba(177,69,117,.16)';
+       q.beginPath();q.ellipse(x,y,2+(i%4),4+(i%5),(i%11)*.27,0,Math.PI*2);q.fill();
+     }
      // Мягкие мелкие лепестковые блики с разной прозрачностью.
-     for(let i=0;i<2600;i++){
+     for(let i=0;i<3400;i++){
        const x=(i*239+13)%size,y=(i*157+31)%size,r=1+(i%3)*.65;
        q.fillStyle=i%2?'rgba(255,250,252,.32)':'rgba(190,82,132,.13)';
        q.beginPath();q.ellipse(x,y,r,r*1.6,(i%7-3)*.18,0,Math.PI*2);q.fill();
@@ -2883,14 +2903,14 @@ function makeWorldDecor(){
  const gwPinkB=new THREE.MeshStandardMaterial({color:0xffffff,map:gwBloomMap,roughness:.92});
  const gwPinkC=new THREE.MeshStandardMaterial({color:0xffffff,map:gwBloomMap,roughness:.95});
  const gwLeaf=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,roughness:.98});
- const gwTrunkGeo=new THREE.CylinderGeometry(.115,.245,1,18,6);
- const gwPineGeos=[new THREE.ConeGeometry(1,1,16,3),new THREE.ConeGeometry(.82,.92,16,3),new THREE.ConeGeometry(.63,.82,16,3)];
- const gwCrownGeo=new THREE.SphereGeometry(1,16,12);
+ const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,22,8);
+ const gwPineGeos=[new THREE.ConeGeometry(1,1,20,4),new THREE.ConeGeometry(.82,.92,20,4),new THREE.ConeGeometry(.63,.82,20,4)];
+ const gwCrownGeo=new THREE.SphereGeometry(1,20,14);
  // Общие формы ветвей и корней переиспользуются всеми деревьями.
- const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,14,2);
- const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,9,2);
- const gwRootGeo=new THREE.CylinderGeometry(.009,.09,1,10,2);
- const gwBlossomBranchGeo=new THREE.CylinderGeometry(.014,.078,1,14,3);
+ const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,16,3);
+ const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,12,3);
+ const gwRootGeo=new THREE.CylinderGeometry(.008,.095,1,12,3);
+ const gwBlossomBranchGeo=new THREE.CylinderGeometry(.012,.082,1,16,4);
  const gwSproutGeo=new THREE.ConeGeometry(.075,.28,10,2);
  function gwAddPine(x,z,h,seed=0,baseY=0){
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
@@ -2898,7 +2918,7 @@ function makeWorldDecor(){
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
    trunk.position.set(leanX,h*.35,leanZ);trunk.scale.set(.58,h*.78,.58);g.add(trunk);
    // Число и ширина ярусов слегка меняются от дерева к дереву.
-   const tierCount=5+Math.abs(Math.floor(seed*7))%3;
+   const tierCount=6+Math.abs(Math.floor(seed*7))%3;
    for(let k=0;k<tierCount;k++){
      const t=k/(tierCount-1);
      const irregular=1+.085*Math.sin(seed*1.7+k*2.13);
@@ -2910,8 +2930,8 @@ function makeWorldDecor(){
      g.add(crown);
    }
    // Короткие боковые лапы дают видимый многослойный контур хвои.
-   for(let k=0;k<24;k++){
-     const a=seed+k*Math.PI*2/24,level=k%8;
+   for(let k=0;k<28;k++){
+     const a=seed+k*Math.PI*2/28,level=k%7;
      const reach=h*(.105+(level%4)*.014),thickness=h*(.034+(level%3)*.006);
      const bough=new THREE.Mesh(gwPineBoughGeo,k%4===0?gwPineC:(k%3===0?gwPineA:gwPineB));
      bough.position.set(Math.cos(a)*reach,h*(.225+level*.082),Math.sin(a)*reach);
@@ -2940,15 +2960,15 @@ function makeWorldDecor(){
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
    trunk.position.y=h*.34;trunk.scale.set(.54,h*.72,.54);g.add(trunk);
    // Разветвлённая крона с открытыми промежутками между ветвями.
-   for(let k=0;k<14;k++){
-     const a=seed+k*Math.PI*2/14;
+   for(let k=0;k<16;k++){
+     const a=seed+k*Math.PI*2/16;
      const branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
      branch.position.set(Math.cos(a)*h*(.17+(k%3)*.025),h*(.53+(k%4)*.045),Math.sin(a)*h*(.17+(k%3)*.025));branch.scale.y=h*(.28+(k%3)*.035);
      branch.rotation.z=Math.cos(a)*-.68;branch.rotation.x=Math.sin(a)*.68;g.add(branch);
    }
    // Крона цветущего дерева собрана из разнокалиберных групп с естественной асимметрией.
    const petals=[gwPinkA,gwPinkB,gwPinkC,gwLeaf,gwPinkB,gwPinkA,gwPinkC];
-   const bloomCount=34+Math.abs(Math.floor(seed*7))%11;
+   const bloomCount=40+Math.abs(Math.floor(seed*7))%13;
    for(let k=0;k<bloomCount;k++){
      const a=k*2.399963+seed;
      const ring=k<Math.floor(bloomCount*.56)?1:(k<Math.floor(bloomCount*.86)?2:0);
@@ -2960,15 +2980,15 @@ function makeWorldDecor(){
      g.add(bloom);
    }
    // Несколько мелких соцветий по внешнему краю разбивают ровный контур кроны.
-   for(let k=0;k<24;k++){
+   for(let k=0;k<30;k++){
      const a=seed+k*2.399963;
      const petal=new THREE.Mesh(gwCrownGeo,k%3===0?gwPinkB:gwPinkA);
      petal.position.set(Math.cos(a)*h*.29,h*(.72+(k%4)*.045),Math.sin(a)*h*.29);
      petal.scale.set(h*(.062+(k%3)*.009),h*(.052+(k%2)*.01),h*(.062+(k%4)*.006));g.add(petal);
    }
    // Расширение корневой шейки и индивидуальный наклон ствола.
-   for(let k=0;k<7;k++){
-     const a=seed+k*Math.PI*2/7;
+   for(let k=0;k<8;k++){
+     const a=seed+k*Math.PI*2/8;
      const root=new THREE.Mesh(gwRootGeo,gwBark);
      root.position.set(Math.cos(a)*h*.07,h*.045,Math.sin(a)*h*.07);root.scale.y=h*.16*(.07/.085);
      root.rotation.z=Math.cos(a)*-.68;root.rotation.x=Math.sin(a)*.68;g.add(root);
