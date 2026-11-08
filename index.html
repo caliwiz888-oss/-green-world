@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-291000';
+const GREEN_WORLD_BUILD_ID = '20261108-292000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -583,7 +583,6 @@ function disableCastShadows(root){root.traverse(object=>{if(object.isMesh){objec
 function warmLight(parent,x,y,z,intensity=0.65,distance=5){const light=new THREE.PointLight(0xffc978,intensity,distance,2);light.position.set(x,y,z);light.castShadow=false;parent.add(light);return light}
 const world=group(scene,0,0,0);
 box(world,76,.55,76,0,-.42,0,M.grass,false);
-box(world,26,.12,26,0,-.08,0,M.grass2,false);
 
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
 function makeMarket(){
@@ -2682,20 +2681,22 @@ function makeWorldDecor(){
   // с наружными гранями площадок магазина и завода.
   // Новый увеличенный периметр участка: немного шире по X и длиннее в глубину.
   // Центральный вход остаётся на прежней оси и не сдвигает внутренний двор.
-  const frontFenceLeft=-15.40;
-  const frontFenceRight=17.40;
-  const frontFenceZ=14.02;
-  // Передняя ограда: по четыре секции с каждой стороны арки.
+  // Единые координаты внешнего периметра участка.
+  const areaBounds={left:-15.40,right:17.40,front:14.02,back:-23.00};
+  const frontFenceLeft=areaBounds.left;
+  const frontFenceRight=areaBounds.right;
+  const frontFenceZ=areaBounds.front;
+  const sideFenceEndZ=areaBounds.back;
+  // Передняя линия: по четыре секции слева и справа от центральной арки.
   const leftFrontSpacing=(Math.abs(frontFenceLeft)-3.20)/4;
   const rightFrontSpacing=(frontFenceRight-3.20)/4;
   fenceRun(-3.20,frontFenceZ,frontFenceLeft,frontFenceZ,leftFrontSpacing,0,0,{bayFaceAngle:Math.PI});
-  fenceRun(3.20,frontFenceZ,frontFenceRight,frontFenceZ,rightFrontSpacing);
-  // Боковые и задняя линии идут строго горизонтально на одном уровне с передним ограждением.
-  const sideFenceEndZ=-23.00;
-  // Угловые столбы уже создаются передними и задней линиями; боковые пролёты используют их без дублирования.
+  fenceRun(3.20,frontFenceZ,frontFenceRight,frontFenceZ,rightFrontSpacing,0,0);
+  // Боковые стороны привязаны к тем же углам, без повторных угловых столбов.
   fenceRun(frontFenceLeft,frontFenceZ,frontFenceLeft,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:Math.PI/2});
   fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
-  // Задние секции ограждения удалены по запросу; боковые линии сохранены.
+  // Задняя сторона замыкает периметр ровно восемью секциями.
+  fenceRun(frontFenceLeft,sideFenceEndZ,frontFenceRight,sideFenceEndZ,(frontFenceRight-frontFenceLeft)/8,0,0,{includeStart:false,includeEnd:false});
   // Жёстко отключаем отбрасывание и приём теней у всех деталей ограждения, включая столбики и навершия.
   fenceGroup.traverse(object=>{if(object.isMesh){object.castShadow=false;object.receiveShadow=false;}});
   // Входная арка повторяет геометрию эталона: прямые массивные устои и полукруглый верх с тремя ступенями обрамления.
