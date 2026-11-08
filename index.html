@@ -3831,129 +3831,8 @@ function makeHouse(){
   box(center,w+.28,.09,.32,x,y+h+.04,z+.08,stone);
   box(center,w+.20,.045,.34,x,y+h+.12,z+.08,gold);
  }
- // Новый фасад в стиле дворцового ар-нуво: витражи, эмалевые двери и плавный медный козырёк.
- // Старые варианты дверей, окон и козырька не используются.
- const facadeCopper=new THREE.MeshStandardMaterial({color:0x23796f,roughness:.38,metalness:.76});
+ // На фасаде удалены все двери, окна, витражи и козырёк.
  const facadeGold=new THREE.MeshStandardMaterial({color:0xd9b15f,roughness:.3,metalness:.82});
- const doorEnamel=new THREE.MeshStandardMaterial({color:0x123f46,roughness:.34,metalness:.38});
- const glassA=new THREE.MeshPhysicalMaterial({color:0x35b9b1,roughness:.18,metalness:.18,transparent:true,opacity:.88});
- const glassB=new THREE.MeshPhysicalMaterial({color:0x8b6ba8,roughness:.2,metalness:.12,transparent:true,opacity:.84});
- // Портал — новый прямоугольный объём с мягко скруглённым верхом и ступенчатым каменным обрамлением.
- const portalShapeGW=new THREE.Shape();
- portalShapeGW.moveTo(-1.02,0);portalShapeGW.lineTo(-1.02,2.24);
- portalShapeGW.quadraticCurveTo(-1.02,2.72,-.58,2.72);
- portalShapeGW.lineTo(.58,2.72);portalShapeGW.quadraticCurveTo(1.02,2.72,1.02,2.24);
- portalShapeGW.lineTo(1.02,0);portalShapeGW.closePath();
- const portalGW=new THREE.Mesh(new THREE.ExtrudeGeometry(portalShapeGW,{depth:.19,bevelEnabled:true,bevelSegments:4,steps:1,bevelSize:.045,bevelThickness:.035}),cream);
- portalGW.position.set(0,.55,2.66);portalGW.castShadow=true;center.add(portalGW);
- // Глубокие откосы портала и внутренний медный контур.
- const portalLineGW=new THREE.Mesh(new THREE.ExtrudeGeometry(portalShapeGW,{depth:.035,bevelEnabled:false}),facadeGold);
- portalLineGW.scale.set(.91,.94,1);portalLineGW.position.set(0,.62,2.865);center.add(portalLineGW);
- // Двустворчатая дверь из тёмной бирюзовой эмали с вертикальными латунными вставками.
- const doorShapeGW=new THREE.Shape();
- doorShapeGW.moveTo(-.82,0);doorShapeGW.lineTo(-.82,2.25);
- doorShapeGW.quadraticCurveTo(-.82,2.53,-.55,2.53);
- doorShapeGW.lineTo(.55,2.53);doorShapeGW.quadraticCurveTo(.82,2.53,.82,2.25);
- doorShapeGW.lineTo(.82,0);doorShapeGW.closePath();
- const doorGW=new THREE.Mesh(new THREE.ExtrudeGeometry(doorShapeGW,{depth:.095,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.025,bevelThickness:.02}),doorEnamel);
- doorGW.position.set(0,.60,2.91);doorGW.castShadow=true;center.add(doorGW);
- for(const side of [-1,1]){
-  // Высокие филёнки с вытянутыми латунными рамками.
-  box(center,.045,1.78,.035,side*.405,1.56,3.025,facadeGold,false);
-  box(center,.30,1.38,.025,side*.405,1.57,3.03,facadeCopper,false);
-  box(center,.24,1.30,.025,side*.405,1.57,3.05,doorEnamel,false);
-  box(center,.34,.045,.035,side*.405,.82,3.03,facadeGold,false);
-  box(center,.34,.045,.035,side*.405,2.30,3.03,facadeGold,false);
-  // Декоративная вертикальная вставка из бирюзового стекла.
-  box(center,.10,.82,.025,side*.405,1.58,3.07,glassA,false);
-  sphere(center,.065,side*.13,1.56,3.10,facadeGold,.9);
-  sphere(center,.045,side*.13,1.56,3.13,facadeCopper,.9);
- }
- // Широкий веерный витраж над дверью с радиальными латунными лучами.
- const fanGW=new THREE.Shape();
- fanGW.moveTo(-.70,0);fanGW.lineTo(.70,0);fanGW.lineTo(.70,.12);
- fanGW.absarc(0,.12,.70,0,Math.PI,false);fanGW.closePath();
- const fanMeshGW=new THREE.Mesh(new THREE.ShapeGeometry(fanGW),glassA);
- fanMeshGW.position.set(0,3.13,3.055);center.add(fanMeshGW);
- for(let j=0;j<=8;j++){
-  const a=Math.PI-j*Math.PI/8;
-  const pts=[new THREE.Vector3(0,3.25,3.07),new THREE.Vector3(.67*Math.cos(a),3.25+.67*Math.sin(a),3.07)];
-  center.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(pts[0],pts[1]),12,.014,6,false),facadeGold));
- }
- // Два новых витражных окна: вытянутые проёмы с плавными плечами, не повторяющие прежние арки.
- function artNouveauWindowGW(x){
-  const sh=new THREE.Shape();
-  sh.moveTo(-.55,0);sh.lineTo(-.55,1.42);
-  sh.quadraticCurveTo(-.55,1.92,-.20,2.02);
-  sh.quadraticCurveTo(0,2.08,.20,2.02);
-  sh.quadraticCurveTo(.55,1.92,.55,1.42);
-  sh.lineTo(.55,0);sh.closePath();
-  const surround=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.13,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.035,bevelThickness:.025}),cream);
-  surround.position.set(x,1.30,2.67);surround.castShadow=true;center.add(surround);
-  const inner=new THREE.Mesh(new THREE.ShapeGeometry(sh),glassB);
-  inner.scale.set(.82,.91,1);inner.position.set(x,1.38,2.815);center.add(inner);
-  // Геометрический витраж: вертикальная ось и две плавные латунные дуги.
-  box(center,.035,1.68,.035,x,2.25,2.85,facadeGold,false);
-  box(center,.82,.035,.035,x,2.05,2.85,facadeGold,false);
-  box(center,.82,.035,.035,x,2.72,2.85,facadeGold,false);
-  for(const side of [-1,1]){
-   const curve=new THREE.QuadraticBezierCurve3(
-    new THREE.Vector3(x,1.52,2.85),
-    new THREE.Vector3(x+side*.40,2.15,2.85),
-    new THREE.Vector3(x+side*.24,3.16,2.85)
-   );
-   center.add(new THREE.Mesh(new THREE.TubeGeometry(curve,24,.018,6,false),facadeGold));
-  }
-  box(center,1.34,.13,.34,x,1.25,2.76,stone);
-  box(center,1.26,.045,.36,x,1.34,2.80,facadeGold);
-  sphere(center,.07,x,3.43,2.82,facadeGold,.9);
- }
- artNouveauWindowGW(-2.18);artNouveauWindowGW(2.18);
- // Медный козырёк в форме плавного крыла: изогнутая поверхность с приподнятыми боковыми концами.
- const canopyGeoGW=new THREE.BufferGeometry(),vertsGW=[],indsGW=[];
- const nxGW=24,nzGW=12;
- for(let iz=0;iz<=nzGW;iz++){
-  const v=iz/nzGW;
-  for(let ix=0;ix<=nxGW;ix++){
-   const u=ix/nxGW,x=(u-.5)*3.72;
-   const y=3.72+.22*Math.sin(Math.PI*u)-.12*v;
-   const z=2.76+v*.88;
-   vertsGW.push(x,y+.10*Math.sin(Math.PI*v)*(1-Math.abs(2*u-1)),z);
-  }
- }
- for(let iz=0;iz<nzGW;iz++)for(let ix=0;ix<nxGW;ix++){
-  const a=iz*(nxGW+1)+ix,b=a+1,c=a+nxGW+2,d=a+nxGW+1;
-  indsGW.push(a,b,c,a,c,d);
- }
- canopyGeoGW.setAttribute('position',new THREE.Float32BufferAttribute(vertsGW,3));
- canopyGeoGW.setIndex(indsGW);canopyGeoGW.computeVertexNormals();
- const canopyGW=new THREE.Mesh(canopyGeoGW,facadeCopper);canopyGW.material.side=THREE.DoubleSide;
- canopyGW.castShadow=true;center.add(canopyGW);
- // Передний золотой кант повторяет мягкую волнообразную линию козырька.
- const canopyEdgeGW=[];
- for(let i=0;i<=32;i++){
-  const u=i/32,x=(u-.5)*3.72;
-  canopyEdgeGW.push(new THREE.Vector3(x,3.72+.22*Math.sin(Math.PI*u)-.02,3.64));
- }
- center.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(canopyEdgeGW),64,.035,8,false),facadeGold));
- // Два изящных изогнутых кронштейна вместо старых опорных колонн.
- for(const side of [-1,1]){
-  const braceGW=new THREE.CatmullRomCurve3([
-   new THREE.Vector3(side*.92,3.62,2.72),
-   new THREE.Vector3(side*.98,3.36,2.94),
-   new THREE.Vector3(side*1.30,3.36,3.26),
-   new THREE.Vector3(side*1.52,3.62,3.55)
-  ]);
-  center.add(new THREE.Mesh(new THREE.TubeGeometry(braceGW,36,.045,8,false),facadeGold));
-  sphere(center,.075,side*1.52,3.62,3.55,facadeGold,.9);
- }
- // Каменная лента-подоконник входа и пара небольших медных светильников.
- box(center,2.10,.14,.38,0,.57,2.79,stone);
- box(center,2.00,.055,.40,0,.68,2.83,facadeGold);
- for(const side of [-1,1]){
-  box(center,.16,.34,.14,side*1.30,3.08,2.76,facadeCopper);
-  sphere(center,.10,side*1.30,3.30,2.76,facadeGold,.9);
- }
  // Парадная лестница с широкими каменными ступенями.
  for(let i=0;i<5;i++){
   box(center,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,cream);
@@ -3985,13 +3864,7 @@ function makeHouse(){
  manorGableShape.lineTo(0,6.04);manorGableShape.closePath();
  const manorGable=new THREE.Mesh(new THREE.ExtrudeGeometry(manorGableShape,{depth:.10,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.025,bevelThickness:.018}),ivory);
  manorGable.position.z=2.13;manorGable.castShadow=true;manorGable.receiveShadow=true;center.add(manorGable);
- // Круглое бирюзовое окно в центре фронтона с золотым ободом.
- const manorGableGlass=new THREE.Mesh(new THREE.CircleGeometry(.285,48),teal);
- manorGableGlass.position.set(0,5.20,2.255);center.add(manorGableGlass);
- const manorGableRing=new THREE.Mesh(new THREE.TorusGeometry(.315,.045,10,48),facadeGold);
- manorGableRing.position.set(0,5.20,2.27);center.add(manorGableRing);
- box(center,.035,.48,.035,0,5.20,2.285,facadeGold,false);
- box(center,.48,.035,.035,0,5.20,2.285,facadeGold,false);
+ // Окно и декоративное остекление фронтона удалены по просьбе пользователя.
  // Два широких ската от центрального конька к длинным боковым карнизам.
  manorRoofPlane([
   manorRoofV(0,manorRoofPeakY,manorRoofFrontZ),
