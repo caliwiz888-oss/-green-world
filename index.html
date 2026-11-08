@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-270000';
+const GREEN_WORLD_BUILD_ID = '20261108-271000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2840,6 +2840,13 @@ function makeWorldDecor(){
        q.beginPath();q.ellipse(x,y,r*1.7,r,((i%9)-4)*.12,0,Math.PI*2);q.stroke();
        q.strokeStyle='rgba(218,169,119,.18)';q.beginPath();q.moveTo(x-r,y);q.lineTo(x+r,y);q.stroke();
      }
+     // Тонкие продольные волокна коры подчёркивают направление роста ствола.
+     for(let i=0;i<2100;i++){
+       const x=(i*149+37)%size,y=(i*227+19)%size,len=18+(i*31)%94;
+       q.strokeStyle=i%5===0?'rgba(226,180,132,.16)':'rgba(39,23,14,.10)';
+       q.lineWidth=.45+(i%4)*.28;q.beginPath();q.moveTo(x,y);
+       q.bezierCurveTo(x+(i%7-3)*1.4,y+len*.32,x+(i%5-2)*1.8,y+len*.68,x+(i%9-4)*1.2,y+len);q.stroke();
+     }
      // Короткие поперечные трещины и мягкие светлые волокна добавляют коре природный рельеф.
      for(let i=0;i<620;i++){
        const x=(i*191+23)%size,y=(i*127+41)%size,len=5+(i*19)%34;
@@ -2952,6 +2959,18 @@ function makeWorldDecor(){
  gwSoftenTreeSilhouette(gwCrownGeo,.035,'sphere');
  gwSoftenTreeSilhouette(gwPineBoughGeo,.018);
  gwSoftenTreeSilhouette(gwPineTwigGeo,.014);
+ // Тонкая вертикальная неровность на существующих стволах и ветвях имитирует природную структуру древесины.
+ function gwAddBarkRelief(geo,strength){
+   const p=geo.attributes.position;
+   for(let i=0;i<p.count;i++){
+     const x=p.getX(i),y=p.getY(i),z=p.getZ(i),r=Math.hypot(x,z);
+     if(r<.0001)continue;
+     const a=Math.atan2(z,x),grain=Math.sin(a*9+y*17)*.48+Math.sin(a*15-y*8)*.27+Math.sin(a*23+y*5)*.25;
+     const radial=r*(1+strength*grain);p.setXYZ(i,x*radial/r,y,z*radial/r);
+   }
+   p.needsUpdate=true;geo.computeVertexNormals();
+ }
+ gwAddBarkRelief(gwTrunkGeo,.018);gwAddBarkRelief(gwBlossomBranchGeo,.022);gwAddBarkRelief(gwRootGeo,.026);
  function gwAddPine(x,z,h,seed=0,baseY=0){
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
    gwAddTreeContactShadow(g,h,.88);
