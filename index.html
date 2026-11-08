@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-242000';
+const GREEN_WORLD_BUILD_ID = '20261108-243000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1180,7 +1180,7 @@ function makeMarket(){
    plinthImage.data[p]=v;plinthImage.data[p+1]=v;plinthImage.data[p+2]=v;plinthImage.data[p+3]=255;
  }
  plinthCtx.putImageData(plinthImage,0,0);
- for(let i=0;i<420;i++){
+ for(let i=0;i<980;i++){
    const x=plinthRand()*512,y=plinthRand()*512,r=.35+plinthRand()*1.1;
    plinthCtx.fillStyle=plinthRand()>.5?'rgba(70,76,68,.10)':'rgba(255,255,255,.18)';
    plinthCtx.beginPath();plinthCtx.arc(x,y,r,0,Math.PI*2);plinthCtx.fill();
@@ -2820,7 +2820,7 @@ function makeWorldDecor(){
  const gwForest=new THREE.Group();gwForest.name='green-world-perimeter-forest';world.add(gwForest);
  // Детальные процедурные карты коры, хвои и лепестков — без внешних файлов и загрузок.
  function gwMakeTreeTexture(kind){
-   const c=document.createElement('canvas');c.width=256;c.height=256;
+   const c=document.createElement('canvas');c.width=512;c.height=512;
    const q=c.getContext('2d');
    if(kind==='bark'){
      q.fillStyle='#765039';q.fillRect(0,0,256,256);
@@ -2831,14 +2831,14 @@ function makeWorldDecor(){
      for(let i=0;i<38;i++){const x=(i*47)%256;q.strokeStyle='rgba(30,18,12,.22)';q.lineWidth=1+(i%2);q.beginPath();q.moveTo(x,0);q.lineTo(x+(i%5-2)*5,256);q.stroke();}
    }else if(kind==='pine'){
      q.fillStyle='#174d35';q.fillRect(0,0,256,256);
-     for(let i=0;i<1700;i++){
+     for(let i=0;i<4200;i++){
        const x=(i*97)%256,y=(i*151)%256;
        q.fillStyle=i%3===0?'rgba(129,178,105,.30)':i%3===1?'rgba(5,37,25,.32)':'rgba(54,117,69,.30)';
        q.beginPath();q.ellipse(x,y,1+(i%4),1+(i%3),((i%7)-3)*.15,0,Math.PI*2);q.fill();
      }
    }else{
      q.fillStyle='#f0a5c1';q.fillRect(0,0,256,256);
-     for(let i=0;i<900;i++){
+     for(let i=0;i<2400;i++){
        const x=(i*89)%256,y=(i*137)%256;
        q.fillStyle=i%3===0?'rgba(255,239,245,.55)':i%3===1?'rgba(173,67,119,.20)':'rgba(255,255,255,.25)';
        q.beginPath();q.arc(x,y,1+(i%3),0,Math.PI*2);q.fill();
@@ -2859,14 +2859,14 @@ function makeWorldDecor(){
  const gwPinkB=new THREE.MeshStandardMaterial({color:0xffffff,map:gwBloomMap,roughness:.92});
  const gwPinkC=new THREE.MeshStandardMaterial({color:0xffffff,map:gwBloomMap,roughness:.95});
  const gwLeaf=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,roughness:.98});
- const gwTrunkGeo=new THREE.CylinderGeometry(.16,.25,1,9);
- const gwPineGeos=[new THREE.ConeGeometry(1,1,11),new THREE.ConeGeometry(.82,.92,11),new THREE.ConeGeometry(.63,.82,11)];
- const gwCrownGeo=new THREE.SphereGeometry(1,11,8);
+ const gwTrunkGeo=new THREE.CylinderGeometry(.13,.24,1,14,4);
+ const gwPineGeos=[new THREE.ConeGeometry(1,1,16,3),new THREE.ConeGeometry(.82,.92,16,3),new THREE.ConeGeometry(.63,.82,16,3)];
+ const gwCrownGeo=new THREE.SphereGeometry(1,16,12);
  // Общие формы ветвей и корней переиспользуются всеми деревьями.
- const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,7);
+ const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,10);
  const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,6);
  const gwRootGeo=new THREE.CylinderGeometry(.012,.085,1,7);
- const gwBlossomBranchGeo=new THREE.CylinderGeometry(.025,.075,1,8);
+ const gwBlossomBranchGeo=new THREE.CylinderGeometry(.018,.075,1,10,2);
  const gwSproutGeo=new THREE.ConeGeometry(.075,.28,7);
  function gwAddPine(x,z,h,seed=0,baseY=0){
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
@@ -2916,15 +2916,15 @@ function makeWorldDecor(){
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
    trunk.position.y=h*.34;trunk.scale.set(.54,h*.72,.54);g.add(trunk);
    // Разветвлённая крона с открытыми промежутками между ветвями.
-   for(let k=0;k<8;k++){
-     const a=seed+k*Math.PI/4;
+   for(let k=0;k<11;k++){
+     const a=seed+k*Math.PI*2/11;
      const branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
-     branch.position.set(Math.cos(a)*h*.2,h*(.57+(k%3)*.035),Math.sin(a)*h*.2);branch.scale.y=h*(.25+(k%3)*.025);
+     branch.position.set(Math.cos(a)*h*(.17+(k%3)*.025),h*(.53+(k%4)*.045),Math.sin(a)*h*(.17+(k%3)*.025));branch.scale.y=h*(.28+(k%3)*.035);
      branch.rotation.z=Math.cos(a)*-.68;branch.rotation.x=Math.sin(a)*.68;g.add(branch);
    }
    // Крона цветущего дерева собрана из разнокалиберных групп с естественной асимметрией.
    const petals=[gwPinkA,gwPinkB,gwPinkC,gwLeaf,gwPinkB,gwPinkA,gwPinkC];
-   const bloomCount=21+Math.abs(Math.floor(seed*5))%7;
+   const bloomCount=27+Math.abs(Math.floor(seed*7))%9;
    for(let k=0;k<bloomCount;k++){
      const a=k*2.399963+seed;
      const ring=k<Math.floor(bloomCount*.56)?1:(k<Math.floor(bloomCount*.86)?2:0);
@@ -2936,11 +2936,11 @@ function makeWorldDecor(){
      g.add(bloom);
    }
    // Несколько мелких соцветий по внешнему краю разбивают ровный контур кроны.
-   for(let k=0;k<12;k++){
+   for(let k=0;k<18;k++){
      const a=seed+k*2.399963;
      const petal=new THREE.Mesh(gwCrownGeo,k%3===0?gwPinkB:gwPinkA);
      petal.position.set(Math.cos(a)*h*.29,h*(.72+(k%4)*.045),Math.sin(a)*h*.29);
-     petal.scale.set(h*.075,h*.065,h*.075);g.add(petal);
+     petal.scale.set(h*(.062+(k%3)*.009),h*(.052+(k%2)*.01),h*(.062+(k%4)*.006));g.add(petal);
    }
    // Расширение корневой шейки и индивидуальный наклон ствола.
    for(let k=0;k<5;k++){
