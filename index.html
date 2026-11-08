@@ -1231,7 +1231,7 @@ function makeMarket(){
    for(const y of [1.18,2.26])box(g,.075,.075,1.50,frameX,y,-.72,timberLight,false);
    for(const z of [-2.16,2.16])box(g,.14,1.90,.14,frameX,1.57,z,roofEdge,false);
  }
- // Три реалистичные ели за магазином: детальная кора, многослойная хвоя и тонкие побеги.
+ // Пять реалистичных елей за магазином: детальная кора, многослойная хвоя и тонкие побеги.
  const marketFirBark=new THREE.MeshStandardMaterial({color:0x60432e,roughness:.98});
  const marketFirBarkLight=new THREE.MeshStandardMaterial({color:0x896044,roughness:.96});
  const marketFirNeedleDeep=new THREE.MeshStandardMaterial({color:0x183d2b,roughness:.96});
@@ -1260,7 +1260,7 @@ function makeMarket(){
  }
  // Тонкие разветвлённые побеги добавляют объём между крупными ярусами.
  const firTwigMaterial=new THREE.MeshStandardMaterial({color:0x31583a,roughness:.97});
- for(const [tx,tz,fh,seed] of [[-1.55,-7.15,5.2,2],[0,-7.35,5.5,5],[1.55,-7.15,5.2,8]]){
+ for(const [tx,tz,fh,seed] of [[-3.1,-7.15,5.2,11],[-1.55,-7.15,5.2,2],[0,-7.35,5.5,5],[1.55,-7.15,5.2,8],[3.1,-7.15,5.2,14]]){
    cylinder(g,.105,.19,fh*.82,tx,fh*.41,tz,marketFirBark,12);
    // Вертикальные борозды коры и небольшие светлые участки древесины.
    for(let k=0;k<9;k++){
