@@ -3890,9 +3890,10 @@ function makeHouse(){
   material.roughness=material===stone?.89:.91;
   material.needsUpdate=true;
  }
- const manorWallMaterial=new THREE.MeshStandardMaterial({
+ const manorWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:manorWallTexture,bumpMap:manorWallBump,
-  roughnessMap:manorWallRoughness,bumpScale:.078,roughness:.91,metalness:0
+  roughnessMap:manorWallRoughness,bumpScale:.078,roughness:.91,metalness:0,
+  clearcoat:.10,clearcoatRoughness:.88,specularIntensity:.22
  });
  // Для круглых башен используется та же кремовая кладка с масштабом по окружности.
  const towerWallTexture=manorWallTexture.clone();
@@ -3901,9 +3902,10 @@ function makeHouse(){
  towerWallBump.repeat.set(4,2.5);towerWallBump.needsUpdate=true;
  const towerWallRoughness=manorWallRoughness.clone();
  towerWallRoughness.repeat.set(4,2.5);towerWallRoughness.needsUpdate=true;
- const towerWallMaterial=new THREE.MeshStandardMaterial({
+ const towerWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:towerWallTexture,bumpMap:towerWallBump,
-  roughnessMap:towerWallRoughness,bumpScale:.068,roughness:.92,metalness:0
+  roughnessMap:towerWallRoughness,bumpScale:.068,roughness:.92,metalness:0,
+  clearcoat:.09,clearcoatRoughness:.9,specularIntensity:.20
  });
  // Отдельная настройка материала только для уже существующих колонн:
  // та же кремовая кладка, но более мелкий масштаб фактуры на узком круглом стволе.
@@ -3913,9 +3915,10 @@ function makeHouse(){
  towerColumnBump.repeat.set(.9,1.45);towerColumnBump.needsUpdate=true;
  const towerColumnRoughness=towerWallRoughness.clone();
  towerColumnRoughness.repeat.set(.9,1.45);towerColumnRoughness.needsUpdate=true;
- const towerColumnMaterial=new THREE.MeshStandardMaterial({
+ const towerColumnMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe8d2ae,map:towerColumnTexture,bumpMap:towerColumnBump,
-  roughnessMap:towerColumnRoughness,bumpScale:.045,roughness:.93,metalness:0
+  roughnessMap:towerColumnRoughness,bumpScale:.045,roughness:.93,metalness:0,
+  clearcoat:.07,clearcoatRoughness:.92,specularIntensity:.18
  });
  // Центральный корпус, фронтон, окна, двери и вся отделка смещаются единым блоком назад;
  // башни с колоннами остаются на своих местах.
@@ -4394,6 +4397,15 @@ function makeHouse(){
  slateReliefTexture.repeat.set(2,2);
  slateReliefTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  slateReliefTexture.needsUpdate=true;
+// Единая фактура натурального сланца для скатов главного дома и конических крыш башен.
+// Добавляет мелкий рельеф и неоднородность бликов, не меняя цвет, форму или размеры крыш.
+for(const material of [...copperMats,copperBright,copperDark]){
+ material.bumpMap=slateReliefTexture;
+ material.roughnessMap=slateReliefTexture;
+ material.bumpScale=material===copperBright?.006:.009;
+ material.roughness=Math.max(material.roughness||.7,.68);
+ material.needsUpdate=true;
+}
  // Та же натуральная микрофактура сланца применяется к существующей кровле входного портика,
  // чтобы малая крыша и основная двускатная крыша воспринимались как единый архитектурный комплект.
  porticoBlue.bumpMap=slateReliefTexture;
