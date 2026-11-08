@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-339000';
+const GREEN_WORLD_BUILD_ID = '20261108-340000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -320,6 +320,10 @@ const worldBounce=new THREE.DirectionalLight(0xffe8c9,.27);worldBounce.position.
 const mat=(c,r=.82)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.025,dithering:true});
 const windowInterior=new THREE.MeshStandardMaterial({color:0xffdca0,emissive:0xb87932,emissiveIntensity:.2,roughness:.42,dithering:true});
 const M={grass:mat(0x71865e,.94),grass2:mat(0x7d8e62,.94),soil:mat(0x806044,.96),path:mat(0xcbb58e,.88),stone:new THREE.MeshStandardMaterial({color:0xd4c19f,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xb39c77,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x526d88,roughness:.82,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0x34495e,roughness:.84,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x426b3c,roughness:.94,metalness:0,sheen:.28,sheenColor:0x91a77d,sheenRoughness:.9}),leaf2:new THREE.MeshPhysicalMaterial({color:0x668653,roughness:.93,metalness:0,sheen:.32,sheenColor:0xb3c28e,sheenRoughness:.9}),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xc69a43,roughness:.34,metalness:.58}),glass:new THREE.MeshStandardMaterial({color:0x9bdde1,roughness:.3,metalness:.04,emissive:0x102b34,emissiveIntensity:.06,transparent:false,opacity:1,depthWrite:true})};
+// Настраиваем силу отражений физического неба отдельно для камня, кровли, металла и стекла.
+M.stone.envMapIntensity=.34;M.stone2.envMapIntensity=.38;
+M.roof.envMapIntensity=.82;M.roof2.envMapIntensity=.78;
+M.gold.envMapIntensity=.9;M.glass.envMapIntensity=1.05;
 
 function makeSurfaceTexture(kind,seed){
  const size=768,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
