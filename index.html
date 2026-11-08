@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-364000';
+const GREEN_WORLD_BUILD_ID = '20261108-365000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -282,7 +282,7 @@ window.GREEN_WORLD_STARTUP_STAGE='webgl-ready';
 window.GREEN_WORLD_RENDER_DIAGNOSTICS={reversedDepthBuffer:!!renderer.capabilities.reversedDepthBuffer,webgl2:renderer.capabilities.isWebGL2,pixelRatio:renderer.getPixelRatio(),threeRevision:THREE.REVISION};
 console.info('[GREEN WORLD] Render diagnostics',window.GREEN_WORLD_RENDER_DIAGNOSTICS);
 // Используем стандартный буфер глубины для стабильной совместимости с WebGL в Android Telegram WebView.
-const applyRenderResolution=()=>{const mobile=innerWidth<700;const qualityScale=mobile?1.3:1.5;const pixelCap=mobile?4:4.5;renderer.setPixelRatio(Math.min((window.devicePixelRatio||1)*qualityScale,pixelCap));renderer.setSize(innerWidth,innerHeight);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();};applyRenderResolution();renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.22;renderer.useLegacyLights=false;renderer.setClearColor(0xa6d9f2,1);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();
+const applyRenderResolution=()=>{const mobile=innerWidth<700;const qualityScale=mobile?1.5:1.75;const pixelCap=mobile?4.5:5.5;renderer.setPixelRatio(Math.min((window.devicePixelRatio||1)*qualityScale,pixelCap));renderer.setSize(innerWidth,innerHeight);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();};applyRenderResolution();renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.22;renderer.useLegacyLights=false;renderer.setClearColor(0xa6d9f2,1);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();
 // Низкоразрешённая копия небосвода используется как физическая карта окружения.
 // Она добавляет согласованные отражения неба на стекле, глазури, металле и влажных поверхностях,
 // не меняя фон сцены и не дублируя тяжёлую 8K-текстуру в памяти.
@@ -313,7 +313,7 @@ scene.add(new THREE.AmbientLight(0xffffff,.27));
 // Повышенная детализация солнечных теней с адаптацией к мобильному экрану.
 const sun=new THREE.DirectionalLight(0xfff5df,3.55);
 sun.position.set(-28,42,24);sun.castShadow=true;
-const shadowMapResolution=Math.min(renderer.capabilities.maxTextureSize,innerWidth<700?3072:4096);
+const shadowMapResolution=Math.min(renderer.capabilities.maxTextureSize,innerWidth<700?4096:4096);
 sun.shadow.mapSize.set(shadowMapResolution,shadowMapResolution);
 sun.shadow.camera.left=-42;sun.shadow.camera.right=42;
 sun.shadow.camera.top=42;sun.shadow.camera.bottom=-42;
@@ -4688,7 +4688,7 @@ scene.traverse(object=>{
    for(const key of ['map','alphaMap','aoMap','bumpMap','displacementMap','emissiveMap','lightMap','metalnessMap','normalMap','roughnessMap']){
      const texture=material[key];
      if(!texture||!texture.isTexture)continue;
-     const startupAnisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),innerWidth<700?18:16);
+     const startupAnisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),18);
      if(texture.anisotropy!==startupAnisotropy){texture.anisotropy=startupAnisotropy;texture.needsUpdate=true;}
      window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH.textures++;
    }
