@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-276000';
+const GREEN_WORLD_BUILD_ID = '20261108-277000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3178,7 +3178,7 @@ function makeWorldDecor(){
      const baseY=.08+3.0*THREE.MathUtils.smoothstep(t,.02,.98);
      const seed=i*.73+row*2.1;
      if((i+row*3)%7===2)gwAddBlossom(x,z,4.35+(i%2)*.3,seed,baseY);
-     else gwAddPine(x,z,5.0+((i*3+row)%4)*.42,seed,baseY);
+     
      if(i%2===0)gwAddUndergrowth(x+(row===0?-1.35:1.4),z+.85,.78+(i%3)*.08,seed+.4,baseY);
    }
  }
@@ -3190,7 +3190,7 @@ function makeWorldDecor(){
      const x=side*(21.4+(i%2)*2.8+Math.sin(i*1.8)*.55);
      const z=baseZ+Math.cos(i*1.37)*1.0+(i%2?1.1:-.7);
      const h=4.85+(i%3)*.42;
-     gwAddPine(x,z,h,side*.4+i*.83);
+     
      if(i===2||i===5)gwAddUndergrowth(x-side*.8,z+.9,.68+(i%2)*.07,side+i*.3);
    });
    // Два розовых дерева стоят снаружи бокового забора, рядом с уровнем дороги.
@@ -3202,7 +3202,7 @@ function makeWorldDecor(){
    const x=-39+i*6.5+(i%2?1.35:-.65)+Math.sin(i*1.6)*.5;
    const z=-35.0+(i%2)*3.0+Math.cos(i*1.31)*.7;
    const h=4.55+(i%4)*.32;
-   gwAddPine(x,z,h,i*.83+2.7);
+   
  }
  // Задняя часть периметра тоже имеет глубину: деревья чередуются между двумя
  // диагонально смещёнными дорожками, а не образуют одну сплошную стену.
@@ -3212,7 +3212,7 @@ function makeWorldDecor(){
    const z=-26.0+lane*3.0+Math.cos(i*1.67)*1.25;
    const h=5.0+(i%4)*.4;
    if(i===3||i===11)gwAddBlossom(x,z,4.25,i*.8);
-   else gwAddPine(x,z,h,i*.55);
+   
    if(i%3===1)gwAddUndergrowth(x+(lane?1.0:-1.1),z+.8,.78+(i%3)*.06,i*.61);
  }  // Лесная подстилка: тысячи тонких травинок и мха с естественной цветовой вариацией.
   const gwForestFloor=new THREE.Group();gwForestFloor.name='green-world-forest-floor-detail';world.add(gwForestFloor);
