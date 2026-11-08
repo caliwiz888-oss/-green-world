@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-112000';
+const GREEN_WORLD_BUILD_ID = '20261108-114500';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3201,7 +3201,7 @@ function makeWorldLandscape(){
    const ridgeNoise=Math.sin(x*.52+z*.37)*.07+Math.sin(x*.91-z*.43)*.04;
    const crossRidges=Math.pow(Math.max(0,Math.sin(x*.22+z*.12+Math.sin(x*.11)*.8)),5)*.20;
    const gentleNoise=(Math.sin(x*.37+z*.21)+Math.cos(x*.23-z*.31))*.06;
-   height=Math.max(0,(height*.88+broadWave+ridgeNoise+crossRidges+gentleNoise)*edge);
+   height=Math.max(0,(height*.62+broadWave*.55+ridgeNoise*.45+crossRidges*.45+gentleNoise*.5)*edge);
    // Внутри ограждённого квадрата рельеф полностью убран: поверхность ровная, как передний двор.
    // По внешней стороне периметра делаем мягкий переход, чтобы не образовалась резкая стенка.
    const worldZ=-27.5-z;
@@ -3213,10 +3213,12 @@ function makeWorldLandscape(){
    // За ограждением оставляем свободную ровную полосу, чтобы холмы не заходили
    // на нижнюю часть каменных столбов и кованых секций забора.
    const fenceClearance=1.25;
-   const reliefTransition=2.60;
+   const reliefTransition=5.20;
    const reliefDistance=Math.max(0,outsideDistance-fenceClearance);
    const flatten=1-smooth01(reliefDistance/reliefTransition);
    height*=1-flatten;
+   // Низкий природный профиль: гряды не поднимаются выше уровня верхней части ограды.
+   height=Math.min(height,1.45);
    hillPositions.setZ(i,height);
    const slopeShade=Math.sin(x*.31+z*.24)*.045+Math.cos(x*.17-z*.29)*.035;
    const shade=THREE.MathUtils.clamp(.48+height*.075+slopeShade,.24,.94);
