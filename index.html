@@ -282,7 +282,7 @@ window.GREEN_WORLD_STARTUP_STAGE='webgl-ready';
 window.GREEN_WORLD_RENDER_DIAGNOSTICS={reversedDepthBuffer:!!renderer.capabilities.reversedDepthBuffer,webgl2:renderer.capabilities.isWebGL2,pixelRatio:renderer.getPixelRatio(),threeRevision:THREE.REVISION};
 console.info('[GREEN WORLD] Render diagnostics',window.GREEN_WORLD_RENDER_DIAGNOSTICS);
 // Используем стандартный буфер глубины для стабильной совместимости с WebGL в Android Telegram WebView.
-const applyRenderResolution=()=>{const mobile=innerWidth<700;const qualityScale=mobile?6:1.75;const pixelCap=mobile?6:5.5;renderer.setPixelRatio(Math.min((window.devicePixelRatio||1)*qualityScale,pixelCap));renderer.setSize(innerWidth,innerHeight);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();};applyRenderResolution();renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.22;renderer.useLegacyLights=false;renderer.setClearColor(0xa6d9f2,1);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();
+const applyRenderResolution=()=>{const mobile=innerWidth<700;const qualityScale=1;const pixelCap=mobile?1.5:1.75;renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,pixelCap));renderer.setSize(innerWidth,innerHeight);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();};applyRenderResolution();renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.22;renderer.useLegacyLights=false;renderer.setClearColor(0xa6d9f2,1);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();
 // Низкоразрешённая копия небосвода используется как физическая карта окружения.
 // Она добавляет согласованные отражения неба на стекле, глазури, металле и влажных поверхностях,
 // не меняя фон сцены и не дублируя тяжёлую 8K-текстуру в памяти.
@@ -3065,7 +3065,7 @@ scene.traverse(object=>{
    for(const key of ['map','alphaMap','aoMap','bumpMap','displacementMap','emissiveMap','lightMap','metalnessMap','normalMap','roughnessMap']){
      const texture=material[key];
      if(!texture||!texture.isTexture)continue;
-     const startupAnisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),18);
+     const startupAnisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),innerWidth<700?4:8);
      if(texture.anisotropy!==startupAnisotropy){texture.anisotropy=startupAnisotropy;texture.needsUpdate=true;}
      window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH.textures++;
    }
