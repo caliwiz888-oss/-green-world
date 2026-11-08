@@ -3889,6 +3889,16 @@ function makeHouse(){
   manorRoughnessImage.data[p+3]=255;
  }
  manorRoughnessCtx.putImageData(manorRoughnessImage,0,0);
+ // Едва заметные минеральные участки разной плотности на поверхности известняка.
+ // Они меняют только шероховатость отражения, не окраску камня и не рисунок швов.
+ for(let i=0;i<96;i++){
+  const x=manorRoughnessRand()*256,y=manorRoughnessRand()*256;
+  const rx=2+manorRoughnessRand()*8,ry=.7+manorRoughnessRand()*2.2;
+  manorRoughnessCtx.fillStyle=i%3===0?'rgba(45,45,45,.045)':'rgba(255,255,255,.055)';
+  manorRoughnessCtx.beginPath();
+  manorRoughnessCtx.ellipse(x,y,rx,ry,manorRoughnessRand()*.35,0,Math.PI*2);
+  manorRoughnessCtx.fill();
+ }
  const manorWallRoughness=new THREE.CanvasTexture(manorRoughnessCanvas);
  manorWallRoughness.colorSpace=THREE.NoColorSpace;
  manorWallRoughness.wrapS=manorWallRoughness.wrapT=THREE.RepeatWrapping;
