@@ -4128,6 +4128,31 @@ function makeHouse(){
  const gableMedallion=new THREE.Mesh(new THREE.TorusGeometry(.105,.022,8,32),facadeGold);
  gableMedallion.position.set(0,5.48,2.585);gableMedallion.castShadow=true;center.add(gableMedallion);
  sphere(center,.065,0,5.48,2.575,facadeStoneShade,.9);
+ // Симметричная резьба из известняка по сторонам центрального медальона.
+ // Низкий рельеф повторяет классический растительный орнамент и не перекрывает центр фронтона.
+ for(const side of [-1,1]){
+  const scrollPoints=[
+   [side*.19,5.34,2.592],
+   [side*.39,5.38,2.592],
+   [side*.55,5.50,2.592],
+   [side*.50,5.63,2.592],
+   [side*.38,5.65,2.592],
+   [side*.34,5.57,2.592]
+  ].map(p=>new THREE.Vector3(p[0],p[1],p[2]));
+  const scroll=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(scrollPoints),32,.014,7,false),facadeStoneShade);
+  scroll.castShadow=false;scroll.receiveShadow=false;center.add(scroll);
+  for(const leaf of [
+   [side*.34,5.39,.72],
+   [side*.60,5.48,-.58],
+   [side*.42,5.68,.18]
+  ]){
+   const reliefLeaf=new THREE.Mesh(new THREE.SphereGeometry(.085,12,8),facadeStone);
+   reliefLeaf.position.set(leaf[0],leaf[1],2.588);
+   reliefLeaf.scale.set(.48,1.18,.20);
+   reliefLeaf.rotation.z=side*leaf[2];
+   reliefLeaf.castShadow=false;reliefLeaf.receiveShadow=false;center.add(reliefLeaf);
+  }
+ }
  // Окно и декоративное остекление фронтона удалены по просьбе пользователя.
  // Два широких ската от центрального конька к длинным боковым карнизам.
  manorRoofPlane([
