@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-265000';
+const GREEN_WORLD_BUILD_ID = '20261108-266000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2918,16 +2918,16 @@ function makeWorldDecor(){
  const gwPinkB=new THREE.MeshStandardMaterial({color:0xffb9d1,map:gwBloomMap,bumpMap:gwBloomMap,bumpScale:.035,roughness:.95});
  const gwPinkC=new THREE.MeshStandardMaterial({color:0xffedf3,map:gwBloomMap,bumpMap:gwBloomMap,bumpScale:.035,roughness:.97});
  const gwLeaf=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,roughness:.98});
- const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,32,12);
- const gwPineGeos=[new THREE.ConeGeometry(1,1,32,6),new THREE.ConeGeometry(.82,.92,32,6),new THREE.ConeGeometry(.63,.82,32,6)];
- const gwCrownGeo=new THREE.SphereGeometry(1,28,18);
+ const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,40,16);
+ const gwPineGeos=[new THREE.ConeGeometry(1,1,40,8),new THREE.ConeGeometry(.82,.92,40,8),new THREE.ConeGeometry(.63,.82,40,8)];
+ const gwCrownGeo=new THREE.SphereGeometry(1,36,24);
  // Общие формы ветвей и корней переиспользуются всеми деревьями.
- const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,24,4);
- const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,20,5);
+ const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,28,5);
+ const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,24,6);
   const gwNeedleGeo=new THREE.ConeGeometry(.012,.105,5,1);
   const gwPetalGeo=new THREE.SphereGeometry(1,9,6);
- const gwRootGeo=new THREE.CylinderGeometry(.008,.095,1,12,3);
- const gwBlossomBranchGeo=new THREE.CylinderGeometry(.012,.082,1,16,4);
+ const gwRootGeo=new THREE.CylinderGeometry(.008,.095,1,18,5);
+ const gwBlossomBranchGeo=new THREE.CylinderGeometry(.012,.082,1,24,6);
  const gwSproutGeo=new THREE.ConeGeometry(.075,.28,12,3);
  function gwAddPine(x,z,h,seed=0,baseY=0){
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
@@ -2964,7 +2964,7 @@ function makeWorldDecor(){
      }
    }
    // Мелкие игольчатые пучки на ветвях — единый instanced mesh для экономии draw calls.
-   const needleCount=216,needles=new THREE.InstancedMesh(gwNeedleGeo,gwPineC,needleCount),dummy=new THREE.Object3D();
+   const needleCount=288,needles=new THREE.InstancedMesh(gwNeedleGeo,gwPineC,needleCount),dummy=new THREE.Object3D();
    for(let n=0;n<needleCount;n++){
      const a=seed+n*2.399963,level=n%9,rad=h*(.105+(level%3)*.025),yy=h*(.22+(level/9)*.62);
      dummy.position.set(Math.cos(a)*rad,yy,Math.sin(a)*rad);
@@ -3139,7 +3139,7 @@ function makeWorldDecor(){
   }
   gwForestFloor.add(gwMoss);
   // Низкие папоротники и широкие листовые розетки заполняют промежутки между травой и кустами.
-  const gwFernLeafGeo=new THREE.SphereGeometry(1,8,5);
+  const gwFernLeafGeo=new THREE.SphereGeometry(1,12,8);
   const gwFernMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.96});
   const gwFernCount=480,gwFernLeaves=new THREE.InstancedMesh(gwFernLeafGeo,gwFernMat,gwFernCount*4),gwFernDummy=new THREE.Object3D();
   const gwFernColors=[0x477b43,0x568447,0x6d9250,0x829e59];
@@ -3545,7 +3545,7 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  const makeJaggedAlpinePeak=(cfg)=>{
    const {name,x,z,width,depth,height,rotation,peaks,gullies,rockFaces,snowline}=cfg;
    // Более плотная сетка сохраняет острые гребни и мелкие уступы без чрезмерной нагрузки на мобильные устройства.
-   const nx=192,nz=144;
+   const nx=224,nz=168;
    const geometry=new THREE.PlaneGeometry(width*2,depth*2,nx,nz);
    const pos=geometry.attributes.position,uv=geometry.attributes.uv;
    const crestAt=(u)=>{
@@ -3761,7 +3761,7 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  });
  // Единый передний склон закрывает нижние рваные края гор, как на эталонном скриншоте.
  // Склон расположен перед плоскостью гор: плавно поднимается от двора к скалам.
- const outerFoothillGeometry=new THREE.PlaneGeometry(112,31,360,160);
+ const outerFoothillGeometry=new THREE.PlaneGeometry(112,31,420,192);
  const outerFoothillPos=outerFoothillGeometry.attributes.position;
  const outerFoothillColors=[];
  const foothillFrontColor=new THREE.Color(0xa9c77d);
