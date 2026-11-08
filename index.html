@@ -3034,7 +3034,7 @@ function makeWorldDecor(){
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
    gwAddTreeContactShadow(g,h,1.02);
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
-   trunk.position.y=h*.34;trunk.scale.set(.54,h*.72,.54);g.add(trunk);
+   trunk.position.y=h*.39;trunk.scale.set(.58,h*.78,.58);g.add(trunk);
    // Разветвлённая крона с открытыми промежутками между ветвями.
    for(let k=0;k<20;k++){
      const a=seed+k*Math.PI*2/20;
@@ -3043,7 +3043,7 @@ function makeWorldDecor(){
      branch.rotation.z=Math.cos(a)*-.68;branch.rotation.x=Math.sin(a)*.68;g.add(branch);
    }
    // Крона цветущего дерева собрана из разнокалиберных групп с естественной асимметрией.
-   const petals=[gwPinkA,gwPinkB,gwPinkC,gwLeaf,gwPinkB,gwPinkA,gwPinkC];
+   const petals=[gwPinkA,gwPinkB,gwPinkC,gwPinkB,gwPinkA,gwPinkC,gwPinkB];
    const bloomCount=52+Math.abs(Math.floor(seed*7))%13;
    for(let k=0;k<bloomCount;k++){
      const a=k*2.399963+seed;
@@ -3071,13 +3071,11 @@ function makeWorldDecor(){
      petal.position.set(Math.cos(a)*h*.29,h*(.72+(k%4)*.045),Math.sin(a)*h*.29);
      petal.scale.set(h*(.062+(k%3)*.009),h*(.052+(k%2)*.01),h*(.062+(k%4)*.006));g.add(petal);
    }
-   // Расширение корневой шейки и индивидуальный наклон ствола.
-   for(let k=0;k<8;k++){
-     const a=seed+k*Math.PI*2/8;
-     const root=new THREE.Mesh(gwRootGeo,gwBark);
-     root.position.set(Math.cos(a)*h*.07,h*.045,Math.sin(a)*h*.07);root.scale.y=h*.16*(.07/.085);
-     root.rotation.z=Math.cos(a)*-.68;root.rotation.x=Math.sin(a)*.68;g.add(root);
-   }
+   // Корневая шейка плавно расширяет ствол у самой земли; выступающие наружу корни удалены.
+    const rootFlare=new THREE.Mesh(gwTrunkGeo,gwBark);
+    rootFlare.position.y=h*.085;
+    rootFlare.scale.set(.76,h*.17,.76);
+    g.add(rootFlare);
    g.rotation.y=seed*.13;g.scale.set(1+.05*Math.sin(seed),1+.035*Math.cos(seed*1.4),1+.05*Math.cos(seed));
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
