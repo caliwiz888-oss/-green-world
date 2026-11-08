@@ -3951,52 +3951,78 @@ function makeHouse(){
  for(let i=0;i<5;i++){
   box(center,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,cream);
  }
- // Компактная одноярусная четырёхскатная крыша с короткими свесами.
- // Низкий силуэт сохраняет обе боковые башни открытыми.
+ // Новая архитектура: компактная классическая четырёхскатная крыша.
+ // Весь объём крыши ограничен центральным корпусом и не заходит на башни.
  const roofY=4.58,roofZ=-.08;
- const compactSlate=new THREE.MeshStandardMaterial({color:0x334b68,roughness:.68,metalness:.12,side:THREE.DoubleSide});
- const compactSlateLight=new THREE.MeshStandardMaterial({color:0x536d8b,roughness:.62,metalness:.1});
- const compactSlateDark=new THREE.MeshStandardMaterial({color:0x263b55,roughness:.72,metalness:.1});
- const compactRoofGold=new THREE.MeshStandardMaterial({color:0xc6a05a,roughness:.34,metalness:.72});
- box(center,6.08,.12,4.18,0,roofY-.08,roofZ,stone);
- box(center,5.98,.045,4.08,0,roofY-.005,roofZ,cream);
- const eX=2.98,eZ=2.04,rX=1.52,peakY=5.32,eaveY=roofY+.015;
- const V=(x,y,z)=>new THREE.Vector3(x,y,z);
- const front=[V(-eX,eaveY,roofZ+eZ),V(eX,eaveY,roofZ+eZ),V(rX,peakY,roofZ),V(-rX,peakY,roofZ)];
- const back=[V(eX,eaveY,roofZ-eZ),V(-eX,eaveY,roofZ-eZ),V(-rX,peakY,roofZ),V(rX,peakY,roofZ)];
- const left=[V(-eX,eaveY,roofZ-eZ),V(-eX,eaveY,roofZ+eZ),V(-rX,peakY,roofZ)];
- const right=[V(eX,eaveY,roofZ+eZ),V(eX,eaveY,roofZ-eZ),V(rX,peakY,roofZ)];
- function compactRoofFace(points,material){
+ const roofSlateBase=new THREE.MeshStandardMaterial({color:0x263c58,roughness:.7,metalness:.12,side:THREE.DoubleSide});
+ const roofSlateMid=new THREE.MeshStandardMaterial({color:0x3c5877,roughness:.64,metalness:.1,side:THREE.DoubleSide});
+ const roofSlateLight=new THREE.MeshStandardMaterial({color:0x587391,roughness:.6,metalness:.1});
+ const roofSlateShadow=new THREE.MeshStandardMaterial({color:0x1d3048,roughness:.74,metalness:.1});
+ const roofRidgeGold=new THREE.MeshStandardMaterial({color:0xc5a05b,roughness:.34,metalness:.72});
+ // Узкий каменный венец — также строго внутри габаритов корпуса.
+ box(center,4.42,.12,2.98,0,roofY-.08,roofZ,stone);
+ box(center,4.34,.045,2.90,0,roofY-.005,roofZ,cream);
+ const halfX=2.16,halfZ=1.46,ridgeHalf=1.02;
+ const eaveY=roofY+.02,peakY=5.52;
+ const roofV=(x,y,z)=>new THREE.Vector3(x,y,z);
+ // Центральный конёк идёт вдоль здания; четыре плоскости сходятся к нему.
+ const roofFront=[
+  roofV(-halfX,eaveY,roofZ+halfZ),roofV(halfX,eaveY,roofZ+halfZ),
+  roofV(ridgeHalf,peakY,roofZ),roofV(-ridgeHalf,peakY,roofZ)
+ ];
+ const roofBack=[
+  roofV(halfX,eaveY,roofZ-halfZ),roofV(-halfX,eaveY,roofZ-halfZ),
+  roofV(-ridgeHalf,peakY,roofZ),roofV(ridgeHalf,peakY,roofZ)
+ ];
+ const roofLeft=[
+  roofV(-halfX,eaveY,roofZ-halfZ),roofV(-halfX,eaveY,roofZ+halfZ),
+  roofV(-ridgeHalf,peakY,roofZ)
+ ];
+ const roofRight=[
+  roofV(halfX,eaveY,roofZ+halfZ),roofV(halfX,eaveY,roofZ-halfZ),
+  roofV(ridgeHalf,peakY,roofZ)
+ ];
+ function addRoofPlane(points,material){
   const geo=new THREE.BufferGeometry();
   geo.setAttribute('position',new THREE.Float32BufferAttribute(points.flatMap(p=>[p.x,p.y,p.z]),3));
-  geo.setIndex(points.length===4?[0,1,2,0,2,3]:[0,1,2]);geo.computeVertexNormals();
-  const mesh=new THREE.Mesh(geo,material);mesh.castShadow=true;mesh.receiveShadow=true;center.add(mesh);
+  geo.setIndex(points.length===4?[0,1,2,0,2,3]:[0,1,2]);
+  geo.computeVertexNormals();
+  const mesh=new THREE.Mesh(geo,material);
+  mesh.castShadow=true;mesh.receiveShadow=true;center.add(mesh);
  }
- compactRoofFace(front,compactSlate);compactRoofFace(back,compactSlate);
- compactRoofFace(left,compactSlate);compactRoofFace(right,compactSlate);
- function compactRoofLine(points,radius,material){
-  const curve=new THREE.CatmullRomCurve3(points);
-  const mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,Math.max(12,points.length*8),radius,5,false),material);
+ addRoofPlane(roofFront,roofSlateBase);addRoofPlane(roofBack,roofSlateBase);
+ addRoofPlane(roofLeft,roofSlateBase);addRoofPlane(roofRight,roofSlateBase);
+ function addRoofTrim(points,radius,material){
+  const mesh=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),48,radius,6,false),material);
   mesh.castShadow=false;mesh.receiveShadow=false;center.add(mesh);
  }
- for(let row=1;row<=6;row++){
-  const t=row/7,y=eaveY+(peakY-eaveY)*t,halfX=eX+(rX-eX)*t,z=roofZ+eZ*(1-t);
-  compactRoofLine([V(-halfX,y,z+.012),V(halfX,y,z+.012)],.008,row%2?compactSlateLight:compactSlateDark);
-  compactRoofLine([V(-halfX,y,roofZ-eZ*(1-t)-.012),V(halfX,y,roofZ-eZ*(1-t)-.012)],.008,row%2?compactSlateLight:compactSlateDark);
+ // Аккуратные поперечные ряды сланцевой черепицы.
+ for(let row=1;row<=7;row++){
+  const t=row/8,y=eaveY+(peakY-eaveY)*t;
+  const hx=halfX+(ridgeHalf-halfX)*t,hz=halfZ*(1-t);
+  const mat=row%2?roofSlateMid:roofSlateShadow;
+  addRoofTrim([roofV(-hx,y,roofZ+hz+.012),roofV(hx,y,roofZ+hz+.012)],.012,mat);
+  addRoofTrim([roofV(-hx,y,roofZ-hz-.012),roofV(hx,y,roofZ-hz-.012)],.012,mat);
  }
  for(const side of [-1,1])for(let row=1;row<=5;row++){
-  const t=row/6,x=side*(eX+(rX-eX)*t),y=eaveY+(peakY-eaveY)*t,halfZ=eZ*(1-t);
-  compactRoofLine([V(x,y,roofZ-halfZ),V(x,y,roofZ+halfZ)],.008,compactSlateLight);
+  const t=row/6,x=side*(halfX+(ridgeHalf-halfX)*t);
+  const y=eaveY+(peakY-eaveY)*t,hz=halfZ*(1-t);
+  addRoofTrim([roofV(x,y,roofZ-hz),roofV(x,y,roofZ+hz)],.01,roofSlateLight);
  }
- compactRoofLine([V(-rX,peakY+.025,roofZ),V(rX,peakY+.025,roofZ)],.045,compactRoofGold);
- for(const x of [-rX,rX]){
-  sphere(center,.075,x,peakY+.055,roofZ,compactRoofGold,.9);
-  cone(center,.045,.15,x,peakY+.16,roofZ,compactRoofGold,12);
+ // Профилированные карнизы, четыре диагональных ребра и длинный конёк.
+ addRoofTrim([roofV(-halfX,eaveY,roofZ+halfZ),roofV(halfX,eaveY,roofZ+halfZ)],.035,roofSlateShadow);
+ addRoofTrim([roofV(-halfX,eaveY,roofZ-halfZ),roofV(halfX,eaveY,roofZ-halfZ)],.035,roofSlateShadow);
+ addRoofTrim([roofV(-halfX,eaveY,roofZ-halfZ),roofV(-halfX,eaveY,roofZ+halfZ)],.035,roofSlateShadow);
+ addRoofTrim([roofV(halfX,eaveY,roofZ-halfZ),roofV(halfX,eaveY,roofZ+halfZ)],.035,roofSlateShadow);
+ addRoofTrim([roofV(-halfX,eaveY,roofZ+halfZ),roofV(-ridgeHalf,peakY,roofZ)],.025,roofSlateLight);
+ addRoofTrim([roofV(halfX,eaveY,roofZ+halfZ),roofV(ridgeHalf,peakY,roofZ)],.025,roofSlateLight);
+ addRoofTrim([roofV(-halfX,eaveY,roofZ-halfZ),roofV(-ridgeHalf,peakY,roofZ)],.025,roofSlateLight);
+ addRoofTrim([roofV(halfX,eaveY,roofZ-halfZ),roofV(ridgeHalf,peakY,roofZ)],.025,roofSlateLight);
+ addRoofTrim([roofV(-ridgeHalf,peakY+.035,roofZ),roofV(ridgeHalf,peakY+.035,roofZ)],.045,roofRidgeGold);
+ for(const x of [-ridgeHalf,ridgeHalf]){
+  sphere(center,.065,x,peakY+.055,roofZ,roofRidgeGold,.9);
+  cone(center,.038,.13,x,peakY+.15,roofZ,roofRidgeGold,12);
  }
- compactRoofLine([V(-eX,eaveY,roofZ+eZ),V(eX,eaveY,roofZ+eZ)],.025,compactSlateDark);
- compactRoofLine([V(-eX,eaveY,roofZ-eZ),V(eX,eaveY,roofZ-eZ)],.025,compactSlateDark);
- compactRoofLine([V(-eX,eaveY,roofZ-eZ),V(-eX,eaveY,roofZ+eZ)],.025,compactSlateDark);
- compactRoofLine([V(eX,eaveY,roofZ-eZ),V(eX,eaveY,roofZ+eZ)],.025,compactSlateDark);
  // Центральный фронтон и его декор удалены по просьбе пользователя.
  // Центральная двускатная крыша удалена по просьбе пользователя.
  // Две башни по утверждённому эталону: выразительное каменное основание,
