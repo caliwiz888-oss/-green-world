@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-343000';
+const GREEN_WORLD_BUILD_ID = '20261108-344000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2548,8 +2548,23 @@ function makeWorldDecor(){
   }
   // Новая несущая архитектура: три крупные каменные арки вместо двух длинных тонких рёбер.
   // Геометрия настила и гранитная дорога выше остаются без изменений.
-  const archMat=new THREE.MeshStandardMaterial({color:0xd6c7aa,roughness:.98,metalness:0});
-  const pierMat=new THREE.MeshStandardMaterial({color:0xb6a88e,roughness:.99,metalness:0});
+  // Единая физическая каменная отделка арок и опор: оттенки кладки сохранены,
+  // добавлены тонкая минеральная фактура, микрорельеф и мягкое отражение неба.
+  function bridgePhysicalStone(color,roughness,repeatX=1.6,repeatY=1.6,bumpScale=.018){
+    const map=surfaceMaps.stone.clone();
+    map.wrapS=map.wrapT=THREE.RepeatWrapping;
+    map.repeat.set(repeatX,repeatY);map.needsUpdate=true;
+    const bump=surfaceMaps.stone.clone();
+    bump.colorSpace=THREE.NoColorSpace;
+    bump.wrapS=bump.wrapT=THREE.RepeatWrapping;
+    bump.repeat.set(repeatX,repeatY);bump.needsUpdate=true;
+    return new THREE.MeshPhysicalMaterial({
+      color,map,bumpMap:bump,roughnessMap:bump,bumpScale,roughness,metalness:0,
+      clearcoat:.08,clearcoatRoughness:.9,envMapIntensity:.32
+    });
+  }
+  const archMat=bridgePhysicalStone(0xd6c7aa,.98,2.2,1.35,.02);
+  const pierMat=bridgePhysicalStone(0xb6a88e,.99,1.35,1.8,.018);
   for(const side of [-1,1]){
     for(let span=0;span<3;span++){
       const t0=span/3,t1=(span+1)/3,points=[];
@@ -2563,8 +2578,8 @@ function makeWorldDecor(){
       // Небольшие швы подчёркивают настоящую каменную кладку и сохраняют цельный силуэт.
       const voussoirMaterials=[
         archMat,
-        new THREE.MeshStandardMaterial({color:0xe8dcc5,roughness:.99,metalness:0}),
-        new THREE.MeshStandardMaterial({color:0xc2b394,roughness:.99,metalness:0})
+        bridgePhysicalStone(0xe8dcc5,.99,2.2,1.35,.018),
+        bridgePhysicalStone(0xc2b394,.99,2.2,1.35,.018)
       ];
       const segments=18;
       for(let block=0;block<segments;block++){
