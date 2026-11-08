@@ -2742,7 +2742,7 @@ function makeWorldDecor(){
  // Кустарники собраны из перекрывающихся округлых ярусов листвы с несколькими природными оттенками.
  const shrubMaterials=[0x718765,0x829674,0x91a27b,0x62795b].map(color=>new THREE.MeshStandardMaterial({color,roughness:.96}));
  const shrubGeometry=new THREE.SphereGeometry(1,14,10);
- for(const [x,z,scale] of [[-17,-10,1.2],[18,8,1.15],[-12,18,1],[12,18,1]]){
+ for(const [x,z,scale] of [[18,8,1.15],[12,18,1]]){
    const clusters=[
      [0,.43,0,.67,.53,.66,0],
      [-.34,.38,.12,.47,.43,.48,1],
@@ -2760,7 +2760,7 @@ function makeWorldDecor(){
  }
  // Естественные группы валунов: крупный камень дополнен меньшими сколотыми фрагментами.
  const rockLight=mat(0xa19d8d,.94),rockShade=mat(0x77796f,.97);
- for(const [x,z,r] of [[-17,-17,.9],[17,-17,.8],[-18,15,.75],[18,15,1.0]]){
+ for(const [x,z,r] of [[17,-17,.8],[18,15,1.0]]){
    const main=sphere(world,r,x,.22,z,rockMat,.62);
    main.scale.set(1.12,.72,.9);main.rotation.set(.08,.22,-.12);
    main.castShadow=false;main.receiveShadow=false;
@@ -2779,7 +2779,7 @@ function makeWorldDecor(){
  // Small natural ground-cover clusters soften the transition from the fenced farm to the hills.
  // Убираем отдельные разнотонные пучки, чтобы газон оставался сплошным одноцветным покрытием.
  const pebble=mat(0xb9ae95);
- for(const [x,z,s] of [[-16,-18,.9],[-20,-12,.8],[-16,4,.75],[-20,12,.95],[20,-11,.9],[16,5,.8],[20,12,.95],[-12,17,.7],[12,17,.8]]){
+ for(const [x,z,s] of [[20,-11,.9],[16,5,.8],[20,12,.95],[12,17,.8]]){
    for(let k=0;k<3;k++){
      const stone=sphere(world,.11*s,x+(k-1)*.3*s,.07*s,z+.22*s,pebble,false);
      stone.scale.set(1.35,.55,.85);
