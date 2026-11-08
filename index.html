@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-304000';
+const GREEN_WORLD_BUILD_ID = '20261108-305000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3000,7 +3000,12 @@ function makeWorldDecor(){
    gwAddTreeContactShadow(g,h,1.02);
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
    // Геометрия ствола заканчивается внутри нижнего яруса существующей кроны.
-   trunk.position.y=h*.36;trunk.scale.set(.66,h*.72,.66);g.add(trunk);
+   trunk.position.y=h*.43;trunk.scale.set(.72,h*.86,.72);g.add(trunk);
+    // Центральная цветочная масса перекрывает верх ствола и устраняет видимый зазор.
+    const crownCore=new THREE.Mesh(gwCrownGeo,palette==='amber'?gwAmberB:gwPinkB);
+    crownCore.position.set(0,h*.755,0);
+    crownCore.scale.set(h*.235,h*.205,h*.235);
+    g.add(crownCore);
    // Разветвлённая крона с открытыми промежутками между ветвями.
    for(let k=0;k<20;k++){
      const a=seed+k*Math.PI*2/20;
@@ -3022,7 +3027,7 @@ function makeWorldDecor(){
      g.add(bloom);
    }
    // Отдельные лепестки поверх цветочных масс создают мелкий живой силуэт кроны.
-   const petalCount=168,petalsMesh=new THREE.InstancedMesh(gwPetalGeo,gwPinkC,petalCount),petalDummy=new THREE.Object3D();
+   const petalCount=168,petalsMesh=new THREE.InstancedMesh(gwPetalGeo,palette==='amber'?gwAmberC:gwPinkC,petalCount),petalDummy=new THREE.Object3D();
    for(let n=0;n<petalCount;n++){
      const a=seed+n*2.399963,ring=n%3,rad=h*(.13+ring*.075+(n%5)*.008);
      petalDummy.position.set(Math.cos(a)*rad*.84,h*(.615+(n%11)*.022),Math.sin(a)*rad*.84);
@@ -3033,7 +3038,7 @@ function makeWorldDecor(){
    // Несколько мелких соцветий по внешнему краю разбивают ровный контур кроны.
    for(let k=0;k<40;k++){
      const a=seed+k*2.399963;
-     const petal=new THREE.Mesh(gwCrownGeo,k%3===0?gwPinkB:gwPinkA);
+     const petal=new THREE.Mesh(gwCrownGeo,palette==='amber'?(k%3===0?gwAmberB:gwAmberA):(k%3===0?gwPinkB:gwPinkA));
      petal.position.set(Math.cos(a)*h*.255,h*(.675+(k%4)*.038),Math.sin(a)*h*.255);
      petal.scale.set(h*(.062+(k%3)*.009),h*(.052+(k%2)*.01),h*(.062+(k%4)*.006));g.add(petal);
    }
