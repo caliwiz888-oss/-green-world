@@ -3238,91 +3238,97 @@ function makeWorldLandscape(){
  waterReliefTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  water.bumpMap=waterReliefTexture;water.bumpScale=.012;water.roughnessMap=waterReliefTexture;water.roughness=.22;water.metalness=.035;water.clearcoat=.58;water.clearcoatRoughness=.16;water.reflectivity=.72;water.needsUpdate=true;
 
- // GREEN WORLD — природный водопад между массивами серой скальной породы.
- // Композиция расположена за задней частью ландшафта; существующие здания и ограждение не меняются.
- const gwFalls=new THREE.Group();gwFalls.name='GREEN_WORLD_GREY_ROCK_CENTRAL_WATERFALL';
- const gwRockMat=new THREE.MeshStandardMaterial({color:0x626b70,roughness:.94,metalness:.025});
- const gwRockLight=new THREE.MeshStandardMaterial({color:0x7d8588,roughness:.91,metalness:.018});
- const gwRockDark=new THREE.MeshStandardMaterial({color:0x41494e,roughness:.98,metalness:.01});
- const gwRockSeed=(n)=>{const v=Math.sin(n*127.1+311.7)*43758.5453;return v-Math.floor(v)};
- const gwMakeRock=(x,y,z,sx,sy,sz,seed,material=gwRockMat)=>{
+ // GREEN WORLD — новый природный водопад в глубине заднего пейзажа.
+ // Старый водопад удалён целиком; двор, задние деревья и бассейн не затрагиваются.
+ const gwFalls=new THREE.Group();gwFalls.name='GREEN_WORLD_REBUILT_ROCK_WATERFALL';
+ const gwRockMat=new THREE.MeshStandardMaterial({color:0x626b70,roughness:.96,metalness:.015});
+ const gwRockLight=new THREE.MeshStandardMaterial({color:0x858d90,roughness:.93,metalness:.01});
+ const gwRockDark=new THREE.MeshStandardMaterial({color:0x41494e,roughness:.98,metalness:.005});
+ const gwRockSeed=n=>{const v=Math.sin(n*127.1+311.7)*43758.5453;return v-Math.floor(v);};
+ const gwMakeRock=(x,y,z,sx,sy,sz,seed,mat=gwRockMat)=>{
    const geo=new THREE.IcosahedronGeometry(1,2),p=geo.attributes.position;
    for(let i=0;i<p.count;i++){
      const ox=p.getX(i),oy=p.getY(i),oz=p.getZ(i);
-     const n=1+(gwRockSeed(seed+i*.731)-.5)*.19+Math.sin(ox*7+seed)*.035;
+     const n=1+(gwRockSeed(seed+i*.731)-.5)*.22+Math.sin(ox*6.5+seed)*.045;
      p.setXYZ(i,ox*n,oy*n,oz*n);
    }
    geo.computeVertexNormals();
-   const mesh=new THREE.Mesh(geo,material);mesh.position.set(x,y,z);mesh.scale.set(sx,sy,sz);
-   mesh.rotation.set(gwRockSeed(seed+4)*.22,gwRockSeed(seed+8)*.5,gwRockSeed(seed+12)*.18);
+   const mesh=new THREE.Mesh(geo,mat);mesh.position.set(x,y,z);mesh.scale.set(sx,sy,sz);
+   mesh.rotation.set(gwRockSeed(seed+4)*.18,gwRockSeed(seed+8)*.45,gwRockSeed(seed+12)*.14);
    mesh.castShadow=true;mesh.receiveShadow=true;gwFalls.add(mesh);return mesh;
  };
- // Два высоких, неровных скальных борта с естественными уступами вокруг водного русла.
- for(let side of [-1,1]){
-   const x=side;
-   gwMakeRock(x*5.15,5.9,-57.8,3.15,6.3,1.75,side*17,gwRockMat);
-   gwMakeRock(x*4.15,10.5,-58.35,2.65,4.4,1.55,side*23,gwRockLight);
-   gwMakeRock(x*6.05,11.1,-58.0,2.25,4.8,1.7,side*31,gwRockDark);
-   gwMakeRock(x*3.45,3.2,-57.55,2.25,3.25,1.65,side*41,gwRockLight);
-   gwMakeRock(x*6.65,5.0,-58.1,2.15,3.8,1.65,side*53,gwRockMat);
-   // Выступающие полки разбивают вертикальную стену и формируют природные уступы.
-   gwMakeRock(x*4.7,7.8,-56.85,2.5,.72,1.55,side*61,gwRockDark);
-   gwMakeRock(x*6.1,9.0,-57.15,1.75,.55,1.35,side*71,gwRockLight);
+ // Два разорванных скальных массива: открытый центр сохраняет читаемость водного потока.
+ for(const side of [-1,1]){
+   gwMakeRock(side*3.65,3.7,-58.1,2.05,3.8,1.35,side*17,gwRockMat);
+   gwMakeRock(side*4.15,7.0,-58.45,2.15,2.9,1.4,side*23,gwRockLight);
+   gwMakeRock(side*5.35,4.4,-58.0,1.55,3.5,1.45,side*31,gwRockDark);
+   gwMakeRock(side*2.85,1.65,-57.7,1.8,1.55,1.25,side*41,gwRockLight);
+   // Естественные уступы и отдельные выступающие плиты.
+   gwMakeRock(side*3.75,5.7,-56.95,1.75,.42,1.12,side*61,gwRockDark);
+   gwMakeRock(side*5.0,7.1,-57.15,1.25,.34,1.0,side*71,gwRockLight);
  }
- // Неровный верхний карниз, из которого начинается падение воды.
+ // Неровный каменный гребень над водопадом, без сплошной стены.
  for(let i=0;i<7;i++){
-   const x=-4.6+i*1.53;
-   gwMakeRock(x,14.35+(i%3)*.42,-58.15,1.25,.9,1.35,91+i, i%2?gwRockLight:gwRockMat);
+   const x=-4.1+i*1.36;
+   if(Math.abs(x)<1.35)continue;
+   gwMakeRock(x,9.15+(i%3)*.28,-58.25,1.0,.62,1.1,91+i,i%2?gwRockLight:gwRockMat);
  }
- // Текстура потока: вертикальные светлые прожилки и полупрозрачные бирюзовые слои.
- const gwFallCanvas=document.createElement('canvas');gwFallCanvas.width=128;gwFallCanvas.height=512;
+ // Несколько тонких слоёв воды создают объём и естественные блики.
+ const gwFallCanvas=document.createElement('canvas');gwFallCanvas.width=160;gwFallCanvas.height=512;
  const gwFallCtx=gwFallCanvas.getContext('2d');
  const gwFallGrad=gwFallCtx.createLinearGradient(0,0,0,512);
- gwFallGrad.addColorStop(0,'rgba(208,247,242,.96)');gwFallGrad.addColorStop(.22,'rgba(91,194,205,.91)');
- gwFallGrad.addColorStop(.72,'rgba(38,145,169,.94)');gwFallGrad.addColorStop(1,'rgba(178,235,228,.98)');
- gwFallCtx.fillStyle=gwFallGrad;gwFallCtx.fillRect(0,0,128,512);
- for(let i=0;i<34;i++){
-   const x=(i*37)%128,w=1+(i%4)*1.25;
-   gwFallCtx.strokeStyle=i%4===0?'rgba(255,255,255,.58)':'rgba(222,250,245,.19)';
+ gwFallGrad.addColorStop(0,'rgba(220,250,245,.98)');
+ gwFallGrad.addColorStop(.18,'rgba(105,204,210,.94)');
+ gwFallGrad.addColorStop(.72,'rgba(38,145,169,.96)');
+ gwFallGrad.addColorStop(1,'rgba(188,240,231,.98)');
+ gwFallCtx.fillStyle=gwFallGrad;gwFallCtx.fillRect(0,0,160,512);
+ for(let i=0;i<48;i++){
+   const x=(i*43)%160,w=1+(i%5)*.9;
+   gwFallCtx.strokeStyle=i%5===0?'rgba(255,255,255,.72)':'rgba(230,255,250,.22)';
    gwFallCtx.lineWidth=w;gwFallCtx.beginPath();gwFallCtx.moveTo(x,0);
-   gwFallCtx.bezierCurveTo(x-5,130,x+7,330,x+(i%3-1)*4,512);gwFallCtx.stroke();
+   gwFallCtx.bezierCurveTo(x-5,145,x+8,340,x+(i%3-1)*5,512);gwFallCtx.stroke();
  }
  const gwFallTexture=new THREE.CanvasTexture(gwFallCanvas);
- gwFallTexture.colorSpace=THREE.SRGBColorSpace;gwFallTexture.wrapS=gwFallTexture.wrapT=THREE.RepeatWrapping;
- gwFallTexture.repeat.set(1,1);gwFallTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- const gwFallMat=new THREE.MeshPhysicalMaterial({map:gwFallTexture,color:0xffffff,transparent:true,opacity:.94,
-   roughness:.16,metalness:.035,clearcoat:.8,clearcoatRoughness:.12,side:THREE.DoubleSide,depthWrite:false});
- const gwFallGeo=new THREE.PlaneGeometry(5.05,11.7,28,64);
- const gwFallPos=gwFallGeo.attributes.position;
+ gwFallTexture.colorSpace=THREE.SRGBColorSpace;
+ gwFallTexture.wrapS=gwFallTexture.wrapT=THREE.RepeatWrapping;
+ gwFallTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const gwFallMat=new THREE.MeshPhysicalMaterial({map:gwFallTexture,color:0xffffff,transparent:true,opacity:.96,
+   roughness:.14,metalness:.025,clearcoat:.9,clearcoatRoughness:.1,side:THREE.DoubleSide,depthWrite:false});
+ const gwFallGeo=new THREE.PlaneGeometry(4.8,8.6,32,72),gwFallPos=gwFallGeo.attributes.position;
  for(let i=0;i<gwFallPos.count;i++){
    const x=gwFallPos.getX(i),y=gwFallPos.getY(i);
-   gwFallPos.setZ(i,.12*Math.sin(x*2.1+y*.38)+.045*Math.sin(x*5.2-y*.7));
+   gwFallPos.setZ(i,.15*Math.sin(x*2.3+y*.42)+.055*Math.sin(x*6-y*.8));
  }
  gwFallGeo.computeVertexNormals();
  const gwFallMesh=new THREE.Mesh(gwFallGeo,gwFallMat);
- gwFallMesh.name='GREEN_WORLD_CENTRAL_TURQUOISE_WATER_SHEET';
- gwFallMesh.position.set(0,8.55,-56.28);gwFallMesh.castShadow=false;gwFalls.add(gwFallMesh);
+ gwFallMesh.name='GREEN_WORLD_TURQUOISE_CASCADE_SHEET';
+ gwFallMesh.position.set(0,6.55,-56.25);gwFalls.add(gwFallMesh);
  waterfallFlowTextures.push(gwFallTexture);
- // Каменная чаша у подножия, с бирюзовой водой и мягкой пеной.
- const gwPool=new THREE.Mesh(new THREE.SphereGeometry(1,64,32),
-   new THREE.MeshPhysicalMaterial({color:0x36a8b5,roughness:.2,metalness:.045,transparent:true,opacity:.88,clearcoat:.9,clearcoatRoughness:.1}));
- gwPool.name='GREEN_WORLD_WATERFALL_PLUNGE_POOL';gwPool.position.set(0,.62,-55.2);gwPool.scale.set(5.6,.62,2.45);gwFalls.add(gwPool);
- const gwFoamMat=new THREE.MeshBasicMaterial({color:0xe7fbf5,transparent:true,opacity:.68,depthWrite:false});
- for(let i=0;i<17;i++){
-   const a=i/17*Math.PI*2,rx=2.15+(i%4)*.52;
-   const foam=new THREE.Mesh(new THREE.SphereGeometry(1,12,8),gwFoamMat);
-   foam.position.set(Math.cos(a)*rx,.9+(i%3)*.035,-55.05+Math.sin(a)*.82);
-   foam.scale.set(.42+(i%3)*.16,.055,.16+(i%2)*.07);gwFalls.add(foam);
+ // Небольшая естественная заводь расположена строго под потоком.
+ const gwPool=new THREE.Mesh(new THREE.SphereGeometry(1,56,28),
+   new THREE.MeshPhysicalMaterial({color:0x36a8b5,roughness:.19,metalness:.035,transparent:true,opacity:.86,clearcoat:.95,clearcoatRoughness:.09}));
+ gwPool.name='GREEN_WORLD_WATERFALL_FOOT_POOL';
+ gwPool.position.set(0,.45,-55.15);gwPool.scale.set(3.65,.38,1.55);gwFalls.add(gwPool);
+ const gwFoamMat=new THREE.MeshBasicMaterial({color:0xe7fbf5,transparent:true,opacity:.7,depthWrite:false});
+ for(let i=0;i<15;i++){
+   const ang=i/15*Math.PI*2,foam=new THREE.Mesh(new THREE.SphereGeometry(1,12,8),gwFoamMat);
+   const r=1.7+(i%4)*.34;
+   foam.position.set(Math.cos(ang)*r,.69+(i%3)*.025,-55.0+Math.sin(ang)*.52);
+   foam.scale.set(.34+(i%3)*.11,.045,.13+(i%2)*.05);gwFalls.add(foam);
  }
- // Несколько тонких струй по краям центрального полотна связывают воду со скальными уступами.
- const gwSideWaterMat=new THREE.MeshBasicMaterial({color:0x9de5df,transparent:true,opacity:.62,side:THREE.DoubleSide});
- for(let side of [-1,1])for(let i=0;i<3;i++){
-   const stream=new THREE.Mesh(new THREE.PlaneGeometry(.22+i*.08,2.0+i*.45,2,18),gwSideWaterMat);
-   stream.position.set(side*(2.5+i*.48),5.1+i*1.25,-56.18);stream.rotation.z=side*(.08+i*.035);gwFalls.add(stream);
+ // Короткие боковые струи соединяют полотно с каменными уступами.
+ const gwSideWaterMat=new THREE.MeshBasicMaterial({color:0xa9e9e2,transparent:true,opacity:.64,side:THREE.DoubleSide});
+ for(const side of [-1,1])for(let i=0;i<2;i++){
+   const stream=new THREE.Mesh(new THREE.PlaneGeometry(.18+i*.07,1.5+i*.35,2,16),gwSideWaterMat);
+   stream.position.set(side*(2.25+i*.35),4.0+i*1.15,-56.15);
+   stream.rotation.z=side*(.07+i*.04);gwFalls.add(stream);
  }
- gwFalls.scale.set(2.4,1.55,1.0);gwFalls.position.set(0,0,-24.0);world.add(gwFalls);
- window.GREEN_WORLD_WATERFALL_STATUS='grey-rocks-central-waterfall-built';
-
+ // Композиция позади линии деревьев, внутри границы заднего ландшафта.
+ // Сохраняем согласованные размеры: ширина 2.4, высота 1.55.
+ gwFalls.scale.set(2.4,1.55,1.0);
+ gwFalls.position.set(0,0,-2.5);
+ world.add(gwFalls);
+ window.GREEN_WORLD_WATERFALL_STATUS='rebuilt-grey-rock-waterfall';
  // Материалы гор и снега удалены вместе с горной геометрией.
  // GREEN WORLD — новая увеличенная ровная внешняя площадка.
  // Старая плоскость заменена одной цельной поверхностью 88 x 78 без дополнительных слоёв.
