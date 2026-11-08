@@ -1272,7 +1272,7 @@ function makeMarket(){
  }
  // Тонкие разветвлённые побеги добавляют объём между крупными ярусами.
  const firTwigMaterial=new THREE.MeshStandardMaterial({color:0x31583a,roughness:.97});
- for(const [tx,tz,fh,seed] of [[1.7,-5.0,5.2,11],[0,-6.1,5.5,5],[-1.7,-7.2,5.2,8],[-3.4,-7.8,5.2,14]]){
+ for(const [tx,tz,fh,seed] of [[2.2,-4.6,5.2,11],[0.7,-5.8,5.5,5],[-0.8,-7.0,5.2,8],[-2.3,-8.2,5.2,14]]){
    cylinder(g,.105,.19,fh*.82,tx,fh*.41,tz,marketFirBark,12);
    // Расходящиеся у основания корни слегка выступают из почвы.
    for(let root=0;root<7;root++){const a=root/7*Math.PI*2+seed*.13;const r=.28+(root%3)*.035;const flare=cone(g,.095,.48,tx+Math.cos(a)*.18,.19,tz+Math.sin(a)*.18,marketFirBark,7);flare.rotation.z=Math.cos(a)*.58;flare.rotation.x=-Math.sin(a)*.58;}
