@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-295000';
+const GREEN_WORLD_BUILD_ID = '20261108-296000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -544,7 +544,7 @@ function makeSurfaceTexture(kind,seed){
  return texture;
 }
 const surfaceMaps={
- grass:makeSurfaceTexture('grass',11),soil:makeSurfaceTexture('soil',23),
+ soil:makeSurfaceTexture('soil',23),
  stone:makeSurfaceTexture('stone',37),wood:makeSurfaceTexture('wood',51),
  roof:makeSurfaceTexture('roof',67)
 };
@@ -2777,27 +2777,6 @@ function makeWorldDecor(){
     leaf.position.set(side*.48,crestY+.19,crestZ+.04);leaf.rotation.z=-side*.55;fenceNoShadow(leaf);world.add(leaf);
   }
   // Decorative entrance arch is built above; continue with natural ground-cover details.
- // Low ornamental ground cover and natural stone clusters around the outer border.
- const shrubMat=mat(0x718765),rockMat=mat(0x9b9586);
- // Кустарники собраны из перекрывающихся округлых ярусов листвы с несколькими природными оттенками.
- const shrubMaterials=[0x718765,0x829674,0x91a27b,0x62795b].map(color=>new THREE.MeshStandardMaterial({color,roughness:.96}));
- const shrubGeometry=new THREE.SphereGeometry(1,14,10);
- for(const [x,z,scale] of [[18,8,1.15],[12,18,1]]){
-   const clusters=[
-     [0,.43,0,.67,.53,.66,0],
-     [-.34,.38,.12,.47,.43,.48,1],
-     [.34,.36,-.08,.49,.44,.48,2],
-     [-.12,.68,-.18,.46,.43,.45,2],
-     [.25,.65,.2,.43,.39,.44,1],
-     [.02,.3,.34,.38,.32,.38,3]
-   ];
-   for(const [dx,dy,dz,sx,sy,sz,mi] of clusters){
-     const leafCluster=new THREE.Mesh(shrubGeometry,shrubMaterials[mi]);
-     leafCluster.position.set(x+dx*scale,dy*scale,z+dz*scale);
-     leafCluster.scale.set(sx*scale,sy*scale,sz*scale);
-     leafCluster.castShadow=false;leafCluster.receiveShadow=false;world.add(leafCluster);
-   }
- }
  // Естественные группы валунов: крупный камень дополнен меньшими сколотыми фрагментами.
  const rockLight=mat(0xa19d8d,.94),rockShade=mat(0x77796f,.97);
  for(const [x,z,r] of [[17,-17,.8],[18,15,1.0]]){
@@ -3082,37 +3061,6 @@ function makeWorldDecor(){
    g.rotation.y=seed*.13;g.scale.set(1+.05*Math.sin(seed),1+.035*Math.cos(seed*1.4),1+.05*Math.cos(seed));
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
- function gwAddUndergrowth(x,z,scale=1,seed=0,baseY=0){
-   const g=new THREE.Group();g.position.set(x,baseY,z);g.scale.setScalar(scale);gwForest.add(g);
-   // Низкие кусты собраны из отдельных округлых масс разного размера и оттенка.
-   for(let k=0;k<5;k++){
-     const a=seed+k*Math.PI*2/5;
-     const r=.22+(k%3)*.055;
-     const leaf=new THREE.Mesh(gwCrownGeo,k%3===0?gwPineC:gwLeaf);
-     leaf.position.set(Math.cos(a)*r,.22+(k%2)*.055,Math.sin(a)*r);
-     leaf.scale.set(.31+(k%2)*.045,.24+(k%3)*.025,.29+(k%2)*.035);
-     g.add(leaf);
-   }
-   // Низкая листва у самой земли закрывает резкий переход между кустом и травой.
-   for(let k=0;k<7;k++){
-     const a=seed*.37+k*Math.PI*2/7;
-     const r=.34+(k%3)*.045;
-     const skirt=new THREE.Mesh(gwCrownGeo,k%3===1?gwPineC:gwLeaf);
-     skirt.position.set(Math.cos(a)*r,.075+(k%2)*.018,Math.sin(a)*r);
-     skirt.scale.set(.205+(k%2)*.035,.085+(k%3)*.012,.19+(k%2)*.025);
-     g.add(skirt);
-   }
-   // Молодые побеги и травяные пучки разной высоты связывают куст с лесной подстилкой.
-   for(let k=0;k<5;k++){
-     const a=seed+k*2.1;
-     const sprout=new THREE.Mesh(gwSproutGeo,k%3===1?gwPineA:gwPineB);
-     sprout.position.set(Math.cos(a)*(.29+(k%2)*.09),.12+(k%2)*.025,Math.sin(a)*(.29+(k%2)*.09));
-     sprout.rotation.z=Math.cos(a)*-.25;sprout.rotation.x=Math.sin(a)*.25;
-     sprout.scale.setScalar(.72+(k%3)*.12);g.add(sprout);
-   }
-   g.rotation.y=seed*.19;
-   g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
- }
  // Лесной пояс у гор распределён свободно: деревья смещены и по ширине, и по глубине,
  // поэтому кроны не складываются в две ровные горизонтальные линии.
  const mountainForestRows=[-35.2,-41.0];
@@ -3130,8 +3078,7 @@ function makeWorldDecor(){
      const baseY=.08+3.0*THREE.MathUtils.smoothstep(t,.02,.98);
      const seed=i*.73+row*2.1;
      if((i+row*3)%7===2)gwAddBlossom(treeX,treeZ,4.35+(i%2)*.3,seed,baseY);
-     
-     if(i%2===0)gwAddUndergrowth(x+(row===0?-1.35:1.4),z+.85,.78+(i%3)*.08,seed+.4,baseY);
+
    }
  }
  // Боковые хвойные деревья разнесены дальше друг от друга, чтобы кроны не слипались.
@@ -3142,8 +3089,7 @@ function makeWorldDecor(){
      const x=side*(21.4+(i%2)*2.8+Math.sin(i*1.8)*.55);
      const z=baseZ+Math.cos(i*1.37)*1.0+(i%2?1.1:-.7);
      const h=4.85+(i%3)*.42;
-     
-     if(i===2||i===5)gwAddUndergrowth(x-side*.8,z+.9,.68+(i%2)*.07,side+i*.3);
+
    });
    // Два розовых дерева стоят снаружи бокового забора, рядом с уровнем дороги.
    gwAddBlossom(side*18.35,9.8,4.35,side*1.7+.35);
@@ -3164,77 +3110,9 @@ function makeWorldDecor(){
    const z=-26.0+lane*3.0+Math.cos(i*1.67)*1.25;
    const h=5.0+(i%4)*.4;
    if(i===3||i===11){const blossomX=x-(i===11?9:0);const blossomZ=z-(i===11?14:0);const localV=-(blossomZ+39);const terrainT=THREE.MathUtils.clamp((localV+20)/40,0,1);const blossomBaseY=.08+4.8*THREE.MathUtils.smoothstep(terrainT,0,1);gwAddBlossom(blossomX,blossomZ,4.25,i*.8,blossomBaseY);}
-   
-   if(i%3===1)gwAddUndergrowth(x+(lane?1.0:-1.1),z+.8,.78+(i%3)*.06,i*.61);
- }  // Лесная подстилка: тысячи тонких травинок и мха с естественной цветовой вариацией.
-  const gwForestFloor=new THREE.Group();gwForestFloor.name='green-world-forest-floor-detail';world.add(gwForestFloor);
-  const gwGrassGeo=new THREE.ConeGeometry(.026,.38,5,1),gwGrassMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
-  const gwGrassCount=2600,gwGrass=new THREE.InstancedMesh(gwGrassGeo,gwGrassMat,gwGrassCount),gwGrassDummy=new THREE.Object3D();
-  const gwGrassColors=[0x477b43,0x648b4b,0x829b53,0x527545];
-  for(let n=0;n<gwGrassCount;n++){
-    if(n%3!==0)continue; // Удалена трава по бокам участка.
-    const u=((n*127.1)%997)/997,v=((n*311.7)%991)/991;let x,z,y;
-    if(n%3===0){x=-48+u*96;z=-43+v*18;const t=THREE.MathUtils.clamp((-(z+36.5)-15.5)/31,0,1);y=.08+3*THREE.MathUtils.smoothstep(t,.02,.98);}
-    else{const side=n%2?1:-1;x=side*(19.2+u*10);z=-25+v*48;y=0;}
-    const h=.55+(n%7)*.12;gwGrassDummy.position.set(x,y+.08+h*.16,z);
-    gwGrassDummy.scale.set(.65+(n%4)*.15,h,.65+(n%3)*.18);gwGrassDummy.rotation.set(.12*Math.sin(n),u*Math.PI*2,.16*Math.cos(n));
-    gwGrassDummy.updateMatrix();gwGrass.setMatrixAt(n,gwGrassDummy.matrix);gwGrass.setColorAt(n,new THREE.Color(gwGrassColors[n%4]));
-  }
-  gwGrass.instanceMatrix.needsUpdate=true;if(gwGrass.instanceColor)gwGrass.instanceColor.needsUpdate=true;gwForestFloor.add(gwGrass);
-  // Небольшие пятна мха смягчают переходы между травой и кустарником.
-  const gwMossGeo=new THREE.SphereGeometry(1,7,5),gwMossMat=new THREE.MeshStandardMaterial({color:0x526b3c,roughness:1});
-  const gwMoss=new THREE.InstancedMesh(gwMossGeo,gwMossMat,190),gwMossDummy=new THREE.Object3D();
-  for(let n=0;n<190;n++){
-    const x=-46+((n*83)%911)/911*92,z=-42+((n*149)%887)/887*17;
-    const t=THREE.MathUtils.clamp((-(z+36.5)-15.5)/31,0,1),y=.08+3*THREE.MathUtils.smoothstep(t,.02,.98);
-    gwMossDummy.position.set(x,y+.035,z);gwMossDummy.scale.set(.18+(n%5)*.045,.035,.12+(n%4)*.035);
-    gwMossDummy.rotation.y=n*1.71;gwMossDummy.updateMatrix();gwMoss.setMatrixAt(n,gwMossDummy.matrix);
-  }
-  gwForestFloor.add(gwMoss);
-  // Низкие папоротники и широкие листовые розетки заполняют промежутки между травой и кустами.
-  const gwFernLeafGeo=new THREE.SphereGeometry(1,12,8);
-  const gwFernMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.96});
-  const gwFernCount=480,gwFernLeaves=new THREE.InstancedMesh(gwFernLeafGeo,gwFernMat,gwFernCount*4),gwFernDummy=new THREE.Object3D();
-  const gwFernColors=[0x477b43,0x568447,0x6d9250,0x829e59];
-  for(let n=0;n<gwFernCount;n++){
-    if(n%3!==0)continue; // Удалены боковые папоротники и травяные розетки.
-    const u=((n*197.3)%991)/991,v=((n*271.9)%983)/983;let x,z,y;
-    if(n%3===0){x=-47+u*94;z=-42+v*16;const t=THREE.MathUtils.clamp((-(z+36.5)-15.5)/31,0,1);y=.08+3*THREE.MathUtils.smoothstep(t,.02,.98);}
-    else{const side=n%2?1:-1;x=side*(19.6+u*8.8);z=-24+v*46;y=0;}
-    const tint=new THREE.Color(gwFernColors[n%4]),rot=u*Math.PI*2;
-    for(let k=0;k<4;k++){
-      const angle=rot+k*Math.PI*.5,reach=.22+(n%4)*.025;
-      gwFernDummy.position.set(x+Math.cos(angle)*reach*.42,y+.09+(k%2)*.025,z+Math.sin(angle)*reach*.42);
-      gwFernDummy.scale.set(.065,.018,reach);gwFernDummy.rotation.set(-.12,angle,.08*Math.sin(n+k));
-      gwFernDummy.updateMatrix();const index=n*4+k;gwFernLeaves.setMatrixAt(index,gwFernDummy.matrix);
-      gwFernLeaves.setColorAt(index,tint);
-    }
-  }
-  gwFernLeaves.instanceMatrix.needsUpdate=true;if(gwFernLeaves.instanceColor)gwFernLeaves.instanceColor.needsUpdate=true;
-  gwForestFloor.add(gwFernLeaves);
 
-  // Опавшая листва у корней деревьев: мелкие листья лежат на земле, не заходя во внутренний двор.
-  const gwLeafGeo=new THREE.SphereGeometry(1,7,4);
-  const gwLeafMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
-  const gwLeafCount=1350,gwLeafLitter=new THREE.InstancedMesh(gwLeafGeo,gwLeafMat,gwLeafCount),gwLeafDummy=new THREE.Object3D();
-  const gwLeafColors=[0x574b32,0x75613b,0x8a7547,0x3f5835,0x687044,0x9a8050];
-  for(let n=0;n<gwLeafCount;n++){
-    if(n%3!==0)continue; // Удалена боковая листва вместе с боковой травой.
-    const u=((n*173.7)%997)/997,v=((n*293.1)%991)/991;let x,z,y;
-    if(n%3===0){x=-47+u*94;z=-42+v*16;const t=THREE.MathUtils.clamp((-(z+36.5)-15.5)/31,0,1);y=.08+3*THREE.MathUtils.smoothstep(t,.02,.98);}
-    else{const side=n%2?1:-1;x=side*(19.5+u*9.1);z=-24+v*46;y=0;}
-    const length=.10+(n%5)*.025,width=.035+(n%3)*.012;
-    gwLeafDummy.position.set(x,y+.035+(n%4)*.003,z);
-    gwLeafDummy.scale.set(width,.009,length);gwLeafDummy.rotation.set(.04*Math.sin(n),u*Math.PI*2,.06*Math.cos(n));
-    gwLeafDummy.updateMatrix();gwLeafLitter.setMatrixAt(n,gwLeafDummy.matrix);
-    gwLeafLitter.setColorAt(n,new THREE.Color(gwLeafColors[n%gwLeafColors.length]));
-  }
-  gwLeafLitter.instanceMatrix.needsUpdate=true;if(gwLeafLitter.instanceColor)gwLeafLitter.instanceColor.needsUpdate=true;
-  gwForestFloor.add(gwLeafLitter);
-
-
-
- // Удалены мелкие светлые камешки за правой стороной ограды, чтобы убрать тонкую светлую отметку.
+ }
+  // Удалены мелкие светлые камешки за правой стороной ограды, чтобы убрать тонкую светлую отметку.
 }
 let riverWaterTexture=null;
 let riverSurfaceMesh=null;
@@ -3358,36 +3236,6 @@ function makeWorldLandscape(){
  // GREEN WORLD — новая увеличенная ровная внешняя площадка.
  // Старая плоскость заменена одной цельной поверхностью 88 x 78 без дополнительных слоёв.
  // Внутренний двор и исходные горы сохранены; участок расширен под новый периметр.
- // Процедурная микротекстура травы: мягкие цветовые вариации и короткие травинки
- // делают большую поверхность живой, но не превращают её в шумную пятнистую заливку.
- const groundDetailCanvas=document.createElement('canvas');
- groundDetailCanvas.width=1024;groundDetailCanvas.height=1024;
- const groundDetailCtx=groundDetailCanvas.getContext('2d');
- groundDetailCtx.fillStyle='#f2f5e9';groundDetailCtx.fillRect(0,0,1024,1024);
- let groundSeed=7319;
- const groundRand=()=>{groundSeed=(groundSeed*1664525+1013904223)>>>0;return groundSeed/4294967296;};
- for(let i=0;i<72000;i++){
-    const x=groundRand()*1024,y=groundRand()*1024;
-   const light=groundRand()>.48;
-   groundDetailCtx.fillStyle=light?'rgba(255,255,244,.24)':'rgba(94,125,72,.12)';
-   groundDetailCtx.fillRect(x,y,.7+groundRand()*1.5,.7+groundRand()*1.5);
- }
- for(let i=0;i<6800;i++){
-    const x=groundRand()*1024,y=groundRand()*1024;
-   const len=1.8+groundRand()*4.2;
-   groundDetailCtx.strokeStyle=groundRand()>.5?'rgba(111,145,82,.18)':'rgba(178,190,128,.18)';
-   groundDetailCtx.lineWidth=.55+groundRand()*.45;
-   groundDetailCtx.beginPath();groundDetailCtx.moveTo(x,y);groundDetailCtx.lineTo(x+(groundRand()-.5)*1.8,y-len);groundDetailCtx.stroke();
- }
- const groundDetailTexture=new THREE.CanvasTexture(groundDetailCanvas);
-  groundDetailTexture.colorSpace=THREE.SRGBColorSpace;
-  const groundDetailBump=groundDetailTexture.clone();groundDetailBump.colorSpace=THREE.NoColorSpace;groundDetailBump.needsUpdate=true;
- groundDetailTexture.wrapS=groundDetailTexture.wrapT=THREE.RepeatWrapping;
- groundDetailTexture.repeat.set(8,7);
- groundDetailTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- groundDetailTexture.minFilter=THREE.LinearMipmapLinearFilter;
- groundDetailTexture.magFilter=THREE.LinearFilter;
- groundDetailTexture.generateMipmaps=true;
  const newTerrainGeometry=new THREE.PlaneGeometry(88,78,232,208);
  const newTerrainPositions=newTerrainGeometry.attributes.position;
  const newTerrainColors=[];
@@ -3399,7 +3247,7 @@ function makeWorldLandscape(){
  newTerrainGeometry.setAttribute('color',new THREE.Float32BufferAttribute(newTerrainColors,3));
  newTerrainGeometry.computeVertexNormals();
  const newMeadow=new THREE.Mesh(newTerrainGeometry,new THREE.MeshStandardMaterial({
-   color:0xffffff,vertexColors:true,map:groundDetailTexture,bumpMap:groundDetailBump,bumpScale:.018,roughness:.98,metalness:0,side:THREE.DoubleSide
+   color:0xffffff,vertexColors:true,roughness:.98,metalness:0,side:THREE.DoubleSide
  }));
  newMeadow.name='GREEN_WORLD_Expanded_Exterior_Terrain';
  newMeadow.rotation.x=-Math.PI/2;
@@ -3579,16 +3427,8 @@ function makeWorldLandscape(){
  for(const [x,z,s] of [[-23,18.8,.8],[-19,19.1,.55],[-14,19,.7],[-9,19.15,.48],[7,19,.62],[13,19.1,.72],[19,18.9,.55],[23,19,.8],[-21,25.4,.6],[-15,25.2,.5],[-6,25.35,.72],[8,25.3,.55],[16,25.25,.7],[22,25.4,.58]]){
    const stone=sphere(world,1,x,.12,z,bankStone,false);stone.scale.set(s,.55,s*.72);
  }
- for(const [x,z] of [[-18,19.1],[-11,19.2],[5,19.1],[15,19.2],[21,19.1],[-16,25.1],[-3,25.2],[11,25.1],[19,25.2]]){
-   for(let j=0;j<3;j++){
-     const reed=box(world,.055,.72+(j%2)*.22,.055,x+(j-1)*.13,.38,z+(j%2)*.1,reedMat,false);
-     reed.rotation.z=(j-1)*.16;
-     sphere(world,.07,x+(j-1)*.13,.78+(j%2)*.2,z+(j%2)*.1,reedTip,false);
-   }
- }
  // Мелкая галька и низкие прибрежные травы создают плавный переход от берега к воде.
  const shorePebbleMats=[0xb7b29c,0x8f9789,0xd0c7ad].map(color=>new THREE.MeshStandardMaterial({color,roughness:.97}));
- const shoreGrassMats=[0x82966c,0x9baa7b,0x6e825e].map(color=>new THREE.MeshStandardMaterial({color,roughness:.98}));
  for(const [x,z,s] of [[-22,19.65,.7],[-17,19.7,.5],[-12,19.65,.62],[-7,19.7,.42],[3,19.68,.55],[10,19.7,.46],[16,19.68,.6],[22,19.65,.65],[-19,24.8,.5],[-12,24.82,.62],[-4,24.8,.48],[5,24.82,.58],[13,24.8,.46],[20,24.82,.62]]){
    for(let k=0;k<3;k++){
      const pebbleMesh=new THREE.Mesh(new THREE.SphereGeometry(.19,14,10),shorePebbleMats[k]);
@@ -3596,13 +3436,6 @@ function makeWorldLandscape(){
      pebbleMesh.scale.set(s*(.68+k*.13),.25+(k%2)*.035,s*(.38+k*.1));
      pebbleMesh.rotation.set((k-1)*.035,k*.8,(k-1)*.045);
      pebbleMesh.castShadow=false;pebbleMesh.receiveShadow=false;world.add(pebbleMesh);
-   }
- }
- for(const [x,z] of [[-20,19.75],[-15,19.8],[-5,19.78],[4,19.8],[12,19.78],[20,19.75],[-17,24.72],[-8,24.75],[2,24.72],[10,24.75],[18,24.72]]){
-   for(let k=0;k<4;k++){
-     const blade=new THREE.Mesh(new THREE.ConeGeometry(.075,.48+(k%2)*.16,5),shoreGrassMats[k%3]);
-     blade.position.set(x+(k-1.5)*.12,.24,z+(k%2)*.11);
-     blade.rotation.z=(k-1.5)*.16;blade.castShadow=false;blade.receiveShadow=false;world.add(blade);
    }
  }
  for(const [x,z] of [[-18,21.2],[-8,23.1],[9,21.6],[18,23.4]]){
