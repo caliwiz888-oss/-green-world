@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-355000';
+const GREEN_WORLD_BUILD_ID = '20261108-356000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3384,7 +3384,7 @@ function makeWorldLandscape(){
 // поэтому анимация обращалась к null и река полностью исчезала.
 // Сохраняем горизонтальное русло за двором; поверхность приподнята над ландшафтом,
 // чтобы её не перекрывала сплошная плоскость внешнего газона.
-const riverGeometry=new THREE.PlaneGeometry(50,11.5,180,44);
+const riverGeometry=new THREE.PlaneGeometry(50,7.2,180,44);
 riverSurfaceMesh=new THREE.Mesh(riverGeometry,water);
 riverSurfaceMesh.name='GREEN_WORLD_River_Surface';
 riverSurfaceMesh.rotation.x=-Math.PI/2;
