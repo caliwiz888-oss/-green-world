@@ -3088,38 +3088,66 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  snowTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const snowBump=snowTexture.clone();snowBump.colorSpace=THREE.NoColorSpace;snowBump.needsUpdate=true;
  for(const m of [snow]){m.map=snowTexture;m.bumpMap=snowBump;m.bumpScale=.026;m.roughness=.94;m.metalness=0;m.needsUpdate=true;}
-  // НОВЫЙ ЛАНДШАФТ: широкая природная долина с асимметричными плато,
-  // мягкими уступами и расходящимися водосборными ложбинами.
-  // Старая система параллельных гряд, отдельных холмов и её текстура удалены.
-  const terrainGeometry=new THREE.PlaneGeometry(76,66,190,166);
+  // НОВЫЙ ЛАНДШАФТ — выразительный природный предгорный парк.
+  // Несколько разновысотных изогнутых хребтов, широкие плечи склонов и глубокие мягкие долины.
+  const terrainGeometry=new THREE.PlaneGeometry(76,66,220,190);
   const terrainPositions=terrainGeometry.attributes.position;
   const terrainColors=[];
-  const terrainLow=new THREE.Color(0x496b45),terrainMeadow=new THREE.Color(0x78965b);
-  const terrainSun=new THREE.Color(0xa5b879),terrainShadow=new THREE.Color(0x344f3a);
+  const lowGreen=new THREE.Color(0x38583c);
+  const meadowGreen=new THREE.Color(0x6f9252);
+  const sunGreen=new THREE.Color(0xb0c47b);
+  const shadowGreen=new THREE.Color(0x293f32);
+  const earthGreen=new THREE.Color(0x8d9860);
   const smoothTerrain=(v)=>{v=THREE.MathUtils.clamp(v,0,1);return v*v*(3-2*v);};
   const gauss=(v,w)=>Math.exp(-.5*(v/w)*(v/w));
+  const ridgeProfiles=[
+    {base:-13.2,slope:.12,wave:2.7,phase:.5,amp:1.02,width:2.25,shoulder:5.2},
+    {base:-4.0,slope:-.15,wave:2.3,phase:2.3,amp:1.18,width:2.55,shoulder:5.8},
+    {base:6.4,slope:.13,wave:2.9,phase:4.1,amp:1.12,width:2.35,shoulder:5.4},
+    {base:16.5,slope:-.10,wave:2.2,phase:1.4,amp:1.02,width:2.8,shoulder:6.0},
+    {base:26.0,slope:.07,wave:1.7,phase:3.5,amp:.76,width:3.3,shoulder:6.8}
+  ];
   for(let i=0;i<terrainPositions.count;i++){
     const x=terrainPositions.getX(i),z=terrainPositions.getY(i);
-    const wx=x+1.15*Math.sin(z*.16+x*.075)+.48*Math.sin(z*.39-x*.21);
-    const wz=z+1.35*Math.sin(x*.105-z*.08)+.42*Math.cos(x*.31+z*.17);
-    const western=1.02*gauss(wx+23,8.8)*gauss(wz-1.5,11.5);
-    const central=.92*gauss(wx-1.5,10.8)*gauss(wz-14.5,8.2);
-    const eastern=.88*gauss(wx-23,8.4)*gauss(wz-4.5,12.5);
-    const rearShoulder=.56*gauss(wz-27,5.8)*(.72+.28*Math.sin(wx*.12+1.1));
-    const nearShoulder=.34*gauss(wz+22,6.5)*(.76+.24*Math.cos(wx*.15-.6));
-    const drainageA=gauss(wz-(.27*wx+1.5*Math.sin(wx*.12)),1.45)*gauss(wx-1,24);
-    const drainageB=gauss(wz-(-.31*wx+16+1.2*Math.sin(wx*.1+1)),1.7)*gauss(wx+5,22);
-    const basin=gauss(wx-1,17)*gauss(wz-2,13);
-    let height=western+central+eastern+rearShoulder+nearShoulder;
-    height-=.34*drainageA+.28*drainageB+.17*basin;
-    const broad=.105*Math.sin(wx*.19+wz*.13)+.075*Math.cos(wx*.11-wz*.23)+.045*Math.sin(wx*.37+wz*.29);
-    const fine=.025*Math.sin(wx*.83+wz*.57)+.018*Math.cos(wx*1.07-wz*.71);
-    height=Math.max(0,height+broad+fine);
-    const sideWave=1.8*Math.sin(z*.27+.8)+.7*Math.sin(z*.61);
-    const rearWave=2.1*Math.sin(x*.21)+.8*Math.sin(x*.49+1.2);
-    const frontWave=1.5*Math.sin(x*.25+1.7)+.55*Math.sin(x*.58);
+    const wx=x+1.25*Math.sin(z*.14+x*.07)+.52*Math.sin(z*.37-x*.19);
+    const wz=z+1.55*Math.sin(x*.095-z*.075)+.48*Math.cos(x*.27+z*.16);
+    let height=0;
+    for(const r of ridgeProfiles){
+      const center=r.base+r.slope*wx+Math.sin(wx*.105+r.phase)*r.wave+
+        Math.sin(wx*.235+r.phase*1.8)*.48;
+      const across=wz-center;
+      const crest=gauss(across,r.width);
+      const shoulder=gauss(across,r.shoulder);
+      const endFade=.68+.32*Math.exp(-Math.pow(Math.abs(wx)/42,4));
+      const along=.84+.16*(.5+.5*Math.sin(wx*.19+r.phase));
+      height+=r.amp*endFade*along*(crest*.64+shoulder*.48);
+    }
+    // Небольшие округлые выступы связывают хребты в единый естественный массив.
+    const knolls=[
+      [-27,-1,5.2,7.5,.43],[-19,11,5.8,6.2,.48],[-8,-9,5.5,7.0,.42],
+      [4,12,6.2,7.0,.52],[17,-2,5.5,7.6,.47],[27,15,5.4,7.2,.42],
+      [-28,24,4.8,5.8,.34],[23,27,5.2,6.0,.32]
+    ];
+    for(const [kx,kz,rx,rz,amp] of knolls){
+      const dx=(wx-kx)/rx,dz=(wz-kz)/rz;
+      height+=amp*Math.exp(-.5*(dx*dx+dz*dz))*
+        (1+.08*Math.sin(wx*.55+wz*.39));
+    }
+    // Естественные ложбины размыва проходят между возвышенностями.
+    const gully1=gauss(wz-(.31*wx-2+1.5*Math.sin(wx*.13)),1.05)*gauss(wx+2,29);
+    const gully2=gauss(wz-(-.28*wx+13+1.25*Math.sin(wx*.12+1.5)),1.18)*gauss(wx-4,27);
+    const gully3=gauss(wz-(.12*wx+21+Math.sin(wx*.17)),.95)*gauss(wx-8,23);
+    height-=.25*gully1+.22*gully2+.16*gully3;
+    const broad=.075*Math.sin(wx*.16+wz*.12)+.055*Math.cos(wx*.12-wz*.19);
+    const detail=.026*Math.sin(wx*.63+wz*.48)+.018*Math.cos(wx*.91-wz*.72);
+    height=Math.max(0,height+broad+detail);
+    // Природная волнистая граница поверхности, без прямоугольной кромки.
+    const sideWave=1.9*Math.sin(z*.28+.9)+.72*Math.sin(z*.64);
+    const rearWave=2.15*Math.sin(x*.22)+.82*Math.sin(x*.51+1.1);
+    const frontWave=1.55*Math.sin(x*.26+1.8)+.58*Math.sin(x*.59);
     const edgeDistance=Math.min(38+sideWave-Math.abs(x),31+rearWave-z,18+frontWave+z);
-    height*=smoothTerrain(edgeDistance/5.4);
+    height*=smoothTerrain(edgeDistance/5.2);
+    // За ограждением сохраняется ровная защитная полоса; рельеф начинается постепенно.
     const worldZ=-27.5-z;
     const insideX=Math.max(-14.40-x,0,x-16.40);
     const insideZ=Math.max(-21.10-worldZ,0,worldZ-14.02);
@@ -3129,16 +3157,19 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
     height=Math.min(height,1.55);
     terrainPositions.setZ(i,height);
     const elevation=THREE.MathUtils.clamp(height/1.55,0,1);
-    const slopeSignal=.5+.5*Math.sin(wx*.22-wz*.17+Math.cos(wz*.31));
-    const color=terrainLow.clone().lerp(terrainMeadow,.35+elevation*.42)
-      .lerp(terrainSun,elevation*.28+slopeSignal*.09)
-      .lerp(terrainShadow,(1-slopeSignal)*.19);
+    const lightPattern=.5+.5*Math.sin(wx*.19-wz*.16+Math.cos(wz*.27));
+    const color=lowGreen.clone().lerp(meadowGreen,.28+elevation*.55)
+      .lerp(sunGreen,elevation*.30+lightPattern*.12)
+      .lerp(earthGreen,Math.max(0,Math.sin(wz*.21+wx*.08))*.07)
+      .lerp(shadowGreen,(1-lightPattern)*.22);
     terrainColors.push(color.r,color.g,color.b);
   }
   terrainGeometry.setAttribute('color',new THREE.Float32BufferAttribute(terrainColors,3));
   terrainGeometry.computeVertexNormals();
-  const newTerrain=new THREE.Mesh(terrainGeometry,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.99,metalness:0}));
-  newTerrain.name='GREEN_WORLD_Natural_Valley_Terrain';
+  const newTerrain=new THREE.Mesh(terrainGeometry,new THREE.MeshStandardMaterial({
+    vertexColors:true,roughness:.98,metalness:0
+  }));
+  newTerrain.name='GREEN_WORLD_Natural_Foothill_Park';
   newTerrain.rotation.x=-Math.PI/2;
   newTerrain.position.set(0,.015,-27.5);
   newTerrain.receiveShadow=false;newTerrain.castShadow=false;world.add(newTerrain);
