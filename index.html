@@ -982,9 +982,31 @@ function makeWorldDecor(){
     }
   }
   // Ограда по точному цветовому макету: светлые каменные столбы и тёмная кованая решётка с золотыми медальонами.
-  const fenceStone=mat(0x948775,.96),fenceIvory=mat(0xaaa08f,.94),fenceReliefStone=mat(0x796b58,.96),fenceOutline=mat(0x403329,.96);
-  const fenceSandstone=mat(0x927a5d,.96),fenceSlate=mat(0x465d70,.94),fenceTeal=mat(0x28736f,.92);
-  const fenceIron=mat(0x39332c),fenceIronLight=mat(0x62513d),fenceGold=mat(0xb98a43),fenceGoldLight=mat(0xd4ad67);
+  // Физически корректная отделка забора: сохраняем утверждённые цвета и геометрию,
+  // добавляя мелкую каменную микрофактуру, вариации шероховатости и мягкие отражения.
+  const fenceStoneBump=surfaceMaps.stone.clone();
+  fenceStoneBump.colorSpace=THREE.NoColorSpace;
+  fenceStoneBump.needsUpdate=true;
+  const fenceStoneFinish=(source,roughness=.9,clearcoat=.07)=>new THREE.MeshPhysicalMaterial({
+    color:source.color.clone(),map:surfaceMaps.stone,bumpMap:fenceStoneBump,roughnessMap:fenceStoneBump,
+    bumpScale:.026,roughness,metalness:0,clearcoat,clearcoatRoughness:.82,
+    envMapIntensity:.42,dithering:true
+  });
+  const fenceMetalFinish=(source,roughness,metalness,clearcoat=.18)=>new THREE.MeshPhysicalMaterial({
+    color:source.color.clone(),roughness,metalness,clearcoat,clearcoatRoughness:.38,
+    envMapIntensity:.78,dithering:true
+  });
+  const fenceStone=fenceStoneFinish(mat(0x948775,.96),.91,.08);
+  const fenceIvory=fenceStoneFinish(mat(0xaaa08f,.94),.88,.09);
+  const fenceReliefStone=fenceStoneFinish(mat(0x796b58,.96),.92,.06);
+  const fenceOutline=fenceStoneFinish(mat(0x403329,.96),.86,.05);
+  const fenceSandstone=fenceStoneFinish(mat(0x927a5d,.96),.9,.07);
+  const fenceSlate=fenceMetalFinish(mat(0x465d70,.94),.72,.16,.12);
+  const fenceTeal=fenceMetalFinish(mat(0x28736f,.92),.48,.24,.28);
+  const fenceIron=fenceMetalFinish(mat(0x39332c),.5,.68,.16);
+  const fenceIronLight=fenceMetalFinish(mat(0x62513d),.46,.62,.2);
+  const fenceGold=fenceMetalFinish(mat(0xb98a43),.34,.76,.3);
+  const fenceGoldLight=fenceMetalFinish(mat(0xd4ad67),.3,.72,.34);
   const fenceNoShadow=mesh=>{mesh.castShadow=false;mesh.receiveShadow=false;return mesh;};
   // Забор собирается в отдельной группе: его можно целиком заменить без дублей геометрии.
   const fenceGroup=new THREE.Group();world.add(fenceGroup);
