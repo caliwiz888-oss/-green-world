@@ -3907,6 +3907,19 @@ function makeHouse(){
  manorWallRoughness.wrapS=manorWallRoughness.wrapT=THREE.RepeatWrapping;
  manorWallRoughness.repeat.set(2,2);
  manorWallRoughness.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ // Единая микрофактура для существующих каменных поясов, цоколя и выступающих деталей.
+ // Используются отдельные копии карт: масштаб основной кладки не затрагивается.
+ const manorDetailBump=manorWallBump.clone();
+ manorDetailBump.repeat.set(1.35,1.35);manorDetailBump.needsUpdate=true;
+ const manorDetailRoughness=manorWallRoughness.clone();
+ manorDetailRoughness.repeat.set(1.35,1.35);manorDetailRoughness.needsUpdate=true;
+ for(const material of [stone,stoneDark]){
+  material.bumpMap=manorDetailBump;
+  material.roughnessMap=manorDetailRoughness;
+  material.bumpScale=.008;
+  material.roughness=material===stone?.89:.91;
+  material.needsUpdate=true;
+ }
  const manorWallMaterial=new THREE.MeshStandardMaterial({
   color:0xffedda,map:manorWallTexture,bumpMap:manorWallBump,
   roughnessMap:manorWallRoughness,bumpScale:.018,roughness:.91,metalness:0
