@@ -3958,7 +3958,60 @@ function makeHouse(){
  for(let i=0;i<5;i++){
   box(center,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,cream);
  }
- // Центральная крыша и её каменный венец полностью удалены по просьбе пользователя.
+ // Главная крыша по утверждённому эталону GREEN WORLD:
+ // широкая классическая четырёхскатная сланцево-синяя кровля с золотыми акцентами.
+ // Её передний край остаётся позади башен, чтобы не перекрывать их корпуса и балконы.
+ const manorRoofBase=new THREE.MeshStandardMaterial({color:0x263f5b,roughness:.72,metalness:.10,side:THREE.DoubleSide});
+ const manorRoofTileA=new THREE.MeshStandardMaterial({color:0x365675,roughness:.66,metalness:.10});
+ const manorRoofTileB=new THREE.MeshStandardMaterial({color:0x1d344e,roughness:.76,metalness:.08});
+ const manorRoofEdge=new THREE.MeshStandardMaterial({color:0x172d45,roughness:.7,metalness:.12});
+ const manorRoofGold=new THREE.MeshStandardMaterial({color:0xc9a04e,roughness:.34,metalness:.68});
+ const manorRoofZ=-.08,manorHalfX=3.20,manorHalfZ=1.48,manorRidgeHalf=1.48;
+ const manorEaveY=4.48,manorPeakY=5.62;
+ const manorV=(x,y,z)=>new THREE.Vector3(x,y,z);
+ function manorRoofPlane(points,material){
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(points.flatMap(v=>[v.x,v.y,v.z]),3));
+  geo.setIndex(points.length===4?[0,1,2,0,2,3]:[0,1,2]);geo.computeVertexNormals();
+  const mesh=new THREE.Mesh(geo,material);mesh.castShadow=true;mesh.receiveShadow=true;center.add(mesh);
+ }
+ function manorRoofLine(points,radius,material){
+  const mesh=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),40,radius,7,false),material);
+  mesh.castShadow=false;mesh.receiveShadow=false;center.add(mesh);
+ }
+ const manorFront=[manorV(-manorHalfX,manorEaveY,manorRoofZ+manorHalfZ),manorV(manorHalfX,manorEaveY,manorRoofZ+manorHalfZ),manorV(manorRidgeHalf,manorPeakY,manorRoofZ),manorV(-manorRidgeHalf,manorPeakY,manorRoofZ)];
+ const manorBack=[manorV(manorHalfX,manorEaveY,manorRoofZ-manorHalfZ),manorV(-manorHalfX,manorEaveY,manorRoofZ-manorHalfZ),manorV(-manorRidgeHalf,manorPeakY,manorRoofZ),manorV(manorRidgeHalf,manorPeakY,manorRoofZ)];
+ const manorLeft=[manorV(-manorHalfX,manorEaveY,manorRoofZ-manorHalfZ),manorV(-manorHalfX,manorEaveY,manorRoofZ+manorHalfZ),manorV(-manorRidgeHalf,manorPeakY,manorRoofZ)];
+ const manorRight=[manorV(manorHalfX,manorEaveY,manorRoofZ+manorHalfZ),manorV(manorHalfX,manorEaveY,manorRoofZ-manorHalfZ),manorV(manorRidgeHalf,manorPeakY,manorRoofZ)];
+ manorRoofPlane(manorFront,manorRoofBase);manorRoofPlane(manorBack,manorRoofBase);
+ manorRoofPlane(manorLeft,manorRoofBase);manorRoofPlane(manorRight,manorRoofBase);
+ // Ряды черепицы на переднем и заднем скатах.
+ for(let row=1;row<=9;row++){
+  const t=row/10,y=manorEaveY+(manorPeakY-manorEaveY)*t;
+  const hx=manorHalfX+(manorRidgeHalf-manorHalfX)*t,hz=manorHalfZ*(1-t);
+  const tileMat=row%2?manorRoofTileA:manorRoofTileB;
+  manorRoofLine([manorV(-hx,y,manorRoofZ+hz+.014),manorV(hx,y,manorRoofZ+hz+.014)],.014,tileMat);
+  manorRoofLine([manorV(-hx,y,manorRoofZ-hz-.014),manorV(hx,y,manorRoofZ-hz-.014)],.014,tileMat);
+ }
+ // Вертикальные фальцы на торцевых скатах и подчёркнутые карнизы.
+ for(const side of [-1,1])for(let row=1;row<=7;row++){
+  const t=row/8,x=side*(manorHalfX+(manorRidgeHalf-manorHalfX)*t);
+  const y=manorEaveY+(manorPeakY-manorEaveY)*t,hz=manorHalfZ*(1-t);
+  manorRoofLine([manorV(x,y,manorRoofZ-hz),manorV(x,y,manorRoofZ+hz)],.012,manorRoofTileA);
+ }
+ manorRoofLine([manorV(-manorHalfX,manorEaveY,manorRoofZ+manorHalfZ),manorV(manorHalfX,manorEaveY,manorRoofZ+manorHalfZ)],.045,manorRoofEdge);
+ manorRoofLine([manorV(-manorHalfX,manorEaveY,manorRoofZ-manorHalfZ),manorV(manorHalfX,manorEaveY,manorRoofZ-manorHalfZ)],.045,manorRoofEdge);
+ manorRoofLine([manorV(-manorHalfX,manorEaveY,manorRoofZ-manorHalfZ),manorV(-manorHalfX,manorEaveY,manorRoofZ+manorHalfZ)],.045,manorRoofEdge);
+ manorRoofLine([manorV(manorHalfX,manorEaveY,manorRoofZ-manorHalfZ),manorV(manorHalfX,manorEaveY,manorRoofZ+manorHalfZ)],.045,manorRoofEdge);
+ manorRoofLine([manorV(-manorHalfX,manorEaveY,manorRoofZ+manorHalfZ),manorV(-manorRidgeHalf,manorPeakY,manorRoofZ)],.032,manorRoofGold);
+ manorRoofLine([manorV(manorHalfX,manorEaveY,manorRoofZ+manorHalfZ),manorV(manorRidgeHalf,manorPeakY,manorRoofZ)],.032,manorRoofGold);
+ manorRoofLine([manorV(-manorHalfX,manorEaveY,manorRoofZ-manorHalfZ),manorV(-manorRidgeHalf,manorPeakY,manorRoofZ)],.032,manorRoofGold);
+ manorRoofLine([manorV(manorHalfX,manorEaveY,manorRoofZ-manorHalfZ),manorV(manorRidgeHalf,manorPeakY,manorRoofZ)],.032,manorRoofGold);
+ manorRoofLine([manorV(-manorRidgeHalf,manorPeakY+.035,manorRoofZ),manorV(manorRidgeHalf,manorPeakY+.035,manorRoofZ)],.052,manorRoofGold);
+ for(const x of [-manorRidgeHalf,manorRidgeHalf]){
+  sphere(center,.075,x,manorPeakY+.055,manorRoofZ,manorRoofGold,.9);
+  cone(center,.045,.16,x,manorPeakY+.17,manorRoofZ,manorRoofGold,12);
+ }
  // Две башни по утверждённому эталону: выразительное каменное основание,
  // двухъярусный цилиндрический корпус, балконы с балюстрадами и высокая синяя кровля.
  for(const x of [-3.58,3.58]){
