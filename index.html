@@ -3896,6 +3896,28 @@ function makeHouse(){
   manorBumpCtx.quadraticCurveTo(x+(manorBumpRand()-.5)*7,y+2,x+(manorBumpRand()-.5)*14,y+3+manorBumpRand()*5);
   manorBumpCtx.stroke();
  }
+ // Едва заметные следы ручной обработки на лицевых плоскостях каменных блоков.
+ // Короткие параллельные штрихи лежат внутри блоков и не пересекают кладочные швы.
+ for(let i=0;i<42;i++){
+  const row=Math.floor(manorBumpRand()*4);
+  const offset=row%2?0:32;
+  const col=Math.floor(manorBumpRand()*4);
+  const x=offset+col*64+12+manorBumpRand()*36;
+  const y=row*64+12+manorBumpRand()*38;
+  const angle=(manorBumpRand()-.5)*.18;
+  const length=2.2+manorBumpRand()*5.2;
+  const strokes=2+(manorBumpRand()>.55?1:0);
+  for(let k=0;k<strokes;k++){
+   const sx=x+(manorBumpRand()-.5)*2.4;
+   const sy=y+k*(.8+manorBumpRand()*.8);
+   manorBumpCtx.strokeStyle=manorBumpRand()>.5?'rgba(38,33,28,.075)':'rgba(246,239,226,.085)';
+   manorBumpCtx.lineWidth=.3+manorBumpRand()*.3;
+   manorBumpCtx.beginPath();
+   manorBumpCtx.moveTo(sx,sy);
+   manorBumpCtx.lineTo(sx+Math.cos(angle)*length,sy+Math.sin(angle)*length);
+   manorBumpCtx.stroke();
+  }
+ }
  // Микросколы по кромкам кладочных швов: очень мелкие неровности,
  // которые смягчают идеально ровный машинный рисунок блоков.
  for(let i=0;i<76;i++){
