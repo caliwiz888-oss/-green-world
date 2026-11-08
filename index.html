@@ -4067,7 +4067,33 @@ function makeHouse(){
  doorGrainTexture.repeat.set(1.5,1);
  const doorGrainBump=doorGrainTexture.clone();
  doorGrainBump.colorSpace=THREE.NoColorSpace;doorGrainBump.needsUpdate=true;
- const facadeWood=new THREE.MeshStandardMaterial({color:0x3e3028,map:doorGrainTexture,bumpMap:doorGrainBump,bumpScale:.018,roughness:.62,metalness:.04});
+ // Отдельный рельеф древесины: тонкие продольные волокна влияют на свет и шероховатость,
+ // не меняя оттенок, рисунок филёнок или геометрию существующей двери.
+ const doorReliefCanvas=document.createElement('canvas');
+ doorReliefCanvas.width=256;doorReliefCanvas.height=512;
+ const doorReliefCtx=doorReliefCanvas.getContext('2d');
+ const doorReliefImage=doorReliefCtx.createImageData(256,512);
+ let doorReliefSeed=91827;
+ const doorReliefRand=()=>{doorReliefSeed=(doorReliefSeed*1664525+1013904223)>>>0;return doorReliefSeed/4294967296};
+ for(let y=0;y<512;y++)for(let x=0;x<256;x++){
+  const p=(y*256+x)*4;
+  const wave=Math.sin(x*.19+Math.sin(y*.018)*1.7)*7+
+   Math.sin(x*.47+Math.sin(y*.009)*2.4)*3+
+   Math.sin(x*.91+y*.002)*1.4+(doorReliefRand()-.5)*9;
+  const v=Math.max(0,Math.min(255,128+wave));
+  doorReliefImage.data[p]=doorReliefImage.data[p+1]=doorReliefImage.data[p+2]=v;
+  doorReliefImage.data[p+3]=255;
+ }
+ doorReliefCtx.putImageData(doorReliefImage,0,0);
+ const doorReliefTexture=new THREE.CanvasTexture(doorReliefCanvas);
+ doorReliefTexture.colorSpace=THREE.NoColorSpace;
+ doorReliefTexture.wrapS=doorReliefTexture.wrapT=THREE.RepeatWrapping;
+ doorReliefTexture.repeat.set(1.5,1);
+ doorReliefTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const facadeWood=new THREE.MeshStandardMaterial({
+  color:0x3e3028,map:doorGrainTexture,bumpMap:doorReliefTexture,
+  roughnessMap:doorReliefTexture,bumpScale:.012,roughness:.62,metalness:.04
+ });
  const facadeWood2=new THREE.MeshStandardMaterial({color:0x634735,roughness:.55,metalness:.06});
  const facadeGlass=new THREE.MeshPhysicalMaterial({color:0x35b9c1,roughness:.16,metalness:.12,transparent:true,opacity:.9,side:THREE.DoubleSide,clearcoat:.92,clearcoatRoughness:.10,reflectivity:.72,ior:1.46,thickness:.12,specularIntensity:.85,specularColor:0xc9f5f2});
  // Текстура известняка распространяется и на существующие каменные обрамления фасада.
