@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-332000';
+const GREEN_WORLD_BUILD_ID = '20261108-333000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2959,7 +2959,7 @@ function makeWorldDecor(){
  const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,40,7);
  const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,36,8);
   const gwNeedleGeo=new THREE.ConeGeometry(.011,.115,7,2);
-  const gwPetalGeo=new THREE.SphereGeometry(1,12,8);
+  const gwPetalGeo=new THREE.SphereGeometry(1,16,12);
  const gwRootGeo=new THREE.CylinderGeometry(.008,.095,1,28,8);
  const gwBlossomBranchGeo=new THREE.CylinderGeometry(.012,.082,1,48,16);
  const gwSproutGeo=new THREE.ConeGeometry(.075,.28,12,3);
@@ -2978,8 +2978,8 @@ function makeWorldDecor(){
    p.needsUpdate=true;geo.computeVertexNormals();
  }
  gwPineGeos.forEach(geo=>gwSoftenTreeSilhouette(geo,.026));
- gwSoftenTreeSilhouette(gwCrownGeo,.035,'sphere');
- gwSoftenTreeSilhouette(gwPetalGeo,.045,'sphere');
+ gwSoftenTreeSilhouette(gwCrownGeo,.05,'sphere');
+ gwSoftenTreeSilhouette(gwPetalGeo,.06,'sphere');
  gwSoftenTreeSilhouette(gwPineBoughGeo,.018);
  gwSoftenTreeSilhouette(gwPineTwigGeo,.014);
  // Тонкая вертикальная неровность на существующих стволах и ветвях имитирует природную структуру древесины.
@@ -2993,7 +2993,7 @@ function makeWorldDecor(){
    }
    p.needsUpdate=true;geo.computeVertexNormals();
  }
- gwAddBarkRelief(gwTrunkGeo,.018);gwAddBarkRelief(gwBlossomBranchGeo,.022);gwAddBarkRelief(gwRootGeo,.026);
+ gwAddBarkRelief(gwTrunkGeo,.024);gwAddBarkRelief(gwBlossomBranchGeo,.028);gwAddBarkRelief(gwRootGeo,.026);
  function gwAddPine(){ return null; }
  function gwAddBlossom(x,z,h,seed=0,baseY=0,palette='pink'){
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
@@ -3032,7 +3032,7 @@ function makeWorldDecor(){
      g.add(bloom);
    }
    // Отдельные лепестки поверх цветочных масс создают мелкий живой силуэт кроны.
-   const petalCount=240,petalsMesh=new THREE.InstancedMesh(gwPetalGeo,palette==='amber'?gwAmberC:gwPinkC,petalCount),petalDummy=new THREE.Object3D();
+   const petalCount=320,petalsMesh=new THREE.InstancedMesh(gwPetalGeo,palette==='amber'?gwAmberC:gwPinkC,petalCount),petalDummy=new THREE.Object3D();
    for(let n=0;n<petalCount;n++){
      const a=seed+n*2.399963,ring=n%3,rad=h*(.145+ring*.078+(n%5)*.009)*(.88+.12*Math.sin(a*2.7));
      petalDummy.position.set(Math.cos(a)*rad*.9,h*(.615+(n%11)*.018+.025*Math.sin(a*2.4)),Math.sin(a)*rad*.9);
@@ -3042,7 +3042,7 @@ function makeWorldDecor(){
    }
    petalsMesh.instanceMatrix.needsUpdate=true;if(petalsMesh.instanceColor)petalsMesh.instanceColor.needsUpdate=true;g.add(petalsMesh);
    // Несколько мелких соцветий по внешнему краю разбивают ровный контур кроны.
-   for(let k=0;k<40;k++){
+   for(let k=0;k<56;k++){
      const a=seed+k*2.399963;
      const petal=new THREE.Mesh(gwCrownGeo,palette==='amber'?(k%3===0?gwAmberB:gwAmberA):(k%3===0?gwPinkB:gwPinkA));
      const edgeRadius=h*(.245+.035*Math.sin(a*2.8+seed)+.018*Math.cos(a*4.7));
