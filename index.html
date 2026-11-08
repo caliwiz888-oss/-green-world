@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-144500';
+const GREEN_WORLD_BUILD_ID = '20261108-151000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3251,7 +3251,7 @@ function makeWorldLandscape(){
    const flatten=1-smooth01(reliefDistance/reliefTransition);
    height*=1-flatten;
    // Низкий природный профиль: гряды не поднимаются выше уровня верхней части ограды.
-   height=Math.min(height,1.45);
+   height=Math.min(height,1.55);
    hillPositions.setZ(i,height);
    const slopeShade=Math.sin(x*.31+z*.24)*.10+Math.cos(x*.17-z*.29)*.075+
      Math.sin(x*.73-z*.51)*.035;
