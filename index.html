@@ -3903,9 +3903,11 @@ function makeHouse(){
  towerWallTexture.repeat.set(4,2.5);towerWallTexture.needsUpdate=true;
  const towerWallBump=manorWallBump.clone();
  towerWallBump.repeat.set(4,2.5);towerWallBump.needsUpdate=true;
+ const towerWallRoughness=manorWallRoughness.clone();
+ towerWallRoughness.repeat.set(4,2.5);towerWallRoughness.needsUpdate=true;
  const towerWallMaterial=new THREE.MeshStandardMaterial({
   color:0xffedda,map:towerWallTexture,bumpMap:towerWallBump,
-  roughnessMap:towerWallBump,bumpScale:.019,roughness:.92,metalness:0
+  roughnessMap:towerWallRoughness,bumpScale:.019,roughness:.92,metalness:0
  });
  // Отдельная настройка материала только для уже существующих колонн:
  // та же кремовая кладка, но более мелкий масштаб фактуры на узком круглом стволе.
@@ -3913,9 +3915,11 @@ function makeHouse(){
  towerColumnTexture.repeat.set(.9,1.45);towerColumnTexture.needsUpdate=true;
  const towerColumnBump=towerWallBump.clone();
  towerColumnBump.repeat.set(.9,1.45);towerColumnBump.needsUpdate=true;
+ const towerColumnRoughness=towerWallRoughness.clone();
+ towerColumnRoughness.repeat.set(.9,1.45);towerColumnRoughness.needsUpdate=true;
  const towerColumnMaterial=new THREE.MeshStandardMaterial({
   color:0xfff5e6,map:towerColumnTexture,bumpMap:towerColumnBump,
-  roughnessMap:towerColumnBump,bumpScale:.016,roughness:.93,metalness:0
+  roughnessMap:towerColumnRoughness,bumpScale:.016,roughness:.93,metalness:0
  });
  // Центральный корпус, фронтон, окна, двери и вся отделка смещаются единым блоком назад;
  // башни с колоннами остаются на своих местах.
