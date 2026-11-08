@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-389100';
+const GREEN_WORLD_BUILD_ID = '20261108-390100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1010,6 +1010,12 @@ function makeWorldDecor(){
     fenceNoShadow(box(relief,.205,1.12,.038,0,1.27,.259,fenceIvory,false));
     fenceNoShadow(box(relief,.105,.74,.045,0,1.27,.286,fenceSlate,false));
     fenceNoShadow(box(relief,.052,.64,.05,0,1.27,.313,fenceTeal,false));
+    // Парные вертикальные каннелюры и резные боковые розетки добавляют столбу глубину.
+    for(const side of [-1,1]){
+      const flute=box(relief,.022,.88,.022,side*.135,1.27,.282,fenceSandstone,false);
+      const stud=new THREE.Mesh(new THREE.SphereGeometry(.035,10,8),fenceGoldLight);
+      stud.position.set(side*.135,1.27,.31);fenceNoShadow(stud);relief.add(stud);
+    }
     const rosette=new THREE.Mesh(new THREE.OctahedronGeometry(.105,1),fenceGold);
     rosette.position.set(0,1.28,.36);rosette.scale.set(.8,1.15,.3);fenceNoShadow(rosette);relief.add(rosette);
     const lampBase=new THREE.Mesh(new THREE.CylinderGeometry(.11,.16,.11,12),fenceGold);
@@ -1068,8 +1074,25 @@ function makeWorldDecor(){
     fenceNoShadow(innerTrim);panel.add(innerTrim);
     const keystone=box(panel,.34,.40,depth+.16,0,springY+rise+.035,0,fenceIvory,false);
     const keystoneInset=box(panel,.13,.20,depth+.19,0,springY+rise+.045,depth/2+.03,fenceTeal,false);
-    // Небольшой каменный карниз завершает верх стены, не меняя высоту периметра.
-    fenceNoShadow(box(panel,span+.12,.075,depth+.12,0,.84,0,fenceIvory,false));
+    // Углублённая декоративная ниша и тонкий карниз под аркой.
+    fenceNoShadow(box(panel,span-.52,.045,.035,0,.91,depth/2+.245,fenceSandstone,false));
+    fenceNoShadow(box(panel,span-.70,.035,.04,0,.965,depth/2+.255,fenceIvory,false));
+    // Парные резные розетки в спандреле по сторонам замкового камня.
+    for(const side of [-1,1]){
+      const ornamentX=side*Math.min(.72,half*.48);
+      const medallion=new THREE.Mesh(new THREE.TorusGeometry(.105,.026,8,24),fenceGold);
+      medallion.position.set(ornamentX,1.30,depth/2+.24);medallion.rotation.x=0;
+      fenceNoShadow(medallion);panel.add(medallion);
+      const core=new THREE.Mesh(new THREE.SphereGeometry(.052,12,10),fenceTeal);
+      core.position.set(ornamentX,1.30,depth/2+.265);fenceNoShadow(core);panel.add(core);
+      // Вертикальные рустованные вставки связывают арку с массивными боковыми пилонами.
+      fenceNoShadow(box(panel,.045,.54,.035,side*(half-.43),1.27,depth/2+.235,fenceSlate,false));
+      fenceNoShadow(box(panel,.025,.44,.04,side*(half-.43),1.27,depth/2+.26,fenceGold,false));
+    }
+    // Двойной ступенчатый карниз завершает верх стены.
+    fenceNoShadow(box(panel,span+.18,.09,depth+.16,0,.84,0,fenceReliefStone,false));
+    fenceNoShadow(box(panel,span+.12,.065,depth+.12,0,.925,0,fenceIvory,false));
+    fenceNoShadow(box(panel,span-.08,.035,depth+.06,0,.975,0,fenceSandstone,false));
   };
   const fenceRun=(x1,z1,x2,z2,spacing=2.45,startY=0,endY=startY,options={})=>{
     const length=Math.hypot(x2-x1,z2-z1),count=Math.max(1,Math.ceil(length/spacing));
