@@ -1231,6 +1231,19 @@ function makeMarket(){
    for(const y of [1.18,2.26])box(g,.075,.075,1.50,frameX,y,-.72,timberLight,false);
    for(const z of [-2.16,2.16])box(g,.14,1.90,.14,frameX,1.57,z,roofEdge,false);
  }
+ // Три хвойные ели за магазином, в свободной полосе перед задней оградой.
+ // Ярусные конические кроны повторяют тёмно-зелёные ели утверждённого эталона.
+ const marketFirTrunk=mat(0x765034,.94);
+ const marketFirDeep=new THREE.MeshStandardMaterial({color:0x244b32,roughness:.96});
+ const marketFirMid=new THREE.MeshStandardMaterial({color:0x315f3d,roughness:.94});
+ const marketFirLight=new THREE.MeshStandardMaterial({color:0x47764a,roughness:.92});
+ for(const [tx,tz,fh] of [[-1.55,-4.55,3.65],[0,-4.85,4.05],[1.55,-4.55,3.65]]){
+   cylinder(g,.105,.14,.62,tx,.31,tz,marketFirTrunk,8);
+   for(const [base,r,h,material] of [[.72,.82,1.55,marketFirDeep],[1.28,.70,1.48,marketFirMid],[1.86,.56,1.38,marketFirDeep],[2.38,.40,1.18,marketFirLight]]){
+     const crown=cone(g,r*(fh/4.05),h*(fh/4.05),tx,base*(fh/4.05),tz,material,7);
+     crown.rotation.y=(tx<0?.12:tx>0?-.12:0);
+   }
+ }
  g.userData.sideFacades={left:true,right:true,outerWall:true,singleLayer:true,windowFrames:true};
   return disableCastShadows(g);
 }
