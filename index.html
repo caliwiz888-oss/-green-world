@@ -3746,6 +3746,44 @@ function makeHouse(){
  ];
  const copperBright=mat(0x52718d,.48),copperDark=mat(0x1d344e,.72),goldRoof=mat(0xc9a04e,.32);
  const n=64;
+ // Отдельная деликатная фактура известняка для центрального объёма дома:
+ // не затрагивает материал башен и сохраняет светлый кремовый оттенок.
+ const manorWallCanvas=document.createElement('canvas');
+ manorWallCanvas.width=256;manorWallCanvas.height=256;
+ const manorWallCtx=manorWallCanvas.getContext('2d');
+ const manorWallImage=manorWallCtx.createImageData(256,256);
+ let manorWallSeed=48173;
+ const manorWallRand=()=>{manorWallSeed=(manorWallSeed*1664525+1013904223)>>>0;return manorWallSeed/4294967296};
+ for(let y=0;y<256;y++)for(let x=0;x<256;x++){
+  const p=(y*256+x)*4;
+  const grain=(manorWallRand()-.5)*13+Math.sin(y*.22)*1.2+Math.sin((x+y)*.035)*1.1;
+  const v=Math.max(0,Math.min(255,235+grain));
+  manorWallImage.data[p]=v;
+  manorWallImage.data[p+1]=Math.max(0,Math.min(255,v-5));
+  manorWallImage.data[p+2]=Math.max(0,Math.min(255,v-16));
+  manorWallImage.data[p+3]=255;
+ }
+ manorWallCtx.putImageData(manorWallImage,0,0);
+ for(let y=32;y<256;y+=64){
+  manorWallCtx.fillStyle='rgba(125,105,78,.045)';manorWallCtx.fillRect(0,y,256,1);
+  manorWallCtx.fillStyle='rgba(255,250,235,.10)';manorWallCtx.fillRect(0,y+1,256,1);
+ }
+ for(let i=0;i<110;i++){
+  const x=manorWallRand()*256,y=manorWallRand()*256;
+  manorWallCtx.fillStyle=manorWallRand()>.5?'rgba(255,250,235,.11)':'rgba(116,98,75,.055)';
+  manorWallCtx.fillRect(x,y,1+manorWallRand()*2,1);
+ }
+ const manorWallTexture=new THREE.CanvasTexture(manorWallCanvas);
+ manorWallTexture.colorSpace=THREE.SRGBColorSpace;
+ manorWallTexture.wrapS=manorWallTexture.wrapT=THREE.RepeatWrapping;
+ manorWallTexture.repeat.set(2,2);
+ manorWallTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const manorWallBump=manorWallTexture.clone();
+ manorWallBump.colorSpace=THREE.NoColorSpace;manorWallBump.needsUpdate=true;
+ const manorWallMaterial=new THREE.MeshStandardMaterial({
+  color:0xfff5e6,map:manorWallTexture,bumpMap:manorWallBump,
+  bumpScale:.012,roughness:.96,metalness:0
+ });
  // Центральный корпус, фронтон, окна, двери и вся отделка смещаются единым блоком назад;
  // башни с колоннами остаются на своих местах.
  const center=new THREE.Group();g.add(center);center.position.z=-1.0;
@@ -3765,7 +3803,7 @@ function makeHouse(){
  }
  // Главный объём не плоский прямоугольник: центральный ризалит выступает вперёд,
  // а боковые части имеют собственные каменные пояса и глубокие оконные ниши.
- box(center,6.62,3.82,4.48,0,2.42,-.08,ivory);
+ box(center,6.62,3.82,4.48,0,2.42,-.08,manorWallMaterial);
  box(center,6.98,3.55,.34,0,2.48,2.18,cream);
  box(center,2.00,3.48,.40,-2.00,2.40,2.14,stone);
  box(center,2.00,3.48,.40,2.00,2.40,2.14,stone);
