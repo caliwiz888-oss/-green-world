@@ -3996,6 +3996,18 @@ function makeHouse(){
   box(center,.145,.17,.10,x,2.755,2.76,facadeStone,false);
   box(center,.19,.045,.11,x,2.85,2.76,facadeGold,false);
  }
+ // Парные резные каменные картуши над окнами добавляют фасаду классическую глубину.
+ // Симметрия и положение окон остаются без изменений.
+ for(const x of [-2.12,2.12]){
+  box(center,.48,.39,.105,x,3.34,2.59,facadeStoneShade,false);
+  box(center,.405,.315,.045,x,3.34,2.655,facadeStone,false);
+  box(center,.32,.235,.035,x,3.34,2.685,cream,false);
+  const cartoucheRing=new THREE.Mesh(new THREE.TorusGeometry(.105,.018,8,32),facadeGold);
+  cartoucheRing.position.set(x,3.34,2.716);cartoucheRing.castShadow=true;center.add(cartoucheRing);
+  sphere(center,.068,x,3.34,2.705,facadeStoneShade,.9);
+  box(center,.34,.035,.055,x,3.555,2.68,facadeGold,false);
+  box(center,.34,.035,.055,x,3.125,2.68,facadeGold,false);
+ }
  // Пилястры по сторонам портала визуально связывают дверь с каменной архитектурой.
  for(const x of [-1.18,1.18]){
   box(center,.20,2.70,.22,x,1.88,2.73,facadeStone,false);
