@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-358000';
+const GREEN_WORLD_BUILD_ID = '20261108-359000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3411,7 +3411,7 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  const newTerrainGeometry=new THREE.PlaneGeometry(88,78,232,208);
  const newTerrainPositions=newTerrainGeometry.attributes.position;
  const newTerrainColors=[];
- const flatMeadowColor=new THREE.Color(0x82977a);
+ const flatMeadowColor=new THREE.Color(0x36c928);
  for(let i=0;i<newTerrainPositions.count;i++){
    newTerrainPositions.setZ(i,0);
    newTerrainColors.push(flatMeadowColor.r,flatMeadowColor.g,flatMeadowColor.b);
