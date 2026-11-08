@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-292000';
+const GREEN_WORLD_BUILD_ID = '20261108-293000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2391,7 +2391,8 @@ function makeWorldDecor(){
       const w=width+(((row*7+col*3)%5)-2)*.004;
       const d=depth+(((row*5+col*11)%5)-2)*.005;
       const base=positions.length/3,isWhite=(row+col)%2===0;
-      const shade=isWhite?.78+((row*13+col*17)%6)*.018:.55+((row*13+col*17)%6)*.014;
+      // Тёплая каменная палитра с чётким различием кирпичей: без выбеленных пятен.
+      const shade=isWhite?.64+((row*13+col*17)%6)*.012:.43+((row*13+col*17)%6)*.012;
       const variation=((row*3+col*7)%5)*.012;
       for(let ring=0;ring<2;ring++){
         const inset=ring===0?1:.925;
