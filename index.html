@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-383100';
+const GREEN_WORLD_BUILD_ID = '20261108-384100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1013,27 +1013,37 @@ function makeWorldDecor(){
     if(length<.3)return;
     const angle=Math.atan2(dz,dx),cx=(x1+x2)/2,cz=(z1+z2)/2;
     const panel=new THREE.Group();panel.position.set(cx,baseY,cz);panel.rotation.y=-angle+faceOffset;fenceGroup.add(panel);
-    fenceNoShadow(box(panel,length-.12,.105,.105,0,.62,0,fenceIron,false));
-    fenceNoShadow(box(panel,length-.12,.105,.105,0,1.92,0,fenceIron,false));
-    fenceNoShadow(box(panel,length-.12,.035,.12,0,2.00,0,fenceGold,false));
-    fenceNoShadow(box(panel,length-.12,.045,.12,0,.70,0,fenceIronLight,false));
-    const count=Math.max(7,Math.floor(length/.22));
+    // Новые секции: строгая бронзово-графитовая рама с повторяющимся ромбовидным орнаментом.
+    // Существующие каменные столбы и их навершия не меняются.
+    const span=length-.16;
+    fenceNoShadow(box(panel,span,.105,.13,0,.70,0,fenceIron,false));
+    fenceNoShadow(box(panel,span,.105,.13,0,1.91,0,fenceIron,false));
+    fenceNoShadow(box(panel,span,.035,.145,0,1.985,0,fenceGold,false));
+    fenceNoShadow(box(panel,span,.045,.145,0,.775,0,fenceIronLight,false));
+    // Тонкие вертикальные прутья формируют равномерный ритм между столбами.
+    const count=Math.max(4,Math.floor(span/.34));
     for(let i=0;i<=count;i++){
-      const x=-(length-.22)/2+(length-.22)*i/count;
-      fenceNoShadow(box(panel,.052,1.25,.065,x,1.31,0,fenceIron,false));
-      if(i%2===0){
-        const tip=new THREE.Mesh(new THREE.ConeGeometry(.052,.13,4),fenceGold);
-        tip.position.set(x,1.99,0);tip.rotation.z=Math.PI;fenceNoShadow(tip);panel.add(tip);
+      const x=-span/2+span*i/count;
+      fenceNoShadow(box(panel,.045,1.02,.075,x,1.305,0,fenceIron,false));
+      // Небольшие латунные втулки на концах прутьев.
+      for(const y of [.80,1.81]){
+        const collar=box(panel,.075,.055,.105,x,y,0,fenceGold,false);
       }
     }
-    const medallion=new THREE.Mesh(new THREE.CylinderGeometry(.19,.19,.055,24),fenceGold);
-    medallion.position.set(0,1.30,.085);medallion.rotation.x=Math.PI/2;fenceNoShadow(medallion);panel.add(medallion);
-    const innerMedallion=new THREE.Mesh(new THREE.CylinderGeometry(.125,.125,.06,20),fenceIronLight);
-    innerMedallion.position.set(0,1.30,.12);innerMedallion.rotation.x=Math.PI/2;fenceNoShadow(innerMedallion);panel.add(innerMedallion);
-    const ring=new THREE.Mesh(new THREE.TorusGeometry(.145,.022,8,28),fenceGoldLight);
-    ring.position.set(0,1.30,.16);fenceNoShadow(ring);panel.add(ring);
-    const center=new THREE.Mesh(new THREE.SphereGeometry(.052,12,10),fenceGoldLight);
-    center.position.set(0,1.30,.17);center.scale.z=.38;fenceNoShadow(center);panel.add(center);
+    // Ряд вытянутых ромбов вместо прежних копий и центральных медальонов.
+    const diamonds=Math.max(2,Math.floor(span/.72));
+    for(let i=0;i<diamonds;i++){
+      const x=-span/2+span*(i+.5)/diamonds;
+      const diamond=box(panel,.235,.235,.065,x,1.305,.075,fenceGold,false);
+      diamond.rotation.z=Math.PI/4;
+      const inset=box(panel,.125,.125,.075,x,1.305,.12,fenceIronLight,false);
+      inset.rotation.z=Math.PI/4;
+      const pin=new THREE.Mesh(new THREE.SphereGeometry(.035,10,8),fenceGoldLight);
+      pin.position.set(x,1.305,.17);fenceNoShadow(pin);panel.add(pin);
+    }
+    // Нижняя тонкая линия и верхний декоративный пояс завершают каждую секцию.
+    fenceNoShadow(box(panel,span,.035,.15,0,.585,0,fenceGold,false));
+    fenceNoShadow(box(panel,span,.035,.15,0,2.025,0,fenceIronLight,false));
   };
   const fenceRun=(x1,z1,x2,z2,spacing=2.45,startY=0,endY=startY,options={})=>{
     const length=Math.hypot(x2-x1,z2-z1),count=Math.max(1,Math.ceil(length/spacing));
