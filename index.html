@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-263000';
+const GREEN_WORLD_BUILD_ID = '20261108-264000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2848,23 +2848,23 @@ function makeWorldDecor(){
        q.quadraticCurveTo(x+len*.45,y+(i%7-3)*2,x+len,y+(i%5-2)*3);q.stroke();
      }
    }else if(kind==='pine'){
-     q.fillStyle='#174d35';q.fillRect(0,0,size,size);
+     q.fillStyle='#286b48';q.fillRect(0,0,size,size);
      for(let i=0;i<19000;i++){
        const x=(i*197)%size,y=(i*313)%size;
-       q.fillStyle=i%3===0?'rgba(129,178,105,.30)':i%3===1?'rgba(5,37,25,.32)':'rgba(54,117,69,.30)';
+       q.fillStyle=i%3===0?'rgba(164,205,133,.34)':i%3===1?'rgba(24,78,48,.14)':'rgba(78,145,88,.28)';
        q.beginPath();q.ellipse(x,y,1+(i%5),1+(i%4),((i%7)-3)*.15,0,Math.PI*2);q.fill();
      }
      // Направленные группы иголок добавляют хвое тонкую объёмную фактуру.
      for(let i=0;i<1800;i++){
        const x=(i*157+31)%size,y=(i*239+71)%size;
-       q.strokeStyle=i%3===0?'rgba(190,220,151,.34)':'rgba(4,31,21,.28)';
+       q.strokeStyle=i%3===0?'rgba(205,231,166,.38)':'rgba(31,91,55,.12)';
        q.lineWidth=.8+(i%3)*.35;q.beginPath();
        q.moveTo(x,y);q.lineTo(x+3+(i%5),y-2-(i%4));q.stroke();
      }
      // Мелкие иголки и редкие светлые кончики хвои создают тонкую неоднородную фактуру.
      for(let i=0;i<12000;i++){
        const x=(i*283+17)%size,y=(i*421+29)%size,len=2+(i%8);
-       q.strokeStyle=i%4===0?'rgba(180,210,139,.24)':'rgba(8,43,28,.22)';
+       q.strokeStyle=i%4===0?'rgba(196,225,151,.28)':'rgba(34,94,57,.11)';
        q.lineWidth=.55+(i%3)*.35;q.beginPath();q.moveTo(x,y);
        q.lineTo(x+len*.45,y-len*.3);q.stroke();
      }
@@ -3118,7 +3118,7 @@ function makeWorldDecor(){
   const gwForestFloor=new THREE.Group();gwForestFloor.name='green-world-forest-floor-detail';world.add(gwForestFloor);
   const gwGrassGeo=new THREE.ConeGeometry(.026,.38,5,1),gwGrassMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
   const gwGrassCount=2600,gwGrass=new THREE.InstancedMesh(gwGrassGeo,gwGrassMat,gwGrassCount),gwGrassDummy=new THREE.Object3D();
-  const gwGrassColors=[0x315d36,0x547a43,0x78904b,0x263f2c];
+  const gwGrassColors=[0x477b43,0x648b4b,0x829b53,0x527545];
   for(let n=0;n<gwGrassCount;n++){
     const u=((n*127.1)%997)/997,v=((n*311.7)%991)/991;let x,z,y;
     if(n%3===0){x=-48+u*96;z=-43+v*18;const t=THREE.MathUtils.clamp((-(z+36.5)-15.5)/31,0,1);y=.08+3*THREE.MathUtils.smoothstep(t,.02,.98);}
@@ -3142,7 +3142,7 @@ function makeWorldDecor(){
   const gwFernLeafGeo=new THREE.SphereGeometry(1,8,5);
   const gwFernMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.96});
   const gwFernCount=480,gwFernLeaves=new THREE.InstancedMesh(gwFernLeafGeo,gwFernMat,gwFernCount*4),gwFernDummy=new THREE.Object3D();
-  const gwFernColors=[0x315b35,0x426d3d,0x5c8044,0x71894a];
+  const gwFernColors=[0x477b43,0x568447,0x6d9250,0x829e59];
   for(let n=0;n<gwFernCount;n++){
     const u=((n*197.3)%991)/991,v=((n*271.9)%983)/983;let x,z,y;
     if(n%3===0){x=-47+u*94;z=-42+v*16;const t=THREE.MathUtils.clamp((-(z+36.5)-15.5)/31,0,1);y=.08+3*THREE.MathUtils.smoothstep(t,.02,.98);}
