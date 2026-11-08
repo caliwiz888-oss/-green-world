@@ -3962,6 +3962,21 @@ function makeHouse(){
   const line=new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(new THREE.Vector3(x,doorY+doorH,doorZ+.18),new THREE.Vector3(x*.72,doorY+doorH+.32,doorZ+.18)),8,.018,6,false),facadeGold);
   center.add(line);
  }
+ // Каменные клиновидные блоки обрамляют арочную фрамугу главного портала,
+ // продолжая тот же рисунок кладки, что и на парных окнах фасада.
+ const portalArchRadius=(doorW+.48)/2;
+ const portalArchCenterY=doorY+(doorH+.30)-portalArchRadius;
+ for(let j=0;j<=10;j++){
+  const angle=Math.PI-j*Math.PI/10;
+  const voussoir=box(center,.145,.16,.095,
+   Math.cos(angle)*(portalArchRadius+.025),
+   portalArchCenterY+Math.sin(angle)*(portalArchRadius+.025),2.755,
+   j===5?facadeStoneShade:(j%2===0?facadeStone:cream),false);
+  voussoir.rotation.z=angle+Math.PI/2;
+ }
+ // Центральный замковый камень с тонкой золотой линией завершает арку портала.
+ box(center,.19,.22,.11,0,portalArchCenterY+portalArchRadius+.045,2.765,facadeStone,false);
+ box(center,.22,.045,.115,0,portalArchCenterY+portalArchRadius+.17,2.77,facadeGold,false);
  // Парные окна уменьшены примерно на четверть: сохраняем арочную форму,
  // симметрию и расположение по сторонам портала, не меняя дверь и портик.
  facadeFrame(-2.12,1.66,2.68,.58,1.06);
