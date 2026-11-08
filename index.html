@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-379100';
+const GREEN_WORLD_BUILD_ID = '20261108-380100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1681,6 +1681,42 @@ function makeFactory(){
  for(const z of [-2.05,-.95]){
    box(g,.24,.075,.82,3.75,1.52,z,frame,false);
    box(g,.12,.12,.12,3.83,1.53,z,trim,false);
+ }
+ // Тонкие фасадные кассеты и теневые швы подчёркивают модульную архитектуру корпуса.
+ const facadeSeam=new THREE.MeshStandardMaterial({color:0x9ca99f,roughness:.74,metalness:.08});
+ const facadeEdge=new THREE.MeshStandardMaterial({color:0xe7e2d5,roughness:.7,metalness:.04});
+ for(const x of [-3.38,-3.08,3.28,3.55]){
+   box(g,.025,1.48,.035,x,1.78,2.855,facadeSeam,false);
+   box(g,.045,1.5,.025,x+.035,1.78,2.87,facadeEdge,false);
+ }
+ // Многослойная металлическая окантовка кровли с аккуратным капельником.
+ const roofMetal=new THREE.MeshPhysicalMaterial({color:0x3f5b59,roughness:.38,metalness:.62,clearcoat:.35});
+ box(g,7.96,.075,.16,0,3.99,3.02,roofMetal,false);
+ box(g,7.96,.075,.16,0,3.99,-3.02,roofMetal,false);
+ box(g,.16,.075,5.98,3.94,3.99,0,roofMetal,false);
+ box(g,.16,.075,5.98,-3.94,3.99,0,roofMetal,false);
+ // Небольшие крепёжные головки на лицевых металлических кромках кровли.
+ const fastenerMat=new THREE.MeshStandardMaterial({color:0xb6b9ad,roughness:.3,metalness:.78});
+ for(const x of [-3.45,-2.3,-1.15,0,1.15,2.3,3.45]){
+   const bolt=cylinder(g,.027,.027,.018,x,3.99,3.11,fastenerMat,12);
+   bolt.rotation.x=Math.PI/2;
+ }
+ // Дополнительные уплотнители по периметру панорамного остекления.
+ const gasket=new THREE.MeshStandardMaterial({color:0x263f45,roughness:.42,metalness:.24});
+ box(g,6.98,.045,.045,0,2.62,2.91,gasket,false);
+ box(g,6.98,.045,.045,0,3.43,2.91,gasket,false);
+ // Детализированные жалюзи вентиляции с утопленной тёмной камерой.
+ box(g,.98,.78,.045,-1.75,2.18,-2.91,gasket,false);
+ for(let y=1.86;y<=2.48;y+=.105){
+   box(g,.82,.035,.055,-1.75,y,-2.945,ventMat,false);
+ }
+ // Тонкие опорные ножки и крепёжные площадки наружных труб.
+ for(const z of [-2.55,-1.8,-1.05]){
+   box(g,.18,.055,.18,3.84,2.62,z,roofMetal,false);
+ }
+ // Локальные тёплые световые акценты над погрузочной зоной.
+ for(const x of [-2.55,-.55,2.55]){
+   warmLight(g,x,2.9,3.24,.22,2.8);
  }
  // Небольшая маркировка на фасаде — без крупной вывески и без изменения общего облика двора.
  const signCanvas=document.createElement('canvas');signCanvas.width=512;signCanvas.height=96;
