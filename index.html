@@ -4042,6 +4042,20 @@ function makeHouse(){
  manorGableShape.lineTo(0,6.04);manorGableShape.closePath();
  const manorGable=new THREE.Mesh(new THREE.ExtrudeGeometry(manorGableShape,{depth:.10,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.025,bevelThickness:.018}),ivory);
  manorGable.position.z=2.43;manorGable.castShadow=true;manorGable.receiveShadow=true;center.add(manorGable);
+ // Тонкий двойной каменный профиль подчёркивает треугольную архитектуру фронтона.
+ // Рельеф расположен перед плоскостью фронтона; форма и высота крыши не меняются.
+ const gableTrim=(points,radius,material)=>{
+  const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(p[0],p[1],p[2])));
+  const trim=new THREE.Mesh(new THREE.TubeGeometry(curve,48,radius,8,false),material);
+  trim.castShadow=true;trim.receiveShadow=true;center.add(trim);
+ };
+ gableTrim([[-3.12,4.43,2.565],[0,5.91,2.565],[3.12,4.43,2.565]],.038,facadeStone);
+ gableTrim([[-2.91,4.56,2.57],[0,5.82,2.57],[2.91,4.56,2.57]],.018,facadeStoneShade);
+ box(center,6.18,.105,.10,0,4.43,2.565,facadeStone,false);
+ // Небольшой каменный рельефный медальон завершает композицию без добавления окна.
+ const gableMedallion=new THREE.Mesh(new THREE.TorusGeometry(.105,.022,8,32),facadeGold);
+ gableMedallion.position.set(0,5.48,2.585);gableMedallion.castShadow=true;center.add(gableMedallion);
+ sphere(center,.065,0,5.48,2.575,facadeStoneShade,.9);
  // Окно и декоративное остекление фронтона удалены по просьбе пользователя.
  // Два широких ската от центрального конька к длинным боковым карнизам.
  manorRoofPlane([
