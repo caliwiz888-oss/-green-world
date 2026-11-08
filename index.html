@@ -4045,8 +4045,30 @@ function makeHouse(){
  }
  // Парадный фасад в едином классическом стиле усадьбы:
  // высокая двустворчатая дверь, вытянутые арочные окна и каменный портик.
- const facadeGold=new THREE.MeshStandardMaterial({color:0xd9b15f,roughness:.3,metalness:.82});
- const facadeBronze=new THREE.MeshStandardMaterial({color:0x493326,roughness:.46,metalness:.38});
+ // Едва заметная направленная микрофактура литой бронзы и позолоченных деталей.
+ // Она меняет только характер бликов на существующем металле, не его цвет и геометрию.
+ const facadeMetalCanvas=document.createElement('canvas');
+ facadeMetalCanvas.width=256;facadeMetalCanvas.height=256;
+ const facadeMetalCtx=facadeMetalCanvas.getContext('2d');
+ const facadeMetalImage=facadeMetalCtx.createImageData(256,256);
+ let facadeMetalSeed=61739;
+ const facadeMetalRand=()=>{facadeMetalSeed=(facadeMetalSeed*1664525+1013904223)>>>0;return facadeMetalSeed/4294967296};
+ for(let y=0;y<256;y++)for(let x=0;x<256;x++){
+  const p=(y*256+x)*4;
+  const grain=(facadeMetalRand()-.5)*18+Math.sin(y*.42+Math.sin(x*.025)*.8)*3+
+   Math.sin(y*1.7+x*.012)*1.4;
+  const v=Math.max(0,Math.min(255,232+grain));
+  facadeMetalImage.data[p]=facadeMetalImage.data[p+1]=facadeMetalImage.data[p+2]=v;
+  facadeMetalImage.data[p+3]=255;
+ }
+ facadeMetalCtx.putImageData(facadeMetalImage,0,0);
+ const facadeMetalRoughness=new THREE.CanvasTexture(facadeMetalCanvas);
+ facadeMetalRoughness.colorSpace=THREE.NoColorSpace;
+ facadeMetalRoughness.wrapS=facadeMetalRoughness.wrapT=THREE.RepeatWrapping;
+ facadeMetalRoughness.repeat.set(2,2);
+ facadeMetalRoughness.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const facadeGold=new THREE.MeshStandardMaterial({color:0xd9b15f,roughness:.3,metalness:.82,roughnessMap:facadeMetalRoughness});
+ const facadeBronze=new THREE.MeshStandardMaterial({color:0x493326,roughness:.46,metalness:.38,roughnessMap:facadeMetalRoughness});
  // Тонкая вертикальная текстура натурального дерева только для входной двери и её филёнок.
  const doorGrainCanvas=document.createElement('canvas');
  doorGrainCanvas.width=128;doorGrainCanvas.height=256;
@@ -4248,7 +4270,7 @@ function makeHouse(){
  // с низкой двускатной сланцевой кровлей и двумя опорными колоннами.
  const porticoBlue=new THREE.MeshStandardMaterial({color:0x29445f,roughness:.68,metalness:.10,side:THREE.DoubleSide});
  const porticoTile=new THREE.MeshStandardMaterial({color:0x385775,roughness:.65,metalness:.08});
- const porticoGold=new THREE.MeshStandardMaterial({color:0xc9a04e,roughness:.32,metalness:.7});
+ const porticoGold=new THREE.MeshStandardMaterial({color:0xc9a04e,roughness:.32,metalness:.7,roughnessMap:facadeMetalRoughness});
  const px=1.48,pz=3.42,py=3.42,pr=4.00;
  function porticoPanel(points,material){
   const geo=new THREE.BufferGeometry();
@@ -4355,7 +4377,7 @@ function makeHouse(){
  const manorRoofTileA=new THREE.MeshStandardMaterial({color:0x355675,roughness:.68,metalness:.08,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.009});
  const manorRoofTileB=new THREE.MeshStandardMaterial({color:0x294662,roughness:.74,metalness:.07,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.009});
  const manorRoofSeam=new THREE.MeshStandardMaterial({color:0x1d344e,roughness:.72,metalness:.10,bumpMap:slateReliefTexture,bumpScale:.006});
- const manorRoofGold=new THREE.MeshStandardMaterial({color:0xc9a04e,roughness:.34,metalness:.68});
+ const manorRoofGold=new THREE.MeshStandardMaterial({color:0xc9a04e,roughness:.34,metalness:.68,roughnessMap:facadeMetalRoughness});
  const manorRoofHalf=3.38,manorRoofEaveY=4.48,manorRoofPeakY=6.08;
  const manorRoofFrontZ=2.42,manorRoofBackZ=-2.48;
  const manorRoofV=(x,y,z)=>new THREE.Vector3(x,y,z);
