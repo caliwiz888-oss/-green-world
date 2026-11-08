@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-350000';
+const GREEN_WORLD_BUILD_ID = '20261108-351000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -310,7 +310,18 @@ try{
 // Мягкое небесное заполнение сохраняет детали в тенях на фасадах, листве и горном рельефе.
 scene.add(new THREE.HemisphereLight(0xeaf7ff,0x5a7447,2.28));
 scene.add(new THREE.AmbientLight(0xffffff,.27));
-const sun=new THREE.DirectionalLight(0xfff1d9,3.42);sun.position.set(-28,42,24);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-42;sun.shadow.camera.right=42;sun.shadow.camera.top=42;sun.shadow.camera.bottom=-42;sun.shadow.camera.near=1;sun.shadow.camera.far=110;sun.shadow.bias=-0.00018;sun.shadow.normalBias=.025;sun.shadow.radius=3;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=true;scene.add(sun);
+// Повышенная детализация солнечных теней с адаптацией к мобильному экрану.
+const sun=new THREE.DirectionalLight(0xfff1d9,3.42);
+sun.position.set(-28,42,24);sun.castShadow=true;
+const shadowMapResolution=Math.min(renderer.capabilities.maxTextureSize,innerWidth<700?1536:2048);
+sun.shadow.mapSize.set(shadowMapResolution,shadowMapResolution);
+sun.shadow.camera.left=-42;sun.shadow.camera.right=42;
+sun.shadow.camera.top=42;sun.shadow.camera.bottom=-42;
+sun.shadow.camera.near=1;sun.shadow.camera.far=110;
+sun.shadow.bias=-0.00016;sun.shadow.normalBias=.022;
+sun.shadow.radius=2.6;sun.shadow.autoUpdate=false;
+sun.shadow.needsUpdate=true;scene.add(sun);
+window.GREEN_WORLD_RENDER_DIAGNOSTICS.shadowMapResolution=shadowMapResolution;
 // Нейтрально-тёплый отражённый свет делает теневые стороны объектов читаемее без потери солнечного контраста.
 const fill=new THREE.DirectionalLight(0xe1edda,1.0);fill.position.set(24,18,-22);scene.add(fill);
 // Холодный контровой дневной свет мягко отделяет силуэты зданий и листву от дальнего пейзажа без теневых карт.
