@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-273000';
+const GREEN_WORLD_BUILD_ID = '20261108-274000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2915,10 +2915,26 @@ function makeWorldDecor(){
  const gwBarkMap=gwMakeTreeTexture('bark');
  const gwPineMap=gwMakeTreeTexture('pine');
  const gwBloomMap=gwMakeTreeTexture('bloom');
- // Отдельные линейные карты микрорельефа: цветовые карты остаются корректными для освещения.
- const gwBarkBump=gwBarkMap.clone();gwBarkBump.colorSpace=THREE.NoColorSpace;gwBarkBump.needsUpdate=true;
- const gwPineBump=gwPineMap.clone();gwPineBump.colorSpace=THREE.NoColorSpace;gwPineBump.needsUpdate=true;
- const gwBloomBump=gwBloomMap.clone();gwBloomBump.colorSpace=THREE.NoColorSpace;gwBloomBump.needsUpdate=true;
+ // Для рельефа создаём отдельные нейтральные карты яркости: цвет RGB-текстуры не искажает высоту микродеталей.
+ function gwMakeTreeBumpMap(source,contrast=1.16){
+   const canvas=document.createElement('canvas');canvas.width=source.image.width;canvas.height=source.image.height;
+   const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(source.image,0,0);
+   const pixels=ctx.getImageData(0,0,canvas.width,canvas.height),data=pixels.data;
+   for(let i=0;i<data.length;i+=4){
+     const luminance=(data[i]*.2126+data[i+1]*.7152+data[i+2]*.0722)/255;
+     const height=THREE.MathUtils.clamp(.5+(luminance-.5)*contrast,0,1);
+     const value=Math.round(height*255);data[i]=data[i+1]=data[i+2]=value;
+   }
+   ctx.putImageData(pixels,0,0);
+   const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.NoColorSpace;
+   texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+   texture.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());
+   texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;
+   texture.generateMipmaps=true;texture.needsUpdate=true;return texture;
+ }
+ const gwBarkBump=gwMakeTreeBumpMap(gwBarkMap,1.22);
+ const gwPineBump=gwMakeTreeBumpMap(gwPineMap,1.12);
+ const gwBloomBump=gwMakeTreeBumpMap(gwBloomMap,1.08);
  // Мягкая контактная тень под каждым деревом усиливает глубину леса без тяжёлых shadow maps.
  const gwShadowCanvas=document.createElement('canvas');gwShadowCanvas.width=gwShadowCanvas.height=256;
  const gwShadowCtx=gwShadowCanvas.getContext('2d'),gwShadowGrad=gwShadowCtx.createRadialGradient(128,128,8,128,128,126);
