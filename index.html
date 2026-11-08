@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-384100';
+const GREEN_WORLD_BUILD_ID = '20261108-385100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1374,7 +1374,50 @@ function makeWorldDecor(){
    p.needsUpdate=true;geo.computeVertexNormals();
  }
  gwAddBarkRelief(gwTrunkGeo,.024);gwAddBarkRelief(gwBlossomBranchGeo,.028);gwAddBarkRelief(gwRootGeo,.026);
- function gwAddPine(){ return null; }
+ function gwAddPine(x,z,h,seed=0,baseY=0){
+   const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
+   const leanX=Math.sin(seed*1.7)*h*.012,leanZ=Math.cos(seed*1.3)*h*.012;
+   const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
+   trunk.position.set(leanX,h*.35,leanZ);trunk.scale.set(.58,h*.78,.58);g.add(trunk);
+   // Число и ширина ярусов слегка меняются от дерева к дереву.
+   const tierCount=5+Math.abs(Math.floor(seed*7))%3;
+   for(let k=0;k<tierCount;k++){
+     const t=k/(tierCount-1);
+     const irregular=1+.085*Math.sin(seed*1.7+k*2.13);
+     const width=(.245-t*.038)*irregular*(1+.035*Math.cos(k*3.1+seed));
+     const crown=new THREE.Mesh(gwPineGeos[(k+Math.floor(seed*3))%3],k%3===0?gwPineA:(k%3===1?gwPineB:gwPineC));
+     crown.position.set(leanX+Math.sin(seed+k*1.43)*h*.014,h*(.19+k*(.69/(tierCount-1))),leanZ+Math.cos(seed+k*1.31)*h*.014);
+     crown.scale.set(h*width,h*(.30-t*.028)*(1+.04*Math.sin(seed+k)),h*width*(.91+.09*Math.sin(seed+k)));
+     crown.rotation.y=seed+k*.47;
+     g.add(crown);
+   }
+   // Короткие боковые лапы дают видимый многослойный контур хвои.
+   for(let k=0;k<24;k++){
+     const a=seed+k*Math.PI*2/24,level=k%8;
+     const reach=h*(.105+(level%4)*.014),thickness=h*(.034+(level%3)*.006);
+     const bough=new THREE.Mesh(gwPineBoughGeo,k%4===0?gwPineC:(k%3===0?gwPineA:gwPineB));
+     bough.position.set(Math.cos(a)*reach,h*(.225+level*.082),Math.sin(a)*reach);
+     bough.scale.set(thickness,1+(k%3)*.16,thickness*(.88+(k%4)*.06));
+     bough.rotation.z=Math.cos(a)*-.66;bough.rotation.x=Math.sin(a)*.66;
+     bough.rotation.y=a;g.add(bough);
+     if(k%2===0){
+       const twig=new THREE.Mesh(gwPineTwigGeo,k%4===0?gwPineA:gwPineC);
+       twig.position.set(Math.cos(a)*reach*1.58,h*(.245+level*.082),Math.sin(a)*reach*1.58);
+       twig.scale.set(h*.026,1+(k%3)*.12,h*.026);
+       twig.rotation.z=Math.cos(a)*-.8;twig.rotation.x=Math.sin(a)*.8;twig.rotation.y=a+.22;g.add(twig);
+     }
+   }
+   // Корневые наплывы и короткие нижние ветви делают основание ели менее геометричным.
+   for(let k=0;k<9;k++){
+     const a=seed+k*Math.PI*2/9;
+     const root=new THREE.Mesh(gwRootGeo,gwBark);
+     root.position.set(Math.cos(a)*h*.085,h*.055,Math.sin(a)*h*.085);root.scale.y=h*.19;
+     root.rotation.z=Math.cos(a)*-.72;root.rotation.x=Math.sin(a)*.72;g.add(root);
+   }
+   g.rotation.y=seed*.19;g.scale.set(1+.045*Math.sin(seed*2),1+.035*Math.cos(seed),1+.045*Math.cos(seed*1.7));
+   g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
+ }
+ 
  function gwAddBlossom(x,z,h,seed=0,baseY=0,palette='pink'){
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
    gwAddTreeContactShadow(g,h,1.02);
@@ -1437,6 +1480,17 @@ function makeWorldDecor(){
    g.rotation.y=seed*.13;g.scale.set(1+.05*Math.sin(seed),1+.035*Math.cos(seed*1.4),1+.05*Math.cos(seed));
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
+ // Возвращены все семь ранее утверждённых елей на их исходные координаты.
+ // Четыре ели в центральном заднем ряду и три справа; магазин и завод не восстанавливаются.
+ for(const [x,z,h,seed] of [
+   [-1.25,-10.0,5.2,14],
+   [0.25,-10.0,5.2,8],
+   [1.75,-10.0,5.5,5],
+   [3.25,-10.0,5.2,11],
+   [16.0,-10.0,5.2,21],
+   [17.5,-10.0,5.5,25],
+   [19.0,-10.0,5.2,28]
+ ])gwAddPine(x,z,h,seed);
  // Лесной пояс у гор распределён свободно: деревья смещены и по ширине, и по глубине,
  // поэтому кроны не складываются в две ровные горизонтальные линии.
  const mountainForestRows=[-35.2,-41.0];
