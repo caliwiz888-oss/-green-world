@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-262000';
+const GREEN_WORLD_BUILD_ID = '20261108-263000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3158,6 +3158,25 @@ function makeWorldDecor(){
   }
   gwFernLeaves.instanceMatrix.needsUpdate=true;if(gwFernLeaves.instanceColor)gwFernLeaves.instanceColor.needsUpdate=true;
   gwForestFloor.add(gwFernLeaves);
+
+  // Опавшая листва у корней деревьев: мелкие листья лежат на земле, не заходя во внутренний двор.
+  const gwLeafGeo=new THREE.SphereGeometry(1,7,4);
+  const gwLeafMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:1});
+  const gwLeafCount=1350,gwLeafLitter=new THREE.InstancedMesh(gwLeafGeo,gwLeafMat,gwLeafCount),gwLeafDummy=new THREE.Object3D();
+  const gwLeafColors=[0x574b32,0x75613b,0x8a7547,0x3f5835,0x687044,0x9a8050];
+  for(let n=0;n<gwLeafCount;n++){
+    const u=((n*173.7)%997)/997,v=((n*293.1)%991)/991;let x,z,y;
+    if(n%3===0){x=-47+u*94;z=-42+v*16;const t=THREE.MathUtils.clamp((-(z+36.5)-15.5)/31,0,1);y=.08+3*THREE.MathUtils.smoothstep(t,.02,.98);}
+    else{const side=n%2?1:-1;x=side*(19.5+u*9.1);z=-24+v*46;y=0;}
+    const length=.10+(n%5)*.025,width=.035+(n%3)*.012;
+    gwLeafDummy.position.set(x,y+.035+(n%4)*.003,z);
+    gwLeafDummy.scale.set(width,.009,length);gwLeafDummy.rotation.set(.04*Math.sin(n),u*Math.PI*2,.06*Math.cos(n));
+    gwLeafDummy.updateMatrix();gwLeafLitter.setMatrixAt(n,gwLeafDummy.matrix);
+    gwLeafLitter.setColorAt(n,new THREE.Color(gwLeafColors[n%gwLeafColors.length]));
+  }
+  gwLeafLitter.instanceMatrix.needsUpdate=true;if(gwLeafLitter.instanceColor)gwLeafLitter.instanceColor.needsUpdate=true;
+  gwForestFloor.add(gwLeafLitter);
+
 
 
  // Удалены мелкие светлые камешки за правой стороной ограды, чтобы убрать тонкую светлую отметку.
