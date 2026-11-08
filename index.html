@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-363000';
+const GREEN_WORLD_BUILD_ID = '20261108-364000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3013,7 +3013,7 @@ function makeWorldDecor(){
      }
    }
    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
-   t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());
+   t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(18,renderer.capabilities.getMaxAnisotropy());
    t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;return t;
  }
  const gwBarkMap=gwMakeTreeTexture('bark');
@@ -3032,7 +3032,7 @@ function makeWorldDecor(){
    ctx.putImageData(pixels,0,0);
    const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.NoColorSpace;
    texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
-   texture.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());
+   texture.anisotropy=Math.min(18,renderer.capabilities.getMaxAnisotropy());
    texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;
    texture.generateMipmaps=true;texture.needsUpdate=true;return texture;
  }
@@ -3058,7 +3058,7 @@ function makeWorldDecor(){
    outCtx.putImageData(out,0,0);
    const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.NoColorSpace;
    texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
-   texture.anisotropy=Math.min(16,renderer.capabilities.getMaxAnisotropy());
+   texture.anisotropy=Math.min(18,renderer.capabilities.getMaxAnisotropy());
    texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;
    texture.generateMipmaps=true;texture.needsUpdate=true;return texture;
  }
@@ -4688,7 +4688,7 @@ scene.traverse(object=>{
    for(const key of ['map','alphaMap','aoMap','bumpMap','displacementMap','emissiveMap','lightMap','metalnessMap','normalMap','roughnessMap']){
      const texture=material[key];
      if(!texture||!texture.isTexture)continue;
-     const startupAnisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),innerWidth<700?8:16);
+     const startupAnisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),innerWidth<700?18:16);
      if(texture.anisotropy!==startupAnisotropy){texture.anisotropy=startupAnisotropy;texture.needsUpdate=true;}
      window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH.textures++;
    }
