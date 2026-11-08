@@ -1683,6 +1683,33 @@ function makeWorldLandscape(){
  skyGeo.setAttribute('color',new THREE.Float32BufferAttribute(skyColors,3));
  const skyDome=new THREE.Mesh(skyGeo,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,depthWrite:false,fog:false}));
  skyDome.position.y=10;skyDome.renderOrder=-2;world.add(skyDome);
+ // Многослойный горный горизонт возвращает глубину пейзажу за пределами двора.
+ // Силуэты расположены за внешней площадкой и не затрагивают игровую геометрию.
+ const mountainLayers=[
+  {z:-82,color:0x91b6bd,opacity:.62,points:[[-100,-7],[-100,9],[-82,15],[-68,10],[-49,22],[-32,12],[-12,25],[5,13],[25,21],[43,11],[62,19],[79,10],[100,16],[100,-7]]},
+  {z:-91,color:0x789da7,opacity:.72,points:[[-100,-8],[-100,5],[-83,12],[-67,7],[-48,17],[-29,8],[-8,19],[12,9],[31,16],[52,7],[72,14],[88,8],[100,12],[100,-8]]},
+  {z:-101,color:0x668d83,opacity:.78,points:[[-100,-9],[-100,2],[-82,7],[-65,4],[-47,11],[-29,5],[-8,13],[12,5],[31,10],[50,4],[69,9],[86,4],[100,8],[100,-9]]}
+ ];
+ for(const layer of mountainLayers){
+  const shape=new THREE.Shape();
+  layer.points.forEach(([x,y],i)=>i===0?shape.moveTo(x,y):shape.lineTo(x,y));
+  shape.closePath();
+  const ridge=new THREE.Mesh(new THREE.ShapeGeometry(shape,2),new THREE.MeshBasicMaterial({
+   color:layer.color,transparent:true,opacity:layer.opacity,side:THREE.DoubleSide,
+   depthWrite:false,fog:true
+  }));
+  ridge.name='GREEN_WORLD_Distant_Mountain_Ridge';
+  ridge.position.set(0,0,layer.z);
+  ridge.renderOrder=-1;
+  world.add(ridge);
+ }
+ // Лёгкая атмосферная дымка отделяет дальние хребты от ближнего леса.
+ const distantHaze=new THREE.Mesh(
+  new THREE.PlaneGeometry(190,25),
+  new THREE.MeshBasicMaterial({color:0xc5e0df,transparent:true,opacity:.105,depthWrite:false,side:THREE.DoubleSide,fog:false})
+ );
+ distantHaze.position.set(0,7.5,-76);
+ world.add(distantHaze);
  // Удалены дальние облачные полосы вместе с горным фоном.
  // Fine high-altitude cirrus wisps add depth to the sky while staying translucent.
  const cirrusMat=new THREE.MeshBasicMaterial({color:0xf4f7f2,transparent:true,opacity:.085,depthWrite:false,fog:false});
