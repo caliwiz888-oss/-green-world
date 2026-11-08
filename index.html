@@ -1231,43 +1231,76 @@ function makeMarket(){
    for(const y of [1.18,2.26])box(g,.075,.075,1.50,frameX,y,-.72,timberLight,false);
    for(const z of [-2.16,2.16])box(g,.14,1.90,.14,frameX,1.57,z,roofEdge,false);
  }
- // Три реалистичные ели за магазином: выраженный ствол, ярусные ветви и фактурная хвоя.
+ // Три реалистичные ели за магазином: детальная кора, многослойная хвоя и тонкие побеги.
  const marketFirBark=new THREE.MeshStandardMaterial({color:0x60432e,roughness:.98});
  const marketFirBarkLight=new THREE.MeshStandardMaterial({color:0x896044,roughness:.96});
  const marketFirNeedleDeep=new THREE.MeshStandardMaterial({color:0x183d2b,roughness:.96});
  const marketFirNeedle=new THREE.MeshStandardMaterial({color:0x28583a,roughness:.94});
  const marketFirNeedleLight=new THREE.MeshStandardMaterial({color:0x3c7048,roughness:.93});
  const marketFirBud=new THREE.MeshStandardMaterial({color:0x527d4d,roughness:.92});
+ // Мелкозернистая карта хвои даёт живую неоднородность поверхности без изменения силуэта.
+ const firTextureCanvas=document.createElement('canvas');firTextureCanvas.width=256;firTextureCanvas.height=256;
+ const firTextureCtx=firTextureCanvas.getContext('2d');
+ const firTextureImage=firTextureCtx.createImageData(256,256);
+ let firTextureSeed=82931;
+ const firTextureRand=()=>{firTextureSeed=(firTextureSeed*1664525+1013904223)>>>0;return firTextureSeed/4294967296};
+ for(let p=0;p<256*256;p++){
+   const v=105+Math.floor(firTextureRand()*95),k=p*4;
+   firTextureImage.data[k]=v;firTextureImage.data[k+1]=v;firTextureImage.data[k+2]=v;firTextureImage.data[k+3]=255;
+ }
+ firTextureCtx.putImageData(firTextureImage,0,0);
+ const firNeedleTexture=new THREE.CanvasTexture(firTextureCanvas);
+ firNeedleTexture.wrapS=firNeedleTexture.wrapT=THREE.RepeatWrapping;
+ firNeedleTexture.repeat.set(2.4,2.4);
+ firNeedleTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ const firNeedleBump=firNeedleTexture.clone();firNeedleBump.colorSpace=THREE.NoColorSpace;firNeedleBump.needsUpdate=true;
+ for(const foliageMaterial of [marketFirNeedleDeep,marketFirNeedle,marketFirNeedleLight,marketFirBud]){
+   foliageMaterial.bumpMap=firNeedleBump;foliageMaterial.bumpScale=.018;
+   foliageMaterial.roughness=.91;foliageMaterial.needsUpdate=true;
+ }
+ // Тонкие разветвлённые побеги добавляют объём между крупными ярусами.
+ const firTwigMaterial=new THREE.MeshStandardMaterial({color:0x31583a,roughness:.97});
  for(const [tx,tz,fh,seed] of [[-1.55,-7.15,5.2,2],[0,-7.35,5.5,5],[1.55,-7.15,5.2,8]]){
-   // Ствол слегка сужается к вершине, кора имеет тонкие вертикальные борозды.
-   cylinder(g,.105,.19,fh*.82,tx,fh*.41,tz,marketFirBark,10);
-   for(let k=0;k<7;k++){
-     const yy=.38+k*.52;
-     const barkLine=box(g,.018,.34,.012,tx+.105,yy,tz,marketFirBarkLight,false);
-     barkLine.rotation.z=.035;
+   cylinder(g,.105,.19,fh*.82,tx,fh*.41,tz,marketFirBark,12);
+   // Вертикальные борозды коры и небольшие светлые участки древесины.
+   for(let k=0;k<9;k++){
+     const a=k/9*Math.PI*2;
+     const barkLine=box(g,.014,.38,.012,tx+Math.cos(a)*.105,.42+(k%4)*.83,tz+Math.sin(a)*.105, k%3===0?marketFirBarkLight:marketFirBark,false);
+     barkLine.rotation.y=-a;
    }
-   // Семь перекрывающихся ярусов, каждый с отдельными свисающими ветвями.
    for(let tier=0;tier<7;tier++){
      const y=.82+tier*.59;
      const radius=(1.08-tier*.105)*(fh/5.35);
      const branchLength=radius*.96;
      const foliage=tier%3===0?marketFirNeedleDeep:tier%3===1?marketFirNeedle:marketFirNeedleLight;
-     const skirt=cone(g,radius,.94*(fh/5.35),tx,y,tz,foliage,9);
+     const skirt=cone(g,radius,.94*(fh/5.35),tx,y,tz,foliage,12);
      skirt.scale.set(1,.92,1);
      for(let j=0;j<10;j++){
        const angle=(j/10)*Math.PI*2+(tier%2)*.24+seed*.07;
        const mid=branchLength*.48;
-       const branch=cone(g,.19*(fh/5.35),branchLength,tx+Math.cos(angle)*mid,y-.11,tz+Math.sin(angle)*mid,foliage,6);
+       const bx=tx+Math.cos(angle)*mid,bz=tz+Math.sin(angle)*mid;
+       const branch=cone(g,.19*(fh/5.35),branchLength,bx,y-.11,bz,foliage,7);
        branch.rotation.z=Math.PI/2+.32;
        branch.rotation.y=-angle;
-       // Небольшие кончики хвои формируют естественный неровный силуэт.
-       const tip=cone(g,.105*(fh/5.35),.42*(fh/5.35),tx+Math.cos(angle)*branchLength*.92,y-.27,tz+Math.sin(angle)*branchLength*.92,marketFirBud,6);
+       // Парные короткие побеги расходятся по сторонам каждой основной ветви.
+       for(let spray=0;spray<2;spray++){
+         const side=spray===0?-1:1;
+         const sx=tx+Math.cos(angle)*branchLength*.67-Math.sin(angle)*side*.10;
+         const sz=tz+Math.sin(angle)*branchLength*.67+Math.cos(angle)*side*.10;
+         const tuft=cone(g,.105*(fh/5.35),.34*(fh/5.35),sx,y-.18+spray*.07,sz,spray?marketFirNeedleLight:marketFirNeedleDeep,6);
+         tuft.rotation.z=Math.PI/2+.48;
+         tuft.rotation.y=-angle+side*.16;
+       }
+       const tip=cone(g,.105*(fh/5.35),.42*(fh/5.35),tx+Math.cos(angle)*branchLength*.92,y-.27,tz+Math.sin(angle)*branchLength*.92,marketFirBud,7);
        tip.rotation.z=Math.PI/2+.48;
        tip.rotation.y=-angle;
      }
    }
-   const crown=cone(g,.22,.72,tx,fh-.28,tz,marketFirNeedleLight,8);
+   // Верхушечный побег и тонкая вершина формируют естественный конический силуэт ели.
+   const crown=cone(g,.22,.72,tx,fh-.28,tz,marketFirNeedleLight,10);
    crown.scale.set(.72,1,.72);
+   const leader=cylinder(g,.025,.012,.62,tx,fh-.02,tz,marketFirBud,7);
+   leader.rotation.z=.025;
  }
  g.userData.sideFacades={left:true,right:true,outerWall:true,singleLayer:true,windowFrames:true};
   return disableCastShadows(g);
