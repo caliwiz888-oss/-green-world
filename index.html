@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-331000';
+const GREEN_WORLD_BUILD_ID = '20261108-332000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3238,57 +3238,6 @@ function makeWorldLandscape(){
  water.bumpMap=waterReliefTexture;water.bumpScale=.012;water.roughnessMap=waterReliefTexture;water.roughness=.22;water.metalness=.035;water.clearcoat=.58;water.clearcoatRoughness=.16;water.reflectivity=.72;water.needsUpdate=true;
 
 
- // GREEN_WORLD_WATERFALL_V3 — панорамный каскад на заднем горизонте.
-{
- const falls=new THREE.Group();falls.name='GREEN_WORLD_WATERFALL_V3';
- const rock=new THREE.MeshStandardMaterial({color:0x59666a,roughness:.94,metalness:.015});
- const rockLight=new THREE.MeshStandardMaterial({color:0x788487,roughness:.92,metalness:.01});
- const rockDark=new THREE.MeshStandardMaterial({color:0x3f4d52,roughness:.97,metalness:.01});
- const ridge=new THREE.Shape();ridge.moveTo(-36,0);
- for(const p of [[-36,7.2],[-32,8.4],[-28,7.6],[-24,9.7],[-20,8.8],[-16,11.1],[-12,9.2],[-8,10.4],[-4,8.9],[0,11.8],[4,10.2],[8,11.1],[12,9.1],[16,10.6],[20,8.5],[24,9.8],[28,7.8],[32,9.0],[36,7.0]])ridge.lineTo(p[0],p[1]);
- ridge.lineTo(36,0);ridge.closePath();
- const ridgeGeo=new THREE.ExtrudeGeometry(ridge,{depth:2.8,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.32,bevelThickness:.28,curveSegments:4});
- ridgeGeo.computeVertexNormals();
- const ridgeMesh=new THREE.Mesh(ridgeGeo,rock);ridgeMesh.position.set(0,0,-63.7);ridgeMesh.receiveShadow=true;falls.add(ridgeMesh);
- for(let i=0;i<18;i++){
-  const x=-34+i*4,y=1.2+(i%4)*.42,w=3.2+(i%3)*.55;
-  const shelf=new THREE.Mesh(new THREE.BoxGeometry(w,.34,.72),i%3===0?rockDark:rockLight);
-  shelf.position.set(x,y,-63.18);shelf.rotation.z=((i%3)-1)*.045;falls.add(shelf);
- }
- const canvas=document.createElement('canvas');canvas.width=512;canvas.height=768;
- const ctx=canvas.getContext('2d'),gradient=ctx.createLinearGradient(0,0,0,768);
- gradient.addColorStop(0,'#d9ffff');gradient.addColorStop(.16,'#68d7e4');gradient.addColorStop(.62,'#159bbd');gradient.addColorStop(1,'#72dce1');
- ctx.fillStyle=gradient;ctx.fillRect(0,0,512,768);
- for(let i=0;i<96;i++){
-  const x=(i*71+19)%512,w=1.5+(i%6)*1.15;
-  ctx.strokeStyle=i%5===0?'rgba(255,255,255,.78)':'rgba(219,255,255,.3)';ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x,0);
-  ctx.bezierCurveTo(x-10,190,x+12,470,x+(i%3-1)*8,768);ctx.stroke();
- }
- for(let i=0;i<180;i++){
-  const x=(i*43+17)%512,y=(i*97+31)%768;ctx.fillStyle=i%4===0?'rgba(255,255,255,.8)':'rgba(220,255,255,.35)';
-  ctx.beginPath();ctx.ellipse(x,y,1+(i%3),3+(i%7),0,0,Math.PI*2);ctx.fill();
- }
- const flowTexture=new THREE.CanvasTexture(canvas);flowTexture.colorSpace=THREE.SRGBColorSpace;flowTexture.wrapS=THREE.RepeatWrapping;flowTexture.wrapT=THREE.RepeatWrapping;flowTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- const waterMat=new THREE.MeshPhysicalMaterial({map:flowTexture,color:0xffffff,transparent:true,opacity:.96,roughness:.17,metalness:.025,clearcoat:.9,clearcoatRoughness:.12,side:THREE.DoubleSide,depthWrite:false});
- const cascades=[[-23,4.5,5.8,7.4],[-8,6.4,8.7,9],[9,5.4,7.1,8.2],[24,4.2,5.6,7]];
- for(const [x,y,w,h] of cascades){
-  const sheet=new THREE.Mesh(new THREE.PlaneGeometry(w,h,12,24),waterMat);sheet.position.set(x,y,-62.92);falls.add(sheet);
-  const mist=new THREE.Mesh(new THREE.PlaneGeometry(w*1.08,.42,8,2),new THREE.MeshBasicMaterial({color:0xcafcff,transparent:true,opacity:.48,depthWrite:false,side:THREE.DoubleSide}));
-  mist.position.set(x,.34,-62.72);falls.add(mist);
- }
- const poolMat=new THREE.MeshPhysicalMaterial({color:0x28b5cf,roughness:.16,metalness:.045,clearcoat:.95,clearcoatRoughness:.1,transparent:true,opacity:.9});
- const pool=new THREE.Mesh(new THREE.CircleGeometry(9.5,96),poolMat);pool.rotation.x=-Math.PI/2;pool.scale.set(3.45,.72,1);pool.position.set(0,.13,-61.25);falls.add(pool);
- const foamMat=new THREE.MeshBasicMaterial({color:0xeaffff,transparent:true,opacity:.72,depthWrite:false});
- for(let i=0;i<46;i++){
-  const x=-29+(i*13%58),z=-61.1+Math.sin(i*2.17)*1.6;
-  const foam=new THREE.Mesh(new THREE.CircleGeometry(.12+(i%4)*.055,12),foamMat);foam.rotation.x=-Math.PI/2;foam.scale.set(2.1,.65,1);foam.position.set(x,.17+(i%3)*.008,z);falls.add(foam);
- }
- for(const side of [-1,1])for(let i=0;i<7;i++){
-  const b=new THREE.Mesh(new THREE.DodecahedronGeometry(1,1),i%2?rockLight:rockDark);
-  b.position.set(side*(28+i*.9),.7+(i%3)*.28,-62.55);b.scale.set(1.7,.85,1.05);b.rotation.set(.12*i,.2*i,.08*side);falls.add(b);
- }
- falls.position.set(0,0,0);world.add(falls);
-}
  // Материалы гор и снега удалены вместе с горной геометрией.
  // GREEN WORLD — новая увеличенная ровная внешняя площадка.
  // Старая плоскость заменена одной цельной поверхностью 88 x 78 без дополнительных слоёв.
