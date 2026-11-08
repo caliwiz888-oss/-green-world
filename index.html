@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-334000';
+const GREEN_WORLD_BUILD_ID = '20261108-335000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -545,20 +545,27 @@ function makeSurfaceTexture(kind,seed){
 }
 const surfaceMaps={
  soil:makeSurfaceTexture('soil',23),
- stone:makeSurfaceTexture('stone',37),wood:makeSurfaceTexture('wood',51),
+ stone:makeSurfaceTexture('stone',37),
+ grass:makeSurfaceTexture('grass',79),
+ path:makeSurfaceTexture('stone',83),
+ wood:makeSurfaceTexture('wood',51),
  roof:makeSurfaceTexture('roof',67)
 };
-// Газон оставляем ровным однотонным цветом; текстуры дорожек не затрагиваем.
-M.soil.map=surfaceMaps.soil;M.stone.map=surfaceMaps.stone;M.stone2.map=surfaceMaps.stone;
+// Естественная микрофактура теперь применяется и к газону, и к бежевому мощению.
+M.soil.map=surfaceMaps.soil;
+M.stone.map=surfaceMaps.stone;M.stone2.map=surfaceMaps.stone;
+M.grass.map=surfaceMaps.grass;M.grass2.map=surfaceMaps.grass;
+M.path.map=surfaceMaps.path;
 for(const m of [M.wood,M.wood2])m.map=surfaceMaps.wood;
 for(const m of [M.roof,M.roof2])m.map=surfaceMaps.roof;
-// Микрорельеф материалов: неглубокие неровности делают камень, дерево и черепицу объёмнее.
+// Микрорельеф материалов: выраженность подобрана отдельно для каждой поверхности.
 const surfaceBumps=[
- // Микрорельеф травы и грунта чуть выразительнее, но остаётся мягким на больших плоскостях.
  [M.soil,surfaceMaps.soil,.09],[M.stone,surfaceMaps.stone,.08],
- [M.stone2,surfaceMaps.stone,.069],[M.wood,surfaceMaps.wood,.046],
- [M.wood2,surfaceMaps.wood,.041],[M.roof,surfaceMaps.roof,.034],
- [M.roof2,surfaceMaps.roof,.034]
+ [M.stone2,surfaceMaps.stone,.069],
+ [M.grass,surfaceMaps.grass,.022],[M.grass2,surfaceMaps.grass,.022],
+ [M.path,surfaceMaps.path,.052],
+ [M.wood,surfaceMaps.wood,.046],[M.wood2,surfaceMaps.wood,.041],
+ [M.roof,surfaceMaps.roof,.034],[M.roof2,surfaceMaps.roof,.034]
 ];
 for(const [material,texture,scale] of surfaceBumps){
  // Bump maps use linear data, unlike the visible color maps.
