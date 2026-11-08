@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-253000';
+const GREEN_WORLD_BUILD_ID = '20261108-254000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2899,9 +2899,9 @@ function makeWorldDecor(){
  const gwPineA=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,roughness:.98});
  const gwPineB=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,roughness:.98});
  const gwPineC=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,roughness:.98});
- const gwPinkA=new THREE.MeshStandardMaterial({color:0xffffff,map:gwBloomMap,roughness:.94});
- const gwPinkB=new THREE.MeshStandardMaterial({color:0xffffff,map:gwBloomMap,roughness:.92});
- const gwPinkC=new THREE.MeshStandardMaterial({color:0xffffff,map:gwBloomMap,roughness:.95});
+ const gwPinkA=new THREE.MeshStandardMaterial({color:0xffd9e7,map:gwBloomMap,roughness:.94});
+ const gwPinkB=new THREE.MeshStandardMaterial({color:0xffb9d1,map:gwBloomMap,roughness:.92});
+ const gwPinkC=new THREE.MeshStandardMaterial({color:0xffedf3,map:gwBloomMap,roughness:.95});
  const gwLeaf=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,roughness:.98});
  const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,22,8);
  const gwPineGeos=[new THREE.ConeGeometry(1,1,20,4),new THREE.ConeGeometry(.82,.92,20,4),new THREE.ConeGeometry(.63,.82,20,4)];
@@ -2930,17 +2930,17 @@ function makeWorldDecor(){
      g.add(crown);
    }
    // Короткие боковые лапы дают видимый многослойный контур хвои.
-   for(let k=0;k<28;k++){
-     const a=seed+k*Math.PI*2/28,level=k%7;
-     const reach=h*(.105+(level%4)*.014),thickness=h*(.034+(level%3)*.006);
+   for(let k=0;k<36;k++){
+     const a=seed+k*Math.PI*2/36,level=k%6;
+     const reach=h*(.125+(level%3)*.022),thickness=h*(.043+(level%3)*.008);
      const bough=new THREE.Mesh(gwPineBoughGeo,k%4===0?gwPineC:(k%3===0?gwPineA:gwPineB));
-     bough.position.set(Math.cos(a)*reach,h*(.225+level*.082),Math.sin(a)*reach);
-     bough.scale.set(thickness,1+(k%3)*.16,thickness*(.88+(k%4)*.06));
+     bough.position.set(Math.cos(a)*reach,h*(.205+level*.105),Math.sin(a)*reach);
+     bough.scale.set(thickness,1.18+(k%3)*.22,thickness*(.9+(k%4)*.08));
      bough.rotation.z=Math.cos(a)*-.66;bough.rotation.x=Math.sin(a)*.66;
      bough.rotation.y=a;g.add(bough);
      if(k%2===0){
        const twig=new THREE.Mesh(gwPineTwigGeo,k%4===0?gwPineA:gwPineC);
-       twig.position.set(Math.cos(a)*reach*1.58,h*(.245+level*.082),Math.sin(a)*reach*1.58);
+       twig.position.set(Math.cos(a)*reach*1.72,h*(.225+level*.105),Math.sin(a)*reach*1.72);
        twig.scale.set(h*.026,1+(k%3)*.12,h*.026);
        twig.rotation.z=Math.cos(a)*-.8;twig.rotation.x=Math.sin(a)*.8;twig.rotation.y=a+.22;g.add(twig);
      }
@@ -2960,15 +2960,15 @@ function makeWorldDecor(){
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
    trunk.position.y=h*.34;trunk.scale.set(.54,h*.72,.54);g.add(trunk);
    // Разветвлённая крона с открытыми промежутками между ветвями.
-   for(let k=0;k<16;k++){
-     const a=seed+k*Math.PI*2/16;
+   for(let k=0;k<20;k++){
+     const a=seed+k*Math.PI*2/20;
      const branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
-     branch.position.set(Math.cos(a)*h*(.17+(k%3)*.025),h*(.53+(k%4)*.045),Math.sin(a)*h*(.17+(k%3)*.025));branch.scale.y=h*(.28+(k%3)*.035);
+     branch.position.set(Math.cos(a)*h*(.205+(k%3)*.035),h*(.49+(k%4)*.055),Math.sin(a)*h*(.205+(k%3)*.035));branch.scale.y=h*(.28+(k%3)*.035);
      branch.rotation.z=Math.cos(a)*-.68;branch.rotation.x=Math.sin(a)*.68;g.add(branch);
    }
    // Крона цветущего дерева собрана из разнокалиберных групп с естественной асимметрией.
    const petals=[gwPinkA,gwPinkB,gwPinkC,gwLeaf,gwPinkB,gwPinkA,gwPinkC];
-   const bloomCount=40+Math.abs(Math.floor(seed*7))%13;
+   const bloomCount=52+Math.abs(Math.floor(seed*7))%13;
    for(let k=0;k<bloomCount;k++){
      const a=k*2.399963+seed;
      const ring=k<Math.floor(bloomCount*.56)?1:(k<Math.floor(bloomCount*.86)?2:0);
@@ -2980,7 +2980,7 @@ function makeWorldDecor(){
      g.add(bloom);
    }
    // Несколько мелких соцветий по внешнему краю разбивают ровный контур кроны.
-   for(let k=0;k<30;k++){
+   for(let k=0;k<40;k++){
      const a=seed+k*2.399963;
      const petal=new THREE.Mesh(gwCrownGeo,k%3===0?gwPinkB:gwPinkA);
      petal.position.set(Math.cos(a)*h*.29,h*(.72+(k%4)*.045),Math.sin(a)*h*.29);
