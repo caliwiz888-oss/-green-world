@@ -3946,6 +3946,21 @@ function makeHouse(){
   manorRoughnessCtx.ellipse(x,y,rx,ry,manorRoughnessRand()*.35,0,Math.PI*2);
   manorRoughnessCtx.fill();
  }
+ // Мягкие вытянутые зоны естественной выветренности на лицевых плоскостях блоков.
+ // Центры смещены от регулярных линий кладки; меняется только характер отражения.
+ for(let i=0;i<58;i++){
+  const cellX=Math.floor(manorRoughnessRand()*4);
+  const cellY=Math.floor(manorRoughnessRand()*4);
+  const x=cellX*64+10+manorRoughnessRand()*44;
+  const y=cellY*64+9+manorRoughnessRand()*46;
+  const rx=3.5+manorRoughnessRand()*9.5;
+  const ry=1.1+manorRoughnessRand()*3.1;
+  const angle=(manorRoughnessRand()-.5)*.42;
+  manorRoughnessCtx.fillStyle=i%2===0?'rgba(38,34,28,.035)':'rgba(255,255,255,.042)';
+  manorRoughnessCtx.beginPath();
+  manorRoughnessCtx.ellipse(x,y,rx,ry,angle,0,Math.PI*2);
+  manorRoughnessCtx.fill();
+ }
  const manorWallRoughness=new THREE.CanvasTexture(manorRoughnessCanvas);
  manorWallRoughness.colorSpace=THREE.NoColorSpace;
  manorWallRoughness.wrapS=manorWallRoughness.wrapT=THREE.RepeatWrapping;
