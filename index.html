@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-204000';
+const GREEN_WORLD_BUILD_ID = '20261108-205000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3363,38 +3363,37 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
    rockFaces:[{x:-.58,drift:.13,width:.035,raise:.12},{x:-.18,drift:-.12,width:.032,raise:.15},{x:.28,drift:.1,width:.03,raise:.16},{x:.68,drift:-.13,width:.035,raise:.13}],
    gullies:[{x:-.38,drift:.12,width:.03,cut:.28},{x:.02,drift:-.13,width:.028,cut:.34},{x:.48,drift:.12,width:.03,cut:.32}]
  });
- // Внешний ландшафт повторяет прежний вид с изображения пользователя:
- // единый широкий зелёный холм, плавно поднимающийся к подножию гор.
- const outerFoothillGeometry=new THREE.PlaneGeometry(112,44,280,132);
+ // Единый передний склон закрывает нижние рваные края гор, как на эталонном скриншоте.
+ // Склон расположен перед плоскостью гор: плавно поднимается от двора к скалам.
+ const outerFoothillGeometry=new THREE.PlaneGeometry(112,27,280,108);
  const outerFoothillPos=outerFoothillGeometry.attributes.position;
  const outerFoothillColors=[];
- const foothillFrontColor=new THREE.Color(0x9bbd70);
- const foothillMiddleColor=new THREE.Color(0x5d9147);
- const foothillBackColor=new THREE.Color(0x294f2d);
+ const foothillFrontColor=new THREE.Color(0xa6c879);
+ const foothillMiddleColor=new THREE.Color(0x79a953);
+ const foothillBackColor=new THREE.Color(0x4d783b);
  for(let i=0;i<outerFoothillPos.count;i++){
    const x=outerFoothillPos.getX(i),v=outerFoothillPos.getY(i);
-   const t=THREE.MathUtils.clamp((v+22)/44,0,1);
-   const rise=THREE.MathUtils.smoothstep(t,.02,.94);
-   const crestWave=.38*Math.sin(x*.085+.4)+.16*Math.sin(x*.17-1.1);
-   const mountainShoulder=.72*Math.exp(-Math.pow((v-16.5-crestWave)/5.6,2));
-   const hillHeight=.10+3.15*rise+mountainShoulder*rise;
-   outerFoothillPos.setZ(i,hillHeight);
+   const t=THREE.MathUtils.clamp((v+13.5)/27,0,1);
+   const rise=THREE.MathUtils.smoothstep(t,.02,.98);
+   const broadCrest=.18*Math.sin(x*.075+.35)+.07*Math.sin(x*.15-1.1);
+   const height=.06+2.35*rise+broadCrest*rise;
+   outerFoothillPos.setZ(i,height);
    const color=foothillFrontColor.clone()
-     .lerp(foothillMiddleColor,THREE.MathUtils.smoothstep(t,.08,.63))
-     .lerp(foothillBackColor,THREE.MathUtils.smoothstep(t,.63,1));
-   const softGrassVariation=1+.018*Math.sin(x*.12+v*.07)+.008*Math.cos(x*.24-v*.11);
-   color.multiplyScalar(softGrassVariation);
+     .lerp(foothillMiddleColor,THREE.MathUtils.smoothstep(t,.08,.62))
+     .lerp(foothillBackColor,THREE.MathUtils.smoothstep(t,.62,1));
+   const variation=1+.012*Math.sin(x*.13+v*.08)+.006*Math.cos(x*.25-v*.1);
+   color.multiplyScalar(variation);
    outerFoothillColors.push(color.r,color.g,color.b);
  }
  outerFoothillGeometry.setAttribute('color',new THREE.Float32BufferAttribute(outerFoothillColors,3));
  outerFoothillGeometry.computeVertexNormals();
  const outerFoothillMaterial=new THREE.MeshStandardMaterial({
-   color:0xffffff,vertexColors:true,roughness:1,metalness:0,side:THREE.DoubleSide
+   color:0xffffff,vertexColors:true,roughness:1,metalness:0,side:THREE.DoubleSide,depthWrite:true
  });
  const outerFoothill=new THREE.Mesh(outerFoothillGeometry,outerFoothillMaterial);
- outerFoothill.name='GREEN_WORLD_OriginalStyle_Rolling_Green_Foothills';
+ outerFoothill.name='GREEN_WORLD_Continuous_Foreground_Hill_Hiding_Mountain_Bases';
  outerFoothill.rotation.x=-Math.PI/2;
- outerFoothill.position.set(0,.06,-43.5);
+ outerFoothill.position.set(0,.08,-35.0);
  outerFoothill.receiveShadow=false;outerFoothill.castShadow=false;world.add(outerFoothill);
  // Новая цельная альпийская гряда заменяет предыдущие отдельные модели гор; задний план остаётся открытым.
  // Весь лес удалён по запросу: хвойные и лиственные деревья не создаются.
