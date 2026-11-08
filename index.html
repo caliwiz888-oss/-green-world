@@ -3150,7 +3150,7 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  rollingHillsGeometry.setAttribute('color',new THREE.Float32BufferAttribute(hillColors,4));
  rollingHillsGeometry.computeVertexNormals();
  const rollingHills=new THREE.Mesh(rollingHillsGeometry,new THREE.MeshStandardMaterial({
-   map:foothillTexture,bumpMap:foothillBump,bumpScale:.035,roughness:.98,vertexColors:true,vertexAlphas:true,transparent:true,depthWrite:false
+   roughness:.98,vertexColors:true,vertexAlphas:true,transparent:true,depthWrite:false
  }));
  rollingHills.name='GREEN_WORLD_Restored_PreFlatten_Hills';
  rollingHills.rotation.x=-Math.PI/2;
