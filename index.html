@@ -4170,17 +4170,45 @@ function makeHouse(){
  // Отдельный масштаб не даёт крупным швам основной стены повторяться на наличниках.
  const facadeTrimTexture=manorWallTexture.clone();
  facadeTrimTexture.repeat.set(.72,.72);facadeTrimTexture.needsUpdate=true;
- const facadeTrimBump=manorWallBump.clone();
+ // Отдельная карта высот для каменных наличников: мелкие следы обработки
+ // и естественные микровыбоины делают резные детали менее ровными и пластиковыми.
+ const facadeTrimBumpCanvas=document.createElement('canvas');
+ facadeTrimBumpCanvas.width=manorWallBump.image.width;
+ facadeTrimBumpCanvas.height=manorWallBump.image.height;
+ const facadeTrimBumpCtx=facadeTrimBumpCanvas.getContext('2d');
+ facadeTrimBumpCtx.drawImage(manorWallBump.image,0,0);
+ let facadeTrimSeed=41827;
+ const facadeTrimRand=()=>{facadeTrimSeed=(facadeTrimSeed*1664525+1013904223)>>>0;return facadeTrimSeed/4294967296};
+ for(let i=0;i<190;i++){
+  const x=facadeTrimRand()*facadeTrimBumpCanvas.width;
+  const y=facadeTrimRand()*facadeTrimBumpCanvas.height;
+  const length=1.2+facadeTrimRand()*3.4;
+  facadeTrimBumpCtx.strokeStyle=facadeTrimRand()>.5?'rgba(35,30,23,.20)':'rgba(238,226,205,.22)';
+  facadeTrimBumpCtx.lineWidth=.45+facadeTrimRand()*.55;
+  facadeTrimBumpCtx.beginPath();
+  facadeTrimBumpCtx.moveTo(x,y);
+  facadeTrimBumpCtx.lineTo(x+length,y+(facadeTrimRand()-.5)*1.1);
+  facadeTrimBumpCtx.stroke();
+ }
+ for(let i=0;i<110;i++){
+  const x=facadeTrimRand()*facadeTrimBumpCanvas.width;
+  const y=facadeTrimRand()*facadeTrimBumpCanvas.height;
+  const r=.35+facadeTrimRand()*.85;
+  facadeTrimBumpCtx.fillStyle=facadeTrimRand()>.5?'rgba(30,27,22,.18)':'rgba(245,234,214,.18)';
+  facadeTrimBumpCtx.beginPath();facadeTrimBumpCtx.ellipse(x,y,r,r*.65,facadeTrimRand(),0,Math.PI*2);facadeTrimBumpCtx.fill();
+ }
+ const facadeTrimBump=new THREE.CanvasTexture(facadeTrimBumpCanvas);
+ facadeTrimBump.wrapS=facadeTrimBump.wrapT=THREE.RepeatWrapping;
  facadeTrimBump.repeat.set(.72,.72);facadeTrimBump.needsUpdate=true;
  const facadeTrimRoughness=manorWallRoughness.clone();
  facadeTrimRoughness.repeat.set(.72,.72);facadeTrimRoughness.needsUpdate=true;
  const facadeStone=new THREE.MeshStandardMaterial({
   color:0xe8d2ae,map:facadeTrimTexture,bumpMap:facadeTrimBump,
-  roughnessMap:facadeTrimRoughness,bumpScale:.022,roughness:.88
+  roughnessMap:facadeTrimRoughness,bumpScale:.024,roughness:.88
  });
  const facadeStoneShade=new THREE.MeshStandardMaterial({
   color:0xb69b70,map:facadeTrimTexture,bumpMap:facadeTrimBump,
-  roughnessMap:facadeTrimRoughness,bumpScale:.018,roughness:.91
+  roughnessMap:facadeTrimRoughness,bumpScale:.020,roughness:.91
  });
  function facadeArch(w,h,base=0){
   const r=w/2,straight=h-r,sh=new THREE.Shape();
