@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-392100';
+const GREEN_WORLD_BUILD_ID = '20261108-393100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1032,11 +1032,15 @@ function makeWorldDecor(){
     const span=length-.16,half=span/2,depth=.48;
     const pierX=Math.max(.18,half-.19),springY=1.22,rise=Math.min(.88,span*.25);
     const innerHalf=Math.max(.25,half-.36);
-    // Низкий многослойный цоколь подчёркивает пустое пространство под аркой.
-    fenceNoShadow(box(panel,span,.42,depth,0,.24,0,fenceStone,false));
-    fenceNoShadow(box(panel,span+.07,.10,depth+.10,0,.49,0,fenceReliefStone,false));
-    fenceNoShadow(box(panel,span+.035,.065,depth+.065,0,.57,0,fenceIvory,false));
-    fenceNoShadow(box(panel,span-.12,.035,depth+.035,0,.625,0,fenceSandstone,false));
+    // Цоколь разделён на две опоры: центральный проход арки полностью открыт до земли.
+    const baseHalf=Math.max(.12,half-innerHalf);
+    for(const side of [-1,1]){
+      const bx=side*(innerHalf+baseHalf/2);
+      fenceNoShadow(box(panel,baseHalf+.08,.42,depth,bx,.24,0,fenceStone,false));
+      fenceNoShadow(box(panel,baseHalf+.15,.10,depth+.10,bx,.49,0,fenceReliefStone,false));
+      fenceNoShadow(box(panel,baseHalf+.115,.065,depth+.065,bx,.57,0,fenceIvory,false));
+      fenceNoShadow(box(panel,baseHalf-.005,.035,depth+.035,bx,.625,0,fenceSandstone,false));
+    }
     // Массивные боковые опоры несут дугу; каждая имеет русты и ступенчатую капитель.
     for(const side of [-1,1]){
       const x=side*pierX;
@@ -1084,6 +1088,20 @@ function makeWorldDecor(){
       new THREE.CatmullRomCurve3(archPoints.map(p=>new THREE.Vector3(p.x,p.y-.075,p.z+.012))),
       128,.018,8,false),fenceGold);
     fenceNoShadow(goldTrim);panel.add(goldTrim);
+    // Внешний рельефный архивольт подчёркивает силуэт арки вторым каменным контуром.
+    const outerPoints=[];
+    for(let i=0;i<=64;i++){
+      const t=i/64;
+      outerPoints.push(new THREE.Vector3(-innerHalf+2*innerHalf*t,
+        springY+rise*Math.sin(Math.PI*t)+.20,depth/2+.105));
+    }
+    const outerArchivolt=new THREE.Mesh(new THREE.TubeGeometry(
+      new THREE.CatmullRomCurve3(outerPoints),128,.055,10,false),fenceReliefStone);
+    fenceNoShadow(outerArchivolt);panel.add(outerArchivolt);
+    const outerGoldLine=new THREE.Mesh(new THREE.TubeGeometry(
+      new THREE.CatmullRomCurve3(outerPoints.map(p=>new THREE.Vector3(p.x,p.y+.085,p.z+.012))),
+      128,.018,8,false),fenceGoldLight);
+    fenceNoShadow(outerGoldLine);panel.add(outerGoldLine);
     // Крупный замковый камень и бирюзовый акцент на вершине каждой арки.
     const keystone=box(panel,.30,.38,depth+.17,0,springY+rise+.055,0,fenceIvory,false);
     const keystoneGem=new THREE.Mesh(new THREE.OctahedronGeometry(.105,1),fenceTeal);
