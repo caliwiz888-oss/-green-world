@@ -3764,6 +3764,22 @@ function makeHouse(){
   manorWallImage.data[p+3]=255;
  }
  manorWallCtx.putImageData(manorWallImage,0,0);
+ // Мягкая фаска на лицевой поверхности каждого известнякового блока:
+ // тонкий верхний свет и нижняя полутень создают рельеф без изменения геометрии.
+ for(let row=0;row<4;row++){
+  const y=row*64,offset=row%2?0:32;
+  for(let x=offset-64;x<256;x+=64){
+   const left=Math.max(0,x+2),right=Math.min(256,x+63);
+   if(right<=left)continue;
+   const face=manorWallCtx.createLinearGradient(0,y+3,0,y+63);
+   face.addColorStop(0,'rgba(255,253,242,.105)');
+   face.addColorStop(.18,'rgba(255,250,235,.025)');
+   face.addColorStop(.82,'rgba(150,126,94,.018)');
+   face.addColorStop(1,'rgba(125,103,77,.085)');
+   manorWallCtx.fillStyle=face;
+   manorWallCtx.fillRect(left,y+3,right-left,60);
+  }
+ }
  // Тёплая кладка из светлого известняка: горизонтальные швы и перевязка блоков.
  // Рисунок мелкий и спокойный, чтобы фасад оставался кремовым как на эталоне.
  for(let row=0;row<=4;row++){
