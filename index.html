@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-267000';
+const GREEN_WORLD_BUILD_ID = '20261108-268000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2895,6 +2895,10 @@ function makeWorldDecor(){
  const gwBarkMap=gwMakeTreeTexture('bark');
  const gwPineMap=gwMakeTreeTexture('pine');
  const gwBloomMap=gwMakeTreeTexture('bloom');
+ // Отдельные линейные карты микрорельефа: цветовые карты остаются корректными для освещения.
+ const gwBarkBump=gwBarkMap.clone();gwBarkBump.colorSpace=THREE.NoColorSpace;gwBarkBump.needsUpdate=true;
+ const gwPineBump=gwPineMap.clone();gwPineBump.colorSpace=THREE.NoColorSpace;gwPineBump.needsUpdate=true;
+ const gwBloomBump=gwBloomMap.clone();gwBloomBump.colorSpace=THREE.NoColorSpace;gwBloomBump.needsUpdate=true;
  // Мягкая контактная тень под каждым деревом усиливает глубину леса без тяжёлых shadow maps.
  const gwShadowCanvas=document.createElement('canvas');gwShadowCanvas.width=gwShadowCanvas.height=256;
  const gwShadowCtx=gwShadowCanvas.getContext('2d'),gwShadowGrad=gwShadowCtx.createRadialGradient(128,128,8,128,128,126);
@@ -2910,24 +2914,24 @@ function makeWorldDecor(){
    shadow.renderOrder=1;shadow.castShadow=false;shadow.receiveShadow=false;g.add(shadow);
  }
 
- const gwBark=new THREE.MeshStandardMaterial({color:0xffffff,map:gwBarkMap,bumpMap:gwBarkMap,bumpScale:.052,roughness:.97});
- const gwPineA=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineMap,bumpScale:.022,roughness:1});
- const gwPineB=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineMap,bumpScale:.045,roughness:1});
- const gwPineC=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineMap,bumpScale:.045,roughness:1});
- const gwPinkA=new THREE.MeshStandardMaterial({color:0xffd9e7,map:gwBloomMap,bumpMap:gwBloomMap,bumpScale:.035,roughness:.96});
- const gwPinkB=new THREE.MeshStandardMaterial({color:0xffb9d1,map:gwBloomMap,bumpMap:gwBloomMap,bumpScale:.035,roughness:.95});
- const gwPinkC=new THREE.MeshStandardMaterial({color:0xffedf3,map:gwBloomMap,bumpMap:gwBloomMap,bumpScale:.035,roughness:.97});
- const gwLeaf=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,roughness:.98});
- const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,40,16);
- const gwPineGeos=[new THREE.ConeGeometry(1,1,40,8),new THREE.ConeGeometry(.82,.92,40,8),new THREE.ConeGeometry(.63,.82,40,8)];
- const gwCrownGeo=new THREE.SphereGeometry(1,36,24);
+ const gwBark=new THREE.MeshStandardMaterial({color:0xffffff,map:gwBarkMap,bumpMap:gwBarkBump,bumpScale:.034,roughness:.94});
+ const gwPineA=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineBump,bumpScale:.014,roughness:.96});
+ const gwPineB=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineBump,bumpScale:.019,roughness:.97});
+ const gwPineC=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineBump,bumpScale:.017,roughness:.95});
+ const gwPinkA=new THREE.MeshStandardMaterial({color:0xffd9e7,map:gwBloomMap,bumpMap:gwBloomBump,bumpScale:.018,roughness:.92});
+ const gwPinkB=new THREE.MeshStandardMaterial({color:0xffb9d1,map:gwBloomMap,bumpMap:gwBloomBump,bumpScale:.02,roughness:.91});
+ const gwPinkC=new THREE.MeshStandardMaterial({color:0xffedf3,map:gwBloomMap,bumpMap:gwBloomBump,bumpScale:.016,roughness:.94});
+ const gwLeaf=new THREE.MeshStandardMaterial({color:0xffffff,map:gwPineMap,bumpMap:gwPineBump,bumpScale:.014,roughness:.96});
+ const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,56,24);
+ const gwPineGeos=[new THREE.ConeGeometry(1,1,56,12),new THREE.ConeGeometry(.82,.92,56,12),new THREE.ConeGeometry(.63,.82,56,12)];
+ const gwCrownGeo=new THREE.SphereGeometry(1,48,32);
  // Общие формы ветвей и корней переиспользуются всеми деревьями.
- const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,28,5);
- const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,24,6);
+ const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,40,7);
+ const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,36,8);
   const gwNeedleGeo=new THREE.ConeGeometry(.012,.105,5,1);
   const gwPetalGeo=new THREE.SphereGeometry(1,9,6);
- const gwRootGeo=new THREE.CylinderGeometry(.008,.095,1,18,5);
- const gwBlossomBranchGeo=new THREE.CylinderGeometry(.012,.082,1,24,6);
+ const gwRootGeo=new THREE.CylinderGeometry(.008,.095,1,28,8);
+ const gwBlossomBranchGeo=new THREE.CylinderGeometry(.012,.082,1,36,10);
  const gwSproutGeo=new THREE.ConeGeometry(.075,.28,12,3);
  function gwAddPine(x,z,h,seed=0,baseY=0){
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
