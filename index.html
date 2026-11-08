@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-347000';
+const GREEN_WORLD_BUILD_ID = '20261108-348000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2242,8 +2242,8 @@ function makeFactory(){
    for(let n=0;n<7;n++){
      const z=-2.16+n*.72;
      const width=n%2===0?.66:.58;
-     box(g,.22,.42,width,side*3.78,.43,z,factoryPlinthStone,false);
-     box(g,.24,.055,width+.035,side*3.795,.66,z,factoryPlinthCap,false);
+     box(g,.22,.42,width,side*3.78,.43,z,factoryPlinthStonePhysical,false);
+     box(g,.24,.055,width+.035,side*3.795,.66,z,factoryPlinthCapPhysical,false);
      // Small recessed joints make each plinth stone read as a separate block.
      box(g,.035,.3,.025,side*3.925,.43,z+width/2-.025,darkMetal,false);
      if(n%2===0)sphere(g,.025,side*3.93,.43,z,M.gold,.7);
@@ -2274,10 +2274,25 @@ function makeFactory(){
  factoryBandTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const factoryBandBump=factoryBandTexture.clone();factoryBandBump.colorSpace=THREE.NoColorSpace;factoryBandBump.needsUpdate=true;
  factoryBandStone.map=factoryBandTexture;factoryBandStone.bumpMap=factoryBandBump;factoryBandStone.bumpScale=.012;factoryBandStone.needsUpdate=true;
+// Более реалистичная физическая поверхность уже существующих каменных деталей завода.
+// Сохраняем индивидуальные оттенки, карты фактуры и геометрию цоколя и поясов.
+const factoryPhysicalStone=(source,coat,intensity)=>{
+ const material=new THREE.MeshPhysicalMaterial({
+  color:source.color.clone(),map:source.map,bumpMap:source.bumpMap,
+  bumpScale:source.bumpScale,roughnessMap:source.roughnessMap,
+  roughness:source.roughness,metalness:source.metalness,side:source.side,
+  clearcoat:coat,clearcoatRoughness:.91,envMapIntensity:intensity
+ });
+ material.name=source.name;material.needsUpdate=true;return material;
+};
+const factoryPlinthStonePhysical=factoryPhysicalStone(factoryPlinthStone,.055,.26);
+const factoryPlinthCapPhysical=factoryPhysicalStone(factoryPlinthCap,.065,.28);
+const factoryBandStonePhysical=factoryPhysicalStone(factoryBandStone,.06,.27);
+
  // Боковые каменные пояса связывают окна и кирпичные простенки в цельную архитектурную композицию.
  for(const side of [-1,1]){
    for(const y of [1.68,3.28]){
-     box(g,.16,.12,5.12,side*3.76,y,0,factoryBandStone,false);
+     box(g,.16,.12,5.12,side*3.76,y,0,factoryBandStonePhysical,false);
      box(g,.18,.035,5.16,side*3.79,y+.075,0,M.gold,false);
    }
    // Каменные замковые акценты над боковыми окнами и небольшие опорные консоли под ними.
