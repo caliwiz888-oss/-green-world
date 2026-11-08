@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-231500';
+const GREEN_WORLD_BUILD_ID = '20261108-233000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2912,6 +2912,25 @@ function makeWorldDecor(){
    }
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
+ function gwAddUndergrowth(x,z,scale=1,seed=0,baseY=0){
+   const g=new THREE.Group();g.position.set(x,baseY,z);g.scale.setScalar(scale);gwForest.add(g);
+   // Низкие кусты собраны из отдельных округлых масс разного размера и оттенка.
+   for(let k=0;k<5;k++){
+     const a=seed+k*Math.PI*2/5;
+     const r=.22+(k%3)*.055;
+     const leaf=new THREE.Mesh(gwCrownGeo,k%3===0?gwPineC:gwLeaf);
+     leaf.position.set(Math.cos(a)*r,.22+(k%2)*.055,Math.sin(a)*r);
+     leaf.scale.set(.31+(k%2)*.045,.24+(k%3)*.025,.29+(k%2)*.035);
+     g.add(leaf);
+   }
+   // Несколько молодых побегов у основания смягчают переход от травы к кусту.
+   for(let k=0;k<3;k++){
+     const sprout=new THREE.Mesh(new THREE.ConeGeometry(.075,.28,6),k===1?gwPineA:gwPineB);
+     const a=seed+k*2.1;sprout.position.set(Math.cos(a)*.31,.13,Math.sin(a)*.31);
+     sprout.rotation.z=Math.cos(a)*-.25;sprout.rotation.x=Math.sin(a)*.25;g.add(sprout);
+   }
+   g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
+ }
  // Непрерывный лесной пояс у подножия гор: деревья стоят на плавном склоне,
  // повторяются по всей ширине заднего горизонта и не заходят на здания.
  const mountainForestRows=[-36.5,-42.0];
@@ -2925,6 +2944,7 @@ function makeWorldDecor(){
      const seed=i*.73+row*2.1;
      if((i+row*3)%7===2)gwAddBlossom(x,z,4.35+(i%2)*.3,seed,baseY);
      else gwAddPine(x,z,5.0+((i*3+row)%4)*.42,seed,baseY);
+     if(i%2===0)gwAddUndergrowth(x+(row%2?1.55:-1.55),z+1.05,.78+(i%3)*.08,seed+.4,baseY);
    }
  }
  // По шесть крупных деревьев с каждой стороны: хвойные чередуются с розовоцветущими.
@@ -2934,6 +2954,7 @@ function makeWorldDecor(){
      const x=side*(19.15+(i%2)*.55),h=5.1+(i%3)*.55;
      if(i===1||i===4)gwAddBlossom(x,z,4.25+(i%2)*.35,side*.7+i);
      else gwAddPine(x,z,h,side*.4+i*.7);
+     if(i%2===0)gwAddUndergrowth(x-side*.95,z+1.15,.72+(i%3)*.07,side+i*.3);
    });
  }
  // Дальняя линия хвойного леса замыкает горизонт за зданиями, не создавая гор.
