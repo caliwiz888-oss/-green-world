@@ -3799,6 +3799,17 @@ function makeHouse(){
    manorWallCtx.fillRect(fleckX,fleckY,3+manorWallRand()*5,1);
   }
  }
+ // Очень мягкая природная облачность известняка: минеральные полутоновые зоны
+ // разбивают стерильную равномерность, но не меняют утверждённый кремовый оттенок.
+ for(let i=0;i<72;i++){
+  const x=manorWallRand()*256,y=manorWallRand()*256;
+  const rx=5+manorWallRand()*13,ry=2+manorWallRand()*6;
+  const stain=manorWallRand()>.48?'rgba(132,108,78,.026)':'rgba(255,249,230,.038)';
+  const gradient=manorWallCtx.createRadialGradient(x,y,0,x,y,Math.max(rx,ry));
+  gradient.addColorStop(0,stain);gradient.addColorStop(1,'rgba(180,150,112,0)');
+  manorWallCtx.fillStyle=gradient;manorWallCtx.beginPath();
+  manorWallCtx.ellipse(x,y,rx,ry,manorWallRand()*.5,0,Math.PI*2);manorWallCtx.fill();
+ }
  // Тёплая кладка из светлого известняка: горизонтальные швы и перевязка блоков.
  // Рисунок мелкий и спокойный, чтобы фасад оставался кремовым как на эталоне.
  for(let row=0;row<=4;row++){
@@ -3868,6 +3879,22 @@ function makeHouse(){
    vertical.addColorStop(1,'rgba(225,215,198,.22)');
    manorBumpCtx.fillStyle=vertical;manorBumpCtx.fillRect(x-1,y+3,4,61);
   }
+ }
+ // Едва заметные естественные поры и слоистые следы выветривания
+ // добавляют камню микрорельеф, не затрагивая швы и силуэт кладки.
+ for(let i=0;i<260;i++){
+  const x=manorBumpRand()*256,y=manorBumpRand()*256;
+  const rx=.45+manorBumpRand()*1.25,ry=.35+manorBumpRand()*.8;
+  manorBumpCtx.fillStyle=manorBumpRand()>.5?'rgba(35,31,27,.12)':'rgba(245,238,225,.14)';
+  manorBumpCtx.beginPath();manorBumpCtx.ellipse(x,y,rx,ry,manorBumpRand()*.7,0,Math.PI*2);manorBumpCtx.fill();
+ }
+ for(let i=0;i<34;i++){
+  const x=manorBumpRand()*256,y=manorBumpRand()*256;
+  manorBumpCtx.strokeStyle=manorBumpRand()>.5?'rgba(42,36,29,.07)':'rgba(245,238,225,.09)';
+  manorBumpCtx.lineWidth=.35+manorBumpRand()*.45;
+  manorBumpCtx.beginPath();manorBumpCtx.moveTo(x,y);
+  manorBumpCtx.quadraticCurveTo(x+(manorBumpRand()-.5)*7,y+2,x+(manorBumpRand()-.5)*14,y+3+manorBumpRand()*5);
+  manorBumpCtx.stroke();
  }
  const manorWallBump=new THREE.CanvasTexture(manorBumpCanvas);
  manorWallBump.colorSpace=THREE.NoColorSpace;
