@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-328000';
+const GREEN_WORLD_BUILD_ID = '20261108-329000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3353,7 +3353,7 @@ function makeWorldLandscape(){
        crown.position.set(x,h*(.43+j*.17),z);crown.scale.z=.82;falls.add(crown);
      }
    }
-   falls.position.set(0,0,-14.0);world.add(falls);
+   falls.position.set(-4.5,0,-10.0);world.add(falls);
  }
 
  // Материалы гор и снега удалены вместе с горной геометрией.
