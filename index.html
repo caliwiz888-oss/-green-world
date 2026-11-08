@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-310000';
+const GREEN_WORLD_BUILD_ID = '20261108-311000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3259,120 +3259,104 @@ function makeWorldLandscape(){
  newMeadow.position.set(0,.018,-29.5);
  newMeadow.receiveShadow=false;newMeadow.castShadow=false;world.add(newMeadow);
 
- // Дальняя скала и водопад расположены ЗА самым дальним янтарным деревом (x=7.5, z=-56).
- // Неровная каменная стена формирует отдельный дальний фон, не затрагивая двор и ограждение.
+ // Дальняя скала перестроена в выразительный многослойный горный амфитеатр.
+ // Центральная ось водопада совпадает с центральной осью главного дома (x=0).
  {
-   const cliffColumns=96,cliffRows=16,cliffWidth=88,cliffPositions=[],cliffColors=[],cliffIndices=[];
-   const rockBase=new THREE.Color(0x555f60),rockMid=new THREE.Color(0x817f73),rockTop=new THREE.Color(0xb0a58d);
-   const ridgeHeight=x=>14.8+1.35*Math.sin(x*.145)+.72*Math.sin(x*.39+1.1)+
-     2.1*Math.exp(-Math.pow((x+18)/5.8,2))+2.7*Math.exp(-Math.pow((x-12)/7.2,2))+
-     1.55*Math.exp(-Math.pow((x-32)/4.6,2));
+   const cliffColumns=120,cliffRows=24,cliffWidth=92,cliffPositions=[],cliffColors=[],cliffIndices=[];
+   const rockLow=new THREE.Color(0x394d50),rockMid=new THREE.Color(0x68766f),rockHigh=new THREE.Color(0x9b9882),rockSun=new THREE.Color(0xb8ad91);
+   const ridgeHeight=x=>15.4+1.8*Math.sin(x*.105)+1.05*Math.sin(x*.31+1.1)+3.2*Math.exp(-Math.pow((x+20)/7.2,2))+4.4*Math.exp(-Math.pow(x/8.5,2))+2.7*Math.exp(-Math.pow((x-23)/6.2,2))+1.1*Math.sin(x*.72)*Math.sin(x*.19);
+   const cliffDepth=(x,v)=>-72.8-.72*Math.sin(x*.17+v*3.8)-.42*Math.cos(x*.43-v*4.7)-.34*Math.sin(x*.9+v*8.2)-.2*Math.cos(v*17+x*.27);
    for(let row=0;row<=cliffRows;row++){
      const v=row/cliffRows;
      for(let col=0;col<=cliffColumns;col++){
-       const x=-cliffWidth/2+cliffWidth*col/cliffColumns;
-       const top=ridgeHeight(x);
-       const y=top*(1-v);
-       const z=-72.2+.34*Math.sin(x*.21+v*4.3)+.19*Math.cos(x*.53-v*3.1)+.11*Math.sin(col*1.7+row*.8);
+       const x=-cliffWidth/2+cliffWidth*col/cliffColumns,top=ridgeHeight(x);
+       const rough=Math.sin(col*.83+row*.51)*.16+Math.cos(col*.31-row*.92)*.12;
+       const y=Math.max(0,top*(1-v)+rough*Math.sin(v*Math.PI)),z=cliffDepth(x,v);
        cliffPositions.push(x,y,z);
-       const altitude=THREE.MathUtils.clamp(y/17,0,1);
-       const variation=.94+.045*Math.sin(col*2.3+row*1.7)+.025*Math.cos(col*.71-row*2.1);
-       const color=rockBase.clone().lerp(rockMid,altitude*.72).lerp(rockTop,Math.max(0,altitude-.72)*.72).multiplyScalar(variation);
-       cliffColors.push(color.r,color.g,color.b);
-       if(row<cliffRows&&col<cliffColumns){
-         const a=row*(cliffColumns+1)+col,b=a+1,c=a+cliffColumns+1,d=c+1;
-         cliffIndices.push(a,c,b,b,c,d);
-       }
+       const altitude=THREE.MathUtils.clamp(y/20,0,1),band=.5+.5*Math.sin(y*1.75+Math.sin(x*.18)*1.4);
+       const base=rockLow.clone().lerp(rockMid,altitude*.82).lerp(rockHigh,Math.max(0,altitude-.42)*.72).lerp(rockSun,Math.max(0,altitude-.83)*.65);
+       base.multiplyScalar(.91+.065*Math.sin(col*1.7+row*.8)+.035*Math.cos(col*.43-row*1.6));
+       base.lerp(new THREE.Color(0x536b60),Math.max(0,band-.78)*.12);
+       cliffColors.push(base.r,base.g,base.b);
+       if(row<cliffRows&&col<cliffColumns){const a=row*(cliffColumns+1)+col,b=a+1,c=a+cliffColumns+1,d=c+1;cliffIndices.push(a,c,b,b,c,d);}
      }
    }
    const cliffGeometry=new THREE.BufferGeometry();
    cliffGeometry.setAttribute('position',new THREE.Float32BufferAttribute(cliffPositions,3));
    cliffGeometry.setAttribute('color',new THREE.Float32BufferAttribute(cliffColors,3));
    cliffGeometry.setIndex(cliffIndices);cliffGeometry.computeVertexNormals();
-   const cliffMaterial=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.97,metalness:.015,side:THREE.DoubleSide});
+   const cliffMaterial=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.94,metalness:.025,side:THREE.DoubleSide});
    const cliff=new THREE.Mesh(cliffGeometry,cliffMaterial);
-   cliff.name='GREEN_WORLD_Distant_Rock_Cliff';cliff.castShadow=false;cliff.receiveShadow=true;world.add(cliff);
-   // Выступающие скальные уступы подчёркивают неровный край обрыва и боковые стенки.
-   const ledgeMat=mat(0x77796f,.98),ledgeLight=mat(0x9b927e,.96);
-   for(let i=0;i<18;i++){
-     const x=-41+i*4.8+(i%2)*.7,top=ridgeHeight(x);
-     const boulder=new THREE.Mesh(new THREE.DodecahedronGeometry(1,1),i%3===0?ledgeLight:ledgeMat);
-     boulder.position.set(x,top-.25,-71.85+(i%3)*.22);
-     boulder.scale.set(2.2+(i%4)*.42,1.15+(i%3)*.38,1.05+(i%2)*.35);
-     boulder.rotation.set((i%3)*.08,(i%5)*.19,(i%4-1.5)*.09);
-     boulder.castShadow=false;boulder.receiveShadow=true;world.add(boulder);
-   }
-   const fallsX=7.5,fallsFrontZ=-70.45;
-   // Текстура длинных вертикальных струй движется сверху вниз по каменной стене.
-   const fallsCanvas=document.createElement('canvas');fallsCanvas.width=128;fallsCanvas.height=512;
-   const fallsCtx=fallsCanvas.getContext('2d');
-   const fallsGradient=fallsCtx.createLinearGradient(0,0,0,512);
-   fallsGradient.addColorStop(0,'rgba(207,245,244,.62)');
-   fallsGradient.addColorStop(.18,'rgba(117,205,215,.88)');
-   fallsGradient.addColorStop(.72,'rgba(79,169,190,.91)');
-   fallsGradient.addColorStop(1,'rgba(195,237,231,.72)');
-   fallsCtx.fillStyle=fallsGradient;fallsCtx.fillRect(0,0,128,512);
+   cliff.name='GREEN_WORLD_Distant_Rock_Cliff';cliff.castShadow=true;cliff.receiveShadow=true;world.add(cliff);
+   // Выступающие пласты создают уступы, трещины и глубокий рельеф скальной стены.
+   const strataMat=[mat(0x59645e,.96),mat(0x73766b,.94),mat(0x8c8877,.96),mat(0x46595a,.98)];
    for(let i=0;i<42;i++){
-     const x=(i*37+11)%128,w=1+(i%4),alpha=.08+(i%5)*.035;
-     fallsCtx.fillStyle='rgba(239,255,250,'+alpha+')';
-     fallsCtx.fillRect(x,0,w,512);
-     fallsCtx.fillStyle='rgba(35,125,157,'+(alpha*.42)+')';
-     fallsCtx.fillRect((x+9)%128,0,1+(i%2),512);
+     const x=-43+i*2.08+(i%3-1)*.34,top=ridgeHeight(x),y=1.2+(i%7)*2.05+Math.sin(i*1.7)*.6;
+     const slab=new THREE.Mesh(new THREE.DodecahedronGeometry(1,1),strataMat[i%strataMat.length]);
+     slab.position.set(x,y,cliffDepth(x,1-y/Math.max(1,top))-.48);
+     slab.scale.set(1.15+(i%4)*.52,.42+(i%3)*.32,.72+(i%3)*.24);
+     slab.rotation.set((i%4-1.5)*.11,(i%5)*.17,(i%3-1)*.13);slab.castShadow=true;slab.receiveShadow=true;world.add(slab);
+   }
+   // Скальные контрфорсы обрамляют водопад.
+   for(const side of [-1,1])for(let tier=0;tier<5;tier++){
+     const x=side*(6.2+tier*.95),y=2.2+tier*2.75;
+     const buttress=new THREE.Mesh(new THREE.DodecahedronGeometry(1,2),strataMat[(tier+(side>0?1:0))%strataMat.length]);
+     buttress.position.set(x,y,-71.15-tier*.06);buttress.scale.set(1.55+(tier%2)*.5,2.1+(tier%3)*.42,1);
+     buttress.rotation.set(.08*side,.16*tier,-.12*side);buttress.castShadow=true;buttress.receiveShadow=true;world.add(buttress);
+   }
+   const fallsX=0,fallsFrontZ=-70.15;
+   // Широкая центральная водяная завеса с отдельными струями и бликами.
+   const fallsCanvas=document.createElement('canvas');fallsCanvas.width=256;fallsCanvas.height=768;
+   const fallsCtx=fallsCanvas.getContext('2d'),fallsGradient=fallsCtx.createLinearGradient(0,0,0,768);
+   fallsGradient.addColorStop(0,'rgba(225,250,245,.76)');fallsGradient.addColorStop(.12,'rgba(133,213,220,.91)');
+   fallsGradient.addColorStop(.58,'rgba(68,158,184,.94)');fallsGradient.addColorStop(.9,'rgba(103,190,199,.9)');fallsGradient.addColorStop(1,'rgba(224,248,237,.8)');
+   fallsCtx.fillStyle=fallsGradient;fallsCtx.fillRect(0,0,256,768);
+   for(let i=0;i<86;i++){
+     const x=(i*73+19)%256,w=1+(i%5),alpha=.07+(i%6)*.035;
+     fallsCtx.fillStyle='rgba(245,255,250,'+alpha+')';fallsCtx.fillRect(x,0,w,768);
+     fallsCtx.fillStyle='rgba(24,104,139,'+(alpha*.5)+')';fallsCtx.fillRect((x+13+(i%7))%256,0,1+(i%3),768);
+   }
+   for(let i=0;i<34;i++){
+     const x=(i*47+11)%256,y=(i*113+31)%768,glint=fallsCtx.createLinearGradient(x,y,x+2,y+90+(i%5)*35);
+     glint.addColorStop(0,'rgba(255,255,255,0)');glint.addColorStop(.45,'rgba(255,255,255,.32)');glint.addColorStop(1,'rgba(255,255,255,0)');
+     fallsCtx.fillStyle=glint;fallsCtx.fillRect(x,y,2+(i%2),90+(i%5)*35);
    }
    const fallsTexture=new THREE.CanvasTexture(fallsCanvas);
-   fallsTexture.colorSpace=THREE.SRGBColorSpace;
-   fallsTexture.wrapS=THREE.RepeatWrapping;fallsTexture.wrapT=THREE.RepeatWrapping;
-   fallsTexture.repeat.set(1.15,1.25);fallsTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
-   const fallsMaterial=new THREE.MeshPhysicalMaterial({
-     color:0xb9e9ed,map:fallsTexture,transparent:true,opacity:.9,roughness:.16,
-     metalness:.025,clearcoat:.65,clearcoatRoughness:.12,side:THREE.DoubleSide,depthWrite:false
-   });
-   const fallsGeometry=new THREE.PlaneGeometry(5.35,14.35,28,84);
-   const falls= new THREE.Mesh(fallsGeometry,fallsMaterial);
-   falls.name='GREEN_WORLD_Waterfall_Behind_Amber_Tree';
-   falls.position.set(fallsX,7.25,fallsFrontZ);falls.castShadow=false;falls.receiveShadow=false;world.add(falls);
-   waterfallFlowTextures.push(fallsTexture);
-   // Узкие боковые струи разбивают водяную завесу на несколько естественных потоков.
-   for(const [dx,w,h,dy] of [[-2.05,.48,10.8,-1.15],[1.88,.36,12.2,-.55],[.92,.22,8.6,-2.55]]){
-     const sideTexture=fallsTexture.clone();sideTexture.needsUpdate=true;
-     sideTexture.repeat.set(1,1.4+(h/14));sideTexture.offset.x=(dx+3)*.11;
-     const sideMaterial=fallsMaterial.clone();sideMaterial.map=sideTexture;sideMaterial.opacity=.68;sideMaterial.needsUpdate=true;
-     const stream=new THREE.Mesh(new THREE.PlaneGeometry(w,h,4,48),sideMaterial);
-     stream.position.set(fallsX+dx,7.15+dy,fallsFrontZ+.035);
-     stream.name='GREEN_WORLD_Waterfall_Side_Stream';
-     stream.castShadow=false;stream.receiveShadow=false;world.add(stream);
-     waterfallFlowTextures.push(sideTexture);
+   fallsTexture.colorSpace=THREE.SRGBColorSpace;fallsTexture.wrapS=THREE.RepeatWrapping;fallsTexture.wrapT=THREE.RepeatWrapping;
+   fallsTexture.repeat.set(1.35,1.18);fallsTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+   const fallsMaterial=new THREE.MeshPhysicalMaterial({color:0xc7f0ed,map:fallsTexture,transparent:true,opacity:.94,roughness:.13,metalness:.035,clearcoat:.82,clearcoatRoughness:.09,side:THREE.DoubleSide,depthWrite:false});
+   const falls=new THREE.Mesh(new THREE.PlaneGeometry(9.4,15.6,48,112),fallsMaterial);
+   falls.name='GREEN_WORLD_Waterfall_Centered_On_Main_House';falls.position.set(fallsX,7.85,fallsFrontZ);
+   falls.castShadow=false;falls.receiveShadow=false;world.add(falls);waterfallFlowTextures.push(fallsTexture);
+   for(const [dx,w,h,dy,op] of [[-3.65,.72,12.4,-1.25,.76],[3.45,.68,13.1,-.75,.78],[-1.8,.42,9.2,-3.05,.72],[1.95,.48,10.1,-2.55,.72]]){
+     const tex=fallsTexture.clone();tex.needsUpdate=true;tex.repeat.set(1.05,1.45+h/15);tex.offset.x=(dx+5)*.075;
+     const material=fallsMaterial.clone();material.map=tex;material.opacity=op;material.needsUpdate=true;
+     const stream=new THREE.Mesh(new THREE.PlaneGeometry(w,h,8,64),material);
+     stream.position.set(fallsX+dx,7.45+dy,fallsFrontZ+.045);stream.name='GREEN_WORLD_Waterfall_Branched_Stream';
+     stream.castShadow=false;stream.receiveShadow=false;world.add(stream);waterfallFlowTextures.push(tex);
    }
-   // Каменные уступы по сторонам водопада и мокрые тёмные скальные пятна у основания.
-   for(const y of [10.9,6.7,2.8]){
-     for(const side of [-1,1]){
-       const shelf=new THREE.Mesh(new THREE.DodecahedronGeometry(1,1),ledgeMat);
-       shelf.position.set(fallsX+side*3.55,y,fallsFrontZ+.18);
-       shelf.scale.set(1.55,.34,.82);shelf.rotation.z=side*.08;
-       shelf.castShadow=false;shelf.receiveShadow=true;world.add(shelf);
-     }
+   const ledgeMat=mat(0x586b68,.94),ledgeLight=mat(0x899080,.92);
+   for(const y of [12.1,8.25,4.25,1.25])for(const side of [-1,1]){
+     const shelf=new THREE.Mesh(new THREE.DodecahedronGeometry(1,2),side<0?ledgeLight:ledgeMat);
+     shelf.position.set(fallsX+side*(5.15+(y%2)*.28),y,fallsFrontZ+.2);
+     shelf.scale.set(1.5,.48,.92);shelf.rotation.z=side*.1;shelf.castShadow=true;shelf.receiveShadow=true;world.add(shelf);
    }
-   // Небольшой бассейн собирает падающую воду у подножия скалы.
-   const poolMaterial=new THREE.MeshPhysicalMaterial({color:0x4b9eb4,roughness:.2,metalness:.035,transparent:true,opacity:.84,clearcoat:.7,clearcoatRoughness:.14,side:THREE.DoubleSide});
-   const pool=new THREE.Mesh(new THREE.CircleGeometry(4.35,64),poolMaterial);
-   pool.name='GREEN_WORLD_Waterfall_Pool';pool.rotation.x=-Math.PI/2;
-   pool.position.set(fallsX,.105,-68.35);pool.scale.set(1.28,.72,1);pool.receiveShadow=false;world.add(pool);
-   const poolRim=new THREE.Mesh(new THREE.TorusGeometry(3.75,.045,8,72),new THREE.MeshBasicMaterial({color:0xc9f0e8,transparent:true,opacity:.48}));
-   poolRim.rotation.x=-Math.PI/2;poolRim.position.set(fallsX,.125,-68.35);poolRim.scale.set(1.25,.78,1);world.add(poolRim);
-   const poolFoamMat=new THREE.MeshBasicMaterial({color:0xeafff6,transparent:true,opacity:.34,depthWrite:false});
-   for(let i=0;i<12;i++){
-     const a=i*Math.PI*2/12;
-     const foam=new THREE.Mesh(new THREE.SphereGeometry(.5,10,7),poolFoamMat);
-     foam.position.set(fallsX+Math.cos(a)*(2.2+(i%3)*.38),.16,-68.35+Math.sin(a)*(1.25+(i%2)*.28));
-     foam.scale.set(.48+(i%3)*.16,.035,.12+(i%2)*.045);world.add(foam);
+   const poolZ=-68.25,poolMaterial=new THREE.MeshPhysicalMaterial({color:0x3d91a9,roughness:.16,metalness:.055,transparent:true,opacity:.88,clearcoat:.9,clearcoatRoughness:.1,side:THREE.DoubleSide});
+   const pool=new THREE.Mesh(new THREE.CircleGeometry(5.6,96),poolMaterial);
+   pool.name='GREEN_WORLD_Waterfall_Pool';pool.rotation.x=-Math.PI/2;pool.position.set(fallsX,.12,poolZ);pool.scale.set(1.45,.82,1);world.add(pool);
+   const poolRim=new THREE.Mesh(new THREE.TorusGeometry(4.8,.075,10,96),new THREE.MeshBasicMaterial({color:0xd8fff4,transparent:true,opacity:.62}));
+   poolRim.rotation.x=-Math.PI/2;poolRim.position.set(fallsX,.16,poolZ);poolRim.scale.set(1.42,.8,1);world.add(poolRim);
+   const foamMat=new THREE.MeshBasicMaterial({color:0xf0fff8,transparent:true,opacity:.48,depthWrite:false});
+   for(let i=0;i<22;i++){
+     const a=i*Math.PI*2/22,r=2.5+(i%4)*.48,foam=new THREE.Mesh(new THREE.SphereGeometry(.5,12,8),foamMat);
+     foam.position.set(fallsX+Math.cos(a)*r,.19,poolZ+Math.sin(a)*(1.8+(i%3)*.25));
+     foam.scale.set(.55+(i%3)*.2,.045,.13+(i%2)*.05);world.add(foam);
    }
-   // Камни у бассейна закрепляют водопад в ландшафте, не заходя на деревья.
-   for(let i=0;i<13;i++){
-     const a=i*Math.PI*2/13;
-     const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(1,1),i%3===0?ledgeLight:ledgeMat);
-     rock.position.set(fallsX+Math.cos(a)*(5.0+(i%2)*.45),.32,-68.35+Math.sin(a)*(2.5+(i%3)*.28));
-     rock.scale.set(.75+(i%3)*.28,.48+(i%2)*.18,.62+(i%4)*.14);
-     rock.rotation.y=a;rock.castShadow=false;rock.receiveShadow=true;world.add(rock);
+   for(let i=0;i<18;i++){
+     const a=i*Math.PI*2/18,r=6.3+(i%3)*.45,rock=new THREE.Mesh(new THREE.DodecahedronGeometry(1,1),i%4===0?ledgeLight:ledgeMat);
+     rock.position.set(fallsX+Math.cos(a)*r,.38,poolZ+Math.sin(a)*(3.05+(i%4)*.24));
+     rock.scale.set(.82+(i%4)*.24,.48+(i%3)*.2,.72+(i%2)*.18);rock.rotation.y=a;
+     rock.castShadow=true;rock.receiveShadow=true;world.add(rock);
    }
  }
 
