@@ -3872,9 +3872,31 @@ function makeHouse(){
  manorWallBump.repeat.set(2,2);
  manorWallBump.anisotropy=renderer.capabilities.getMaxAnisotropy();
  manorWallBump.needsUpdate=true;
+ // Отдельная карта микрошероховатости: слегка меняет отражение на разных участках
+ // известняка, сохраняя кремовый цвет, рисунок кладки и всю геометрию.
+ const manorRoughnessCanvas=document.createElement('canvas');
+ manorRoughnessCanvas.width=256;manorRoughnessCanvas.height=256;
+ const manorRoughnessCtx=manorRoughnessCanvas.getContext('2d');
+ const manorRoughnessImage=manorRoughnessCtx.createImageData(256,256);
+ let manorRoughnessSeed=91827;
+ const manorRoughnessRand=()=>{manorRoughnessSeed=(manorRoughnessSeed*1664525+1013904223)>>>0;return manorRoughnessSeed/4294967296};
+ for(let y=0;y<256;y++)for(let x=0;x<256;x++){
+  const p=(y*256+x)*4;
+  const broad=(Math.sin(x*.047+y*.031)+Math.sin(x*.021-y*.057))*2.2;
+  const grain=(manorRoughnessRand()-.5)*15;
+  const value=Math.max(198,Math.min(246,226+broad+grain));
+  manorRoughnessImage.data[p]=manorRoughnessImage.data[p+1]=manorRoughnessImage.data[p+2]=value;
+  manorRoughnessImage.data[p+3]=255;
+ }
+ manorRoughnessCtx.putImageData(manorRoughnessImage,0,0);
+ const manorWallRoughness=new THREE.CanvasTexture(manorRoughnessCanvas);
+ manorWallRoughness.colorSpace=THREE.NoColorSpace;
+ manorWallRoughness.wrapS=manorWallRoughness.wrapT=THREE.RepeatWrapping;
+ manorWallRoughness.repeat.set(2,2);
+ manorWallRoughness.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const manorWallMaterial=new THREE.MeshStandardMaterial({
   color:0xffedda,map:manorWallTexture,bumpMap:manorWallBump,
-  roughnessMap:manorWallBump,bumpScale:.018,roughness:.91,metalness:0
+  roughnessMap:manorWallRoughness,bumpScale:.018,roughness:.91,metalness:0
  });
  // Для круглых башен используется та же кремовая кладка с масштабом по окружности.
  const towerWallTexture=manorWallTexture.clone();
