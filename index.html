@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-307000';
+const GREEN_WORLD_BUILD_ID = '20261108-308000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2952,16 +2952,16 @@ function makeWorldDecor(){
  const gwAmberB=new THREE.MeshPhysicalMaterial({color:0xe88718,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwBloomBump,bumpScale:.009,roughness:.95,sheen:.42,sheenColor:0xffa52b,sheenRoughness:.97});
  const gwAmberC=new THREE.MeshPhysicalMaterial({color:0xffd77b,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.12,.12),bumpMap:gwBloomBump,bumpScale:.007,roughness:.96,sheen:.34,sheenColor:0xffe3a0,sheenRoughness:.96});
  const gwLeaf=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,bumpMap:gwPineBump,bumpScale:.012,roughness:.97,sheen:.3,sheenColor:0x9bbd7b,sheenRoughness:.94});
- const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,56,24);
+ const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,72,32);
  const gwPineGeos=[new THREE.ConeGeometry(1,1,56,12),new THREE.ConeGeometry(.82,.92,56,12),new THREE.ConeGeometry(.63,.82,56,12)];
- const gwCrownGeo=new THREE.SphereGeometry(1,48,32);
+ const gwCrownGeo=new THREE.SphereGeometry(1,64,48);
  // Общие формы ветвей и корней переиспользуются всеми деревьями.
  const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,40,7);
  const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,36,8);
   const gwNeedleGeo=new THREE.ConeGeometry(.011,.115,7,2);
-  const gwPetalGeo=new THREE.SphereGeometry(1,9,6);
+  const gwPetalGeo=new THREE.SphereGeometry(1,12,8);
  const gwRootGeo=new THREE.CylinderGeometry(.008,.095,1,28,8);
- const gwBlossomBranchGeo=new THREE.CylinderGeometry(.012,.082,1,36,10);
+ const gwBlossomBranchGeo=new THREE.CylinderGeometry(.012,.082,1,48,16);
  const gwSproutGeo=new THREE.ConeGeometry(.075,.28,12,3);
  // Лёгкая органическая неровность уже существующих крон убирает идеально конусные и шарообразные контуры.
  function gwSoftenTreeSilhouette(geo,amount,mode='cone'){
@@ -3007,8 +3007,8 @@ function makeWorldDecor(){
     crownCore.scale.set(h*.235,h*.205,h*.235);
     g.add(crownCore);
    // Разветвлённая крона с открытыми промежутками между ветвями.
-   for(let k=0;k<20;k++){
-     const a=seed+k*Math.PI*2/20;
+   for(let k=0;k<24;k++){
+     const a=seed+k*Math.PI*2/24;
      const branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
      branch.position.set(Math.cos(a)*h*(.17+(k%3)*.025),h*(.46+(k%4)*.045),Math.sin(a)*h*(.17+(k%3)*.025));
       // Ветви удлинены внутрь к стволу: их внутренние концы входят в древесину, а не висят отдельно.
@@ -3017,7 +3017,7 @@ function makeWorldDecor(){
    }
    // Крона цветущего дерева собрана из разнокалиберных групп с естественной асимметрией.
    const petals=palette==='amber'?[gwAmberA,gwAmberB,gwAmberC,gwAmberB,gwAmberA,gwAmberC,gwAmberB]:[gwPinkA,gwPinkB,gwPinkC,gwPinkB,gwPinkA,gwPinkC,gwPinkB];
-   const bloomCount=52+Math.abs(Math.floor(seed*7))%13;
+   const bloomCount=68+Math.abs(Math.floor(seed*7))%15;
    for(let k=0;k<bloomCount;k++){
      const a=k*2.399963+seed;
      const ring=k<Math.floor(bloomCount*.56)?1:(k<Math.floor(bloomCount*.86)?2:0);
@@ -3029,14 +3029,15 @@ function makeWorldDecor(){
      g.add(bloom);
    }
    // Отдельные лепестки поверх цветочных масс создают мелкий живой силуэт кроны.
-   const petalCount=168,petalsMesh=new THREE.InstancedMesh(gwPetalGeo,palette==='amber'?gwAmberC:gwPinkC,petalCount),petalDummy=new THREE.Object3D();
+   const petalCount=240,petalsMesh=new THREE.InstancedMesh(gwPetalGeo,palette==='amber'?gwAmberC:gwPinkC,petalCount),petalDummy=new THREE.Object3D();
    for(let n=0;n<petalCount;n++){
      const a=seed+n*2.399963,ring=n%3,rad=h*(.13+ring*.075+(n%5)*.008);
      petalDummy.position.set(Math.cos(a)*rad*.84,h*(.615+(n%11)*.022),Math.sin(a)*rad*.84);
      const ps=h*(.018+(n%4)*.003);petalDummy.scale.set(ps*.72,ps*1.35,ps*.34);
      petalDummy.rotation.set(.25*Math.sin(a),a,.35*Math.cos(a));petalDummy.updateMatrix();petalsMesh.setMatrixAt(n,petalDummy.matrix);
+      const shade=.88+(n%7)*.025;petalsMesh.setColorAt(n,new THREE.Color(shade,shade*(.97+(n%3)*.015),shade*(.94+(n%5)*.012)));
    }
-   petalsMesh.instanceMatrix.needsUpdate=true;g.add(petalsMesh);
+   petalsMesh.instanceMatrix.needsUpdate=true;if(petalsMesh.instanceColor)petalsMesh.instanceColor.needsUpdate=true;g.add(petalsMesh);
    // Несколько мелких соцветий по внешнему краю разбивают ровный контур кроны.
    for(let k=0;k<40;k++){
      const a=seed+k*2.399963;
