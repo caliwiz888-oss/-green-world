@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-221500';
+const GREEN_WORLD_BUILD_ID = '20261108-230000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1314,6 +1314,45 @@ function makeMarket(){
    sphere(g,.055,x,3.245,3.225,M.gold,.8);
    sphere(g,.025,x,3.245,3.275,M.stone,.8);
  }
+ // Надёжные наружные боковые фасады. Это самостоятельные стеновые панели,
+ // расположенные снаружи прежних стоек и ламелей, поэтому они не могут скрыться за ними.
+ for(const side of [-1,1]){
+   const outerX=side*3.405;
+   const trimX=side*3.47;
+   // Сплошная основа бокового фасада соединяет переднюю и заднюю части павильона.
+   box(g,.10,1.88,4.42,outerX,1.57,0,timber,false);
+   // Верхний и нижний профили образуют завершённую архитектурную рамку.
+   box(g,.13,.14,4.48,trimX,2.50,0,timberLight,false);
+   box(g,.13,.13,4.48,trimX,.64,0,M.stone2,false);
+   box(g,.15,.045,4.54,trimX,.72,0,M.gold,false);
+   // Две глухие деревянные секции по краям боковой витрины.
+   for(const z of [-1.72,1.72]){
+     box(g,.045,1.42,.88,side*3.465,1.57,z,timberLight,false);
+     box(g,.055,1.22,.68,side*3.495,1.57,z,timber,false);
+     for(const dz of [-.39,.39]){
+       box(g,.045,1.30,.045,side*3.525,1.57,z+dz,roofAccent,false);
+     }
+   }
+   // Большое боковое окно находится на самой внешней плоскости фасада.
+   box(g,.035,.98,1.42,side*3.475,1.72,-.72,marketGlass,false);
+   // Наружная рама окна, переплёт и латунные кромки.
+   for(const z of [-1.48,.04]){
+     box(g,.075,1.12,.075,trimX,1.72,z,timberLight,false);
+   }
+   for(const y of [1.16,2.28]){
+     box(g,.075,.075,1.60,trimX,y,-.72,timberLight,false);
+   }
+   box(g,.035,.94,.055,side*3.515,1.72,-.72,M.gold,false);
+   box(g,.035,.055,1.40,side*3.515,1.72,-.72,M.gold,false);
+   // Крайние стойки и металлические накладки фиксируют цельный боковой силуэт.
+   for(const z of [-2.18,2.18]){
+     box(g,.12,1.94,.14,trimX,1.57,z,roofEdge,false);
+     box(g,.17,.12,.20,trimX,.60,z,M.stone2,false);
+     box(g,.17,.12,.20,trimX,2.54,z,M.stone2,false);
+     box(g,.18,.04,.22,trimX,2.62,z,M.gold,false);
+   }
+ }
+ g.userData.sideFacades={left:true,right:true,outerWall:true,windowFrames:true};
   return disableCastShadows(g);
 }
 function makeFactory(){
