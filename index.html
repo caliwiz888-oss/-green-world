@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-271000';
+const GREEN_WORLD_BUILD_ID = '20261108-272000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2889,6 +2889,18 @@ function makeWorldDecor(){
        q.fillStyle=i%3===0?'rgba(255,248,251,.42)':'rgba(177,69,117,.16)';
        q.beginPath();q.ellipse(x,y,2+(i%4),4+(i%5),(i%11)*.27,0,Math.PI*2);q.fill();
      }
+     // Тонкие прожилки и мягкие переходы оттенка делают лепестки более натуральными.
+     for(let i=0;i<2600;i++){
+       const x=(i*173+47)%size,y=(i*251+83)%size,len=5+(i*17)%19,side=i%2?1:-1;
+       q.strokeStyle=i%4===0?'rgba(255,250,252,.25)':'rgba(150,57,105,.095)';
+       q.lineWidth=.45+(i%3)*.32;q.beginPath();q.moveTo(x,y);
+       q.quadraticCurveTo(x+side*len*.28,y-len*.36,x+side*len*.62,y-len);q.stroke();
+     }
+     for(let i=0;i<950;i++){
+       const x=(i*197+61)%size,y=(i*307+29)%size,r=1.1+(i%4)*.55;
+       q.fillStyle=i%3===0?'rgba(255,244,248,.28)':'rgba(206,105,148,.11)';
+       q.beginPath();q.arc(x,y,r,0,Math.PI*2);q.fill();
+     }
      // Мягкие мелкие лепестковые блики с разной прозрачностью.
      for(let i=0;i<3400;i++){
        const x=(i*239+13)%size,y=(i*157+31)%size,r=1+(i%3)*.65;
@@ -2957,6 +2969,7 @@ function makeWorldDecor(){
  }
  gwPineGeos.forEach(geo=>gwSoftenTreeSilhouette(geo,.026));
  gwSoftenTreeSilhouette(gwCrownGeo,.035,'sphere');
+ gwSoftenTreeSilhouette(gwPetalGeo,.045,'sphere');
  gwSoftenTreeSilhouette(gwPineBoughGeo,.018);
  gwSoftenTreeSilhouette(gwPineTwigGeo,.014);
  // Тонкая вертикальная неровность на существующих стволах и ветвях имитирует природную структуру древесины.
