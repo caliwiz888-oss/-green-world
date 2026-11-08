@@ -3737,6 +3737,9 @@ function makeHouse(){
  g.scale.set(1.15,1.15,1.15);
  const ivory=mat(0xf1e5d0,.91),cream=mat(0xfff3df,.86),stone=mat(0xcbb896,.93),stoneDark=mat(0x9e8969,.9);
  const slate=mat(0x29445f,.78),slateDark=mat(0x182f49,.82),teal=mat(0x25b8c4,.24),tealLight=mat(0x8be2df,.2);
+ // Физически корректное остекление существующих арочных окон башен.
+ // Сохраняет бирюзовый оттенок, но добавляет более чистый блик и отражение.
+ const towerGlass=new THREE.MeshPhysicalMaterial({color:0x25b8c4,roughness:.14,metalness:.08,transparent:true,opacity:.92,side:THREE.DoubleSide,clearcoat:.95,clearcoatRoughness:.08,reflectivity:.82,ior:1.46,specularIntensity:.9,specularColor:0xc9f5f2});
  const gold=mat(0xd9ad4f,.34),bronze=mat(0x493326,.58),wood=mat(0x684126,.65),terra=mat(0xa95735,.8);
  const pink=mat(0xe78bb4,.8),lilac=mat(0xb7a0db,.8),white=mat(0xffe8d4,.78),green=mat(0x4c7c49,.9);
  // Сланцево-синие материалы конических крыш башен — в тон главной крыше.
@@ -4568,7 +4571,7 @@ function makeHouse(){
    sh.lineTo(.22,0);sh.closePath();
    const frame=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.10,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.02,bevelThickness:.02}),bronze);
    frame.position.set(0,y,1.12);frame.castShadow=false;frame.receiveShadow=false;t.add(frame);
-   const glass=new THREE.Mesh(new THREE.ShapeGeometry(sh),teal);
+   const glass=new THREE.Mesh(new THREE.ShapeGeometry(sh),towerGlass);
    glass.position.set(0,y,1.23);glass.castShadow=false;glass.receiveShadow=false;t.add(glass);
    box(t,.035,.88,.035,0,y+.32,1.26,gold,false);
    sphere(t,.14,0,y+.68,1.25,tealLight,.70);
