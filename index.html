@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-375100';
+const GREEN_WORLD_BUILD_ID = '20261108-376100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1553,6 +1553,39 @@ function makeFactory(){
  for(const y of [1.08,1.42,1.76,2.1,2.44]){
    box(g,.55,.018,.025,-3.3,y,2.865,glazingFrame,false);
    box(g,.48,.018,.025,3.34,y,2.865,glazingFrame,false);
+ }
+ // Мягкое внутреннее освещение цеха, видимое сквозь верхнее панорамное остекление.
+ const interiorGlow=new THREE.MeshStandardMaterial({color:0xffe6b7,emissive:0xffc879,emissiveIntensity:.72,roughness:.42});
+ const interiorCool=new THREE.MeshStandardMaterial({color:0xb9e8df,emissive:0x70cbbb,emissiveIntensity:.28,roughness:.5});
+ for(const z of [-1.85,-.65,.65,1.85]){
+   box(g,2.25,.045,.09,0,3.28,z,interiorGlow,false);
+ }
+ for(const x of [-2.55,2.55]){
+   box(g,.08,.055,2.8,x,3.27,0,interiorCool,false);
+ }
+ // Видимые из окон инженерные магистрали и аккуратные сервисные короба.
+ const pipeMat=new THREE.MeshStandardMaterial({color:0x82938b,roughness:.52,metalness:.48});
+ box(g,5.35,.09,.09,0,2.62,-2.55,pipeMat,false);
+ box(g,.09,.09,3.9,2.95,2.62,-.45,pipeMat,false);
+ box(g,3.8,.075,.075,-.1,2.38,-2.55,trim,false);
+ // Компактные технологические блоки внутри производственного зала, без загромождения окон и проходов.
+ const machineMat=new THREE.MeshStandardMaterial({color:0x657c79,roughness:.62,metalness:.28});
+ const machineAccent=new THREE.MeshStandardMaterial({color:0xc5a56a,roughness:.4,metalness:.55});
+ for(const x of [-2.35,2.25]){
+   box(g,.82,.72,.72,x,.78,-.75,machineMat,false);
+   box(g,.9,.09,.78,x,1.18,-.75,machineAccent,false);
+   box(g,.55,.16,.5,x,1.24,-.75,interiorCool,false);
+ }
+ // Более выразительная отделка административной входной группы.
+ box(g,1.42,.12,.2,2.55,2.82,3.02,roof,false);
+ box(g,1.5,.055,.24,2.55,2.91,3.02,trim,false);
+ box(g,.1,2.25,.12,3.18,1.55,2.98,baseTrim,false);
+ // Реалистичные опорные башмаки и крепёж солнечных панелей.
+ const solarFoot=new THREE.MeshStandardMaterial({color:0x778783,roughness:.48,metalness:.62});
+ for(const x of [-2.72,-1.63,-.54,.54,1.63,2.72]){
+   for(const z of [1.22,2.22]){
+     box(g,.1,.09,.1,x,3.84,z,solarFoot,false);
+   }
  }
  // Небольшая маркировка на фасаде — без крупной вывески и без изменения общего облика двора.
  const signCanvas=document.createElement('canvas');signCanvas.width=512;signCanvas.height=96;
