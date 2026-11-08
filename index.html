@@ -2776,15 +2776,7 @@ function makeWorldDecor(){
      shard.castShadow=false;shard.receiveShadow=false;
    }
  }
- // Small natural ground-cover clusters soften the transition from the fenced farm to the hills.
- // Убираем отдельные разнотонные пучки, чтобы газон оставался сплошным одноцветным покрытием.
- const pebble=mat(0xb9ae95);
- for(const [x,z,s] of [[20,-11,.9],[16,5,.8],[20,12,.95],[12,17,.8]]){
-   for(let k=0;k<3;k++){
-     const stone=sphere(world,.11*s,x+(k-1)*.3*s,.07*s,z+.22*s,pebble,false);
-     stone.scale.set(1.35,.55,.85);
-   }
- }
+ // Удалены мелкие светлые камешки за правой стороной ограды, чтобы убрать тонкую светлую отметку.
 }
 let riverWaterTexture=null;
 let riverSurfaceMesh=null;
