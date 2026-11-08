@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-220500';
+const GREEN_WORLD_BUILD_ID = '20261108-221500';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2829,8 +2829,8 @@ function makeWorldDecor(){
  const gwTrunkGeo=new THREE.CylinderGeometry(.16,.25,1,7);
  const gwPineGeos=[new THREE.ConeGeometry(1,1,9),new THREE.ConeGeometry(.82,.92,9),new THREE.ConeGeometry(.63,.82,9)];
  const gwCrownGeo=new THREE.SphereGeometry(1,9,7);
- function gwAddPine(x,z,h,seed=0){
-   const g=new THREE.Group();g.position.set(x,0,z);g.scale.setScalar(1);gwForest.add(g);
+ function gwAddPine(x,z,h,seed=0,baseY=0){
+   const g=new THREE.Group();g.position.set(x,baseY,z);g.scale.setScalar(1);gwForest.add(g);
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);trunk.position.y=h*.34;trunk.scale.set(.58,h*.72,.58);g.add(trunk);
    for(let k=0;k<3;k++){
      const crown=new THREE.Mesh(gwPineGeos[k],k===0?gwPineA:(k===1?gwPineB:gwPineC));
@@ -2839,8 +2839,8 @@ function makeWorldDecor(){
    }
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=false;}});
  }
- function gwAddBlossom(x,z,h,seed=0){
-   const g=new THREE.Group();g.position.set(x,0,z);gwForest.add(g);
+ function gwAddBlossom(x,z,h,seed=0,baseY=0){
+   const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);trunk.position.y=h*.34;trunk.scale.set(.52,h*.68,.52);g.add(trunk);
    for(let k=0;k<5;k++){
      const a=seed+k*Math.PI*2/5,branch=new THREE.Mesh(new THREE.CylinderGeometry(.035,.065,h*.23,5),gwBark);
@@ -2854,6 +2854,21 @@ function makeWorldDecor(){
      crown.scale.set(h*.19,h*.16,h*.19);g.add(crown);
    }
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=false;}});
+ }
+ // Непрерывный лесной пояс у подножия гор: деревья стоят на плавном склоне,
+ // повторяются по всей ширине заднего горизонта и не заходят на здания.
+ const mountainForestRows=[-36.5,-42.0];
+ for(let row=0;row<mountainForestRows.length;row++){
+   const z=mountainForestRows[row];
+   const localV=-(z+36.5);
+   const t=THREE.MathUtils.clamp((localV+15.5)/31,0,1);
+   const baseY=.08+3.0*THREE.MathUtils.smoothstep(t,.02,.98);
+   for(let i=0;i<17;i++){
+     const x=-44+i*5.5+(row%2)*1.35;
+     const seed=i*.73+row*2.1;
+     if((i+row*3)%7===2)gwAddBlossom(x,z,4.35+(i%2)*.3,seed,baseY);
+     else gwAddPine(x,z,5.0+((i*3+row)%4)*.42,seed,baseY);
+   }
  }
  // По шесть крупных деревьев с каждой стороны: хвойные чередуются с розовоцветущими.
  const sideTreeRows=[12,7,2,-3,-8,-13,-18];
@@ -3423,7 +3438,7 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  });
  // Единый передний склон закрывает нижние рваные края гор, как на эталонном скриншоте.
  // Склон расположен перед плоскостью гор: плавно поднимается от двора к скалам.
- const outerFoothillGeometry=new THREE.PlaneGeometry(112,27,280,108);
+ const outerFoothillGeometry=new THREE.PlaneGeometry(112,31,280,124);
  const outerFoothillPos=outerFoothillGeometry.attributes.position;
  const outerFoothillColors=[];
  const foothillFrontColor=new THREE.Color(0xa6c879);
@@ -3431,10 +3446,10 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  const foothillBackColor=new THREE.Color(0x4d783b);
  for(let i=0;i<outerFoothillPos.count;i++){
    const x=outerFoothillPos.getX(i),v=outerFoothillPos.getY(i);
-   const t=THREE.MathUtils.clamp((v+13.5)/27,0,1);
+   const t=THREE.MathUtils.clamp((v+15.5)/31,0,1);
    const rise=THREE.MathUtils.smoothstep(t,.02,.98);
-   const broadCrest=.18*Math.sin(x*.075+.35)+.07*Math.sin(x*.15-1.1);
-   const height=.06+2.35*rise+broadCrest*rise;
+   // Единый плавный профиль без волнистой кромки: зелёный склон перекрывает нижние рваные края скал.
+   const height=.08+3.0*rise;
    outerFoothillPos.setZ(i,height);
    const color=foothillFrontColor.clone()
      .lerp(foothillMiddleColor,THREE.MathUtils.smoothstep(t,.08,.62))
@@ -3451,7 +3466,7 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  const outerFoothill=new THREE.Mesh(outerFoothillGeometry,outerFoothillMaterial);
  outerFoothill.name='GREEN_WORLD_Continuous_Foreground_Hill_Hiding_Mountain_Bases';
  outerFoothill.rotation.x=-Math.PI/2;
- outerFoothill.position.set(0,.08,-35.0);
+ outerFoothill.position.set(0,.08,-36.5);
  outerFoothill.receiveShadow=false;outerFoothill.castShadow=false;world.add(outerFoothill);
  // Новая цельная альпийская гряда заменяет предыдущие отдельные модели гор; задний план остаётся открытым.
  // Весь лес удалён по запросу: хвойные и лиственные деревья не создаются.
