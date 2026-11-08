@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-195000';
+const GREEN_WORLD_BUILD_ID = '20261108-200000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1272,7 +1272,7 @@ function makeMarket(){
  }
  // Тонкие разветвлённые побеги добавляют объём между крупными ярусами.
  const firTwigMaterial=new THREE.MeshStandardMaterial({color:0x31583a,roughness:.97});
- for(const [tx,tz,fh,seed] of [[3.25,-10.0,5.2,11],[1.75,-10.0,5.5,5],[0.25,-10.0,5.2,8],[-1.25,-10.0,5.2,14],[16.00,-10.0,5.2,21],[17.50,-10.0,5.5,25],[19.00,-10.0,5.2,28]]){
+ for(const [tx,tz,fh,seed] of [[3.65,-10.0,5.2,11],[2.15,-10.0,5.5,5],[0.65,-10.0,5.2,8],[-0.85,-10.0,5.2,14],[15.60,-10.0,5.2,21],[17.10,-10.0,5.5,25],[18.60,-10.0,5.2,28]]){
    cylinder(g,.105,.19,fh*.82,tx,fh*.41,tz,marketFirBark,12);
    // Расходящиеся у основания корни слегка выступают из почвы.
    for(let root=0;root<7;root++){const a=root/7*Math.PI*2+seed*.13;const r=.28+(root%3)*.035;const flare=cone(g,.095,.48,tx+Math.cos(a)*.18,.19,tz+Math.sin(a)*.18,marketFirBark,7);flare.rotation.z=Math.cos(a)*.58;flare.rotation.x=-Math.sin(a)*.58;}
