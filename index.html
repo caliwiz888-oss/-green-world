@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-230000';
+const GREEN_WORLD_BUILD_ID = '20261108-233000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -824,79 +824,6 @@ function makeMarket(){
      sphere(g,.028,x+dx,1.13,2.35,M.gold,.8);
    }
  }
- // Открытая боковая конструкция: деревянные ламели, а не сплошные стены жилого дома.
- for(const side of [-1,1]){
-   const x=side*2.72;
-   box(g,.16,1.75,3.8,x,1.55,0,timber);
-   for(let i=0;i<9;i++){
-     const z=-1.55+i*.39;
-     box(g,.12,1.55,.075,x-side*.1,1.55,z,timberLight,false);
-   }
-   // Голубые боковые окна остаются фирменной деталью лавки.
-   box(g,.06,.78,1.35,x+side*.11,1.72,-.72,marketGlass,false);
-   box(g,.08,.08,1.48,x+side*.16,2.15,-.72,M.gold,false);
-   box(g,.08,.08,1.48,x+side*.16,1.29,-.72,M.gold,false);
-   // Рельефная деревянная рама и переплёты бокового окна.
-   box(g,.105,.91,1.53,x+side*.19,1.72,-.72,timber,false);
-   box(g,.045,.78,1.35,x+side*.255,1.72,-.72,marketGlass,false);
-   for(const z of [-1.39,-.72,-.05]){
-     box(g,.055,.84,.055,x+side*.29,1.72,z,timberLight,false);
-   }
-   for(const y of [1.29,2.15]){
-     box(g,.055,.055,1.43,x+side*.29,y,-.72,roofEdge,false);
-   }
-   box(g,.24,.09,1.62,x+side*.22,1.20,-.72,M.stone2,false);
-   box(g,.19,.045,1.55,x+side*.24,1.255,-.72,M.gold,false);
-   box(g,.22,.075,1.58,x+side*.21,2.24,-.72,timberLight,false);
-   // Наружные вертикальные пилястры обрамляют боковые пролёты павильона.
-   for(const z of [-1.82,0,1.82]){
-     box(g,.09,1.88,.13,x+side*.13,1.55,z,timberLight,false);
-     box(g,.15,.12,.2,x+side*.16,.66,z,M.stone2,false);
-     box(g,.15,.12,.2,x+side*.16,2.44,z,M.stone2,false);
-     box(g,.16,.045,.21,x+side*.17,2.515,z,M.gold,false);
-   }
-   // Тонкие горизонтальные пояса собирают ламели в цельную панель.
-   box(g,.075,.075,3.72,x+side*.13,2.43,0,timberLight,false);
-   box(g,.075,.065,3.72,x+side*.13,.69,0,timber,false);
-   // Небольшие латунные розетки акцентируют окончания боковых поясов.
-   for(const z of [-1.68,1.68]){
-     sphere(g,.045,x+side*.19,2.43,z,M.gold,.8);
-     sphere(g,.035,x+side*.19,.69,z,M.gold,.8);
-   }
- }
- // Диагностика боковых граней: добавляем непрерывную наружную облицовку,
- // чтобы боковой фасад не терялся за внутренними ламелями и оконными рамами.
- // Все элементы вынесены за наружную плоскость боковых стен и ориентированы симметрично.
- for(const side of [-1,1]){
-   const faceX=side*2.835;
-   // Деревянные простенки до и после бокового окна.
-   box(g,.075,1.62,.48,faceX,1.55,-1.66,timberLight,false);
-   box(g,.075,1.62,1.58,faceX,1.55,1.02,timberLight,false);
-   // Центральная боковая витрина с цельной голубой стеклянной плоскостью.
-   box(g,.045,.92,1.48,side*2.89,1.72,-.72,marketGlass,false);
-   // Наружная рамка окна и вертикальный/горизонтальный переплёт.
-   box(g,.09,1.08,1.64,side*2.94,1.72,-.72,timberLight,false);
-   box(g,.035,.91,1.47,side*3.00,1.72,-.72,marketGlass,false);
-   for(const z of [-1.40,-.72,-.04]){
-     box(g,.045,.94,.065,side*3.025,1.72,z,timber,false);
-   }
-   for(const y of [1.25,2.19]){
-     box(g,.045,.065,1.58,side*3.025,y,-.72,roofAccent,false);
-   }
-   // Наружные вертикальные стойки и непрерывные верхний/нижний пояса.
-   for(const z of [-1.92,-1.46,.02,1.90]){
-     box(g,.13,1.88,.15,side*2.94,1.55,z,timber,false);
-     box(g,.19,.12,.21,side*2.96,.62,z,M.stone2,false);
-     box(g,.19,.12,.21,side*2.96,2.48,z,M.stone2,false);
-   }
-   box(g,.12,.10,3.82,side*2.94,2.47,0,timberLight,false);
-   box(g,.12,.10,3.82,side*2.94,.66,0,timber,false);
-   // Латунные окончания подчёркивают границы восстановленной боковой панели.
-   for(const z of [-1.72,1.72]){
-     sphere(g,.045,side*3.02,2.47,z,M.gold,.8);
-     sphere(g,.035,side*3.02,.66,z,M.gold,.8);
-   }
- }
  // Задняя стенка частично закрыта деревянными панелями, верх остаётся лёгким и открытым.
  box(g,5.15,1.35,.16,0,1.48,-2.12,timber);
  for(const x of [-1.65,1.65]){
@@ -1199,14 +1126,6 @@ function makeMarket(){
    warmLight(g,x,1.72,1.72,.2,1.85);
    warmLight(g,x,1.24,1.78,.075,1.15);
  }
- // Декоративные филёнки на глухих боковых деревянных участках.
- for(const side of [-1,1]){
-   const x=side*2.83;
-   for(const z of [-1.48,1.48]){
-     box(g,.035,.82,.055,x,1.55,z,timberLight,false);
-     box(g,.045,.68,.035,x+side*.025,1.55,z,timber,false);
-   }
- }
  // Небольшие металлические кронштейны поддерживают широкий козырёк.
  for(const x of [-2.18,2.18]){
    const brace=box(g,.09,.48,.12,x,3.12,2.82,M.gold,false);
@@ -1297,62 +1216,22 @@ function makeMarket(){
    // Небольшие каменные пятки завершают соединение подкоса с колонной.
    box(g,.2,.12,.2,side*2.38,2.72,2.68,M.stone2,false);
  }
- // На боковых пилястрах добавлены утопленные панели с тонкой рамкой.
- for(const side of [-1,1]){
-   const x=side*3.32;
-   for(const z of [-1.12,1.12]){
-     box(g,.045,.72,.62,x,1.58,z,roofEdge,false);
-     box(g,.055,.59,.48,x+side*.025,1.58,z,timberLight,false);
-     box(g,.06,.47,.36,x+side*.055,1.58,z,timber,false);
-     for(const y of [1.2,1.96]){
-       box(g,.08,.035,.54,x+side*.07,y,z,roofAccent,false);
-     }
-   }
- }
  // Латунные розетки на фасадной балке дают сдержанный ритм между подкосами.
  for(const x of [-1.65,1.65]){
    sphere(g,.055,x,3.245,3.225,M.gold,.8);
    sphere(g,.025,x,3.245,3.275,M.stone,.8);
  }
- // Надёжные наружные боковые фасады. Это самостоятельные стеновые панели,
- // расположенные снаружи прежних стоек и ламелей, поэтому они не могут скрыться за ними.
+ // Единая боковая стена без дублирующих слоёв: одна основа, одно окно и простая рама.
  for(const side of [-1,1]){
-   const outerX=side*3.405;
-   const trimX=side*3.47;
-   // Сплошная основа бокового фасада соединяет переднюю и заднюю части павильона.
-   box(g,.10,1.88,4.42,outerX,1.57,0,timber,false);
-   // Верхний и нижний профили образуют завершённую архитектурную рамку.
-   box(g,.13,.14,4.48,trimX,2.50,0,timberLight,false);
-   box(g,.13,.13,4.48,trimX,.64,0,M.stone2,false);
-   box(g,.15,.045,4.54,trimX,.72,0,M.gold,false);
-   // Две глухие деревянные секции по краям боковой витрины.
-   for(const z of [-1.72,1.72]){
-     box(g,.045,1.42,.88,side*3.465,1.57,z,timberLight,false);
-     box(g,.055,1.22,.68,side*3.495,1.57,z,timber,false);
-     for(const dz of [-.39,.39]){
-       box(g,.045,1.30,.045,side*3.525,1.57,z+dz,roofAccent,false);
-     }
-   }
-   // Большое боковое окно находится на самой внешней плоскости фасада.
-   box(g,.035,.98,1.42,side*3.475,1.72,-.72,marketGlass,false);
-   // Наружная рама окна, переплёт и латунные кромки.
-   for(const z of [-1.48,.04]){
-     box(g,.075,1.12,.075,trimX,1.72,z,timberLight,false);
-   }
-   for(const y of [1.16,2.28]){
-     box(g,.075,.075,1.60,trimX,y,-.72,timberLight,false);
-   }
-   box(g,.035,.94,.055,side*3.515,1.72,-.72,M.gold,false);
-   box(g,.035,.055,1.40,side*3.515,1.72,-.72,M.gold,false);
-   // Крайние стойки и металлические накладки фиксируют цельный боковой силуэт.
-   for(const z of [-2.18,2.18]){
-     box(g,.12,1.94,.14,trimX,1.57,z,roofEdge,false);
-     box(g,.17,.12,.20,trimX,.60,z,M.stone2,false);
-     box(g,.17,.12,.20,trimX,2.54,z,M.stone2,false);
-     box(g,.18,.04,.22,trimX,2.62,z,M.gold,false);
-   }
+   const wallX=side*2.82;
+   const frameX=side*2.90;
+   box(g,.12,1.82,4.38,wallX,1.57,0,timber,false);
+   box(g,.035,.92,1.36,side*2.895,1.72,-.72,marketGlass,false);
+   for(const z of [-1.44,0])box(g,.075,1.04,.075,frameX,1.72,z,timberLight,false);
+   for(const y of [1.18,2.26])box(g,.075,.075,1.50,frameX,y,-.72,timberLight,false);
+   for(const z of [-2.16,2.16])box(g,.14,1.90,.14,frameX,1.57,z,roofEdge,false);
  }
- g.userData.sideFacades={left:true,right:true,outerWall:true,windowFrames:true};
+ g.userData.sideFacades={left:true,right:true,outerWall:true,singleLayer:true,windowFrames:true};
   return disableCastShadows(g);
 }
 function makeFactory(){
