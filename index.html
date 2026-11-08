@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-283000';
+const GREEN_WORLD_BUILD_ID = '20261108-284000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3034,7 +3034,13 @@ function makeWorldDecor(){
    const g=new THREE.Group();g.position.set(x,baseY,z);gwForest.add(g);
    gwAddTreeContactShadow(g,h,1.02);
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
-   trunk.position.y=h*.39;trunk.scale.set(.58,h*.78,.58);g.add(trunk);
+   // Ствол проходит внутрь цветочной кроны, а не заканчивается под ней.
+   trunk.position.y=h*.445;trunk.scale.set(.66,h*.89,.66);g.add(trunk);
+   // Нижняя центральная масса кроны перекрывает верх ствола и связывает его с боковыми соцветиями.
+   const crownCollar=new THREE.Mesh(gwCrownGeo,gwPinkB);
+   crownCollar.position.set(0,h*.785,0);
+   crownCollar.scale.set(h*.205,h*.19,h*.205);
+   g.add(crownCollar);
    // Разветвлённая крона с открытыми промежутками между ветвями.
    for(let k=0;k<20;k++){
      const a=seed+k*Math.PI*2/20;
