@@ -4159,6 +4159,11 @@ function makeHouse(){
  pedimentShape.moveTo(-1.52,3.54);pedimentShape.lineTo(1.52,3.54);pedimentShape.lineTo(0,4.02);pedimentShape.closePath();
  const pediment=new THREE.Mesh(new THREE.ExtrudeGeometry(pedimentShape,{depth:.13,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.018,bevelThickness:.012}),facadeStone);
  pediment.position.z=3.37;pediment.castShadow=true;center.add(pediment);
+ // Двойной тонкий профиль на лицевой стороне фронтона портика.
+ // Он повторяет треугольный контур, не меняя форму и размеры щипца.
+ porticoLine([pv(-1.37,3.60,3.515),pv(0,3.965,3.515),pv(1.37,3.60,3.515)],.018,facadeStoneShade);
+ porticoLine([pv(-1.31,3.625,3.522),pv(0,3.972,3.522),pv(1.31,3.625,3.522)],.009,porticoGold);
+ porticoLine([pv(-1.37,3.60,3.515),pv(1.37,3.60,3.515)],.014,facadeStoneShade);
  sphere(center,.09,0,3.72,3.53,facadeGold,.9);
  // Парадная лестница с широкими каменными ступенями.
  for(let i=0;i<5;i++){
