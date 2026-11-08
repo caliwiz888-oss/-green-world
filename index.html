@@ -3259,99 +3259,92 @@ function makeWorldLandscape(){
  newMeadow.position.set(0,.018,-29.5);
  newMeadow.receiveShadow=false;newMeadow.castShadow=false;world.add(newMeadow);
 
- // GREEN WORLD: архитектурный каскадный водный ансамбль вместо горного хребта.
- // Три широкие изогнутые террасы, четыре чаши и три непрерывных водопадных полотна.
+ // GREEN WORLD: новый веерный каскад — плавная скульптурная архитектура без гор и прямоугольных платформ.
  {
-   const stoneMain=mat(0xd8c7a8,.9),stoneLight=mat(0xe8d9bd,.86);
-   const stoneShade=mat(0x8b806c,.94),stoneInset=mat(0x536b6a,.82);
-   const waterMat=new THREE.MeshPhysicalMaterial({
-     color:0x9bdde0,roughness:.14,metalness:.025,transparent:true,opacity:.91,
-     clearcoat:1,clearcoatRoughness:.06,side:THREE.DoubleSide,depthWrite:false
+   const shellStone=mat(0xd8c8aa,.9),shellLight=mat(0xeee0c5,.84);
+   const shellShadow=mat(0x887b67,.96),shellWarm=mat(0xb49a72,.82);
+   const poolMat=new THREE.MeshPhysicalMaterial({
+     color:0x55b9c8,roughness:.15,metalness:.025,transparent:true,opacity:.9,
+     clearcoat:1,clearcoatRoughness:.055,side:THREE.DoubleSide
    });
-   const waterDeep=new THREE.MeshPhysicalMaterial({
-     color:0x328da2,roughness:.2,metalness:.035,transparent:true,opacity:.9,
-     clearcoat:.9,clearcoatRoughness:.1
-   });
-   const foamMat=new THREE.MeshBasicMaterial({color:0xe9fffb,transparent:true,opacity:.72,depthWrite:false});
-   const trimMat=new THREE.MeshStandardMaterial({color:0xb89a69,roughness:.58,metalness:.32});
+   const foamMat=new THREE.MeshBasicMaterial({color:0xeafffb,transparent:true,opacity:.68,depthWrite:false});
    const tiers=[
-     {w:39,d:7.2,y:14.2,z:-91.2},
-     {w:53,d:7.8,y:9.8,z:-80.2},
-     {w:67,d:8.4,y:5.35,z:-69.1}
+     {w:34,d:7.4,y:15.1,z:-92.0,bulge:2.0},
+     {w:45,d:7.6,y:11.25,z:-83.4,bulge:2.65},
+     {w:56,d:7.8,y:7.35,z:-74.7,bulge:3.25},
+     {w:67,d:8.0,y:3.35,z:-66.0,bulge:3.85}
    ];
-   const curveZ=(x,w,bulge)=>bulge*(1-Math.pow((x/(w*.5)),2));
-   const makeShelf=(t,index)=>{
-     const geo=new THREE.BoxGeometry(t.w,1.25,t.d,64,1,18);
-     const p=geo.attributes.position;
-     for(let i=0;i<p.count;i++){
-       const x=p.getX(i),u=x/(t.w*.5);
-       p.setZ(i,p.getZ(i)+curveZ(x,t.w,1.05));
-       p.setY(i,p.getY(i)+.10*Math.cos(u*Math.PI*.5));
-     }
-     geo.computeVertexNormals();
-     const shelf=new THREE.Mesh(geo,stoneMain);
-     shelf.position.set(0,t.y,t.z);shelf.castShadow=true;shelf.receiveShadow=true;
-     shelf.name='GREEN_WORLD_Cascade_Terrace_'+(index+1);world.add(shelf);
-     const front=[];
-     for(let k=0;k<=100;k++){
-       const x=-t.w*.5+t.w*k/100;
-       front.push(new THREE.Vector3(x,t.y+.68,t.z+t.d*.5+curveZ(x,t.w,1.05)));
-     }
-     const lip=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(front),180,.19,8,false),stoneLight);
-     lip.castShadow=true;lip.receiveShadow=true;world.add(lip);
-     const inset=[];
-     for(let k=0;k<=100;k++){
-       const x=-t.w*.5+t.w*k/100;
-       inset.push(new THREE.Vector3(x,t.y+.64,t.z+t.d*.5+curveZ(x,t.w,1.05)-.34));
-     }
-     const darkLine=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(inset),180,.055,6,false),stoneInset);
-     world.add(darkLine);
-     // Широкие боковые пилоны с тонкими бронзовыми навершиями.
-     for(const side of [-1,1]){
-       const x=side*(t.w*.5-.25),z=t.z+.15;
-       const pier=new THREE.Mesh(new THREE.BoxGeometry(1.45,2.45,t.d+.55),stoneShade);
-       pier.position.set(x,t.y+.95,z);pier.castShadow=true;pier.receiveShadow=true;world.add(pier);
-       const cap=new THREE.Mesh(new THREE.BoxGeometry(1.72,.22,t.d+.78),stoneLight);
-       cap.position.set(x,t.y+2.28,z);cap.castShadow=true;world.add(cap);
-       const accent=new THREE.Mesh(new THREE.BoxGeometry(1.18,.075,t.d+.82),trimMat);
-       accent.position.set(x,t.y+2.42,z);world.add(accent);
-     }
-     // Вода в верхней части каждой террасы образует спокойную чашу.
-     const basin=new THREE.Mesh(new THREE.CylinderGeometry(1,1,.16,96),waterDeep);
-     basin.scale.set(t.w*.43,1,t.d*.38);
-     basin.position.set(0,t.y+.69,t.z-.28);basin.receiveShadow=true;world.add(basin);
-     const rim=[];
-     for(let k=0;k<=100;k++){
-       const x=-t.w*.43+t.w*.86*k/100;
-       rim.push(new THREE.Vector3(x,t.y+.79,t.z-.28+curveZ(x,t.w*.86,.72)));
-     }
-     const rimLine=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(rim),160,.07,6,false),stoneLight);
-     world.add(rimLine);
+   const curve=(x,w,b)=>b*(1-Math.pow((x/(w*.5)),2));
+   const surface=(u,v,t,offset=0)=>{
+     const x=(u-.5)*t.w;
+     const z=t.z+(v-.5)*t.d+curve(x,t.w,t.bulge)+offset;
+     const y=t.y+.22*Math.cos(u*Math.PI*2)*(.25+v*.25)+.12*Math.sin(v*Math.PI*2);
+     return new THREE.Vector3(x,y,z);
    };
-   tiers.forEach(makeShelf);
-   // Нижняя широкая чаша принимает весь поток и завершает композицию.
-   const lowerBasin=new THREE.Mesh(new THREE.CylinderGeometry(1,1,.24,128),waterDeep);
-   lowerBasin.scale.set(39,1,5.25);
-   lowerBasin.position.set(0,1.15,-57.6);lowerBasin.receiveShadow=true;world.add(lowerBasin);
-   const lowerRim=[];
-   for(let k=0;k<=140;k++){
-     const x=-37+74*k/140;
-     lowerRim.push(new THREE.Vector3(x,1.32,-57.6+1.3*(1-Math.pow(x/37,2))));
-   }
-   world.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(lowerRim),220,.22,8,false),stoneLight));
+   const makeShell=(t,index)=>{
+     const nx=88,nz=18,verts=[],uv=[],ids=[];
+     for(let j=0;j<=nz;j++){
+       for(let i=0;i<=nx;i++){
+         const p=surface(i/nx,j/nz,t);
+         verts.push(p.x,p.y,p.z);uv.push(i/nx,j/nz);
+         if(i<nx&&j<nz){
+           const q=j*(nx+1)+i,r=q+nx+1;
+           ids.push(q,r,q+1,q+1,r,r+1);
+         }
+       }
+     }
+     const geo=new THREE.BufferGeometry();
+     geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
+     geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+     geo.setIndex(ids);geo.computeVertexNormals();
+     const shell=new THREE.Mesh(geo,shellStone);
+     shell.name='GREEN_WORLD_Fan_Cascade_Sculpted_Tier_'+(index+1);
+     shell.material.side=THREE.DoubleSide;shell.castShadow=true;shell.receiveShadow=true;world.add(shell);
+     // Закруглённая каменная кромка повторяет форму веера.
+     const edge=[],shadowEdge=[];
+     for(let i=0;i<=120;i++){
+       const p=surface(i/120,1,t,.04);
+       edge.push(new THREE.Vector3(p.x,p.y+.12,p.z));
+       shadowEdge.push(new THREE.Vector3(p.x,p.y-.16,p.z+.12));
+     }
+     const lip=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(edge),220,.23,10,false),shellLight);
+     lip.castShadow=true;lip.receiveShadow=true;world.add(lip);
+     const underLip=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(shadowEdge),220,.16,8,false),shellShadow);
+     underLip.castShadow=true;world.add(underLip);
+     // Тонкая бронзовая инкрустация повторяет дугу, не перегружая форму.
+     const inlay=[];
+     for(let i=0;i<=120;i++){
+       const p=surface(i/120,1,t,-.27);
+       inlay.push(new THREE.Vector3(p.x,p.y+.035,p.z));
+     }
+     const line=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(inlay),220,.035,6,false),shellWarm);
+     world.add(line);
+     // Неглубокая водная чаша внутри каждой ступени.
+     const basinGeo=new THREE.CircleGeometry(1,96);
+     const basin=new THREE.Mesh(basinGeo,poolMat);
+     basin.rotation.x=-Math.PI/2;
+     basin.scale.set(t.w*.39,t.d*.32,1);
+     basin.position.set(0,t.y+.04,t.z-.32);
+     basin.material.side=THREE.DoubleSide;world.add(basin);
+   };
+   tiers.forEach(makeShell);
 
-   const makeCurtain=(width,yTop,yBottom,zTop,zBottom,seed)=>{
-     const rows=46,cols=100,verts=[],uv=[],colors=[],ids=[];
+   // Водяное полотно строится по плавной дуге, с естественными складками и переменной шириной.
+   const makeFlow=(upper,lower,index,width)=>{
+     const rows=54,cols=88,verts=[],uv=[],ids=[];
+     const topZ=upper.z+upper.d*.5+upper.bulge*.18;
+     const bottomZ=lower.z-lower.d*.5+lower.bulge*.12;
      for(let j=0;j<=rows;j++){
        const v=j/rows;
        for(let i=0;i<=cols;i++){
          const u=i/cols,edge=Math.abs(u-.5)*2;
-         const x=(u-.5)*width+Math.sin(v*4.5+seed)*.24+Math.sin(u*19+seed)*.08;
-         const y=yTop+(yBottom-yTop)*v+Math.sin(u*31+v*13+seed)*.045;
-         const z=zTop+(zBottom-zTop)*v+Math.sin(u*16+v*8+seed)*.16+.12*edge;
+         const spread=width*(.5+.5*Math.sin(v*Math.PI*.5));
+         const x=(u-.5)*2*spread+Math.sin(v*4.2+index)*.16;
+         const y=upper.y-.15+(lower.y-upper.y+.3)*v+
+           Math.sin(u*24+v*19+index)*.045;
+         const z=topZ+(bottomZ-topZ)*v+
+           curve(x,width*2,upper.bulge*.16)+Math.sin(u*15+v*8+index)*.12;
          verts.push(x,y,z);uv.push(u*2,v*3);
-         const shade=.88+.12*Math.sin(u*24+v*17+seed);
-         colors.push(.72*shade,.91*shade,.94*shade);
          if(i<cols&&j<rows){
            const q=j*(cols+1)+i,r=q+cols+1;
            ids.push(q,r,q+1,q+1,r,r+1);
@@ -3361,63 +3354,77 @@ function makeWorldLandscape(){
      const geo=new THREE.BufferGeometry();
      geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));
      geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
-     geo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
      geo.setIndex(ids);geo.computeVertexNormals();
-     const curtainMat=new THREE.MeshPhysicalMaterial({
-       color:0xc8f4f0,vertexColors:true,transparent:true,opacity:.88,
-       roughness:.12,metalness:.015,clearcoat:1,clearcoatRoughness:.045,
+     const matFlow=new THREE.MeshPhysicalMaterial({
+       color:index%2?0x9ce5e1:0xc9f4ee,transparent:true,opacity:.88,
+       roughness:.105,metalness:.015,clearcoat:1,clearcoatRoughness:.045,
        side:THREE.DoubleSide,depthWrite:false
      });
-     const curtain=new THREE.Mesh(geo,curtainMat);
-     curtain.name='GREEN_WORLD_Cascade_Waterfall';curtain.renderOrder=3;
-     curtain.castShadow=false;curtain.receiveShadow=false;world.add(curtain);
-     // Тонкие вертикальные струи и блики подчёркивают непрерывное движение воды.
-     for(let k=0;k<25;k++){
-       const u=.035+k*.038,pts=[];
-       for(let n=0;n<=12;n++){
-         const v=n/12;
-         pts.push(new THREE.Vector3(
-           (u-.5)*width+Math.sin(v*4.5+seed)*.24+Math.sin(u*19+seed)*.08,
-           yTop+(yBottom-yTop)*v+.045,
-           zTop+(zBottom-zTop)*v+Math.sin(u*16+v*8+seed)*.16
-         ));
+     const sheet=new THREE.Mesh(geo,matFlow);
+     sheet.name='GREEN_WORLD_Fan_Cascade_Flow_'+(index+1);
+     sheet.renderOrder=3;sheet.castShadow=false;sheet.receiveShadow=false;world.add(sheet);
+     // Тонкие струи дают потоку ритм, но не превращают его в полосатую стену.
+     for(let k=0;k<19;k++){
+       const u=.035+k*.051,pts=[];
+       for(let n=0;n<=16;n++){
+         const v=n/16,spread=width*(.5+.5*Math.sin(v*Math.PI*.5));
+         const x=(u-.5)*2*spread+Math.sin(v*4.2+index)*.16;
+         const y=upper.y-.08+(lower.y-upper.y+.3)*v;
+         const z=topZ+(bottomZ-topZ)*v+curve(x,width*2,upper.bulge*.16)+.14;
+         pts.push(new THREE.Vector3(x,y,z));
        }
        const streak=new THREE.Mesh(
-         new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),32,k%4===0?.035:.018,5,false),
-         new THREE.MeshBasicMaterial({color:k%4===0?0xf3fffc:0xd7f6f1,transparent:true,opacity:k%4===0?.68:.34,depthWrite:false})
+         new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),42,k%5===0?.034:.014,5,false),
+         new THREE.MeshBasicMaterial({color:0xf0fffc,transparent:true,opacity:k%5===0?.57:.26,depthWrite:false})
        );
        streak.renderOrder=4;world.add(streak);
      }
      const foam=new THREE.Mesh(new THREE.SphereGeometry(1,24,12),foamMat);
-     foam.position.set(0,yBottom-.08,zBottom+.16);
-     foam.scale.set(width*.47,.14,.72);world.add(foam);
-     for(let i=0;i<30;i++){
-       const x=(Math.sin(i*12.7+seed)*.46)*width;
-       const bubble=new THREE.Mesh(new THREE.SphereGeometry(.07+(i%4)*.025,8,6),foamMat);
-       bubble.position.set(x,yBottom-.02+(i%3)*.035,zBottom+.12+Math.cos(i*3.1)*.42);
-       bubble.scale.set(1,.55,1.35);world.add(bubble);
+     foam.position.set(0,lower.y+.03,bottomZ+.15);
+     foam.scale.set(width*.49,.11,.5);world.add(foam);
+     for(let i=0;i<24;i++){
+       const x=(Math.sin(i*9.73+index)*.46)*width;
+       const spray=new THREE.Mesh(new THREE.SphereGeometry(.055+(i%4)*.025,8,6),foamMat);
+       spray.position.set(x,lower.y+.06+(i%3)*.035,bottomZ+.12+Math.cos(i*2.7)*.34);
+       spray.scale.set(1,.7,1.25);world.add(spray);
      }
    };
-   // Три самостоятельных падения воды соединяют уровни в один непрерывный каскад.
-   makeCurtain(35,13.9,10.05,-86.9,-83.7,2.4);
-   makeCurtain(48,9.55,5.62,-75.9,-73.25,5.8);
-   makeCurtain(61,5.05,1.42,-64.75,-61.0,8.1);
-
-   // Каменные боковые крылья связывают террасы в единую архитектуру.
-   for(const side of [-1,1]){
-     for(let k=0;k<3;k++){
-       const t=tiers[k],x=side*(t.w*.5+1.25);
-       const wing=new THREE.Mesh(new THREE.BoxGeometry(2.4,2.15,7.6),stoneShade);
-       wing.position.set(x,t.y+.48,t.z+.2);wing.castShadow=true;wing.receiveShadow=true;world.add(wing);
-       const crown=new THREE.Mesh(new THREE.BoxGeometry(2.7,.28,7.9),stoneLight);
-       crown.position.set(x,t.y+1.68,t.z+.2);crown.castShadow=true;world.add(crown);
-     }
+   for(let i=0;i<tiers.length-1;i++){
+     makeFlow(tiers[i],tiers[i+1],i,tiers[i].w*.82);
    }
-   // Небольшие спокойные переливы на поверхности чаш, без изменения русла реки.
-   for(let i=0;i<34;i++){
-     const x=-29+(i*1.73)%58,z=-59.1+Math.sin(i*2.3)*1.55;
-     const glint=new THREE.Mesh(new THREE.SphereGeometry(.12+(i%3)*.045,8,6),foamMat);
-     glint.position.set(x,1.31,z);glint.scale.set(1.8,.12,.38);world.add(glint);
+
+   // Плавные боковые контрфорсы — изогнутые каменные рёбра, а не квадратные столбы.
+   for(const side of [-1,1]){
+     const pts=[];
+     for(let i=0;i<=36;i++){
+       const v=i/36;
+       const x=side*(18+v*18);
+       const y=15.3-v*11.5;
+       const z=-91+v*24;
+       pts.push(new THREE.Vector3(x,y,z));
+     }
+     const rib=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),100,.72,12,false),shellStone);
+     rib.castShadow=true;rib.receiveShadow=true;world.add(rib);
+     const finePts=pts.map(p=>new THREE.Vector3(p.x-side*.34,p.y+.42,p.z-.08));
+     const trim=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(finePts),100,.075,7,false),shellLight);
+     world.add(trim);
+   }
+
+   // Нижняя овальная лагуна собирает потоки; мягкая кромка завершает композицию.
+   const lagoon=new THREE.Mesh(new THREE.CircleGeometry(1,128),poolMat);
+   lagoon.rotation.x=-Math.PI/2;lagoon.scale.set(34,5.3,1);
+   lagoon.position.set(0,1.25,-57.5);world.add(lagoon);
+   const lagoonRim=[];
+   for(let i=0;i<=160;i++){
+     const u=i/160,x=(u-.5)*67;
+     lagoonRim.push(new THREE.Vector3(x,1.32,-57.5+5.2*Math.sqrt(Math.max(0,1-Math.pow(x/34,2)))));
+   }
+   const rim=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(lagoonRim),240,.2,9,false),shellLight);
+   rim.castShadow=true;world.add(rim);
+   for(let i=0;i<42;i++){
+     const x=-29+(i*1.39)%58,z=-57.5+Math.sin(i*2.13)*3.5;
+     const glint=new THREE.Mesh(new THREE.SphereGeometry(.11+(i%4)*.035,8,6),foamMat);
+     glint.position.set(x,1.34,z);glint.scale.set(1.9,.12,.38);world.add(glint);
    }
  }
 }
