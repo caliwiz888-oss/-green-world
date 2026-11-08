@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-286000';
+const GREEN_WORLD_BUILD_ID = '20261108-287000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3815,7 +3815,7 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  });
  // Единый передний склон закрывает нижние рваные края гор, как на эталонном скриншоте.
  // Склон расположен перед плоскостью гор: плавно поднимается от двора к скалам.
- const outerFoothillGeometry=new THREE.PlaneGeometry(112,40,420,224);
+ const outerFoothillGeometry=new THREE.PlaneGeometry(112,72,420,320);
  const outerFoothillPos=outerFoothillGeometry.attributes.position;
  const outerFoothillColors=[];
  const foothillFrontColor=new THREE.Color(0xa9c77d);
@@ -3823,7 +3823,7 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  const foothillBackColor=new THREE.Color(0x557f40);
  for(let i=0;i<outerFoothillPos.count;i++){
    const x=outerFoothillPos.getX(i),v=outerFoothillPos.getY(i);
-   const t=THREE.MathUtils.clamp((v+20)/40,0,1);
+   const t=THREE.MathUtils.clamp((v+36)/72,0,1);
    const rise=THREE.MathUtils.smoothstep(t,0,1);
    // Ровный непрерывный склон без бугров, волн и резких перепадов высоты.
    const height=.08+4.8*rise;
@@ -3843,7 +3843,7 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
  const outerFoothill=new THREE.Mesh(outerFoothillGeometry,outerFoothillMaterial);
  outerFoothill.name='GREEN_WORLD_Continuous_Foreground_Hill_Hiding_Mountain_Bases';
  outerFoothill.rotation.x=-Math.PI/2;
- outerFoothill.position.set(0,.08,-39);
+ outerFoothill.position.set(0,.08,-47);
  outerFoothill.receiveShadow=false;outerFoothill.castShadow=false;world.add(outerFoothill);
  // Новая цельная альпийская гряда заменяет предыдущие отдельные модели гор; задний план остаётся открытым.
  // Весь лес удалён по запросу: хвойные и лиственные деревья не создаются.
