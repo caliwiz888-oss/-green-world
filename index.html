@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-203000';
+const GREEN_WORLD_BUILD_ID = '20261108-204000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3363,28 +3363,27 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
    rockFaces:[{x:-.58,drift:.13,width:.035,raise:.12},{x:-.18,drift:-.12,width:.032,raise:.15},{x:.28,drift:.1,width:.03,raise:.16},{x:.68,drift:-.13,width:.035,raise:.13}],
    gullies:[{x:-.38,drift:.12,width:.03,cut:.28},{x:.02,drift:-.13,width:.028,cut:.34},{x:.48,drift:.12,width:.03,cut:.32}]
  });
- // Плавный зелёный предгорный склон — как в прежнем варианте ландшафта.
- // Единая широкая поверхность без зубчатого края, плавно поднимающаяся к горам.
- const outerFoothillGeometry=new THREE.PlaneGeometry(112,42,280,120);
+ // Внешний ландшафт повторяет прежний вид с изображения пользователя:
+ // единый широкий зелёный холм, плавно поднимающийся к подножию гор.
+ const outerFoothillGeometry=new THREE.PlaneGeometry(112,44,280,132);
  const outerFoothillPos=outerFoothillGeometry.attributes.position;
  const outerFoothillColors=[];
- const foothillFrontColor=new THREE.Color(0x91ad70);
- const foothillMiddleColor=new THREE.Color(0x557c45);
- const foothillBackColor=new THREE.Color(0x294d32);
+ const foothillFrontColor=new THREE.Color(0x9bbd70);
+ const foothillMiddleColor=new THREE.Color(0x5d9147);
+ const foothillBackColor=new THREE.Color(0x294f2d);
  for(let i=0;i<outerFoothillPos.count;i++){
    const x=outerFoothillPos.getX(i),v=outerFoothillPos.getY(i);
-   const t=THREE.MathUtils.clamp((v+21)/42,0,1);
-   const rise=THREE.MathUtils.smoothstep(t,.18,.88);
-   const longHill=1.85*rise;
-   const softCrest=.48*Math.exp(-Math.pow((v-12.5)/5.8,2));
-   const gentleUndulation=(.11*Math.sin(x*.105)+.055*Math.sin(x*.21+1.1))*Math.pow(rise,.8);
-   const height=.12+longHill+softCrest+gentleUndulation;
-   outerFoothillPos.setZ(i,height);
+   const t=THREE.MathUtils.clamp((v+22)/44,0,1);
+   const rise=THREE.MathUtils.smoothstep(t,.02,.94);
+   const crestWave=.38*Math.sin(x*.085+.4)+.16*Math.sin(x*.17-1.1);
+   const mountainShoulder=.72*Math.exp(-Math.pow((v-16.5-crestWave)/5.6,2));
+   const hillHeight=.10+3.15*rise+mountainShoulder*rise;
+   outerFoothillPos.setZ(i,hillHeight);
    const color=foothillFrontColor.clone()
-     .lerp(foothillMiddleColor,THREE.MathUtils.smoothstep(t,.22,.72))
-     .lerp(foothillBackColor,THREE.MathUtils.smoothstep(t,.72,1));
-   const subtleGrassVariation=1+.018*Math.sin(x*.18+v*.09)+.009*Math.cos(x*.32-v*.13);
-   color.multiplyScalar(subtleGrassVariation);
+     .lerp(foothillMiddleColor,THREE.MathUtils.smoothstep(t,.08,.63))
+     .lerp(foothillBackColor,THREE.MathUtils.smoothstep(t,.63,1));
+   const softGrassVariation=1+.018*Math.sin(x*.12+v*.07)+.008*Math.cos(x*.24-v*.11);
+   color.multiplyScalar(softGrassVariation);
    outerFoothillColors.push(color.r,color.g,color.b);
  }
  outerFoothillGeometry.setAttribute('color',new THREE.Float32BufferAttribute(outerFoothillColors,3));
@@ -3393,7 +3392,7 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
    color:0xffffff,vertexColors:true,roughness:1,metalness:0,side:THREE.DoubleSide
  });
  const outerFoothill=new THREE.Mesh(outerFoothillGeometry,outerFoothillMaterial);
- outerFoothill.name='GREEN_WORLD_Smooth_Green_Mountain_Foothills';
+ outerFoothill.name='GREEN_WORLD_OriginalStyle_Rolling_Green_Foothills';
  outerFoothill.rotation.x=-Math.PI/2;
  outerFoothill.position.set(0,.06,-43.5);
  outerFoothill.receiveShadow=false;outerFoothill.castShadow=false;world.add(outerFoothill);
