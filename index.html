@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-352000';
+const GREEN_WORLD_BUILD_ID = '20261108-353000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3379,8 +3379,32 @@ function makeWorldLandscape(){
  waterReliefTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  water.bumpMap=waterReliefTexture;water.bumpScale=.014;water.roughnessMap=waterReliefTexture;water.roughness=.205;water.metalness=.035;water.clearcoat=.64;water.clearcoatRoughness=.14;water.reflectivity=.76;water.needsUpdate=true;
 
+// Восстановлена отсутствовавшая геометрия самой реки.
+// Материал и карта воды выше уже создавались, но mesh поверхности не создавался,
+// поэтому анимация обращалась к null и река полностью исчезала.
+// Сохраняем горизонтальное русло за двором; поверхность приподнята над ландшафтом,
+// чтобы её не перекрывала сплошная плоскость внешнего газона.
+const riverGeometry=new THREE.PlaneGeometry(50,11.5,180,44);
+riverSurfaceMesh=new THREE.Mesh(riverGeometry,water);
+riverSurfaceMesh.name='GREEN_WORLD_River_Surface';
+riverSurfaceMesh.rotation.x=-Math.PI/2;
+riverSurfaceMesh.position.set(0,.095,-49);
+riverSurfaceMesh.renderOrder=3;
+riverSurfaceMesh.castShadow=false;
+riverSurfaceMesh.receiveShadow=true;
+riverSurfaceMesh.frustumCulled=false;
+world.add(riverSurfaceMesh);
+window.GREEN_WORLD_RIVER_DIAGNOSTICS={
+ surfaceCreated:!!riverSurfaceMesh,
+ parented:riverSurfaceMesh.parent===world,
+ visible:riverSurfaceMesh.visible,
+ width:50,
+ depth:11.5,
+ position:{x:0,y:.095,z:-49},
+ vertices:riverGeometry.attributes.position.count
+};
 
- // Материалы гор и снега удалены вместе с горной геометрией.
+// Материалы гор и снега удалены вместе с горной геометрией.
  // GREEN WORLD — новая увеличенная ровная внешняя площадка.
  // Старая плоскость заменена одной цельной поверхностью 88 x 78 без дополнительных слоёв.
  // Внутренний двор и исходные горы сохранены; участок расширен под новый периметр.
