@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-367000';
+const GREEN_WORLD_BUILD_ID = '20261108-368000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -300,7 +300,7 @@ try{
  environmentPMREM.compileEquirectangularShader();
  const environmentTarget=environmentPMREM.fromEquirectangular(environmentEquirect);
  scene.environment=environmentTarget.texture;
- scene.environmentIntensity=.5;
+ scene.environmentIntensity=.56;
  window.GREEN_WORLD_ENVIRONMENT_TARGET=environmentTarget;
  environmentPMREM.dispose();
  environmentEquirect.dispose();
@@ -330,10 +330,10 @@ const atmosphereRim=new THREE.DirectionalLight(0xc9e3f5,.4);atmosphereRim.positi
 const worldBounce=new THREE.DirectionalLight(0xffedcf,.32);worldBounce.position.set(18,7,30);worldBounce.castShadow=false;scene.add(worldBounce);
 const mat=(c,r=.82)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.025,dithering:true});
 const windowInterior=new THREE.MeshStandardMaterial({color:0xffdca0,emissive:0xb87932,emissiveIntensity:.2,roughness:.42,dithering:true});
-const M={grass:mat(0x6fae50,.94),grass2:mat(0x6fae50,.94),soil:mat(0x96704c,.96),path:mat(0xe2c99b,.88),stone:new THREE.MeshStandardMaterial({color:0xe6d2ad,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8ae83,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x668bb0,roughness:.82,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0x426487,roughness:.84,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x80502f,.76),wood2:mat(0xc18a4d,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x568b42,roughness:.94,metalness:0,sheen:.28,sheenColor:0xa4c878,sheenRoughness:.9}),leaf2:new THREE.MeshPhysicalMaterial({color:0x78a85a,roughness:.93,metalness:0,sheen:.32,sheenColor:0xc5dc91,sheenRoughness:.9}),trunk:mat(0x805638,.92),gold:new THREE.MeshPhysicalMaterial({color:0xe0b34d,roughness:.34,metalness:.58,clearcoat:.2,clearcoatRoughness:.34}),glass:new THREE.MeshPhysicalMaterial({color:0x9df3f0,roughness:.26,metalness:.035,emissive:0x16434a,emissiveIntensity:.075,transparent:false,opacity:1,depthWrite:true,clearcoat:.52,clearcoatRoughness:.18,reflectivity:.72,ior:1.46,specularIntensity:.72,specularColor:0xd5fffb,envMapIntensity:.95})};
+const M={grass:mat(0x6fae50,.94),grass2:mat(0x6fae50,.94),soil:mat(0x96704c,.96),path:mat(0xe2c99b,.88),stone:new THREE.MeshStandardMaterial({color:0xe6d2ad,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8ae83,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x668bb0,roughness:.74,metalness:.035,clearcoat:.28,clearcoatRoughness:.48}),roof2:new THREE.MeshPhysicalMaterial({color:0x426487,roughness:.76,metalness:.025,clearcoat:.3,clearcoatRoughness:.46}),wood:mat(0x80502f,.76),wood2:mat(0xc18a4d,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x568b42,roughness:.94,metalness:0,sheen:.28,sheenColor:0xa4c878,sheenRoughness:.9}),leaf2:new THREE.MeshPhysicalMaterial({color:0x78a85a,roughness:.93,metalness:0,sheen:.32,sheenColor:0xc5dc91,sheenRoughness:.9}),trunk:mat(0x805638,.92),gold:new THREE.MeshPhysicalMaterial({color:0xe0b34d,roughness:.34,metalness:.58,clearcoat:.2,clearcoatRoughness:.34}),glass:new THREE.MeshPhysicalMaterial({color:0x9df3f0,roughness:.26,metalness:.035,emissive:0x16434a,emissiveIntensity:.075,transparent:false,opacity:1,depthWrite:true,clearcoat:.52,clearcoatRoughness:.18,reflectivity:.72,ior:1.46,specularIntensity:.72,specularColor:0xd5fffb,envMapIntensity:.95})};
 // Настраиваем силу отражений физического неба отдельно для камня, кровли, металла и стекла.
-M.stone.envMapIntensity=.34;M.stone2.envMapIntensity=.38;
-M.roof.envMapIntensity=.82;M.roof2.envMapIntensity=.78;
+M.stone.envMapIntensity=.42;M.stone2.envMapIntensity=.45;
+M.roof.envMapIntensity=.9;M.roof2.envMapIntensity=.86;
 M.gold.envMapIntensity=.9;M.glass.envMapIntensity=1.05;
 
 function makeSurfaceTexture(kind,seed){
