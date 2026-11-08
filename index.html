@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-345000';
+const GREEN_WORLD_BUILD_ID = '20261108-346000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2642,6 +2642,10 @@ function makeWorldDecor(){
   // Более тёмный графитово-коричневый камень отделяет перила от светлого дорожного настила.
   const railMat=new THREE.MeshPhysicalMaterial({color:0x34495e,roughness:.78,metalness:.07,clearcoat:.16,clearcoatRoughness:.62,envMapIntensity:.48});
   const railCapMat=new THREE.MeshPhysicalMaterial({color:0x607d98,roughness:.8,metalness:.07,clearcoat:.14,clearcoatRoughness:.66,envMapIntensity:.42});
+  // Фактура камня продолжается на существующих парапетах и округлых перилах.
+  // Сохраняем графитово-синий цвет, физические свойства и геометрию ограждения.
+  applyBridgeStoneSurface(railMat,2.4,1.25,.012);
+  applyBridgeStoneSurface(railCapMat,2.6,1.35,.011);
   for(const side of [-1,1]){
     // Непрерывный низкий каменный бортик повторяет продольный профиль моста.
     for(let row=0;row<20;row++){
