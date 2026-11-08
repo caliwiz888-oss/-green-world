@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-114500';
+const GREEN_WORLD_BUILD_ID = '20261108-121500';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3171,22 +3171,27 @@ function makeWorldLandscape(){
  const hillBaseColor=new THREE.Color(0x668f58),hillSunColor=new THREE.Color(0x86a96a),hillShadeColor=new THREE.Color(0x557b4d);
  // Три яруса протяжённых природных гряд: от внешней стороны ограждения к подножию гор.
  // Гряды вытянуты и смещены относительно друг друга, чтобы не возникала сетка квадратных холмов.
- const hillRidges=[
-   [-31,-4.0,1.55,8.2,2.8],[-17,-2.4,1.75,9.0,3.0],[-2,-4.8,1.60,8.4,2.8],
-   [14,-2.0,1.80,9.0,3.0],[30,-4.2,1.45,7.8,2.7],
-   [-27,2.2,1.45,9.2,3.0],[-11,1.4,1.65,9.8,3.2],[7,2.8,1.75,9.5,3.1],
-   [25,1.6,1.55,9.0,3.0],
-   [-31,8.2,1.65,8.5,3.0],[-15,7.4,1.95,9.5,3.2],[3,8.8,1.85,9.5,3.2],
-   [22,7.6,1.70,8.8,3.0],[-28,14.0,1.30,7.8,2.6],[-8,14.8,1.50,8.5,2.8],
-   [13,14.2,1.55,8.2,2.7],[31,13.4,1.35,7.5,2.5]
+ // Новая форма на прежней высоте: длинные плавные гряды, разделённые широкими ложбинами.
+ const ridgeBands=[
+   {z:-5.0,amp:.88,width:2.25,phase:.2},
+   {z:-.2,amp:1.08,width:2.55,phase:1.4},
+   {z:5.0,amp:1.12,width:2.65,phase:2.5},
+   {z:10.0,amp:.92,width:2.35,phase:3.6},
+   {z:14.8,amp:.72,width:2.0,phase:4.5}
  ];
  for(let i=0;i<hillPositions.count;i++){
    const x=hillPositions.getX(i),z=hillPositions.getY(i);
    let height=0;
-   for(const [cx,cz,peak,rx,rz] of hillRidges){
-     const dx=(x-cx)/rx,dz=(z-cz)/rz;
-     height+=peak*Math.exp(-.5*(dx*dx+dz*dz));
+   for(const band of ridgeBands){
+     const center=band.z+Math.sin(x*.115+band.phase)*1.15+Math.sin(x*.27+band.phase*.7)*.34;
+     const across=(z-center)/band.width;
+     const crest=Math.exp(-.5*across*across);
+     const shoulder=Math.exp(-.5*Math.pow(across/1.9,2));
+     height+=band.amp*(crest*.72+shoulder*.28);
    }
+   // Узкие размывные ложбины пересекают гряды и убирают эффект параллельных валов.
+   const drainage=Math.pow(Math.max(0,Math.cos(x*.19-z*.31+Math.sin(z*.12))),8)*.16;
+   height=Math.max(0,height-drainage);
    // Неровная природная линия горизонта: край холмов больше не читается квадратной рамкой.
    const sideWave=Math.sin(z*.31+1.2)*2.1+Math.sin(z*.73-.8)*.8;
    const backWave=Math.sin(x*.24)*2.4+Math.sin(x*.61+1.4)*.9;
