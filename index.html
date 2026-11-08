@@ -4067,6 +4067,11 @@ function makeHouse(){
  facadeMetalRoughness.wrapS=facadeMetalRoughness.wrapT=THREE.RepeatWrapping;
  facadeMetalRoughness.repeat.set(2,2);
  facadeMetalRoughness.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ // Тот же тип отражения продолжается на металлических акцентах обеих башен.
+ for(const material of [copperBright,copperDark,goldRoof]){
+  material.roughnessMap=facadeMetalRoughness;
+  material.needsUpdate=true;
+ }
  const facadeGold=new THREE.MeshStandardMaterial({color:0xd9b15f,roughness:.3,metalness:.82,roughnessMap:facadeMetalRoughness});
  const facadeBronze=new THREE.MeshStandardMaterial({color:0x493326,roughness:.46,metalness:.38,roughnessMap:facadeMetalRoughness});
  // Тонкая вертикальная текстура натурального дерева только для входной двери и её филёнок.
