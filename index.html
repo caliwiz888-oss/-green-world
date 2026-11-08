@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-278000';
+const GREEN_WORLD_BUILD_ID = '20261108-279000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3125,7 +3125,7 @@ function makeWorldDecor(){
      const t=THREE.MathUtils.clamp((localV+15.5)/31,0,1);
      const baseY=.08+3.0*THREE.MathUtils.smoothstep(t,.02,.98);
      const seed=i*.73+row*2.1;
-     if((i+row*3)%7===2)gwAddBlossom(x,z,4.35+(i%2)*.3,seed,baseY);
+     if((i+row*3)%7===2)gwAddBlossom(x-(row===0&&i===16?8:0),z,4.35+(i%2)*.3,seed,baseY);
      
      if(i%2===0)gwAddUndergrowth(x+(row===0?-1.35:1.4),z+.85,.78+(i%3)*.08,seed+.4,baseY);
    }
@@ -3159,7 +3159,7 @@ function makeWorldDecor(){
    const x=-27+i*3.8+(lane?1.35:-.7)+Math.sin(i*1.4)*.85;
    const z=-26.0+lane*3.0+Math.cos(i*1.67)*1.25;
    const h=5.0+(i%4)*.4;
-   if(i===3||i===11)gwAddBlossom(x,z,4.25,i*.8);
+   if(i===3||i===11)gwAddBlossom(x,z-(i===11?8:0),4.25,i*.8);
    
    if(i%3===1)gwAddUndergrowth(x+(lane?1.0:-1.1),z+.8,.78+(i%3)*.06,i*.61);
  }  // Лесная подстилка: тысячи тонких травинок и мха с естественной цветовой вариацией.
@@ -3821,7 +3821,7 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
    const t=THREE.MathUtils.clamp((v+15.5)/31,0,1);
    const rise=THREE.MathUtils.smoothstep(t,.02,.98);
    // Единый плавный профиль без волнистой кромки: зелёный склон перекрывает нижние рваные края скал.
-   const height=.08+3.0*rise+(.035*Math.sin(x*.105)+.018*Math.sin(x*.23+v*.08))*rise;
+   const height=.08+3.0*rise;
    outerFoothillPos.setZ(i,height);
    const color=foothillFrontColor.clone()
      .lerp(foothillMiddleColor,THREE.MathUtils.smoothstep(t,.08,.62))
