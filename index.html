@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-393100';
+const GREEN_WORLD_BUILD_ID = '20261108-394100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1056,6 +1056,16 @@ function makeWorldDecor(){
       const pierRose=new THREE.Mesh(new THREE.OctahedronGeometry(.055,1),fenceGoldLight);
       pierRose.position.set(x,.69,depth/2+.085);pierRose.scale.set(.82,1.1,.32);
       fenceNoShadow(pierRose);panel.add(pierRose);
+      // Парный медальон на верхней части каждой опоры визуально связывает устои со сводом.
+      const upperRing=new THREE.Mesh(new THREE.TorusGeometry(.105,.018,8,24),fenceGold);
+      upperRing.position.set(x,1.30,depth/2+.105);
+      fenceNoShadow(upperRing);panel.add(upperRing);
+      const upperCore=new THREE.Mesh(new THREE.SphereGeometry(.052,12,10),fenceTeal);
+      upperCore.position.set(x,1.30,depth/2+.12);
+      upperCore.scale.set(1,1,.38);fenceNoShadow(upperCore);panel.add(upperCore);
+      // Тонкие светлые плечики капители подчёркивают переход от колонны к арке.
+      fenceNoShadow(box(panel,.39,.045,depth+.13,x,1.405,0,fenceIvory,false));
+      fenceNoShadow(box(panel,.45,.035,depth+.16,x,1.455,0,fenceGoldLight,false));
       fenceNoShadow(box(panel,.43,.12,depth+.14,x,1.49,0,fenceReliefStone,false));
       fenceNoShadow(box(panel,.39,.065,depth+.11,x,1.585,0,fenceIvory,false));
       fenceNoShadow(box(panel,.34,.035,depth+.08,x,1.635,0,fenceGold,false));
@@ -1107,6 +1117,9 @@ function makeWorldDecor(){
     const keystoneGem=new THREE.Mesh(new THREE.OctahedronGeometry(.105,1),fenceTeal);
     keystoneGem.position.set(0,springY+rise+.07,depth/2+.115);
     keystoneGem.scale.set(.82,1.15,.30);fenceNoShadow(keystoneGem);panel.add(keystoneGem);
+    const keystoneRing=new THREE.Mesh(new THREE.TorusGeometry(.145,.018,8,28),fenceGold);
+    keystoneRing.position.set(0,springY+rise+.07,depth/2+.12);
+    fenceNoShadow(keystoneRing);panel.add(keystoneRing);
     // Декоративные розетки расположены над плечами арки, не перекрывая проём.
     for(const side of [-1,1]){
       const ornamentX=side*Math.min(.72,innerHalf*.72);
