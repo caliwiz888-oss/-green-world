@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-245000';
+const GREEN_WORLD_BUILD_ID = '20261108-250000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3007,38 +3007,47 @@ function makeWorldDecor(){
    g.rotation.y=seed*.19;
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
- // Непрерывный лесной пояс у подножия гор: деревья стоят на плавном склоне,
- // повторяются по всей ширине заднего горизонта и не заходят на здания.
- const mountainForestRows=[-36.5,-42.0];
+ // Лесной пояс у гор распределён свободно: деревья смещены и по ширине, и по глубине,
+ // поэтому кроны не складываются в две ровные горизонтальные линии.
+ const mountainForestRows=[-35.2,-41.0];
  for(let row=0;row<mountainForestRows.length;row++){
-   const z=mountainForestRows[row];
-   const localV=-(z+36.5);
-   const t=THREE.MathUtils.clamp((localV+15.5)/31,0,1);
-   const baseY=.08+3.0*THREE.MathUtils.smoothstep(t,.02,.98);
+   const baseZ=mountainForestRows[row];
    for(let i=0;i<17;i++){
-     const x=-44+i*5.5+(row%2)*1.35;
+     const wave=Math.sin(i*1.71+row*1.9),cross=Math.cos(i*1.13+row*.8);
+     const x=-44+i*5.5+(row===0?0:2.25)+wave*1.15;
+     const z=baseZ+cross*1.65+(i%3-1)*.48;
+     const localV=-(z+36.5);
+     const t=THREE.MathUtils.clamp((localV+15.5)/31,0,1);
+     const baseY=.08+3.0*THREE.MathUtils.smoothstep(t,.02,.98);
      const seed=i*.73+row*2.1;
      if((i+row*3)%7===2)gwAddBlossom(x,z,4.35+(i%2)*.3,seed,baseY);
      else gwAddPine(x,z,5.0+((i*3+row)%4)*.42,seed,baseY);
-     if(i%2===0)gwAddUndergrowth(x+(row%2?1.55:-1.55),z+1.05,.78+(i%3)*.08,seed+.4,baseY);
+     if(i%2===0)gwAddUndergrowth(x+(row===0?-1.35:1.4),z+.85,.78+(i%3)*.08,seed+.4,baseY);
    }
  }
- // По шесть крупных деревьев с каждой стороны: хвойные чередуются с розовоцветущими.
- const sideTreeRows=[12,7,2,-3,-8,-13,-18];
+ // Боковые деревья идут не одной полосой: чередуются ближняя и дальняя линии,
+ // а интервалы и смещения меняются, чтобы каждое дерево читалось отдельно.
+ const sideTreeRows=[15,10,5,0,-5,-10,-15,-20,-25];
  for(const side of [-1,1]){
-   sideTreeRows.forEach((z,i)=>{
-     const x=side*(19.15+(i%2)*.55),h=5.1+(i%3)*.55;
-     if(i===1||i===4)gwAddBlossom(x,z,4.25+(i%2)*.35,side*.7+i);
+   sideTreeRows.forEach((baseZ,i)=>{
+     const lane=i%2, x=side*(20.0+lane*3.1+Math.sin(i*1.8)*.75);
+     const z=baseZ+Math.cos(i*1.37)*1.45+(lane?1.0:-.6);
+     const h=5.0+(i%3)*.52;
+     if(i===1||i===5||i===8)gwAddBlossom(x,z,4.2+(i%2)*.3,side*.7+i);
      else gwAddPine(x,z,h,side*.4+i*.7);
-     if(i%2===0)gwAddUndergrowth(x-side*.95,z+1.15,.72+(i%3)*.07,side+i*.3);
+     if(i%3===0)gwAddUndergrowth(x-side*.85,z+.95,.7+(i%3)*.07,side+i*.3);
    });
  }
- // Дальняя линия хвойного леса замыкает горизонт за зданиями, не создавая гор.
+ // Задняя часть периметра тоже имеет глубину: деревья чередуются между двумя
+ // диагонально смещёнными дорожками, а не образуют одну сплошную стену.
  for(let i=0;i<11;i++){
-   const x=-19+i*3.8,z=-25.5+(i%2)*.55,h=5.2+(i%4)*.42;
-   if(i===2||i===8)gwAddBlossom(x,z,4.35,i*.8);
+   const lane=i%2;
+   const x=-19+i*3.8+(lane?1.35:-.7)+Math.sin(i*1.4)*.85;
+   const z=-26.0+lane*3.0+Math.cos(i*1.67)*1.25;
+   const h=5.0+(i%4)*.4;
+   if(i===2||i===8)gwAddBlossom(x,z,4.25,i*.8);
    else gwAddPine(x,z,h,i*.55);
-   if(i%2===1)gwAddUndergrowth(x+1.35,z+1.0,.82+(i%3)*.06,i*.61);
+   if(i%3===1)gwAddUndergrowth(x+(lane?1.0:-1.1),z+.8,.78+(i%3)*.06,i*.61);
  }
  // Удалены мелкие светлые камешки за правой стороной ограды, чтобы убрать тонкую светлую отметку.
 }
