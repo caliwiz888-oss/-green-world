@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-201000';
+const GREEN_WORLD_BUILD_ID = '20261108-202000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3363,26 +3363,27 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
    rockFaces:[{x:-.58,drift:.13,width:.035,raise:.12},{x:-.18,drift:-.12,width:.032,raise:.15},{x:.28,drift:.1,width:.03,raise:.16},{x:.68,drift:-.13,width:.035,raise:.13}],
    gullies:[{x:-.38,drift:.12,width:.03,cut:.28},{x:.02,drift:-.13,width:.028,cut:.34},{x:.48,drift:.12,width:.03,cut:.32}]
  });
- // Внешний ландшафт за задней линией ограды: широкое предгорное плато
- // с плавным рельефом и отдельной серо-шалфейной палитрой, отличной от газона двора.
- // Плато перекрывает нижние неровные края гор и соединяет их с внешней равниной.
- const outerFoothillGeometry=new THREE.PlaneGeometry(100,27,250,72);
+ // Внешняя предгорная гряда — отдельный широкий рельефный пояс перед горами.
+ // Передняя поверхность поднята и плавно закрывает зубчатую нижнюю кромку скальных моделей.
+ const outerFoothillGeometry=new THREE.PlaneGeometry(104,15,260,90);
  const outerFoothillPos=outerFoothillGeometry.attributes.position;
  const outerFoothillColors=[];
- const outerFront=new THREE.Color(0x929982);
- const outerMid=new THREE.Color(0x7e9085);
- const outerBack=new THREE.Color(0x687d78);
+ const outerFront=new THREE.Color(0xb0a17e);
+ const outerMid=new THREE.Color(0x899078);
+ const outerBack=new THREE.Color(0x62776d);
  for(let i=0;i<outerFoothillPos.count;i++){
    const x=outerFoothillPos.getX(i),v=outerFoothillPos.getY(i);
-   const t=THREE.MathUtils.clamp((v+13.5)/27,0,1);
-   const broadRoll=.035*Math.sin(x*.105+v*.075)+.022*Math.sin(x*.21-v*.11);
-   const edgeEase=Math.sin(Math.PI*t);
-   outerFoothillPos.setZ(i,.035+.055*edgeEase+broadRoll*edgeEase);
+   const t=THREE.MathUtils.clamp((v+7.5)/15,0,1);
+   const xFade=Math.pow(Math.max(0,1-Math.pow(Math.abs(x)/54,6)),.5);
+   const smoothCrest=.95*Math.exp(-Math.pow((v-2.0)/3.2,2));
+   const frontSlope=.42*Math.exp(-Math.pow((v+3.5)/4.8,2));
+   const gentleRoll=.10*Math.sin(x*.11+v*.16)+.055*Math.cos(x*.2-v*.12);
+   const height=(.08+smoothCrest+frontSlope+gentleRoll)*xFade;
+   outerFoothillPos.setZ(i,height);
    const color=outerFront.clone()
-     .lerp(outerMid,THREE.MathUtils.smoothstep(t,.08,.62))
-     .lerp(outerBack,THREE.MathUtils.smoothstep(t,.62,1));
-   const naturalVariation=1+.018*Math.sin(x*.17+v*.12)+.009*Math.cos(x*.31-v*.2);
-   color.multiplyScalar(naturalVariation);
+     .lerp(outerMid,THREE.MathUtils.smoothstep(t,.12,.7))
+     .lerp(outerBack,THREE.MathUtils.smoothstep(t,.7,1));
+   color.multiplyScalar(1+.025*Math.sin(x*.13+v*.2)+.012*Math.cos(x*.27-v*.16));
    outerFoothillColors.push(color.r,color.g,color.b);
  }
  outerFoothillGeometry.setAttribute('color',new THREE.Float32BufferAttribute(outerFoothillColors,3));
@@ -3391,9 +3392,9 @@ const alpineRockCanvas=document.createElement('canvas');alpineRockCanvas.width=1
    color:0xffffff,vertexColors:true,roughness:1,metalness:0,side:THREE.DoubleSide
  });
  const outerFoothill=new THREE.Mesh(outerFoothillGeometry,outerFoothillMaterial);
- outerFoothill.name='GREEN_WORLD_Exterior_Sage_Foothill_Plateau';
+ outerFoothill.name='GREEN_WORLD_Exterior_Raised_Smooth_Foothill';
  outerFoothill.rotation.x=-Math.PI/2;
- outerFoothill.position.set(0,.045,-36.5);
+ outerFoothill.position.set(0,.05,-39.5);
  outerFoothill.receiveShadow=false;outerFoothill.castShadow=false;world.add(outerFoothill);
  // Новая цельная альпийская гряда заменяет предыдущие отдельные модели гор; задний план остаётся открытым.
  // Весь лес удалён по запросу: хвойные и лиственные деревья не создаются.
