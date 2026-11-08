@@ -295,7 +295,7 @@ const atmosphereRim=new THREE.DirectionalLight(0xc9e3f5,.34);atmosphereRim.posit
 const worldBounce=new THREE.DirectionalLight(0xffe8c9,.22);worldBounce.position.set(18,7,30);worldBounce.castShadow=false;scene.add(worldBounce);
 const mat=(c,r=.82)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.025,dithering:true});
 const windowInterior=new THREE.MeshStandardMaterial({color:0xffdca0,emissive:0xb87932,emissiveIntensity:.2,roughness:.42,dithering:true});
-const M={grass:mat(0x91a77d,.94),grass2:mat(0x91a77d,.94),soil:mat(0x98734a,.96),path:mat(0xe2cfad,.88),stone:new THREE.MeshStandardMaterial({color:0xe8ddc5,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8b898,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x526d88,roughness:.82,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0x34495e,roughness:.84,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x426b3c,roughness:.94,metalness:0,sheen:.28,sheenColor:0x91a77d,sheenRoughness:.9}),leaf2:new THREE.MeshPhysicalMaterial({color:0x668653,roughness:.93,metalness:0,sheen:.32,sheenColor:0xb3c28e,sheenRoughness:.9}),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xd6b45d,roughness:.34,metalness:.58}),glass:new THREE.MeshStandardMaterial({color:0x9bdde1,roughness:.3,metalness:.04,emissive:0x102b34,emissiveIntensity:.06,transparent:false,opacity:1,depthWrite:true})};
+const M={grass:mat(0x71865e,.94),grass2:mat(0x7d8e62,.94),soil:mat(0x806044,.96),path:mat(0xcbb58e,.88),stone:new THREE.MeshStandardMaterial({color:0xd4c19f,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xb39c77,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x526d88,roughness:.82,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0x34495e,roughness:.84,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x426b3c,roughness:.94,metalness:0,sheen:.28,sheenColor:0x91a77d,sheenRoughness:.9}),leaf2:new THREE.MeshPhysicalMaterial({color:0x668653,roughness:.93,metalness:0,sheen:.32,sheenColor:0xb3c28e,sheenRoughness:.9}),trunk:mat(0x765034,.92),gold:new THREE.MeshStandardMaterial({color:0xc69a43,roughness:.34,metalness:.58}),glass:new THREE.MeshStandardMaterial({color:0x9bdde1,roughness:.3,metalness:.04,emissive:0x102b34,emissiveIntensity:.06,transparent:false,opacity:1,depthWrite:true})};
 
 function makeSurfaceTexture(kind,seed){
  const size=768,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
@@ -3735,13 +3735,13 @@ function makeHouse(){
  const g=group(world,0,0,-12.442);g.name='green-world-manor-full-reference-rebuild';
  // Небольшое общее увеличение усадьбы без изменения её положения во дворе.
  g.scale.set(1.15,1.15,1.15);
- const ivory=mat(0xf1e5d0,.91),cream=mat(0xfff3df,.86),stone=mat(0xcbb896,.93),stoneDark=mat(0x9e8969,.9);
+ const ivory=mat(0xdcc7a4,.91),cream=mat(0xe8d2ae,.86),stone=mat(0xb69b70,.93),stoneDark=mat(0x806849,.9);
  const slate=mat(0x29445f,.78),slateDark=mat(0x182f49,.82),teal=mat(0x25b8c4,.24),tealLight=mat(0x8be2df,.2);
  // Физически корректное остекление существующих арочных окон башен.
  // Сохраняет бирюзовый оттенок, но добавляет более чистый блик и отражение.
  const towerGlass=new THREE.MeshPhysicalMaterial({color:0x25b8c4,roughness:.14,metalness:.08,transparent:true,opacity:.92,side:THREE.DoubleSide,clearcoat:.95,clearcoatRoughness:.08,reflectivity:.82,ior:1.46,specularIntensity:.9,specularColor:0xc9f5f2});
- const gold=mat(0xd9ad4f,.34),bronze=mat(0x493326,.58),wood=mat(0x684126,.65),terra=mat(0xa95735,.8);
- const pink=mat(0xe78bb4,.8),lilac=mat(0xb7a0db,.8),white=mat(0xffe8d4,.78),green=mat(0x4c7c49,.9);
+ const gold=mat(0xc69a43,.34),bronze=mat(0x38271f,.58),wood=mat(0x52331f,.65),terra=mat(0x91472e,.8);
+ const pink=mat(0xc9789c,.8),lilac=mat(0x9380b6,.8),white=mat(0xe6d5bd,.78),green=mat(0x3b653a,.9);
  // Сланцево-синие материалы конических крыш башен — в тон главной крыше.
  const copperMats=[
   mat(0x355675,.68),mat(0x294662,.74),mat(0x263f5b,.74),
@@ -3760,10 +3760,10 @@ function makeHouse(){
  for(let y=0;y<256;y++)for(let x=0;x<256;x++){
   const p=(y*256+x)*4;
   const grain=(manorWallRand()-.5)*13+Math.sin(y*.22)*1.2+Math.sin((x+y)*.035)*1.1;
-  const v=Math.max(0,Math.min(255,232+grain));
+  const v=Math.max(0,Math.min(255,216+grain));
   manorWallImage.data[p]=v;
-  manorWallImage.data[p+1]=Math.max(0,Math.min(255,v-8));
-  manorWallImage.data[p+2]=Math.max(0,Math.min(255,v-22));
+  manorWallImage.data[p+1]=Math.max(0,Math.min(255,v-12));
+  manorWallImage.data[p+2]=Math.max(0,Math.min(255,v-30));
   manorWallImage.data[p+3]=255;
  }
  manorWallCtx.putImageData(manorWallImage,0,0);
@@ -3921,7 +3921,7 @@ function makeHouse(){
   material.needsUpdate=true;
  }
  const manorWallMaterial=new THREE.MeshStandardMaterial({
-  color:0xffedda,map:manorWallTexture,bumpMap:manorWallBump,
+  color:0xe4c9a4,map:manorWallTexture,bumpMap:manorWallBump,
   roughnessMap:manorWallRoughness,bumpScale:.032,roughness:.91,metalness:0
  });
  // Для круглых башен используется та же кремовая кладка с масштабом по окружности.
@@ -3932,7 +3932,7 @@ function makeHouse(){
  const towerWallRoughness=manorWallRoughness.clone();
  towerWallRoughness.repeat.set(4,2.5);towerWallRoughness.needsUpdate=true;
  const towerWallMaterial=new THREE.MeshStandardMaterial({
-  color:0xffedda,map:towerWallTexture,bumpMap:towerWallBump,
+  color:0xe4c9a4,map:towerWallTexture,bumpMap:towerWallBump,
   roughnessMap:towerWallRoughness,bumpScale:.030,roughness:.92,metalness:0
  });
  // Отдельная настройка материала только для уже существующих колонн:
@@ -3944,7 +3944,7 @@ function makeHouse(){
  const towerColumnRoughness=towerWallRoughness.clone();
  towerColumnRoughness.repeat.set(.9,1.45);towerColumnRoughness.needsUpdate=true;
  const towerColumnMaterial=new THREE.MeshStandardMaterial({
-  color:0xfff5e6,map:towerColumnTexture,bumpMap:towerColumnBump,
+  color:0xe8d2ae,map:towerColumnTexture,bumpMap:towerColumnBump,
   roughnessMap:towerColumnRoughness,bumpScale:.022,roughness:.93,metalness:0
  });
  // Центральный корпус, фронтон, окна, двери и вся отделка смещаются единым блоком назад;
@@ -4088,7 +4088,7 @@ function makeHouse(){
   material.roughnessMap=facadeMetalRoughness;
   material.needsUpdate=true;
  }
- const facadeGold=new THREE.MeshStandardMaterial({color:0xd9b15f,roughness:.3,metalness:.82,roughnessMap:facadeMetalRoughness});
+ const facadeGold=new THREE.MeshStandardMaterial({color:0xc69a43,roughness:.3,metalness:.82,roughnessMap:facadeMetalRoughness});
  const facadeBronze=new THREE.MeshStandardMaterial({color:0x493326,roughness:.46,metalness:.38,roughnessMap:facadeMetalRoughness});
  // Тонкая вертикальная текстура натурального дерева только для входной двери и её филёнок.
  const doorGrainCanvas=document.createElement('canvas');
@@ -4148,11 +4148,11 @@ function makeHouse(){
  const facadeTrimRoughness=manorWallRoughness.clone();
  facadeTrimRoughness.repeat.set(.72,.72);facadeTrimRoughness.needsUpdate=true;
  const facadeStone=new THREE.MeshStandardMaterial({
-  color:0xfff0d9,map:facadeTrimTexture,bumpMap:facadeTrimBump,
+  color:0xe8d2ae,map:facadeTrimTexture,bumpMap:facadeTrimBump,
   roughnessMap:facadeTrimRoughness,bumpScale:.022,roughness:.88
  });
  const facadeStoneShade=new THREE.MeshStandardMaterial({
-  color:0xcbb896,map:facadeTrimTexture,bumpMap:facadeTrimBump,
+  color:0xb69b70,map:facadeTrimTexture,bumpMap:facadeTrimBump,
   roughnessMap:facadeTrimRoughness,bumpScale:.018,roughness:.91
  });
  function facadeArch(w,h,base=0){
