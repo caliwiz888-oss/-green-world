@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-349000';
+const GREEN_WORLD_BUILD_ID = '20261108-350000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3768,6 +3768,16 @@ function makeHouse(){
    box(center,.28,.34,.16,x,y,2.48,y===1.52?stone:cream,false);
   }
  }
+ // Физическая отделка только нижней существующей каменной тяги цоколя.
+ // Сохраняются исходный цвет, микрофактура, карты рельефа и геометрия профиля.
+ const manorPlinthPhysical=new THREE.MeshPhysicalMaterial({
+  color:stone.color.clone(),map:stone.map,bumpMap:stone.bumpMap,
+  roughnessMap:stone.roughnessMap,bumpScale:stone.bumpScale,
+  roughness:stone.roughness,metalness:stone.metalness,side:stone.side,
+  clearcoat:.055,clearcoatRoughness:.93,envMapIntensity:.26
+ });
+ manorPlinthPhysical.name='manor-existing-plinth-physical-finish';
+ manorPlinthPhysical.needsUpdate=true;
  // Главный объём не плоский прямоугольник: центральный ризалит выступает вперёд,
  // а боковые части имеют собственные каменные пояса и глубокие оконные ниши.
  box(center,6.62,3.82,4.48,0,2.42,-.08,manorWallMaterial);
@@ -3778,7 +3788,7 @@ function makeHouse(){
  box(center,1.78,3.35,.18,2.00,2.42,2.26,manorWallMaterial);
  // Цокольные тяги и широкий профилированный карниз под кровлей.
  for(const y of [.64,.78,4.13,4.28]){
-  box(center,7.08,.09,.38,0,y,2.25,y===.64?stone:cream);
+  box(center,7.08,.09,.38,0,y,2.25,y===.64?manorPlinthPhysical:cream);
  }
  box(center,7.24,.14,.46,0,4.38,2.25,cream);
  // Мелкие известняковые дентикулы под главным карнизом создают классический ритм фасада.
