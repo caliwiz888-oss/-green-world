@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-356000';
+const GREEN_WORLD_BUILD_ID = '20261108-357000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -27,8 +27,8 @@ if (location.hostname === 'caliwiz888-oss.github.io') {
 </script>
 <title>GREEN WORLD — Новый мир</title>
 <style>
-:root{font-family:Inter,system-ui,Arial,sans-serif;color:#284d32;background:#8fc3df;font-synthesis:none}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}body{touch-action:pan-y;background:linear-gradient(#8fc3df,#dce9ce)}
+:root{font-family:Inter,system-ui,Arial,sans-serif;color:#285b35;background:#a6d9f2;font-synthesis:none}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}body{touch-action:pan-y;background:linear-gradient(#a6d9f2,#eaf4d2)}
 #world{position:fixed;inset:0;width:100%;height:100%;display:block;outline:0}
 #world{touch-action:pan-y;cursor:default}
 .top{position:fixed;z-index:3;top:env(safe-area-inset-top,8px);left:10px;right:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
@@ -227,8 +227,8 @@ const scene=new THREE.Scene();
 const skyCanvas=document.createElement('canvas');skyCanvas.width=4096;skyCanvas.height=2048;
 const skyCtx=skyCanvas.getContext('2d');skyCtx.scale(4,4);
 const skyGradient=skyCtx.createLinearGradient(0,0,0,512);
-skyGradient.addColorStop(0, '#4f91bd');skyGradient.addColorStop(.34, '#79b4d5');
-skyGradient.addColorStop(.68, '#b8d8df');skyGradient.addColorStop(1, '#dce8d7');
+skyGradient.addColorStop(0, '#368fc9');skyGradient.addColorStop(.34, '#72c1e8');
+skyGradient.addColorStop(.68, '#c5e8e9');skyGradient.addColorStop(1, '#eff2d6');
 skyCtx.fillStyle=skyGradient;skyCtx.fillRect(0,0,1024,512);
 // Мягкое солнечное сияние и дополнительные облачные слои придают небу глубину.
 const sunGlow=skyCtx.createRadialGradient(760,112,5,760,112,245);
@@ -273,7 +273,7 @@ horizonGlow.addColorStop(1,'rgba(255,244,221,.075)');
 skyCtx.fillStyle=horizonGlow;skyCtx.fillRect(0,330,1024,182);
 const skyTexture=new THREE.CanvasTexture(skyCanvas);skyTexture.colorSpace=THREE.SRGBColorSpace;
 skyTexture.mapping=THREE.EquirectangularReflectionMapping;skyTexture.magFilter=THREE.LinearFilter;skyTexture.minFilter=THREE.LinearMipmapLinearFilter;skyTexture.generateMipmaps=true;skyTexture.needsUpdate=true;scene.background=skyTexture;
-scene.fog=new THREE.Fog(0xbcdce0,82,185);
+scene.fog=new THREE.Fog(0xcce8e5,82,185);
 const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,4.5,140);
 // Умеренно близкая near-плоскость и ограниченный far-диапазон повышают точность стандартного depth buffer на мобильных GPU.
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});
@@ -282,7 +282,7 @@ window.GREEN_WORLD_STARTUP_STAGE='webgl-ready';
 window.GREEN_WORLD_RENDER_DIAGNOSTICS={reversedDepthBuffer:!!renderer.capabilities.reversedDepthBuffer,webgl2:renderer.capabilities.isWebGL2,pixelRatio:renderer.getPixelRatio(),threeRevision:THREE.REVISION};
 console.info('[GREEN WORLD] Render diagnostics',window.GREEN_WORLD_RENDER_DIAGNOSTICS);
 // Используем стандартный буфер глубины для стабильной совместимости с WebGL в Android Telegram WebView.
-const applyRenderResolution=()=>{const pixelCap=innerWidth<700?8:10;renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,pixelCap));renderer.setSize(innerWidth,innerHeight);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();};applyRenderResolution();renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.14;renderer.useLegacyLights=false;renderer.setClearColor(0x9acbe8,1);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();
+const applyRenderResolution=()=>{const pixelCap=innerWidth<700?8:10;renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,pixelCap));renderer.setSize(innerWidth,innerHeight);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();};applyRenderResolution();renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.22;renderer.useLegacyLights=false;renderer.setClearColor(0xa6d9f2,1);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();
 // Низкоразрешённая копия небосвода используется как физическая карта окружения.
 // Она добавляет согласованные отражения неба на стекле, глазури, металле и влажных поверхностях,
 // не меняя фон сцены и не дублируя тяжёлую 8K-текстуру в памяти.
@@ -300,7 +300,7 @@ try{
  environmentPMREM.compileEquirectangularShader();
  const environmentTarget=environmentPMREM.fromEquirectangular(environmentEquirect);
  scene.environment=environmentTarget.texture;
- scene.environmentIntensity=.42;
+ scene.environmentIntensity=.5;
  window.GREEN_WORLD_ENVIRONMENT_TARGET=environmentTarget;
  environmentPMREM.dispose();
  environmentEquirect.dispose();
@@ -308,10 +308,10 @@ try{
  console.warn('[GREEN WORLD] Environment reflections unavailable; using direct lighting.',environmentError);
 }
 // Мягкое небесное заполнение сохраняет детали в тенях на фасадах, листве и горном рельефе.
-scene.add(new THREE.HemisphereLight(0xeaf7ff,0x5a7447,2.28));
+scene.add(new THREE.HemisphereLight(0xf3fbff,0x729653,2.42));
 scene.add(new THREE.AmbientLight(0xffffff,.27));
 // Повышенная детализация солнечных теней с адаптацией к мобильному экрану.
-const sun=new THREE.DirectionalLight(0xfff1d9,3.42);
+const sun=new THREE.DirectionalLight(0xfff5df,3.55);
 sun.position.set(-28,42,24);sun.castShadow=true;
 const shadowMapResolution=Math.min(renderer.capabilities.maxTextureSize,innerWidth<700?1536:2048);
 sun.shadow.mapSize.set(shadowMapResolution,shadowMapResolution);
@@ -323,14 +323,14 @@ sun.shadow.radius=2.6;sun.shadow.autoUpdate=false;
 sun.shadow.needsUpdate=true;scene.add(sun);
 window.GREEN_WORLD_RENDER_DIAGNOSTICS.shadowMapResolution=shadowMapResolution;
 // Нейтрально-тёплый отражённый свет делает теневые стороны объектов читаемее без потери солнечного контраста.
-const fill=new THREE.DirectionalLight(0xe1edda,1.0);fill.position.set(24,18,-22);scene.add(fill);
+const fill=new THREE.DirectionalLight(0xe9f5df,1.12);fill.position.set(24,18,-22);scene.add(fill);
 // Холодный контровой дневной свет мягко отделяет силуэты зданий и листву от дальнего пейзажа без теневых карт.
 const atmosphereRim=new THREE.DirectionalLight(0xc9e3f5,.4);atmosphereRim.position.set(-24,15,-32);atmosphereRim.castShadow=false;scene.add(atmosphereRim);
 // Мягкий отражённый свет с уровня окружения подчёркивает рельеф дорожек, камня, травы и фасадов.
-const worldBounce=new THREE.DirectionalLight(0xffe8c9,.27);worldBounce.position.set(18,7,30);worldBounce.castShadow=false;scene.add(worldBounce);
+const worldBounce=new THREE.DirectionalLight(0xffedcf,.32);worldBounce.position.set(18,7,30);worldBounce.castShadow=false;scene.add(worldBounce);
 const mat=(c,r=.82)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.025,dithering:true});
 const windowInterior=new THREE.MeshStandardMaterial({color:0xffdca0,emissive:0xb87932,emissiveIntensity:.2,roughness:.42,dithering:true});
-const M={grass:mat(0x71865e,.94),grass2:mat(0x7d8e62,.94),soil:mat(0x806044,.96),path:mat(0xcbb58e,.88),stone:new THREE.MeshStandardMaterial({color:0xd4c19f,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xb39c77,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x526d88,roughness:.82,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0x34495e,roughness:.84,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x71482d,.76),wood2:mat(0xb77c47,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x426b3c,roughness:.94,metalness:0,sheen:.28,sheenColor:0x91a77d,sheenRoughness:.9}),leaf2:new THREE.MeshPhysicalMaterial({color:0x668653,roughness:.93,metalness:0,sheen:.32,sheenColor:0xb3c28e,sheenRoughness:.9}),trunk:mat(0x765034,.92),gold:new THREE.MeshPhysicalMaterial({color:0xc69a43,roughness:.34,metalness:.58,clearcoat:.2,clearcoatRoughness:.34}),glass:new THREE.MeshPhysicalMaterial({color:0x9bdde1,roughness:.26,metalness:.035,emissive:0x102b34,emissiveIntensity:.055,transparent:false,opacity:1,depthWrite:true,clearcoat:.52,clearcoatRoughness:.18,reflectivity:.72,ior:1.46,specularIntensity:.72,specularColor:0xc9f5f2,envMapIntensity:.85})};
+const M={grass:mat(0x86a95b,.94),grass2:mat(0x96b96b,.94),soil:mat(0x96704c,.96),path:mat(0xe2c99b,.88),stone:new THREE.MeshStandardMaterial({color:0xe6d2ad,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8ae83,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x668bb0,roughness:.82,metalness:.035,clearcoat:.18,clearcoatRoughness:.62}),roof2:new THREE.MeshPhysicalMaterial({color:0x426487,roughness:.84,metalness:.025,clearcoat:.22,clearcoatRoughness:.58}),wood:mat(0x80502f,.76),wood2:mat(0xc18a4d,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x568b42,roughness:.94,metalness:0,sheen:.28,sheenColor:0xa4c878,sheenRoughness:.9}),leaf2:new THREE.MeshPhysicalMaterial({color:0x78a85a,roughness:.93,metalness:0,sheen:.32,sheenColor:0xc5dc91,sheenRoughness:.9}),trunk:mat(0x805638,.92),gold:new THREE.MeshPhysicalMaterial({color:0xe0b34d,roughness:.34,metalness:.58,clearcoat:.2,clearcoatRoughness:.34}),glass:new THREE.MeshPhysicalMaterial({color:0x9df3f0,roughness:.26,metalness:.035,emissive:0x16434a,emissiveIntensity:.075,transparent:false,opacity:1,depthWrite:true,clearcoat:.52,clearcoatRoughness:.18,reflectivity:.72,ior:1.46,specularIntensity:.72,specularColor:0xd5fffb,envMapIntensity:.95})};
 // Настраиваем силу отражений физического неба отдельно для камня, кровли, металла и стекла.
 M.stone.envMapIntensity=.34;M.stone2.envMapIntensity=.38;
 M.roof.envMapIntensity=.82;M.roof2.envMapIntensity=.78;
