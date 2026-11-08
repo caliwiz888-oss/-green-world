@@ -4339,6 +4339,18 @@ function makeHouse(){
  slateReliefTexture.repeat.set(2,2);
  slateReliefTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  slateReliefTexture.needsUpdate=true;
+ // Та же натуральная микрофактура сланца применяется к существующей кровле входного портика,
+ // чтобы малая крыша и основная двускатная крыша воспринимались как единый архитектурный комплект.
+ porticoBlue.bumpMap=slateReliefTexture;
+ porticoBlue.roughnessMap=slateReliefTexture;
+ porticoBlue.bumpScale=.008;
+ porticoBlue.roughness=.72;
+ porticoBlue.needsUpdate=true;
+ porticoTile.bumpMap=slateReliefTexture;
+ porticoTile.roughnessMap=slateReliefTexture;
+ porticoTile.bumpScale=.007;
+ porticoTile.roughness=.69;
+ porticoTile.needsUpdate=true;
  const manorRoofBase=new THREE.MeshStandardMaterial({color:0x263f5b,roughness:.74,metalness:.08,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.012,side:THREE.DoubleSide});
  const manorRoofTileA=new THREE.MeshStandardMaterial({color:0x355675,roughness:.68,metalness:.08,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.009});
  const manorRoofTileB=new THREE.MeshStandardMaterial({color:0x294662,roughness:.74,metalness:.07,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.009});
