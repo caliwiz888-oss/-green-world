@@ -4403,6 +4403,20 @@ function makeHouse(){
   seamShade.addColorStop(1,'rgba(35,48,62,.12)');
   slateReliefCtx.fillStyle=seamShade;slateReliefCtx.fillRect(0,y-2,256,5);
  }
+ // Естественные тонкие прожилки и минеральные включения сланца.
+ // Низкий контраст сохраняет тёмно-синий тон кровли, добавляя неоднородный каменный рельеф.
+ for(let i=0;i<58;i++){
+  const x=slateReliefRand()*256,y=slateReliefRand()*256;
+  slateReliefCtx.beginPath();slateReliefCtx.moveTo(x,y);
+  slateReliefCtx.quadraticCurveTo(x+(slateReliefRand()-.5)*12,y+2+slateReliefRand()*4,x+(slateReliefRand()-.5)*22,y+4+slateReliefRand()*8);
+  slateReliefCtx.strokeStyle=slateReliefRand()>.5?'rgba(24,34,45,.13)':'rgba(225,233,239,.11)';
+  slateReliefCtx.lineWidth=.35+slateReliefRand()*.55;slateReliefCtx.stroke();
+ }
+ for(let i=0;i<420;i++){
+  const x=slateReliefRand()*256,y=slateReliefRand()*256,r=.35+slateReliefRand()*.85;
+  slateReliefCtx.fillStyle=slateReliefRand()>.5?'rgba(20,29,39,.13)':'rgba(225,233,239,.12)';
+  slateReliefCtx.beginPath();slateReliefCtx.ellipse(x,y,r,r*.65,slateReliefRand()*.8,0,Math.PI*2);slateReliefCtx.fill();
+ }
  const slateReliefTexture=new THREE.CanvasTexture(slateReliefCanvas);
  slateReliefTexture.colorSpace=THREE.NoColorSpace;
  slateReliefTexture.wrapS=slateReliefTexture.wrapT=THREE.RepeatWrapping;
@@ -4422,8 +4436,8 @@ function makeHouse(){
  porticoTile.roughness=.69;
  porticoTile.needsUpdate=true;
  const manorRoofBase=new THREE.MeshStandardMaterial({color:0x263f5b,roughness:.74,metalness:.08,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.012,side:THREE.DoubleSide});
- const manorRoofTileA=new THREE.MeshStandardMaterial({color:0x355675,roughness:.68,metalness:.08,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.009});
- const manorRoofTileB=new THREE.MeshStandardMaterial({color:0x294662,roughness:.74,metalness:.07,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.009});
+ const manorRoofTileA=new THREE.MeshStandardMaterial({color:0x355675,roughness:.68,metalness:.08,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.011});
+ const manorRoofTileB=new THREE.MeshStandardMaterial({color:0x294662,roughness:.74,metalness:.07,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.011});
  const manorRoofSeam=new THREE.MeshStandardMaterial({color:0x1d344e,roughness:.72,metalness:.10,bumpMap:slateReliefTexture,bumpScale:.006});
  const manorRoofGold=new THREE.MeshStandardMaterial({color:0xc9a04e,roughness:.34,metalness:.68,roughnessMap:facadeMetalRoughness});
  const manorRoofHalf=3.38,manorRoofEaveY=4.48,manorRoofPeakY=6.08;
