@@ -3966,6 +3966,21 @@ function makeHouse(){
  // симметрию и расположение по сторонам портала, не меняя дверь и портик.
  facadeFrame(-2.12,1.66,2.68,.58,1.06);
  facadeFrame( 2.12,1.66,2.68,.58,1.06);
+ // Клиновидные известняковые камни и замковые блоки подчёркивают арки двух
+ // главных окон; детали повторяют каменную кладку арочных окон башен.
+ for(const x of [-2.12,2.12]){
+  const archCenterY=1.66+(1.06-.58/2);
+  const radius=.44;
+  for(let j=0;j<=8;j++){
+   const angle=Math.PI-j*Math.PI/8;
+   const voussoir=box(center,.105,.115,.085,
+     x+Math.cos(angle)*radius,archCenterY+Math.sin(angle)*radius,2.755,
+     j===4?facadeStoneShade:(j%2===0?facadeStone:cream),false);
+   voussoir.rotation.z=angle+Math.PI/2;
+  }
+  box(center,.145,.17,.10,x,2.755,2.76,facadeStone,false);
+  box(center,.19,.045,.11,x,2.85,2.76,facadeGold,false);
+ }
  // Пилястры по сторонам портала визуально связывают дверь с каменной архитектурой.
  for(const x of [-1.18,1.18]){
   box(center,.20,2.70,.22,x,1.88,2.73,facadeStone,false);
