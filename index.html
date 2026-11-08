@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-378100';
+const GREEN_WORLD_BUILD_ID = '20261108-379100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1652,6 +1652,35 @@ function makeFactory(){
  // Небольшие световые маркеры погрузочной зоны.
  for(const x of [-2.8,-.3]){
    box(g,.12,.18,.07,x,2.82,3.04,lamp,false);
+ }
+ // Узлы точной фиксации секционных ворот и защитные крышки направляющих.
+ const guideCap=new THREE.MeshStandardMaterial({color:0x71827e,roughness:.48,metalness:.58});
+ for(const x of [-2.77,-.33]){
+   box(g,.16,.18,.2,x,2.68,2.99,guideCap,false);
+   box(g,.12,.08,.22,x,2.56,3.0,trim,false);
+ }
+ // Компактный промышленный дисплей состояния погрузки рядом с воротами.
+ const displayHousing=new THREE.MeshStandardMaterial({color:0x344f58,roughness:.42,metalness:.48});
+ const displayGlass=new THREE.MeshPhysicalMaterial({color:0x173d45,roughness:.18,metalness:.22,clearcoat:.8});
+ box(g,.48,.42,.11,.22,1.92,2.99,displayHousing,false);
+ box(g,.36,.27,.035,.22,1.94,3.065,displayGlass,false);
+ box(g,.08,.035,.025,.12,1.79,3.07,safetyYellow,false);
+ box(g,.08,.035,.025,.31,1.79,3.07,interiorCool,false);
+ // Наружный шкаф пожарного инвентаря с контрастной дверцей и ручкой.
+ const fireRed=new THREE.MeshStandardMaterial({color:0xb84d3e,roughness:.58,metalness:.12});
+ box(g,.42,.72,.16,.82,1.02,2.98,fireRed,false);
+ box(g,.32,.58,.035,.82,1.02,3.075,door,false);
+ box(g,.035,.16,.035,.94,1.02,3.105,trim,false);
+ box(g,.12,.035,.025,.82,1.29,3.105,safetyYellow,false);
+ // Защищённая кнопка аварийной остановки на отдельном посту у входной зоны.
+ const stopRed=new THREE.MeshStandardMaterial({color:0xd64b3f,roughness:.34,metalness:.18,emissive:0x3a0805,emissiveIntensity:.12});
+ box(g,.22,.34,.13,1.55,1.02,3.0,displayHousing,false);
+ box(g,.12,.12,.06,1.55,1.12,3.09,stopRed,false);
+ box(g,.16,.035,.025,1.55,.86,3.09,safetyYellow,false);
+ // Крепёжные кронштейны и защитные козырьки над наружными инженерными шкафами.
+ for(const z of [-2.05,-.95]){
+   box(g,.24,.075,.82,3.75,1.52,z,frame,false);
+   box(g,.12,.12,.12,3.83,1.53,z,trim,false);
  }
  // Небольшая маркировка на фасаде — без крупной вывески и без изменения общего облика двора.
  const signCanvas=document.createElement('canvas');signCanvas.width=512;signCanvas.height=96;
