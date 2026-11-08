@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-373100';
+const GREEN_WORLD_BUILD_ID = '20261108-374100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1516,6 +1516,42 @@ function makeFactory(){
  const lamp=new THREE.MeshStandardMaterial({color:0xffe6ad,emissive:0xffc66b,emissiveIntensity:.42,roughness:.38});
  for(const x of [-2.55,-.55,2.55]){
    box(g,.22,.055,.12,x,2.98,3.02,lamp,false);
+ }
+ // Тонкие стойки и горизонтальные импосты превращают верхнее остекление в цельную фасадную систему.
+ const glazingFrame=new THREE.MeshStandardMaterial({color:0x405b60,roughness:.4,metalness:.5});
+ for(const x of [-3.35,-2.35,-.75,.75,2.35,3.35]){
+   box(g,.045,.8,.075,x,3.03,2.89,glazingFrame,false);
+ }
+ box(g,6.92,.045,.075,0,3.02,2.89,glazingFrame,false);
+ box(g,6.92,.045,.075,0,3.3,2.89,glazingFrame,false);
+ for(const z of [-2.25,-1.1,0,1.1,2.25]){
+   box(g,.075,.8,.045,3.72,3.03,z,glazingFrame,false);
+   box(g,.075,.8,.045,-3.72,3.03,z,glazingFrame,false);
+ }
+ // Дополнительная узкая полоса окон на заднем фасаде для естественного света внутри цеха.
+ box(g,5.9,.56,.07,0,2.83,-2.83,glass,false);
+ for(const x of [-2.85,-1.9,-.95,0,.95,1.9,2.85]){
+   box(g,.045,.62,.085,x,2.83,-2.87,glazingFrame,false);
+ }
+ box(g,5.95,.055,.085,0,2.83,-2.87,glazingFrame,false);
+ // Чёткая геометрия кровельного парапета и металлический водоотвод по периметру.
+ box(g,7.9,.18,.12,0,3.91,3.0,frame,false);
+ box(g,7.9,.18,.12,0,3.91,-3.0,frame,false);
+ box(g,.12,.18,5.9,3.88,3.91,0,frame,false);
+ box(g,.12,.18,5.9,-3.88,3.91,0,frame,false);
+ const drain=new THREE.MeshStandardMaterial({color:0x657b79,roughness:.48,metalness:.55});
+ for(const x of [-3.78,3.78]){
+   box(g,.09,2.95,.09,x,2.0,-2.72,drain,false);
+   box(g,.2,.09,.2,x,3.52,-2.72,trim,false);
+   box(g,.16,.12,.16,x,.53,-2.72,drain,false);
+ }
+ // Угловые защитные накладки и тонкие горизонтальные швы наружной облицовки.
+ for(const x of [-3.66,3.66]){
+   box(g,.12,2.35,.12,x,1.95,2.82,baseTrim,false);
+   box(g,.12,2.35,.12,x,1.95,-2.82,baseTrim,false);
+ }
+ for(const y of [1.08,1.42,1.76,2.1,2.44]){
+   box(g,7.22,.018,.025,0,y,2.865,glazingFrame,false);
  }
  // Небольшая маркировка на фасаде — без крупной вывески и без изменения общего облика двора.
  const signCanvas=document.createElement('canvas');signCanvas.width=512;signCanvas.height=96;
