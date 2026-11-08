@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-399100';
+const GREEN_WORLD_BUILD_ID = '20261108-400100';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1099,16 +1099,17 @@ function makeWorldDecor(){
       new THREE.CatmullRomCurve3(archPoints.map(p=>new THREE.Vector3(p.x,p.y-.075,p.z+.012))),
       128,.018,8,false),fenceGold);
     fenceNoShadow(goldTrim);panel.add(goldTrim);
-    // Тонкая тёмная линия подчёркивает внешний силуэт арки.
-    const darkArchOutline=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(outerPoints.map(p=>new THREE.Vector3(p.x,p.y+.105,p.z+.035))),128,.024,8,false),fenceOutline);
-    fenceNoShadow(darkArchOutline);panel.add(darkArchOutline);
-    // Внешний рельефный архивольт подчёркивает силуэт арки вторым каменным контуром.
+    // Сначала строим точки внешнего контура, затем используем их для всех его слоёв.
     const outerPoints=[];
     for(let i=0;i<=64;i++){
       const t=i/64;
       outerPoints.push(new THREE.Vector3(-innerHalf+2*innerHalf*t,
         springY+rise*Math.sin(Math.PI*t)+.20,depth/2+.105));
     }
+    // Тонкая тёмная линия подчёркивает внешний силуэт арки.
+    const darkArchOutline=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(outerPoints.map(p=>new THREE.Vector3(p.x,p.y+.105,p.z+.035))),128,.024,8,false),fenceOutline);
+    fenceNoShadow(darkArchOutline);panel.add(darkArchOutline);
+    // Внешний рельефный архивольт подчёркивает силуэт арки вторым каменным контуром.
     const outerArchivolt=new THREE.Mesh(new THREE.TubeGeometry(
       new THREE.CatmullRomCurve3(outerPoints),128,.055,10,false),fenceReliefStone);
     fenceNoShadow(outerArchivolt);panel.add(outerArchivolt);
