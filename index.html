@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261108-105500';
+const GREEN_WORLD_BUILD_ID = '20261108-112000';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3172,13 +3172,13 @@ function makeWorldLandscape(){
  // Три яруса протяжённых природных гряд: от внешней стороны ограждения к подножию гор.
  // Гряды вытянуты и смещены относительно друг друга, чтобы не возникала сетка квадратных холмов.
  const hillRidges=[
-   [-31,-4.0,4.4,10.5,3.5],[-17,-2.4,5.0,11.8,4.0],[-2,-4.8,4.6,10.8,3.6],
-   [14,-2.0,5.2,12.0,4.0],[30,-4.2,4.1,9.8,3.4],
-   [-27,2.2,3.8,12.5,3.8],[-11,1.4,4.6,13.5,4.1],[7,2.8,4.9,13.0,4.0],
-   [25,1.6,4.2,12.2,3.8],
-   [-31,8.2,4.9,10.8,4.2],[-15,7.4,5.8,12.6,4.6],[3,8.8,5.5,12.8,4.4],
-   [22,7.6,5.1,11.8,4.1],[-28,14.0,3.8,9.5,3.6],[-8,14.8,4.5,11.5,3.9],
-   [13,14.2,4.7,11.2,3.8],[31,13.4,3.9,9.2,3.5]
+   [-31,-4.0,1.55,8.2,2.8],[-17,-2.4,1.75,9.0,3.0],[-2,-4.8,1.60,8.4,2.8],
+   [14,-2.0,1.80,9.0,3.0],[30,-4.2,1.45,7.8,2.7],
+   [-27,2.2,1.45,9.2,3.0],[-11,1.4,1.65,9.8,3.2],[7,2.8,1.75,9.5,3.1],
+   [25,1.6,1.55,9.0,3.0],
+   [-31,8.2,1.65,8.5,3.0],[-15,7.4,1.95,9.5,3.2],[3,8.8,1.85,9.5,3.2],
+   [22,7.6,1.70,8.8,3.0],[-28,14.0,1.30,7.8,2.6],[-8,14.8,1.50,8.5,2.8],
+   [13,14.2,1.55,8.2,2.7],[31,13.4,1.35,7.5,2.5]
  ];
  for(let i=0;i<hillPositions.count;i++){
    const x=hillPositions.getX(i),z=hillPositions.getY(i);
@@ -3197,11 +3197,11 @@ function makeWorldLandscape(){
    const edgeDistance=Math.min(edgeX,edgeBack,edgeFront);
    const edge=smoothstepTerrain(edgeDistance/5.2);
    // Неровные гребни, ложбины и короткие ответвления формируют цельный ландшафтный рельеф.
-   const broadWave=Math.sin(x*.19+z*.28)*.30+Math.cos(x*.33-z*.17)*.19;
-   const ridgeNoise=Math.sin(x*.52+z*.37)*.13+Math.sin(x*.91-z*.43)*.075;
-   const crossRidges=Math.pow(Math.max(0,Math.sin(x*.22+z*.12+Math.sin(x*.11)*.8)),5)*.42;
-   const gentleNoise=(Math.sin(x*.37+z*.21)+Math.cos(x*.23-z*.31))*.12;
-   height=Math.max(0,(height*1.18+broadWave+ridgeNoise+crossRidges+gentleNoise)*edge);
+   const broadWave=Math.sin(x*.19+z*.28)*.14+Math.cos(x*.33-z*.17)*.09;
+   const ridgeNoise=Math.sin(x*.52+z*.37)*.07+Math.sin(x*.91-z*.43)*.04;
+   const crossRidges=Math.pow(Math.max(0,Math.sin(x*.22+z*.12+Math.sin(x*.11)*.8)),5)*.20;
+   const gentleNoise=(Math.sin(x*.37+z*.21)+Math.cos(x*.23-z*.31))*.06;
+   height=Math.max(0,(height*.88+broadWave+ridgeNoise+crossRidges+gentleNoise)*edge);
    // Внутри ограждённого квадрата рельеф полностью убран: поверхность ровная, как передний двор.
    // По внешней стороне периметра делаем мягкий переход, чтобы не образовалась резкая стенка.
    const worldZ=-27.5-z;
