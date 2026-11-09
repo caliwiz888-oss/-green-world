@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-01';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-02';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -378,7 +378,8 @@ M.roof.envMapIntensity=.9;M.roof2.envMapIntensity=.86;
 M.gold.envMapIntensity=.9;M.glass.envMapIntensity=1.05;
 
 function makeSurfaceTexture(kind,seed){
- const size=768,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
+ // На мощных устройствах используем более детальные карты поверхностей; мобильный лимит сохраняет память и скорость загрузки.
+ const size=highEnd?1024:768,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
  const ctx=canvas.getContext('2d'),image=ctx.createImageData(size,size);
  let state=seed>>>0;
  const rand=()=>{state=(state*1664525+1013904223)>>>0;return state/4294967296};
