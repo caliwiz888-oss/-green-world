@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-11';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-12';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -915,7 +915,7 @@ function makeWorldDecor(){
     bump.repeat.set(repeatX,repeatY);bump.needsUpdate=true;
     return new THREE.MeshPhysicalMaterial({
       color,map,bumpMap:bump,roughnessMap:bump,bumpScale,roughness,metalness:0,
-      clearcoat:.08,clearcoatRoughness:.9,envMapIntensity:.32
+      clearcoat:.10,clearcoatRoughness:.86,envMapIntensity:.36
     });
   }
   // Та же тонкая фактура наносится на существующие плиты настила и основания.
@@ -926,9 +926,9 @@ function makeWorldDecor(){
     material.bumpMap=textured.bumpMap;
     material.roughnessMap=textured.roughnessMap;
     material.bumpScale=textured.bumpScale;
-    material.clearcoat=.07;
-    material.clearcoatRoughness=.92;
-    material.envMapIntensity=.3;
+    material.clearcoat=.085;
+    material.clearcoatRoughness=.88;
+    material.envMapIntensity=.34;
     material.needsUpdate=true;
   }
   applyBridgeStoneSurface(bridgeDeckMat,2.4,1.8,.013);
