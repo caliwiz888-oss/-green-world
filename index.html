@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-22';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-23';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2765,9 +2765,17 @@ function makeHouse(){
  porticoLine([pv(-1.31,3.625,3.522),pv(0,3.972,3.522),pv(1.31,3.625,3.522)],.009,porticoGold);
  porticoLine([pv(-1.37,3.60,3.515),pv(1.37,3.60,3.515)],.014,facadeStoneShade);
  sphere(center,.09,0,3.72,3.53,facadeGold,.9);
- // Парадная лестница с широкими каменными ступенями.
+ // Локальная физическая отделка парадной лестницы: не меняет общий материал фасада.
+ const stairStoneFinish=new THREE.MeshPhysicalMaterial({
+  color:cream.color.clone(),map:cream.map||null,
+  bumpMap:cream.bumpMap||null,roughnessMap:cream.roughnessMap||null,
+  bumpScale:cream.bumpScale??.02,roughness:.82,metalness:.025,
+  clearcoat:.12,clearcoatRoughness:.78,envMapIntensity:.45,
+  dithering:true
+ });
+ // Парадная лестница с широкими каменными ступенями — исходная геометрия и расстановка сохранены.
  for(let i=0;i<5;i++){
-  box(center,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,cream);
+  box(center,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,stairStoneFinish);
  }
  // Главная крыша — точная архитектурная форма утверждённого эталона:
  // высокая двускатная сланцево-синяя кровля, фронтон обращён к фасаду,
