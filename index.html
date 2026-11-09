@@ -105,7 +105,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 #treeDiagOutput{display:block;width:100%;height:min(48vh,340px);margin:10px 0;padding:10px;border:1px solid #b8cfad;border-radius:10px;background:#fff;color:#254b30;font:12px/1.4 monospace;white-space:pre;overflow:auto;resize:vertical}
 .treeDiagActions{display:flex;gap:8px;flex-wrap:wrap}
 .treeDiagActions button{padding:10px 13px;border:1px solid #b7cda8;border-radius:10px;background:#dcebd4;color:#315b38;font-weight:900}
- #fullLayoutDiagQuickOpen{position:fixed;z-index:14;top:62px;right:10px;padding:9px 12px;border:2px solid #e8c16c;border-radius:12px;background:linear-gradient(155deg,#81512d,#382116);color:#fff1cf;font-size:12px;font-weight:950;box-shadow:0 3px 10px #0006;max-width:150px}
+ #fullLayoutDiagQuickOpen{position:fixed;z-index:1000;top:calc(env(safe-area-inset-top,0px) + 54px);right:10px;padding:10px 13px;border:2px solid #e8c16c;border-radius:12px;background:linear-gradient(155deg,#81512d,#382116);color:#fff1cf;font-size:12px;font-weight:950;box-shadow:0 3px 10px #0009;max-width:170px;min-height:42px;pointer-events:auto;cursor:pointer}
 </style>
 </head>
 <body>
@@ -116,8 +116,8 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
  <div id="farmHudInfo"><div id="farmHudTitle">🍀 GREEN FARM</div><div id="farmHudLevel">Уровень · Ур. 1 · ✨ 0 XP</div></div>
 </div>
 
+<button id="fullLayoutDiagQuickOpen" type="button">🔎 Полная проверка</button>
 <div id="walletHud" aria-label="Баланс GREEN COIN и собранные яблоки">
- <button id="fullLayoutDiagQuickOpen" type="button">🔎 Диагностика</button>
  <div class="walletHudMetric"><span class="walletHudIcon" aria-hidden="true">🪙</span><span class="walletHudText"><b class="walletHudValue" id="greenCoinCount">100</b><span class="walletHudLabel">GREEN COIN</span></span></div>
  <span class="walletHudDivider" aria-hidden="true"></span>
  <div class="walletHudMetric"><span class="walletHudIcon" aria-hidden="true">🍎</span><span class="walletHudText"><b class="walletHudValue" id="appleCount">0</b><span class="walletHudLabel">ЯБЛОКИ</span></span></div>
