@@ -1725,39 +1725,6 @@ function makeWorldDecor(){
    g.rotation.y=seed*.13;g.scale.set(1+.05*Math.sin(seed),1+.035*Math.cos(seed*1.4),1+.05*Math.cos(seed));
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
- // Дальний лесной пояс распределён свободно: деревья смещены и по ширине, и по глубине,
- // поэтому кроны не складываются в две ровные горизонтальные линии.
- const backgroundForestRows=[-35.2,-41.0];
- for(let row=0;row<backgroundForestRows.length;row++){
-   const baseZ=backgroundForestRows[row];
-   for(let i=0;i<17;i++){
-     const wave=Math.sin(i*1.71+row*1.9),cross=Math.cos(i*1.13+row*.8);
-     const x=-44+i*5.5+(row===0?0:2.25)+wave*1.15;
-     const z=baseZ+cross*1.65+(i%3-1)*.48;
-     const moveRightBloom=(row===0&&i===16);
-     const treeX=moveRightBloom?12:x;
-     const treeZ=moveRightBloom?-32.5:z;
-     const localV=-(treeZ+36.5);
-     const t=THREE.MathUtils.clamp((localV+15.5)/31,0,1);
-     const baseY=.08+3.0*THREE.MathUtils.smoothstep(t,.02,.98);
-     const seed=i*.73+row*2.1;
-     // Старые фоновые розовые деревья не используются.
-
-   }
- }
- // Боковые хвойные деревья разнесены дальше друг от друга, чтобы кроны не слипались.
- // Розовые деревья вынесены отдельно за боковые секции ограды на уровень передней дороги.
- const sideTreeRows=[17,8,-1,-10,-19,-27];
- for(const side of [-1,1]){
-   sideTreeRows.forEach((baseZ,i)=>{
-     const x=side*(21.4+(i%2)*2.8+Math.sin(i*1.8)*.55);
-     const z=baseZ+Math.cos(i*1.37)*1.0+(i%2?1.1:-.7);
-     const h=4.85+(i%3)*.42;
-
-   });
-   // Два розовых дерева стоят снаружи бокового забора, рядом с уровнем дороги.
-   // Два розовых дерева у бокового забора удалены по запросу.
- }
   // Новые розовые деревья расставлены СНАРУЖИ периметра ограды.
   // Передняя сторона, боковые стороны и задняя сторона; въезд и дорожки свободны.
   for(const [x,z,h,seed] of [
@@ -1766,24 +1733,6 @@ function makeWorldDecor(){
   ])gwAddBlossom(x,z,h,seed,.08);
   // Три янтарных дерева разбросаны в разных точках за задним ограждением.
   for(const [x,z,h,seed] of [[-24.0,-43.5,4.45,67],[7.5,-56.0,4.55,73],[25.0,-46.5,4.4,81]])gwAddBlossom(x,z,h,seed,.08,'amber');
- // Редкий дополнительный ряд перенесён глубже к лесному фону, чтобы заполнить дальние просветы,
- // не создавать третью тесную полосу позади основных деревьев.
- for(let i=0;i<13;i++){
-   const x=-39+i*6.5+(i%2?1.35:-.65)+Math.sin(i*1.6)*.5;
-   const z=-35.0+(i%2)*3.0+Math.cos(i*1.31)*.7;
-   const h=4.55+(i%4)*.32;
-   
- }
- // Задняя часть периметра тоже имеет глубину: деревья чередуются между двумя
- // диагонально смещёнными дорожками, а не образуют одну сплошную стену.
- for(let i=0;i<15;i++){
-   const lane=i%2;
-   const x=-27+i*3.8+(lane?1.35:-.7)+Math.sin(i*1.4)*.85;
-   const z=-26.0+lane*3.0+Math.cos(i*1.67)*1.25;
-   const h=5.0+(i%4)*.4;
-   // Старые фоновые розовые деревья не используются.
-
- }
   // GREEN WORLD — смешанный лес по утверждённому эталону.
  // Хвойные деревья образуют дальний высокий фон; лиственные и цветущие стоят впереди,
  // в свободной шахматной расстановке. Все деревья остаются за задней оградой.
@@ -1839,10 +1788,11 @@ function makeWorldDecor(){
    [-40,-44.5,5.6,525,'amber'],[-2,-47.0,5.8,531,'pink'],[30,-46.0,5.7,537,'amber']
  ])gwAddBlossom(x,z,h,seed,.055,palette);
  // Группы кустарников создаются непосредственно при сборке мира после основных объектов.
+ // Кусты стоят вдоль боковых границ и не занимают центральный газон.
  const shrubLayout=[
-  [-10.6,-3.6,0],[10.6,-3.6,1],
-  [-11.0,3.1,1],[11.0,3.1,2],
-  [-10.2,9.2,2],[10.2,9.2,0]
+  [-13.55,-15.0,0],[13.55,-15.0,1],
+  [-13.55,-5.0,1],[13.55,-5.0,2],
+  [-13.55,5.8,2],[13.55,5.8,0]
  ];
  for(const [x,z,v] of shrubLayout)makeShrubCluster(x,z,v);
  window.GREEN_WORLD_SHRUB_DIAGNOSTIC={created:shrubLayout.length,positions:shrubLayout.map(([x,z])=>({x,z}))};
@@ -2007,6 +1957,64 @@ riverSurfaceMesh.castShadow=false;
 riverSurfaceMesh.receiveShadow=true;
 riverSurfaceMesh.frustumCulled=false;
 world.add(riverSurfaceMesh);
+
+// Задний декоративный водоём по эталону — за задним ограждением, перед лесным поясом.
+const rearPondMaterial=new THREE.MeshPhysicalMaterial({
+ color:0x42aabd,roughness:.2,metalness:.035,clearcoat:.72,clearcoatRoughness:.16,
+ transparent:true,opacity:.91,side:THREE.DoubleSide
+});
+const rearPondGeometry=new THREE.PlaneGeometry(43,5.8,120,28);
+const rearPond=new THREE.Mesh(rearPondGeometry,rearPondMaterial);
+rearPond.name='GREEN_WORLD_Rear_Pond';
+rearPond.rotation.x=-Math.PI/2;
+rearPond.position.set(0,.115,-27.35);
+rearPond.receiveShadow=true;rearPond.castShadow=false;rearPond.frustumCulled=false;
+world.add(rearPond);
+const rearBankMat=M.stone2.clone();
+rearBankMat.color=new THREE.Color(0xc8b995);rearBankMat.roughness=.92;rearBankMat.needsUpdate=true;
+for(const z of [-30.32,-24.38]){
+ const edge=new THREE.Mesh(new THREE.BoxGeometry(43.4,.22,.34),rearBankMat);
+ edge.name='GREEN_WORLD_Rear_Pond_Bank';edge.position.set(0,.12,z);
+ edge.castShadow=false;edge.receiveShadow=true;world.add(edge);
+}
+// Три невысоких фонтана, симметрично распределённых по заднему водоёму.
+const fountainStone= M.stone2.clone();fountainStone.color=new THREE.Color(0xd9c7a4);fountainStone.roughness=.88;fountainStone.needsUpdate=true;
+const fountainWater=new THREE.MeshPhysicalMaterial({color:0x9ce8f1,roughness:.12,metalness:.04,transparent:true,opacity:.58,clearcoat:.9,side:THREE.DoubleSide});
+for(const x of [-14,0,14]){
+ const basin=new THREE.Mesh(new THREE.CylinderGeometry(.82,.94,.34,32),fountainStone);
+ basin.position.set(x,.34,-27.35);basin.castShadow=true;basin.receiveShadow=true;world.add(basin);
+ const waterDisk=new THREE.Mesh(new THREE.CylinderGeometry(.69,.69,.035,32),fountainWater);
+ waterDisk.position.set(x,.53,-27.35);world.add(waterDisk);
+ const jet=new THREE.Mesh(new THREE.CylinderGeometry(.045,.12,1.55,12),fountainWater);
+ jet.position.set(x,1.31,-27.35);world.add(jet);
+ const crown=new THREE.Mesh(new THREE.SphereGeometry(.19,16,10),fountainWater);
+ crown.position.set(x,2.12,-27.35);crown.scale.set(.8,1.35,.8);world.add(crown);
+}
+// Беседка на правом берегу заднего водоёма, вне центральной оси и проходов.
+const gazebo=new THREE.Group();gazebo.name='GREEN_WORLD_Rear_Gazebo';
+gazebo.position.set(26.2,0,-27.35);world.add(gazebo);
+const gazeboStone=M.stone2.clone();gazeboStone.color=new THREE.Color(0xd8c6a2);gazeboStone.roughness=.88;gazeboStone.needsUpdate=true;
+const gazeboGold=M.gold?M.gold.clone():new THREE.MeshStandardMaterial({color:0xc59a4c,roughness:.38});
+const gazeboRoof=M.roof2?M.roof2.clone():new THREE.MeshStandardMaterial({color:0x315574,roughness:.7});
+const gazeboBase=new THREE.Mesh(new THREE.CylinderGeometry(2.45,2.6,.28,12),gazeboStone);
+gazeboBase.position.y=.14;gazebo.add(gazeboBase);
+const gazeboFloor=new THREE.Mesh(new THREE.CylinderGeometry(2.18,2.18,.12,12),gazeboStone);
+gazeboFloor.position.y=.34;gazebo.add(gazeboFloor);
+for(let k=0;k<8;k++){
+ const a=k*Math.PI/4,px=Math.cos(a)*1.82,pz=Math.sin(a)*1.82;
+ const column=new THREE.Mesh(new THREE.CylinderGeometry(.105,.14,2.55,12),gazeboStone);
+ column.position.set(px,1.62,pz);gazebo.add(column);
+ const capital=new THREE.Mesh(new THREE.CylinderGeometry(.19,.17,.13,12),gazeboGold);
+ capital.position.set(px,2.91,pz);gazebo.add(capital);
+}
+const gazeboRing=new THREE.Mesh(new THREE.CylinderGeometry(2.16,2.16,.2,12),gazeboGold);
+gazeboRing.position.y=2.98;gazebo.add(gazeboRing);
+const gazeboDome=new THREE.Mesh(new THREE.SphereGeometry(2.16,32,16,0,Math.PI*2,0,Math.PI/2),gazeboRoof);
+gazeboDome.position.y=3.06;gazeboDome.scale.y=.88;gazebo.add(gazeboDome);
+const gazeboFinial=new THREE.Mesh(new THREE.SphereGeometry(.18,16,10),gazeboGold);
+gazeboFinial.position.y=4.92;gazebo.add(gazeboFinial);
+gazebo.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
+window.GREEN_WORLD_REAR_FEATURES={pond:rearPond.parent===world,fountains:3,gazebo:gazebo.parent===world};
 
 // Тонкие природные каменные кромки берегов подчёркивают границу воды.
 // Они лежат вне русла и не меняют ширину, положение или форму реки.
