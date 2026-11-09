@@ -3520,7 +3520,7 @@ window.GREEN_WORLD_GET_CENTRAL_FOUNTAIN_VISIBILITY=()=>{
   }
   heightSweep.push({cameraY:height,visible:visiblePoints,blockedByHouse:blockedPoints,inFrame:framePoints});
  }
- const bestHeight=heightSweep.find(h=>h.visible>0)||heightSweep.reduce((a,b)=>b.visible>a.visible?b:a,heightSweep[0]);
+ const bestHeight=heightSweep.reduce((best,current)=>current.visible>best.visible||(current.visible===best.visible&&current.cameraY<best.cameraY)?current:best,heightSweep[0]);
  return {camera:{x:camera.position.x,y:camera.position.y,z:camera.position.z,target:{x:cameraTarget.x,y:cameraTarget.y,z:cameraTarget.z},fov:camera.fov,aspect:camera.aspect},house:{name:house.name,bounds:(()=>{const b=new THREE.Box3().setFromObject(house);return {min:{x:b.min.x,y:b.min.y,z:b.min.z},max:{x:b.max.x,y:b.max.y,z:b.max.z}}})()},fountain:{x:0,z:-27.35},samples:results,summary:{total:results.length,inFrame,blockedByHouse:blocked,visible},heightSweep,bestHeight,verdict:visible?'Есть точки центрального фонтана, видимые поверх дома.':blocked?'Центральный фонтан попадает в кадр, но его проверенные части закрывает главный дом.':'Проверенные части центрального фонтана не попадают в кадр.'};
 };
 window.GREEN_WORLD_GET_FULL_LAYOUT_DIAGNOSTIC=()=>{
