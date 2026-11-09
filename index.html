@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-23';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-24';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -796,6 +796,43 @@ function makeFlowerBed(x,z){
    [-8.4,7.2],[8.4,7.2]
  ])makeFlowerBed(x,z);
  // Цветочные акценты вдоль передней линии ограды: симметрично по обе стороны от центрального входа.
+ // Низкие смешанные кустарниковые группы с естественными перекрывающимися кронами.
+ // Все позиции зеркальны относительно центральной дорожки; архитектура и деревья не перемещаются.
+ function makeShrubCluster(x,z,variant=0){
+  const cluster=group(world,x,0,z);
+  const greens=[
+   new THREE.MeshPhysicalMaterial({color:0x356f39,roughness:.92,sheen:.22,sheenColor:0x91bd70,sheenRoughness:.9}),
+   new THREE.MeshPhysicalMaterial({color:0x4b8744,roughness:.9,sheen:.27,sheenColor:0xb0d28b,sheenRoughness:.88}),
+   new THREE.MeshPhysicalMaterial({color:0x6b9d50,roughness:.91,sheen:.24,sheenColor:0xc5dda0,sheenRoughness:.9})
+  ];
+  const crown=new THREE.SphereGeometry(1,12,9);
+  const forms=[
+   [-.42,.38,0,.52,.48,.43],[.02,.47,-.08,.62,.57,.48],
+   [.48,.34,.04,.48,.42,.4],[-.12,.62,.28,.42,.43,.38],
+   [.31,.57,-.29,.39,.38,.36]
+  ];
+  for(let i=0;i<forms.length;i++){
+   const [px,py,pz,sx,sy,sz]=forms[i];
+   const foliage=new THREE.Mesh(crown,greens[(i+variant)%greens.length]);
+   foliage.position.set(px,py,pz);foliage.scale.set(sx,sy,sz);
+   foliage.rotation.y=i*.71+variant*.37;
+   foliage.castShadow=false;foliage.receiveShadow=false;cluster.add(foliage);
+  }
+  const accents=[0xf1c75c,0xf4dce8,0xe982a5];
+  for(let i=0;i<3;i++){
+   const bloom=new THREE.Mesh(new THREE.SphereGeometry(.075,10,8),
+    new THREE.MeshStandardMaterial({color:accents[(i+variant)%accents.length],roughness:.78}));
+   bloom.position.set((i-1)*.34,.72,i%2?-.2:.2);
+   bloom.castShadow=false;cluster.add(bloom);
+  }
+ }
+ // Группы у боковых границ, возле дома и передней части двора.
+ for(const [x,z,v] of [
+  [-5.45,-5.65,0],[5.45,-5.65,1],
+  [-10.55,-.3,1],[10.55,-.3,2],
+  [-10.35,7.1,2],[10.35,7.1,0],
+  [-5.55,13.15,1],[5.55,13.15,2]
+ ])makeShrubCluster(x,z,v);
  for(const x of [-11,-7,7,11])makeFlowerBed(x,16.25);
 function makeWorldDecor(){
   // Двухцветная палитра ограды: тёплый известняк и приглушённый шалфейно-оливковый камень.
