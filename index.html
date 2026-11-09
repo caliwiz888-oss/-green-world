@@ -1995,25 +1995,45 @@ riverSurfaceMesh.receiveShadow=true;
 riverSurfaceMesh.frustumCulled=false;
 world.add(riverSurfaceMesh);
 
-// Задний декоративный водоём по эталону — за задним ограждением, перед лесным поясом.
+// Задний водоём: плавный природный контур вместо прямоугольной чаши.
 const rearPondMaterial=new THREE.MeshPhysicalMaterial({
  color:0x42aabd,roughness:.2,metalness:.035,clearcoat:.72,clearcoatRoughness:.16,
  transparent:true,opacity:.91,side:THREE.DoubleSide
 });
-const rearPondGeometry=new THREE.PlaneGeometry(43,5.8,120,28);
+const makeRearPondContour=()=>{
+ const shape=new THREE.Shape();
+ shape.moveTo(-21.5,0);
+ shape.bezierCurveTo(-21.5,1.55,-19.6,2.65,-16.5,2.72);
+ shape.bezierCurveTo(-13.5,2.78,-11.3,2.35,-8.0,2.62);
+ shape.bezierCurveTo(-4.6,2.9,-2.6,2.72,0,2.82);
+ shape.bezierCurveTo(3.4,2.92,5.5,2.48,8.6,2.68);
+ shape.bezierCurveTo(12.1,2.9,14.0,2.52,16.8,2.55);
+ shape.bezierCurveTo(19.7,2.58,21.5,1.48,21.5,0);
+ shape.bezierCurveTo(21.5,-1.45,19.4,-2.65,16.5,-2.72);
+ shape.bezierCurveTo(13.5,-2.78,11.2,-2.35,8.0,-2.62);
+ shape.bezierCurveTo(4.6,-2.9,2.6,-2.72,0,-2.82);
+ shape.bezierCurveTo(-3.4,-2.92,-5.5,-2.48,-8.6,-2.68);
+ shape.bezierCurveTo(-12.1,-2.9,-14.0,-2.52,-16.8,-2.55);
+ shape.bezierCurveTo(-19.7,-2.58,-21.5,-1.48,-21.5,0);
+ shape.closePath();
+ return shape;
+};
+const rearPondShape=makeRearPondContour();
+const rearPondGeometry=new THREE.ShapeGeometry(rearPondShape,32);
 const rearPond=new THREE.Mesh(rearPondGeometry,rearPondMaterial);
 rearPond.name='GREEN_WORLD_Rear_Pond';
 rearPond.rotation.x=-Math.PI/2;
 rearPond.position.set(0,.115,-27.35);
 rearPond.receiveShadow=true;rearPond.castShadow=false;rearPond.frustumCulled=false;
 world.add(rearPond);
+// Непрерывная округлая каменная кромка повторяет изгибы берега.
 const rearBankMat=M.stone2.clone();
 rearBankMat.color=new THREE.Color(0xc8b995);rearBankMat.roughness=.92;rearBankMat.needsUpdate=true;
-for(const z of [-30.32,-24.38]){
- const edge=new THREE.Mesh(new THREE.BoxGeometry(43.4,.22,.34),rearBankMat);
- edge.name='GREEN_WORLD_Rear_Pond_Bank';edge.position.set(0,.12,z);
- edge.castShadow=false;edge.receiveShadow=true;world.add(edge);
-}
+const rearBankPoints=rearPondShape.getPoints(180).map(p=>new THREE.Vector3(p.x,.16,-27.35-p.y));
+const rearBankCurve=new THREE.CatmullRomCurve3(rearBankPoints,true,'centripetal');
+const rearBank=new THREE.Mesh(new THREE.TubeGeometry(rearBankCurve,360,.17,8,true),rearBankMat);
+rearBank.name='GREEN_WORLD_Rear_Pond_Bank';
+rearBank.castShadow=false;rearBank.receiveShadow=true;world.add(rearBank);
 // Три невысоких фонтана, симметрично распределённых по заднему водоёму.
 const fountainStone= M.stone2.clone();fountainStone.color=new THREE.Color(0xd9c7a4);fountainStone.roughness=.88;fountainStone.needsUpdate=true;
 const fountainWater=new THREE.MeshPhysicalMaterial({color:0x9ce8f1,roughness:.12,metalness:.04,transparent:true,opacity:.58,clearcoat:.9,side:THREE.DoubleSide});
