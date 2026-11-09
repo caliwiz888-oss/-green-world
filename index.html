@@ -1972,10 +1972,18 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  const newTerrainGeometry=new THREE.PlaneGeometry(88,112,232,300);
  const newTerrainPositions=newTerrainGeometry.attributes.position;
  const newTerrainColors=[];
- const flatMeadowColor=new THREE.Color(0x36c928);
+ const flatMeadowColor=new THREE.Color(0x4aa83b);
+ // Едва заметная крупномасштабная вариация оттенка убирает эффект однотонной пластиковой плоскости.
+ // Высота, границы и геометрия внешней площадки остаются прежними.
  for(let i=0;i<newTerrainPositions.count;i++){
+   const px=newTerrainPositions.getX(i),pz=newTerrainPositions.getY(i);
    newTerrainPositions.setZ(i,0);
-   newTerrainColors.push(flatMeadowColor.r,flatMeadowColor.g,flatMeadowColor.b);
+   const variation=1+Math.sin(px*.19+pz*.11)*.025+Math.cos(px*.09-pz*.17)*.018;
+   newTerrainColors.push(
+    THREE.MathUtils.clamp(flatMeadowColor.r*variation,0,1),
+    THREE.MathUtils.clamp(flatMeadowColor.g*variation,0,1),
+    THREE.MathUtils.clamp(flatMeadowColor.b*variation,0,1)
+   );
  }
  newTerrainGeometry.setAttribute('color',new THREE.Float32BufferAttribute(newTerrainColors,3));
  newTerrainGeometry.computeVertexNormals();
