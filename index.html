@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-25';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-26';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -790,11 +790,8 @@ function makeFlowerBed(x,z){
  // не меняя положение деревьев, ограды, дома и центрального прохода.
  // Цветники внутри двора вместо разрозненных шарообразных кустов.
  // Каменные бортики, грунт, листья и отдельные цветы используют уже существующую детальную клумбу.
- for(const [x,z] of [
-   [-6.6,-5.2],[6.6,-5.2],
-   [-9.1,.2],[9.1,.2],
-   [-8.4,7.2],[8.4,7.2]
- ])makeFlowerBed(x,z);
+ // В центре двора сохраняем открытый газон; оставляем только две передние клумбы у розовых деревьев.
+ for(const [x,z] of [[-8.4,7.2],[8.4,7.2]])makeFlowerBed(x,z);
  // Цветочные акценты вдоль передней линии ограды: симметрично по обе стороны от центрального входа.
  // Низкие смешанные кустарниковые группы с естественными перекрывающимися кронами.
  // Все позиции зеркальны относительно центральной дорожки; архитектура и деревья не перемещаются.
@@ -826,8 +823,7 @@ function makeFlowerBed(x,z){
    bloom.castShadow=false;cluster.add(bloom);
   }
  }
- // Группы у боковых границ, возле дома и передней части двора.
- for(const x of [-11,-7,7,11])makeFlowerBed(x,16.25);
+ // Дополнительные клумбы не создаём: центральный газон остаётся свободным.
 function makeWorldDecor(){
   // Двухцветная палитра ограды: тёплый известняк и приглушённый шалфейно-оливковый камень.
   const fenceBaseTrim=mat(0x4b4034),fenceLightTrim=mat(0xb6a58b),fenceRelief=mat(0x987642),fenceShadow=mat(0x382e26);
