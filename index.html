@@ -1745,32 +1745,30 @@ function makeWorldDecor(){
    // Старые фоновые розовые деревья не используются.
 
  }
-  // GREEN WORLD — плотный дальний лес по новому эталону заднего фона.
-  // Два смещённых ряда хвойных деревьев формируют непрерывный зелёный горизонт.
-  // Деревья находятся за задним забором и не перекрывают усадьбу, мост или игровые объекты.
+  // GREEN WORLD — более плотный, широкий и естественно чередующийся дальний лес.
+  // Три смещённых ряда елей заполняют горизонт без ровной геометрической линии.
   const gwBackForestRows=[
-    {z:-31.5,offset:0,seed:101},
-    {z:-40.5,offset:5.8,seed:137}
+    {z:-30.8,offset:0,seed:101,count:11,step:9.1},
+    {z:-39.2,offset:4.4,seed:137,count:11,step:9.1},
+    {z:-48.0,offset:0,seed:173,count:10,step:10.0}
   ];
   for(let row=0;row<gwBackForestRows.length;row++){
     const spec=gwBackForestRows[row];
-    for(let i=0;i<8;i++){
-      const x=-45+i*12.8+spec.offset+Math.sin(i*1.63+row)*1.25;
-      const z=spec.z+Math.cos(i*1.31+row*.9)*1.65;
-      const h=8.2+((i*7+row*3)%5)*.48;
-      gwAddPine(x,z,h,spec.seed+i*1.37,.06);
+    for(let i=0;i<spec.count;i++){
+      const x=-45+i*spec.step+spec.offset+Math.sin(i*1.63+row)*1.0;
+      const z=spec.z+Math.cos(i*1.31+row*.9)*1.15;
+      const h=7.1+((i*7+row*3)%5)*.43;
+      gwAddPine(x,z,h,spec.seed+i*1.37,.055);
     }
   }
-  // Небольшой второй план листвы заполняет просветы между крупными кронами,
-  // оставаясь ниже и дальше основной линии леса.
-  for(let i=0;i<7;i++){
-    const x=-39+i*13.1+Math.sin(i*1.8)*1.1;
-    const z=-46.5+Math.cos(i*1.4)*1.2;
-    const h=6.4+(i%3)*.42;
-    gwAddPine(x,z,h,181+i*1.61,.05);
-  }
-  // Фоновые деревья используют существующие процедурные текстуры и материалы;
-  // новые внешние изображения и сетевые загрузки не требуются.
+  // Цветущие деревья между хвойными смягчают силуэт леса и добавляют природные оттенки.
+  for(const [x,z,h,seed,palette] of [
+    [-34,-35.0,6.2,211,'pink'],[-17,-43.0,6.7,217,'amber'],
+    [0,-34.5,6.4,223,'pink'],[17,-44.0,6.8,229,'pink'],
+    [34,-35.5,6.3,235,'amber'],[-25,-51.0,6.0,241,'pink'],
+    [9,-53.0,6.1,247,'amber'],[27,-51.5,6.0,253,'pink']
+  ])gwAddBlossom(x,z,h,seed,.055,palette);
+  // Весь лес остаётся позади заднего ограждения; архитектура и игровая зона не перемещаются.
   // Удалены мелкие светлые камешки за правой стороной ограды, чтобы убрать тонкую светлую отметку.
 }
 let riverWaterTexture=null;
@@ -1804,6 +1802,17 @@ function makeWorldLandscape(){
  for(const [x,y,z,sx,sy,sz,rz] of [[-27,29,-53,8,.16,.62,-.08],[-8,31,-61,10,.13,.48,.035],[12,28,-57,7,.14,.55,-.045],[29,26,-49,6,.12,.42,.07]]){
    const wisp=new THREE.Mesh(new THREE.SphereGeometry(1,20,8),cirrusMat);
    wisp.position.set(x,y,z);wisp.scale.set(sx,sy,sz);wisp.rotation.z=rz;world.add(wisp);
+ }
+ // Мягкие объёмные облака: несколько слоёв белых полупрозрачных масс на фоне неба.
+ const gwCloudMat=new THREE.MeshBasicMaterial({color:0xf8ffff,transparent:true,opacity:.19,depthWrite:false,fog:false});
+ const gwCloudPuffs=[
+   [-31,25,-58,10,2.4,4.8],[-23,26,-59,8,2.8,5.2],[-14,24,-57,11,2.2,4.4],
+   [8,27,-62,12,2.5,5.0],[19,25,-60,9,2.8,4.8],[29,23,-56,10,2.1,4.2],
+   [-39,19,-49,7,1.8,3.8],[38,20,-51,8,2.0,4.0]
+ ];
+ for(const [x,y,z,sx,sy,sz] of gwCloudPuffs){
+   const cloud=new THREE.Mesh(new THREE.SphereGeometry(1,18,12),gwCloudMat);
+   cloud.position.set(x,y,z);cloud.scale.set(sx,sy,sz);cloud.renderOrder=-1;world.add(cloud);
  }
  const water=new THREE.MeshPhysicalMaterial({color:0x4aa9c5,roughness:.19,metalness:.055,clearcoat:.48,clearcoatRoughness:.2,reflectivity:.68,transparent:true,opacity:.84});
  // Едва заметная направленная фактура речной поверхности — без изменения русла и берегов.
