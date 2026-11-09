@@ -788,39 +788,13 @@ function makeFlowerBed(x,z){
  // Декоративные островки зелени внутри двора: симметричное озеленение по обе стороны дорожки.
  // Невысокие кусты и цветущие почвопокровные растения заполняют пустые участки газона,
  // не меняя положение деревьев, ограды, дома и центрального прохода.
- function makeGardenIsland(x,z,variant=0){
-   const g=group(world,x,0,z);
-   const shrubMats=[
-     new THREE.MeshPhysicalMaterial({color:0x286b35,roughness:.91,sheen:.22,sheenColor:0x91bd68,sheenRoughness:.94}),
-     new THREE.MeshPhysicalMaterial({color:0x3c873c,roughness:.9,sheen:.26,sheenColor:0xa5d27a,sheenRoughness:.92}),
-     new THREE.MeshPhysicalMaterial({color:0x579b48,roughness:.9,sheen:.28,sheenColor:0xb6dc88,sheenRoughness:.92})
-   ];
-   const flowerMats=[0xf3d36d,0xf4a6c4,0xfff0d8,0xc99be0].map(color=>new THREE.MeshPhysicalMaterial({color,roughness:.76,sheen:.24,sheenColor:0xffffff,sheenRoughness:.9}));
-   const bushGeo=new THREE.SphereGeometry(1,14,10);
-   const offsets=[[-.34,.0], [.02,-.2], [.35,.06],[-.08,.28]];
-   offsets.forEach((p,i)=>{
-     const bush=new THREE.Mesh(bushGeo,shrubMats[(i+variant)%shrubMats.length]);
-     bush.position.set(p[0],.28+(i%2)*.035,p[1]);
-     bush.scale.set(.34+(i%2)*.035,.27+(i%3)*.018,.3);
-     bush.castShadow=false;bush.receiveShadow=false;g.add(bush);
-   });
-   // Маленькие цветы по внешнему краю кустарника.
-   for(let i=0;i<9;i++){
-     const a=i*2.399963+variant*.7,r=.48+(i%3)*.055;
-     const bloom=new THREE.Mesh(new THREE.SphereGeometry(.075,10,8),flowerMats[(i+variant)%flowerMats.length]);
-     bloom.position.set(Math.cos(a)*r,.16+(i%2)*.025,Math.sin(a)*r);
-     bloom.scale.set(1,.62,1);bloom.castShadow=false;bloom.receiveShadow=false;g.add(bloom);
-   }
- }
- // Двенадцать низких островков повторяют ритм эталонного ухоженного сада.
- for(const side of [-1,1]){
-   makeGardenIsland(side*4.65,-3.8,0);
-   makeGardenIsland(side*7.65,-.1,1);
-   makeGardenIsland(side*4.85,3.5,2);
-   makeGardenIsland(side*7.8,6.8,3);
-   makeGardenIsland(side*4.8,9.6,1);
-   makeGardenIsland(side*8.0,12.1,2);
- }
+ // Цветники внутри двора вместо разрозненных шарообразных кустов.
+ // Каменные бортики, грунт, листья и отдельные цветы используют уже существующую детальную клумбу.
+ for(const [x,z] of [
+   [-6.6,-5.2],[6.6,-5.2],
+   [-9.1,.2],[9.1,.2],
+   [-8.4,7.2],[8.4,7.2]
+ ])makeFlowerBed(x,z);
  // Цветочные акценты вдоль передней линии ограды: симметрично по обе стороны от центрального входа.
  for(const x of [-11,-7,7,11])makeFlowerBed(x,16.25);
 function makeWorldDecor(){
