@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-14';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-15';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2977,6 +2977,23 @@ for(const material of [...copperMats,copperBright,copperDark]){
    // Центральный замковый камень слегка выступает над остальными сегментами.
    box(t,.17,.19,.095,0,archCenter+radius+.015,1.08,cream,false);
   }
+   // Локальная физическая отделка балконов: не затрагивает общие материалы башни.
+   const balconyStoneFinish=new THREE.MeshPhysicalMaterial({
+    color:stone.color.clone(),map:stone.map||null,bumpMap:stone.bumpMap||null,
+    roughnessMap:stone.roughnessMap||null,bumpScale:stone.bumpScale??.02,
+    roughness:.84,metalness:0,clearcoat:.13,clearcoatRoughness:.78,
+    envMapIntensity:.48
+   });
+   const balconyIvoryFinish=new THREE.MeshPhysicalMaterial({
+    color:cream.color.clone(),map:cream.map||null,bumpMap:cream.bumpMap||null,
+    roughnessMap:cream.roughnessMap||null,bumpScale:cream.bumpScale??.02,
+    roughness:.8,metalness:0,clearcoat:.16,clearcoatRoughness:.72,
+    envMapIntensity:.5
+   });
+   const balconyGoldFinish=new THREE.MeshPhysicalMaterial({
+    color:gold.color.clone(),roughness:.29,metalness:.72,
+    clearcoat:.3,clearcoatRoughness:.28,envMapIntensity:.9
+   });
    // Полукруглые балконы по эталону: половина круга выступает вперёд,
    // задняя прямая кромка скрыто входит в стену башни; центр строго по оси башни.
    for(const balconyY of [1.02,2.92]){
@@ -2988,12 +3005,12 @@ for(const material of [...copperMats,copperBright,copperDark]){
     balconyShape.closePath();
     const platformGeo=new THREE.ExtrudeGeometry(balconyShape,{depth:.14,bevelEnabled:false,steps:1});
     platformGeo.rotateX(-Math.PI/2);
-    const platform=new THREE.Mesh(platformGeo,stone);
+    const platform=new THREE.Mesh(platformGeo,balconyStoneFinish);
     platform.position.set(0,balconyY-.07,chordZ);
     platform.castShadow=false;platform.receiveShadow=false;t.add(platform);
     const rimGeo=new THREE.ExtrudeGeometry(balconyShape,{depth:.045,bevelEnabled:false,steps:1});
     rimGeo.rotateX(-Math.PI/2);
-    const rim=new THREE.Mesh(rimGeo,cream);
+    const rim=new THREE.Mesh(rimGeo,balconyIvoryFinish);
     rim.position.set(0,balconyY+.07,chordZ);
     rim.castShadow=false;rim.receiveShadow=false;t.add(rim);
     // Золотой кант и поручень повторяют только переднюю полукруглую дугу.
@@ -3002,18 +3019,18 @@ for(const material of [...copperMats,copperBright,copperDark]){
      const a=Math.PI+j*Math.PI/48;
      arcPoints.push(new THREE.Vector3(radius*.97*Math.cos(a),balconyY+.12,chordZ-radius*.97*Math.sin(a)));
     }
-    const edge=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(arcPoints),64,.018,8,false),gold);
+    const edge=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(arcPoints),64,.018,8,false),balconyGoldFinish);
     edge.castShadow=false;edge.receiveShadow=false;t.add(edge);
     const railPoints=[];
     for(let j=0;j<=40;j++){
      const a=Math.PI+j*Math.PI/40,x=.67*Math.cos(a),z=chordZ-.67*Math.sin(a);
      railPoints.push(new THREE.Vector3(x,balconyY+.39,z));
      if(j%2===0){
-      cylinder(t,.022,.025,.20,x,balconyY+.245,z,cream,10);
-      sphere(t,.03,x,balconyY+.355,z,gold,.75);
+      cylinder(t,.022,.025,.20,x,balconyY+.245,z,balconyIvoryFinish,10);
+      sphere(t,.03,x,balconyY+.355,z,balconyGoldFinish,.75);
      }
     }
-    const rail=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(railPoints),64,.025,8,false),gold);
+    const rail=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(railPoints),64,.025,8,false),balconyGoldFinish);
     rail.castShadow=false;rail.receiveShadow=false;t.add(rail);
     // Цветочные кашпо расположены симметрично по передней дуге.
     for(let j=0;j<7;j++){
