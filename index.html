@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-13';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-14';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -712,6 +712,9 @@ function upgradeStoneSurface(material,clearcoat,envIntensity){
 M.stone=upgradeStoneSurface(M.stone,.10,.42);
 M.stone2=upgradeStoneSurface(M.stone2,.085,.45);
 M.path=upgradeStoneSurface(M.path,.075,.3);
+// Чуть более собранный верхний блик на существующем бежевом мощении.
+// Тон, карта камня, микрорельеф и геометрия дорожек остаются прежними.
+M.path.clearcoat=.095;M.path.clearcoatRoughness=.72;M.path.envMapIntensity=.38;M.path.needsUpdate=true;
 // Preserve the device-specific render caps configured above; surface detail is increased independently.
 
 function box(parent,w,h,d,x,y,z,material,cast=true){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=cast;o.receiveShadow=cast;parent.add(o);return o}
@@ -828,7 +831,7 @@ function makeWorldDecor(){
     geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
     geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
     geometry.setIndex(indices);geometry.computeVertexNormals();
-    const material=new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.96,metalness:0,clearcoat:.07,clearcoatRoughness:.92,envMapIntensity:.2,vertexColors:true,side:THREE.DoubleSide});
+    const material=new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.945,metalness:0,clearcoat:.085,clearcoatRoughness:.88,envMapIntensity:.28,vertexColors:true,side:THREE.DoubleSide});
     const mesh=new THREE.Mesh(geometry,material);mesh.castShadow=false;mesh.receiveShadow=false;mesh.userData.crispRoad=true;world.add(mesh);
   }
   // Гранитная дорога непрерывно проходит через арочный въезд и продолжается за пределы забора.
