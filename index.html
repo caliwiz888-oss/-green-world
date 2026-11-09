@@ -3670,7 +3670,7 @@ window.GREEN_WORLD_GET_FULL_LAYOUT_DIAGNOSTIC=()=>{
   fence:{attached:!!fence&&fence.parent===world,bounds:boxRecord(fence)},
   trees:{count:treeDiag?.count??forest?.children.length??0,overlaps:treeDiag?.crownFootprintOverlaps?.length??null,bounds:boxRecord(forest)},
   shrubs:{count:shrubDiag?.created??null,positions:shrubDiag?.positions??[]},
-  rear:{layoutPassed:rearDiag?.passed??null,layoutTotal:rearDiag?.total??null,checks:rearDiag?.checks??[],zone:rearDiag?.rearZone??null,pond:boxRecord(world.getObjectByName('GREEN_WORLD_Rear_Pond')),gazebo:boxRecord(gazebo),fountains:window.GREEN_WORLD_REAR_FEATURES?.fountains??null},
+  rear:{layoutPassed:rearDiag?.passed??null,layoutTotal:rearDiag?.total??null,checks:rearDiag?.checks??[],zone:rearDiag?.rearZone??null,pond:boxRecord(world.getObjectByName('GREEN_WORLD_Rear_Pond')),gazebo:boxRecord(gazebo),fountains:window.GREEN_WORLD_REAR_FEATURES?.fountains??null,cameraProjection:rearDiag?.cameraProjection??null,gazeboTreeIntersections:window.GREEN_WORLD_GAZEBO_DIAGNOSTIC?.treeIntersections??[],gazeboFenceIntersections:window.GREEN_WORLD_GAZEBO_DIAGNOSTIC?.fenceIntersections??[]},
   river:riverDiag,
   world:{topLevelObjects:world.children.length,renderReady:!!window.GREEN_WORLD_MODULE_READY}
  };
