@@ -2029,7 +2029,10 @@ world.add(rearPond);
 // Непрерывная округлая каменная кромка повторяет изгибы берега.
 const rearBankMat=M.stone2.clone();
 rearBankMat.color=new THREE.Color(0xc8b995);rearBankMat.roughness=.92;rearBankMat.needsUpdate=true;
-const rearBankPoints=rearPondShape.getPoints(180).map(p=>new THREE.Vector3(p.x,.16,-27.35-p.y));
+const rearBankOutline=rearPondShape.getPoints(180);
+// Shape.getPoints includes the closing start point; remove it because the curve closes itself.
+if(rearBankOutline.length>2&&rearBankOutline[0].distanceToSquared(rearBankOutline[rearBankOutline.length-1])<1e-8)rearBankOutline.pop();
+const rearBankPoints=rearBankOutline.map(p=>new THREE.Vector3(p.x,.16,-27.35-p.y));
 const rearBankCurve=new THREE.CatmullRomCurve3(rearBankPoints,true,'centripetal');
 const rearBank=new THREE.Mesh(new THREE.TubeGeometry(rearBankCurve,360,.17,8,true),rearBankMat);
 rearBank.name='GREEN_WORLD_Rear_Pond_Bank';
