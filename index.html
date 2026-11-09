@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-15';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-16';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3035,7 +3035,7 @@ for(const material of [...copperMats,copperBright,copperDark]){
     // Цветочные кашпо расположены симметрично по передней дуге.
     for(let j=0;j<7;j++){
      const a=Math.PI+(j/6)*Math.PI,x=.58*Math.cos(a),z=chordZ-.58*Math.sin(a);
-     box(t,.085,.05,.075,x,balconyY+.115,z,stone,false);
+     box(t,.085,.05,.075,x,balconyY+.115,z,balconyStoneFinish,false);
      sphere(t,.03,x,balconyY+.18,z,green,.78);
      sphere(t,.034,x,balconyY+.225,z,j%3===0?lilac:(j%2?white:pink),.82);
      sphere(t,.023,x-.02,balconyY+.21,z+.012,j%2?pink:white,.9);
