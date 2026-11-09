@@ -108,7 +108,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 </style>
 </head>
 <body>
-<canvas id="world"></canvas><button id="treeDiagQuickOpen" type="button" style="position:fixed;z-index:50;top:76px;right:12px;padding:10px 13px;border:2px solid #e8c16c;border-radius:12px;background:linear-gradient(180deg,#fff3c8,#e6d29b);color:#3f512c;font-size:12px;font-weight:950;box-shadow:0 3px 10px #0005">Диагностика деревьев</button><button id="gazeboDiagQuickOpen" type="button" style="position:fixed;z-index:50;top:122px;right:12px;padding:10px 13px;border:2px solid #9ac6b0;border-radius:12px;background:linear-gradient(180deg,#e8fff0,#b9dfc9);color:#24533c;font-size:12px;font-weight:950;box-shadow:0 3px 10px #0005">Проверка беседки</button><button id="gazeboCameraDiagQuickOpen" type="button" style="position:fixed;z-index:50;top:168px;right:12px;padding:10px 13px;border:2px solid #a9bce0;border-radius:12px;background:linear-gradient(180deg,#edf3ff,#cbdaf5);color:#29466f;font-size:12px;font-weight:950;box-shadow:0 3px 10px #0005">Видимость беседки</button><button id="fullLayoutDiagQuickOpen" type="button" style="position:fixed;z-index:50;top:214px;right:12px;padding:10px 13px;border:2px solid #d6b98b;border-radius:12px;background:linear-gradient(180deg,#fff4df,#ead2a8);color:#5a4328;font-size:12px;font-weight:950;box-shadow:0 3px 10px #0005">Полная проверка двора</button>
+<canvas id="world"></canvas>
 <div id="toast"></div>
 <div id="farmHud" aria-label="Green Farm: уровень игрока">
  <button id="farmMenuButton" type="button" aria-label="Открыть меню" title="Меню">☰</button>
@@ -122,7 +122,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
  <button id="walletPlus" type="button" aria-label="Покупка монет и донат" title="Покупка и донат">+</button>
 </div>
 <div id="walletBuyShade" role="dialog" aria-modal="true" aria-label="Покупка и донат"><div id="walletBuyPanel"><h2>GREEN FARM</h2><p>Покупка GREEN COIN и поддержка игры</p><button class="walletBuyAction" id="buyCoinsButton" type="button">Купить GREEN COIN</button><button class="walletBuyAction" id="donateButton" type="button">Поддержать игру · Донат</button><button id="walletBuyClose" type="button">Закрыть</button></div></div>
-<div id="farmMenuShade" role="dialog" aria-modal="true" aria-label="Меню Green Farm"><div id="farmMenuPanel"><h2>GREEN FARM</h2><p>Уровень игрока: 1</p><p>Опыт: 0 XP</p><button id="farmMenuClose" type="button">Продолжить игру</button><button id="treeDiagOpen" type="button" style="margin:10px 0 0;padding:10px 18px;border:1px solid #e6cf8e;border-radius:12px;background:#ead9ae;color:#4b3425;font-weight:900">Диагностика деревьев</button></div></div>
+<div id="farmMenuShade" role="dialog" aria-modal="true" aria-label="Меню Green Farm"><div id="farmMenuPanel"><h2>GREEN FARM</h2><p>Уровень игрока: 1</p><p>Опыт: 0 XP</p><button id="farmMenuClose" type="button">Продолжить игру</button></div></div>
 <script>
 (()=>{const open=document.getElementById('farmMenuButton'),shade=document.getElementById('farmMenuShade'),close=document.getElementById('farmMenuClose');if(!open||!shade||!close)return;open.addEventListener('click',()=>shade.classList.add('open'));close.addEventListener('click',()=>shade.classList.remove('open'));shade.addEventListener('click',e=>{if(e.target===shade)shade.classList.remove('open')});document.addEventListener('keydown',e=>{if(e.key==='Escape')shade.classList.remove('open')});})();
 
