@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-18';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-19';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2786,6 +2786,25 @@ for(const material of [...copperMats,copperBright,copperDark]){
  porticoTile.bumpScale=.007;
  porticoTile.roughness=.69;
  porticoTile.needsUpdate=true;
+ // Переводим существующие панели и тонкие линии кровли портика на физическую отделку.
+ // Цвета, фактура сланца, геометрия и расположение всех деталей остаются прежними.
+ const porticoBluePhysical=new THREE.MeshPhysicalMaterial({
+  color:porticoBlue.color.clone(),bumpMap:porticoBlue.bumpMap,
+  roughnessMap:porticoBlue.roughnessMap,bumpScale:porticoBlue.bumpScale,
+  roughness:.72,metalness:porticoBlue.metalness,side:porticoBlue.side,
+  clearcoat:.14,clearcoatRoughness:.62,envMapIntensity:.38
+ });
+ const porticoTilePhysical=new THREE.MeshPhysicalMaterial({
+  color:porticoTile.color.clone(),bumpMap:porticoTile.bumpMap,
+  roughnessMap:porticoTile.roughnessMap,bumpScale:porticoTile.bumpScale,
+  roughness:.69,metalness:porticoTile.metalness,side:porticoTile.side,
+  clearcoat:.16,clearcoatRoughness:.58,envMapIntensity:.40
+ });
+ center.traverse(object=>{
+  if(!object.isMesh)return;
+  if(object.material===porticoBlue)object.material=porticoBluePhysical;
+  else if(object.material===porticoTile)object.material=porticoTilePhysical;
+ });
  const manorRoofBase=new THREE.MeshStandardMaterial({color:0x263f5b,roughness:.74,metalness:.08,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.012,side:THREE.DoubleSide});
  const manorRoofTileA=new THREE.MeshStandardMaterial({color:0x355675,roughness:.68,metalness:.08,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.011});
  const manorRoofTileB=new THREE.MeshStandardMaterial({color:0x294662,roughness:.74,metalness:.07,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.011});
