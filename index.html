@@ -1796,6 +1796,27 @@ function makeWorldDecor(){
  ];
  for(const [x,z,v] of shrubLayout)makeShrubCluster(x,z,v);
  window.GREEN_WORLD_SHRUB_DIAGNOSTIC={created:shrubLayout.length,positions:shrubLayout.map(([x,z])=>({x,z}))};
+  // Фактические мировые габариты каждой группы деревьев после построения всей геометрии.
+  // В расчёт входят кроны, ветви и стволы; никаких объектов не перемещаем.
+  gwForest.updateMatrixWorld(true);
+  const gwTreeBounds=gwForest.children.map((tree,index)=>{
+    const box=new THREE.Box3().setFromObject(tree);
+    return {index,center:{x:(box.min.x+box.max.x)/2,z:(box.min.z+box.max.z)/2},
+      min:{x:box.min.x,z:box.min.z},max:{x:box.max.x,z:box.max.z},
+      width:box.max.x-box.min.x,depth:box.max.z-box.min.z,height:box.max.y-box.min.y};
+  });
+  const gwTreeOverlaps=[];
+  for(let i=0;i<gwTreeBounds.length;i++)for(let j=i+1;j<gwTreeBounds.length;j++){
+    const a=gwTreeBounds[i],b=gwTreeBounds[j];
+    const overlapX=Math.min(a.max.x,b.max.x)-Math.max(a.min.x,b.min.x);
+    const overlapZ=Math.min(a.max.z,b.max.z)-Math.max(a.min.z,b.min.z);
+    if(overlapX>.35&&overlapZ>.35)gwTreeOverlaps.push({a:a.index,b:b.index,overlapX,overlapZ});
+  }
+  window.GREEN_WORLD_TREE_BOUNDS_DIAGNOSTIC={
+    count:gwTreeBounds.length,trees:gwTreeBounds,
+    crownFootprintOverlaps:gwTreeOverlaps,
+    note:'AABB-граничные объёмы полных деревьев; перекрытия показывают возможное пересечение силуэтов, не доказывая визуальный дефект.'
+  };
  // Существующие передние розовые деревья у боковых участков и входа сохранены.
 }
 let riverWaterTexture=null;
