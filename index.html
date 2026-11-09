@@ -388,6 +388,7 @@ function makeSurfaceTexture(kind,seed){
   if(kind==='wood')n+=Math.sin(y*.58)*6+Math.sin(y*.16)*4+Math.sin(y*.035)*3;
   if(kind==='stone')n+=Math.sin(x*.19)*2.2+Math.sin(y*.23)*1.8;
   if(kind==='roof')n+=Math.sin(x*.94)*3.5+Math.sin(x*.21)*1.5;
+  if(kind==='leaf')n+=Math.sin((x+y)*.12)*2.4+Math.sin((x-y)*.075)*1.6;
   if(kind==='grass'&&rand()>.975)n-=18;
   if(kind==='soil'&&rand()>.94)n-=12;
   const v=Math.max(0,Math.min(255,238+n)),i=(y*size+x)*4;
@@ -424,6 +425,15 @@ function makeSurfaceTexture(kind,seed){
    ctx.quadraticCurveTo(x+dx,y+len*.5,x+dx*.4,y+len);ctx.stroke();
   }
 
+ }
+ // Тонкие прожилки и мягкие перепады тона добавляют листве естественную фактуру.
+ if(kind==='leaf'){
+  for(let i=0;i<360;i++){
+   const x=rand()*size,y=rand()*size,len=5+rand()*18;
+   ctx.strokeStyle=rand()>.5?'rgba(38,83,31,.075)':'rgba(220,239,163,.09)';
+   ctx.lineWidth=.35+rand()*.55;ctx.beginPath();ctx.moveTo(x,y);
+   ctx.quadraticCurveTo(x+(rand()-.5)*5,y+len*.5,x+(rand()-.5)*3,y+len);ctx.stroke();
+  }
  }
  // Мягкие травяные штрихи и редкие пятна придают газону естественную фактуру без визуального мусора.
  if(kind==='grass'){
@@ -628,6 +638,7 @@ const surfaceMaps={
  soil:makeSurfaceTexture('soil',23),
  stone:makeSurfaceTexture('stone',37),
  grass:makeSurfaceTexture('grass',79),
+ leaf:makeSurfaceTexture('leaf',97),
  path:makeSurfaceTexture('stone',83),
  wood:makeSurfaceTexture('wood',51),
  roof:makeSurfaceTexture('roof',67)
@@ -645,6 +656,8 @@ surfaceMaps.soil.repeat.set(3,3);
 M.soil.map=surfaceMaps.soil;
 M.stone.map=surfaceMaps.stone;M.stone2.map=surfaceMaps.stone;
 M.grass.map=surfaceMaps.grass;M.grass2.map=surfaceMaps.grass;
+ M.leaf.map=surfaceMaps.leaf;M.leaf2.map=surfaceMaps.leaf;
+ surfaceMaps.leaf.repeat.set(5,5);
 M.path.map=surfaceMaps.path;
 for(const m of [M.wood,M.wood2])m.map=surfaceMaps.wood;
 for(const m of [M.roof,M.roof2])m.map=surfaceMaps.roof;
@@ -653,6 +666,7 @@ const surfaceBumps=[
  [M.soil,surfaceMaps.soil,.09],[M.stone,surfaceMaps.stone,.08],
  [M.stone2,surfaceMaps.stone,.069],
  [M.grass,surfaceMaps.grass,.022],[M.grass2,surfaceMaps.grass,.022],
+ [M.leaf,surfaceMaps.leaf,.012],[M.leaf2,surfaceMaps.leaf,.012],
  [M.path,surfaceMaps.path,.052],
  [M.wood,surfaceMaps.wood,.046],[M.wood2,surfaceMaps.wood,.041],
  [M.roof,surfaceMaps.roof,.034],[M.roof2,surfaceMaps.roof,.034]
