@@ -738,10 +738,11 @@ function makeFlowerBed(x,z){
  box(b,1.88,.16,.84,0,.39,0,M.soil,false);
  const petalColors=[0xe45d72,0xf0c75e,0xfff0d8,0xb66fc2,0x4f9fc0];
  // Лепестки получают более плавное освещение и мягкий натуральный шелковистый блик.
- const petalMaterials=petalColors.map(color=>new THREE.MeshPhysicalMaterial({color,roughness:.78,metalness:0,sheen:.22,sheenColor:0xffe7d8,sheenRoughness:.86,clearcoat:.06,clearcoatRoughness:.82}));
- const centerMaterial=new THREE.MeshPhysicalMaterial({color:0xe6b94d,roughness:.68,metalness:.025,sheen:.12,sheenColor:0xffe8a8,sheenRoughness:.9});
- const leafMaterial=new THREE.MeshStandardMaterial({color:0x718765,roughness:.96});
- const leafLightMaterial=new THREE.MeshStandardMaterial({color:0x91a77d,roughness:.95});
+ const petalMaterials=petalColors.map(color=>new THREE.MeshPhysicalMaterial({color,roughness:.73,metalness:0,sheen:.3,sheenColor:0xffe7d8,sheenRoughness:.82,clearcoat:.1,clearcoatRoughness:.78}));
+ const centerMaterial=new THREE.MeshPhysicalMaterial({color:0xe6b94d,roughness:.64,metalness:.025,sheen:.16,sheenColor:0xffe8a8,sheenRoughness:.86,clearcoat:.08,clearcoatRoughness:.82});
+ // Листья клумб получают более насыщенный естественный зелёный тон и мягкий восковой отблеск.
+ const leafMaterial=new THREE.MeshPhysicalMaterial({color:0x477d3d,roughness:.9,metalness:0,sheen:.28,sheenColor:0xa8d18a,sheenRoughness:.9});
+ const leafLightMaterial=new THREE.MeshPhysicalMaterial({color:0x78a957,roughness:.89,metalness:0,sheen:.32,sheenColor:0xc4e69b,sheenRoughness:.88});
  // Микрофактура листьев в клумбах согласована с общей фактурой листвы мира.
  for(const material of [leafMaterial,leafLightMaterial]){
   material.map=surfaceMaps.leaf;
