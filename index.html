@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-10';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-11';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1072,6 +1072,9 @@ function makeWorldDecor(){
   const fenceIronLight=fenceMetalFinish(mat(0x62513d),.46,.62,.2);
   const fenceGold=fenceMetalFinish(mat(0xb98a43),.34,.76,.3);
   const fenceGoldLight=fenceMetalFinish(mat(0xd4ad67),.3,.72,.34);
+  // Чуть более собранные отражения на тёмных кованых секциях: металл остаётся матовым, но лучше ловит свет.
+  fenceIron.roughness=.47;fenceIron.clearcoat=.19;fenceIron.clearcoatRoughness=.34;fenceIron.envMapIntensity=.82;
+  fenceIronLight.roughness=.44;fenceIronLight.clearcoat=.22;fenceIronLight.clearcoatRoughness=.34;fenceIronLight.envMapIntensity=.82;
   const fenceNoShadow=mesh=>{mesh.castShadow=false;mesh.receiveShadow=false;return mesh;};
   // Забор собирается в отдельной группе: его можно целиком заменить без дублей геометрии.
   const fenceGroup=new THREE.Group();world.add(fenceGroup);
