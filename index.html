@@ -1620,7 +1620,7 @@ function makeWorldDecor(){
      root.position.set(Math.cos(a)*h*.085,h*.055,Math.sin(a)*h*.085);root.scale.y=h*.19;
      root.rotation.z=Math.cos(a)*-.72;root.rotation.x=Math.sin(a)*.72;g.add(root);
    }
-   g.rotation.y=seed*.19;g.scale.set((1+.045*Math.sin(seed*2))*1.14,1+.035*Math.cos(seed),(1+.045*Math.cos(seed*1.7))*1.14);
+   g.rotation.y=seed*.19;g.rotation.x=Math.sin(seed*2.7)*.035;g.rotation.z=Math.cos(seed*1.9)*.025;g.scale.set((.91+.13*(.5+.5*Math.sin(seed*1.31)))*1.14, .91+.16*(.5+.5*Math.cos(seed*1.73)),(.91+.13*(.5+.5*Math.cos(seed*1.17)))*1.14);
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
  
@@ -1748,25 +1748,28 @@ function makeWorldDecor(){
   // GREEN WORLD — более плотный, широкий и естественно чередующийся дальний лес.
   // Три смещённых ряда елей заполняют горизонт без ровной геометрической линии.
   const gwBackForestRows=[
-    {z:-30.8,offset:0,seed:101,count:11,step:9.1},
-    {z:-39.2,offset:4.4,seed:137,count:11,step:9.1},
-    {z:-48.0,offset:0,seed:173,count:10,step:10.0}
+    {z:-30.5,offset:0,seed:101,count:13,step:7.65},
+    {z:-39.0,offset:3.7,seed:137,count:13,step:7.65},
+    {z:-48.0,offset:-1.8,seed:173,count:12,step:8.15}
   ];
   for(let row=0;row<gwBackForestRows.length;row++){
     const spec=gwBackForestRows[row];
     for(let i=0;i<spec.count;i++){
-      const x=-45+i*spec.step+spec.offset+Math.sin(i*1.63+row)*1.0;
-      const z=spec.z+Math.cos(i*1.31+row*.9)*1.15;
-      const h=7.1+((i*7+row*3)%5)*.43;
-      gwAddPine(x,z,h,spec.seed+i*1.37,.055);
+      const seed=spec.seed+i*1.37;
+      const x=-45+i*spec.step+spec.offset+Math.sin(i*1.63+row)*1.7;
+      const z=spec.z+Math.cos(i*1.31+row*.9)*1.8;
+      const h=6.0+((i*11+row*7)%9)*.48;
+      gwAddPine(x,z,h,seed,.055);
     }
   }
-  // Цветущие деревья между хвойными смягчают силуэт леса и добавляют природные оттенки.
+  // Более свободная линия лиственных и цветущих деревьев разбивает повторяющийся силуэт елей.
   for(const [x,z,h,seed,palette] of [
-    [-34,-35.0,6.2,211,'pink'],[-17,-43.0,6.7,217,'amber'],
-    [0,-34.5,6.4,223,'pink'],[17,-44.0,6.8,229,'pink'],
-    [34,-35.5,6.3,235,'amber'],[-25,-51.0,6.0,241,'pink'],
-    [9,-53.0,6.1,247,'amber'],[27,-51.5,6.0,253,'pink']
+    [-38,-34.0,5.9,211,'pink'],[-29,-43.0,6.7,217,'amber'],
+    [-20,-36.5,6.1,223,'pink'],[-10,-47.0,6.8,229,'pink'],
+    [1,-34.5,6.4,235,'amber'],[12,-43.5,7.0,241,'pink'],
+    [23,-35.0,6.2,247,'pink'],[35,-45.0,6.8,253,'amber'],
+    [-33,-53.0,5.8,259,'amber'],[-14,-54.0,6.1,265,'pink'],
+    [9,-54.0,6.0,271,'amber'],[30,-53.0,6.2,277,'pink']
   ])gwAddBlossom(x,z,h,seed,.055,palette);
   // Весь лес остаётся позади заднего ограждения; архитектура и игровая зона не перемещаются.
   // Удалены мелкие светлые камешки за правой стороной ограды, чтобы убрать тонкую светлую отметку.
@@ -1804,19 +1807,19 @@ function makeWorldLandscape(){
    wisp.position.set(x,y,z);wisp.scale.set(sx,sy,sz);wisp.rotation.z=rz;world.add(wisp);
  }
  // Объёмные облачные банки: несколько мягко перекрывающихся слоёв вместо отдельных овальных пятен.
- const gwCloudMat=new THREE.MeshBasicMaterial({color:0xf7ffff,transparent:true,opacity:.115,depthWrite:false,fog:false});
- const gwCloudHighlight=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.075,depthWrite:false,fog:false});
+ const gwCloudMat=new THREE.MeshBasicMaterial({color:0xf7ffff,transparent:true,opacity:.16,depthWrite:false,fog:false});
+ const gwCloudHighlight=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.105,depthWrite:false,fog:false});
  const gwCloudBanks=[
-   {x:-30,y:24,z:-59,s:1.0},{x:-7,y:27,z:-63,s:.92},
-   {x:19,y:25,z:-60,s:1.08},{x:39,y:21,z:-55,s:.82},
-   {x:-43,y:18,z:-50,s:.72}
+   {x:-30,y:30,z:-59,s:1.0},{x:-7,y:33,z:-63,s:.92},
+   {x:19,y:31,z:-60,s:1.08},{x:39,y:27,z:-55,s:.82},
+   {x:-43,y:24,z:-50,s:.72}
  ];
  for(const bank of gwCloudBanks){
    const group=new THREE.Group();group.position.set(bank.x,bank.y,bank.z);group.scale.setScalar(bank.s);world.add(group);
    const lobes=[
-     [-5.2,0,0,5.8,2.15,3.5],[-1.8,1.15,-.25,6.2,3.05,4.0],
-     [2.5,.45,.15,5.7,2.55,3.7],[6.1,-.15,.35,4.5,1.9,3.1],
-     [-.3,-.8,-1.0,7.8,1.25,4.1]
+     [-5.2,0,0,4.9,3.0,3.5],[-1.8,1.15,-.25,5.2,4.0,4.0],
+     [2.5,.45,.15,4.9,3.55,3.7],[6.1,-.15,.35,3.9,2.7,3.1],
+     [-.3,-.8,-1.0,6.8,2.0,4.1]
    ];
    for(let i=0;i<lobes.length;i++){
      const [x,y,z,sx,sy,sz]=lobes[i];
