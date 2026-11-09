@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-20';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-21';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1788,7 +1788,8 @@ function makeWorldLandscape(){
  // A soft vertex-coloured sky dome replaces the flat horizon with a natural blue-to-haze gradient.
  const skyGeo=new THREE.SphereGeometry(148,40,24);
  const skyColors=[],skyPos=skyGeo.attributes.position;
- const skyTop=new THREE.Color(0x4388bd),skyMid=new THREE.Color(0x91c9e8),skyHorizon=new THREE.Color(0xd8e5e0);
+ // Более естественный голубой градиент: верх неба чуть насыщеннее, средняя зона чище, переход к горизонту мягче.
+ const skyTop=new THREE.Color(0x397fb5),skyMid=new THREE.Color(0x82c3e8),skyHorizon=new THREE.Color(0xcfe6e2);
  for(let i=0;i<skyPos.count;i++){
    const t=THREE.MathUtils.clamp((skyPos.getY(i)/148+.12)/1.05,0,1);
    const c=t<.58?skyHorizon.clone().lerp(skyMid,t/.58):skyMid.clone().lerp(skyTop,(t-.58)/.42);
