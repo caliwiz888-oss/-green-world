@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-02';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-03';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -731,6 +731,17 @@ function makeFlowerBed(x,z){
  const centerMaterial=new THREE.MeshStandardMaterial({color:0xe6b94d,roughness:.78});
  const leafMaterial=new THREE.MeshStandardMaterial({color:0x718765,roughness:.96});
  const leafLightMaterial=new THREE.MeshStandardMaterial({color:0x91a77d,roughness:.95});
+ // Микрофактура листьев в клумбах согласована с общей фактурой листвы мира.
+ for(const material of [leafMaterial,leafLightMaterial]){
+  material.map=surfaceMaps.leaf;
+  const detail=surfaceMaps.leaf.clone();
+  detail.colorSpace=THREE.NoColorSpace;
+  detail.needsUpdate=true;
+  material.bumpMap=detail;
+  material.bumpScale=.008;
+  material.roughnessMap=detail;
+  material.needsUpdate=true;
+ }
  const flowerHead=new THREE.SphereGeometry(.075,12,9);
  const leafGeo=new THREE.SphereGeometry(1,10,7);
  for(let i=0;i<7;i++){
