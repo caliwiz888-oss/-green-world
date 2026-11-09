@@ -97,6 +97,14 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 #dock .action .actionLabel{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 @media(min-width:700px){#dock{width:min(700px,calc(100vw - 32px));left:50%;right:auto;transform:translateX(-50%);bottom:18px}#dock .action{min-height:64px;font-size:12px}}
 @media(max-width:360px){#dock{left:6px;right:6px;gap:5px;bottom:calc(7px + env(safe-area-inset-bottom,0px))}#dock .action{min-height:52px;padding:5px 1px;border-radius:11px;font-size:9px}#dock .action .actionIcon{font-size:21px}}
+
+#treeDiagShade{display:none;position:fixed;z-index:30;inset:0;background:#102016d9;align-items:center;justify-content:center;padding:12px}
+#treeDiagShade.open{display:flex}
+#treeDiagPanel{width:min(560px,96vw);max-height:88vh;overflow:auto;padding:15px;border:2px solid #e8c16c;border-radius:18px;background:linear-gradient(155deg,#fffdf2,#e5efd9);color:#345a39;box-shadow:0 10px 30px #0008}
+#treeDiagPanel h2{margin:0 0 8px;font-size:17px}
+#treeDiagOutput{display:block;width:100%;height:min(48vh,340px);margin:10px 0;padding:10px;border:1px solid #b8cfad;border-radius:10px;background:#fff;color:#254b30;font:12px/1.4 monospace;white-space:pre;overflow:auto;resize:vertical}
+.treeDiagActions{display:flex;gap:8px;flex-wrap:wrap}
+.treeDiagActions button{padding:10px 13px;border:1px solid #b7cda8;border-radius:10px;background:#dcebd4;color:#315b38;font-weight:900}
 </style>
 </head>
 <body>
@@ -114,7 +122,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
  <button id="walletPlus" type="button" aria-label="Покупка монет и донат" title="Покупка и донат">+</button>
 </div>
 <div id="walletBuyShade" role="dialog" aria-modal="true" aria-label="Покупка и донат"><div id="walletBuyPanel"><h2>GREEN FARM</h2><p>Покупка GREEN COIN и поддержка игры</p><button class="walletBuyAction" id="buyCoinsButton" type="button">Купить GREEN COIN</button><button class="walletBuyAction" id="donateButton" type="button">Поддержать игру · Донат</button><button id="walletBuyClose" type="button">Закрыть</button></div></div>
-<div id="farmMenuShade" role="dialog" aria-modal="true" aria-label="Меню Green Farm"><div id="farmMenuPanel"><h2>GREEN FARM</h2><p>Уровень игрока: 1</p><p>Опыт: 0 XP</p><button id="farmMenuClose" type="button">Продолжить игру</button></div></div>
+<div id="farmMenuShade" role="dialog" aria-modal="true" aria-label="Меню Green Farm"><div id="farmMenuPanel"><h2>GREEN FARM</h2><p>Уровень игрока: 1</p><p>Опыт: 0 XP</p><button id="farmMenuClose" type="button">Продолжить игру</button><button id="treeDiagOpen" type="button" style="margin:10px 0 0;padding:10px 18px;border:1px solid #e6cf8e;border-radius:12px;background:#ead9ae;color:#4b3425;font-weight:900">Диагностика деревьев</button></div></div>
 <script>
 (()=>{const open=document.getElementById('farmMenuButton'),shade=document.getElementById('farmMenuShade'),close=document.getElementById('farmMenuClose');if(!open||!shade||!close)return;open.addEventListener('click',()=>shade.classList.add('open'));close.addEventListener('click',()=>shade.classList.remove('open'));shade.addEventListener('click',e=>{if(e.target===shade)shade.classList.remove('open')});document.addEventListener('keydown',e=>{if(e.key==='Escape')shade.classList.remove('open')});})();
 
@@ -132,6 +140,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 </script>
 <div id="login"><div class="login-card"><h1>GREEN WORLD</h1><p>Новый мир готовится к открытию. Войди через Telegram, чтобы открыть 3D-мир.</p><button class="smallbtn" id="retry-login">ПОДКЛЮЧИТЬ TELEGRAM</button><p id="login-error"></p></div></div>
 </div></div>
+<div id="treeDiagShade" role="dialog" aria-modal="true" aria-label="Диагностика деревьев"><div id="treeDiagPanel"><h2>Диагностика деревьев GREEN WORLD</h2><p id="treeDiagStatus">Нажми «Обновить», когда 3D-мир загрузится.</p><textarea id="treeDiagOutput" readonly spellcheck="false"></textarea><div class="treeDiagActions"><button id="treeDiagRefresh" type="button">Обновить</button><button id="treeDiagCopy" type="button">Копировать результат</button><button id="treeDiagClose" type="button">Закрыть</button></div></div></div>
 <script>window.GREEN_WORLD_API_URL='https://green-world-api-mx3v.onrender.com';</script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
@@ -3431,6 +3440,12 @@ if(window.GREEN_WORLD_AUTH_RESULT){
  applyPlayer();
 
 }
+</script>
+<script>
+(()=>{const open=document.getElementById('treeDiagOpen'),shade=document.getElementById('treeDiagShade'),out=document.getElementById('treeDiagOutput'),status=document.getElementById('treeDiagStatus'),refresh=document.getElementById('treeDiagRefresh'),copy=document.getElementById('treeDiagCopy'),close=document.getElementById('treeDiagClose');if(!open||!shade||!out||!status||!refresh||!copy||!close)return;
+const update=()=>{const d=window.GREEN_WORLD_TREE_BOUNDS_DIAGNOSTIC;if(!d){status.textContent='Данные пока не готовы. Убедись, что 3D-мир загрузился, затем нажми «Обновить».';out.value='Диагностика ещё не создана. Возможно, генерация мира не запускалась или остановилась до создания деревьев.';return;}
+const fmt=n=>Number(n).toFixed(2);const lines=['ДЕРЕВЬЯ: '+d.count,'ВОЗМОЖНЫЕ ПЕРЕСЕЧЕНИЯ ГРАНИЧНЫХ ОБЪЁМОВ: '+d.crownFootprintOverlaps.length,'','СПИСОК ДЕРЕВЬЕВ:'];for(const t of d.trees){lines.push('#'+t.index+' центр X='+fmt(t.center.x)+' Z='+fmt(t.center.z)+' | ширина='+fmt(t.width)+' глубина='+fmt(t.depth)+' высота='+fmt(t.height));}lines.push('','ВОЗМОЖНЫЕ ПЕРЕСЕЧЕНИЯ:');if(!d.crownFootprintOverlaps.length)lines.push('Не обнаружены по порогу 0.35 × 0.35.');else for(const p of d.crownFootprintOverlaps)lines.push('#'+p.a+' ↔ #'+p.b+' | X='+fmt(p.overlapX)+' Z='+fmt(p.overlapZ));lines.push('','Примечание: AABB-пересечения — сигнал для проверки, а не доказательство визуального наложения.');out.value=lines.join('\n');status.textContent='Расчёт получен. Деревьев: '+d.count+'; возможных пересечений: '+d.crownFootprintOverlaps.length+'.';};
+open.addEventListener('click',()=>{shade.classList.add('open');update();});refresh.addEventListener('click',update);close.addEventListener('click',()=>shade.classList.remove('open'));shade.addEventListener('click',e=>{if(e.target===shade)shade.classList.remove('open');});copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(out.value);status.textContent='Результат скопирован. Вставь его в чат.';}catch(e){out.focus();out.select();status.textContent='Выделил текст. Удерживай и выбери «Копировать», затем вставь в чат.';}});document.addEventListener('keydown',e=>{if(e.key==='Escape')shade.classList.remove('open');});})();
 </script>
 </body>
 </html>
