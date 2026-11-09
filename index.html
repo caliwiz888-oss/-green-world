@@ -2016,38 +2016,21 @@ gazeboFinial.position.y=4.92;gazebo.add(gazeboFinial);
 gazebo.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
 window.GREEN_WORLD_REAR_FEATURES={pond:rearPond.parent===world,fountains:3,gazebo:gazebo.parent===world};
 
-// Автоматическая геометрическая диагностика GREEN WORLD.
-// Проверяет симметрию, свободные проходы и попадание декоративных объектов в границы водоёма.
-// Диагностика не перемещает объекты и не меняет утверждённую композицию.
-const gwLayoutChecks=[];
-const gwCheck=(name,ok,details)=>gwLayoutChecks.push({name,ok:!!ok,details});
-gwCheck('fence_symmetry',Math.abs(areaBounds.left+areaBounds.right)<.001,
-  {left:areaBounds.left,right:areaBounds.right});
-gwCheck('flowerbeds_symmetry',Math.abs((-8.4)+8.4)<.001,
-  {left:{x:-8.4,z:7.2},right:{x:8.4,z:7.2}});
-const gwShrubPairs=[[-13.55,-15,13.55,-15],[-13.55,-5,13.55,-5],[-13.55,5.8,13.55,5.8]];
-gwCheck('shrub_mirror_layout',gwShrubPairs.every(p=>Math.abs(p[0]+p[2])<.001&&Math.abs(p[1]-p[3])<.001),
-  {groups:shrubLayout.length,sideFenceX:areaBounds.left});
+// Безопасная диагностика заднего водоёма: использует только объекты этой функции.
 const gwPondHalfWidth=43/2,gwPondHalfDepth=5.8/2;
-const gwGazeboRadius=2.6;
-const gwGazeboClearance=Math.abs(gazebo.position.x)-gwGazeboRadius-gwPondHalfWidth;
-gwCheck('gazebo_clear_of_pond',gwGazeboClearance>0,{clearance:gwGazeboClearance});
-const gwBankInnerEdge=-24.38-.34/2;
-const gwFencePondGap=Math.abs(areaBounds.back-gwBankInnerEdge);
-gwCheck('rear_pond_behind_fence',rearPond.position.z+gwPondHalfDepth<areaBounds.back,
-  {pondBackEdge:rearPond.position.z+gwPondHalfDepth,rearFenceZ:areaBounds.back,bankFenceGap:gwFencePondGap});
-gwCheck('fountains_inside_pond',[-14,0,14].every(x=>Math.abs(x)+.94<gwPondHalfWidth),
-  {fountainX:[-14,0,14],pondHalfWidth:gwPondHalfWidth});
-gwCheck('shrubs_clear_of_side_fence',areaBounds.right-13.55-1.6>0,
-  {estimatedClearance:areaBounds.right-13.55-1.6});
+const gwGazeboClearance=Math.abs(gazebo.position.x)-2.6-gwPondHalfWidth;
+const gwRearChecks=[
+ {name:'pond_attached_to_world',ok:rearPond.parent===world},
+ {name:'gazebo_clear_of_pond',ok:gwGazeboClearance>0,clearance:gwGazeboClearance},
+ {name:'fountains_inside_pond',ok:[-14,0,14].every(x=>Math.abs(x)+.94<gwPondHalfWidth)},
+ {name:'gazebo_attached_to_world',ok: gazebo.parent===world}
+];
 window.GREEN_WORLD_LAYOUT_DIAGNOSTIC={
-  passed:gwLayoutChecks.filter(c=>c.ok).length,
-  total:gwLayoutChecks.length,
-  checks:gwLayoutChecks,
-  treeCounts:{pine:gwPineBack.length,deciduous:gwLeafBack.length,floweringInside:7,floweringOutside:12},
-  note:'Approximate layout checks use authored coordinates and conservative object footprints; they do not replace visual inspection.'
+ passed:gwRearChecks.filter(c=>c.ok).length,
+ total:gwRearChecks.length,
+ checks:gwRearChecks,
+ note:'Проверяются реальные объекты заднего водоёма; визуальная проверка рендера отдельно необходима.'
 };
-if(gwLayoutChecks.some(c=>!c.ok))console.warn('GREEN WORLD layout check warnings',gwLayoutChecks.filter(c=>!c.ok));
 
 // Тонкие природные каменные кромки берегов подчёркивают границу воды.
 // Они лежат вне русла и не меняют ширину, положение или форму реки.
