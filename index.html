@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-16';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-17';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1004,6 +1004,8 @@ function makeWorldDecor(){
   // Более тёмный графитово-коричневый камень отделяет перила от светлого дорожного настила.
   const railMat=new THREE.MeshPhysicalMaterial({color:0x34495e,roughness:.78,metalness:.07,clearcoat:.16,clearcoatRoughness:.62,envMapIntensity:.48});
   const railCapMat=new THREE.MeshPhysicalMaterial({color:0x607d98,roughness:.8,metalness:.07,clearcoat:.14,clearcoatRoughness:.66,envMapIntensity:.42});
+  // Локальная отделка золотых наверший моста, без изменения общего золота сцены.
+  const bridgeGoldFinish=new THREE.MeshPhysicalMaterial({color:M.gold.color.clone(),roughness:.27,metalness:.78,clearcoat:.32,clearcoatRoughness:.26,envMapIntensity:.92});
   // Фактура камня продолжается на существующих парапетах и округлых перилах.
   // Сохраняем графитово-синий цвет, физические свойства и геометрию ограждения.
   applyBridgeStoneSurface(railMat,2.4,1.25,.012);
@@ -1023,13 +1025,13 @@ function makeWorldDecor(){
       const cap=box(world,.42,.12,.46,side*2.01,y+.95,z,railCapMat,false);
       cap.rotation.x=-Math.atan(bridgeSlope(t));
       // Золотые навершники и розетки повторяют акценты эталонных ворот.
-      const finial=new THREE.Mesh(new THREE.SphereGeometry(.095,12,10),M.gold);
+      const finial=new THREE.Mesh(new THREE.SphereGeometry(.095,12,10),bridgeGoldFinish);
       finial.position.set(side*2.01,y+1.075,z);finial.castShadow=false;finial.receiveShadow=false;world.add(finial);
-      const bridgeRosette=new THREE.Mesh(new THREE.TorusGeometry(.105,.024,8,20),M.gold);
+      const bridgeRosette=new THREE.Mesh(new THREE.TorusGeometry(.105,.024,8,20),bridgeGoldFinish);
       bridgeRosette.rotation.y=Math.PI/2;
       bridgeRosette.position.set(side*2.205,y+.48,z);
       bridgeRosette.castShadow=false;bridgeRosette.receiveShadow=false;world.add(bridgeRosette);
-      const bridgeCenter=new THREE.Mesh(new THREE.SphereGeometry(.045,10,8),M.gold);
+      const bridgeCenter=new THREE.Mesh(new THREE.SphereGeometry(.045,10,8),bridgeGoldFinish);
       bridgeCenter.position.set(side*2.21,y+.48,z);
       bridgeCenter.castShadow=false;bridgeCenter.receiveShadow=false;world.add(bridgeCenter);
     }
