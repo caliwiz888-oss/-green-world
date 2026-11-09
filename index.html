@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-19';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-20';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1807,8 +1807,9 @@ function makeWorldLandscape(){
    wisp.position.set(x,y,z);wisp.scale.set(sx,sy,sz);wisp.rotation.z=rz;world.add(wisp);
  }
  // Объёмные облачные банки: несколько мягко перекрывающихся слоёв вместо отдельных овальных пятен.
- const gwCloudMat=new THREE.MeshBasicMaterial({color:0xf7ffff,transparent:true,opacity:.16,depthWrite:false,fog:false});
- const gwCloudHighlight=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.105,depthWrite:false,fog:false});
+ // Более читаемый объём облаков: усиливаем мягкие полутона и светлые верхние грани, не меняя небо и линию горизонта.
+ const gwCloudMat=new THREE.MeshBasicMaterial({color:0xf7ffff,transparent:true,opacity:.20,depthWrite:false,fog:false});
+ const gwCloudHighlight=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.13,depthWrite:false,fog:false});
  const gwCloudBanks=[
    {x:-30,y:30,z:-59,s:1.0},{x:-7,y:33,z:-63,s:.92},
    {x:19,y:31,z:-60,s:1.08},{x:39,y:27,z:-55,s:.82},
