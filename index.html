@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-03';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-04';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -727,8 +727,9 @@ function makeFlowerBed(x,z){
  box(b,2.08,.09,1.03,0,.315,0,M.stone,false);
  box(b,1.88,.16,.84,0,.39,0,M.soil,false);
  const petalColors=[0xe45d72,0xf0c75e,0xfff0d8,0xb66fc2,0x4f9fc0];
- const petalMaterials=petalColors.map(color=>new THREE.MeshStandardMaterial({color,roughness:.82}));
- const centerMaterial=new THREE.MeshStandardMaterial({color:0xe6b94d,roughness:.78});
+ // Лепестки получают более плавное освещение и мягкий натуральный шелковистый блик.
+ const petalMaterials=petalColors.map(color=>new THREE.MeshPhysicalMaterial({color,roughness:.78,metalness:0,sheen:.22,sheenColor:0xffe7d8,sheenRoughness:.86,clearcoat:.06,clearcoatRoughness:.82}));
+ const centerMaterial=new THREE.MeshPhysicalMaterial({color:0xe6b94d,roughness:.68,metalness:.025,sheen:.12,sheenColor:0xffe8a8,sheenRoughness:.9});
  const leafMaterial=new THREE.MeshStandardMaterial({color:0x718765,roughness:.96});
  const leafLightMaterial=new THREE.MeshStandardMaterial({color:0x91a77d,roughness:.95});
  // Микрофактура листьев в клумбах согласована с общей фактурой листвы мира.
@@ -742,7 +743,7 @@ function makeFlowerBed(x,z){
   material.roughnessMap=detail;
   material.needsUpdate=true;
  }
- const flowerHead=new THREE.SphereGeometry(.075,12,9);
+ const flowerHead=new THREE.SphereGeometry(.075,16,12);
  const leafGeo=new THREE.SphereGeometry(1,10,7);
  for(let i=0;i<7;i++){
    const px=-.75+(i%4)*.5,pz=(i%2?-.2:.2),stemHeight=.27+(i%3)*.035;
