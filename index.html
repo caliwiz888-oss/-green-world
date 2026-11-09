@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-08';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-09';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2394,8 +2394,8 @@ function makeHouse(){
   material.roughnessMap=facadeMetalRoughness;
   material.needsUpdate=true;
  }
- const facadeGold=new THREE.MeshPhysicalMaterial({color:0xc69a43,roughness:.3,metalness:.82,roughnessMap:facadeMetalRoughness,clearcoat:.24,clearcoatRoughness:.3,envMapIntensity:.92});
- const facadeBronze=new THREE.MeshPhysicalMaterial({color:0x493326,roughness:.46,metalness:.38,roughnessMap:facadeMetalRoughness,clearcoat:.16,clearcoatRoughness:.48,envMapIntensity:.58});
+ const facadeGold=new THREE.MeshPhysicalMaterial({color:0xc69a43,roughness:.285,metalness:.82,roughnessMap:facadeMetalRoughness,clearcoat:.28,clearcoatRoughness:.26,envMapIntensity:.96});
+ const facadeBronze=new THREE.MeshPhysicalMaterial({color:0x493326,roughness:.45,metalness:.38,roughnessMap:facadeMetalRoughness,clearcoat:.19,clearcoatRoughness:.44,envMapIntensity:.61});
  // Тонкая вертикальная текстура натурального дерева только для входной двери и её филёнок.
  const doorGrainCanvas=document.createElement('canvas');
  doorGrainCanvas.width=128;doorGrainCanvas.height=256;
