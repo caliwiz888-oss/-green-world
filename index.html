@@ -231,7 +231,7 @@ window.GREEN_WORLD_STARTUP_STAGE='three-loaded';
 const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
 let token='';
-let cameraRadius=60,cameraHeight=30;
+let cameraRadius=60,cameraHeight=90;
 let buildingObjects=[];
 const scene=new THREE.Scene();
 // Мягкий процедурный небосвод: градиент от насыщенного голубого к светлому горизонту с едва заметными облачными вуалями.
@@ -3583,7 +3583,7 @@ async function login(){const tg=window.Telegram?.WebApp;const initData=tg?.initD
 
 const cameraTarget=new THREE.Vector3(0,.8,-1.5);
 let cameraAzimuth=0;
-let cameraPolar=Math.atan2(60,30-.8);
+let cameraPolar=Math.atan2(cameraRadius,cameraHeight-.8);
 function updateOrbitCamera(){const orbitRadius=Math.hypot(cameraRadius,cameraHeight-.8),sinPolar=Math.sin(cameraPolar);camera.position.set(cameraTarget.x+orbitRadius*sinPolar*Math.sin(cameraAzimuth),cameraTarget.y+orbitRadius*Math.cos(cameraPolar),cameraTarget.z+orbitRadius*sinPolar*Math.cos(cameraAzimuth));camera.lookAt(cameraTarget)}
 
 function cameraPosition(){updateOrbitCamera()}
