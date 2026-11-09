@@ -1783,35 +1783,61 @@ function makeWorldDecor(){
    // Старые фоновые розовые деревья не используются.
 
  }
-  // GREEN WORLD — более плотный, широкий и естественно чередующийся дальний лес.
-  // Три смещённых ряда елей заполняют горизонт без ровной геометрической линии.
-  const gwBackForestRows=[
-    {z:-30.5,offset:0,seed:101,count:13,step:7.65},
-    {z:-39.0,offset:3.7,seed:137,count:13,step:7.65},
-    {z:-48.0,offset:-1.8,seed:173,count:12,step:8.15}
-  ];
-  for(let row=0;row<gwBackForestRows.length;row++){
-    const spec=gwBackForestRows[row];
-    for(let i=0;i<spec.count;i++){
-      const seed=spec.seed+i*1.37;
-      const x=-45+i*spec.step+spec.offset+Math.sin(i*1.63+row)*1.7;
-      const z=spec.z+Math.cos(i*1.31+row*.9)*1.8;
-      const h=6.0+((i*11+row*7)%9)*.48;
-      gwAddPine(x,z,h,seed,.055);
-    }
-  }
-  // Более свободная линия лиственных и цветущих деревьев разбивает повторяющийся силуэт елей.
-  for(const [x,z,h,seed,palette] of [
-    [-38,-34.0,5.9,211,'pink'],[-29,-43.0,6.7,217,'amber'],
-    [-20,-36.5,6.1,223,'pink'],[-10,-47.0,6.8,229,'pink'],
-    [1,-34.5,6.4,235,'amber'],[12,-43.5,7.0,241,'pink'],
-    [23,-35.0,6.2,247,'pink'],[35,-45.0,6.8,253,'amber'],
-    [-33,-53.0,5.8,259,'amber'],[-14,-54.0,6.1,265,'pink'],
-    [9,-54.0,6.0,271,'amber'],[30,-53.0,6.2,277,'pink']
-  ])gwAddBlossom(x,z,h,seed,.055,palette);
-  // Весь лес остаётся позади заднего ограждения; архитектура и игровая зона не перемещаются.
-  // Удалены мелкие светлые камешки за правой стороной ограды, чтобы убрать тонкую светлую отметку.
-}
+  // GREEN WORLD — смешанный лес по утверждённому эталону.
+ // Хвойные деревья образуют дальний высокий фон; лиственные и цветущие стоят впереди,
+ // в свободной шахматной расстановке. Все деревья остаются за задней оградой.
+ function gwAddDeciduous(x,z,h,seed=0){
+   const g=new THREE.Group();g.position.set(x,.055,z);gwForest.add(g);
+   gwAddTreeContactShadow(g,h,1.08);
+   const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
+   trunk.position.y=h*.34;trunk.scale.set(.68,h*.69,.68);g.add(trunk);
+   // Несколько расходящихся ветвей поддерживают широкую естественную крону.
+   for(let k=0;k<7;k++){
+     const a=seed+k*Math.PI*2/7,branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
+     branch.position.set(Math.cos(a)*h*.105,h*(.48+(k%3)*.035),Math.sin(a)*h*.105);
+     branch.scale.y=h*(.28+(k%3)*.025);
+     branch.rotation.z=Math.cos(a)*-.62;branch.rotation.x=Math.sin(a)*.62;g.add(branch);
+   }
+   // Крона из отдельных округлых групп разного размера, с просветами между ними.
+   const clusters=13;
+   for(let k=0;k<clusters;k++){
+     const a=seed+k*2.399963;
+     const ring=k<8?.19:.09,rad=h*ring*(.88+.12*Math.sin(a*2.7));
+     const crown=new THREE.Mesh(gwCrownGeo,k%4===0?gwPineC:gwLeaf);
+     crown.position.set(Math.cos(a)*rad,h*(.68+(k%4)*.035),Math.sin(a)*rad);
+     const size=h*(.105+(k%4)*.012);
+     crown.scale.set(size*(1.05+.12*Math.sin(a)),size*(.72+(k%3)*.08),size*(.98+.1*Math.cos(a)));
+     g.add(crown);
+   }
+   const top=new THREE.Mesh(gwCrownGeo,gwLeaf);
+   top.position.y=h*.79;top.scale.set(h*.18,h*.14,h*.17);g.add(top);
+   g.rotation.y=seed*.17;
+   g.scale.set(1+.045*Math.sin(seed),.96+.06*Math.cos(seed*1.3),1+.045*Math.cos(seed));
+   g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
+ }
+ // Дальний ярус елей: редкие высокие силуэты, а не сплошная стена.
+ const gwPineBack=[
+   [-43,-49,6.8,301],[-35,-53,7.4,307],[-26,-48,6.9,313],[-17,-55,7.6,319],
+   [-7,-49,6.7,325],[3,-56,7.5,331],[14,-49,6.9,337],[25,-55,7.6,343],
+   [36,-49,6.9,349],[45,-54,7.2,355],[-45,-39,6.1,361],[-31,-41,6.4,367],
+   [-15,-40,6.0,373],[1,-42,6.5,379],[17,-40,6.1,385],[33,-42,6.4,391],[46,-39,6.0,397]
+ ];
+ for(const [x,z,h,seed] of gwPineBack)gwAddPine(x,z,h,seed,.055);
+ // Средний ярус широколиственных деревьев — заметно шире и светлее елей.
+ const gwLeafBack=[
+   [-41,-33,6.0,411],[-33,-38,6.5,417],[-24,-32,6.2,423],[-14,-37,6.6,429],
+   [-4,-32,6.1,435],[7,-37,6.7,441],[18,-32,6.2,447],[29,-38,6.6,453],
+   [40,-33,6.0,459],[-37,-45,5.8,465],[-20,-44,6.1,471],[1,-45,6.0,477],
+   [22,-45,6.2,483],[42,-45,5.9,489]
+ ];
+ for(const [x,z,h,seed] of gwLeafBack)gwAddDeciduous(x,z,h,seed);
+ // Цветущие деревья вплетены в лиственный ряд и не образуют отдельную ровную полосу.
+ for(const [x,z,h,seed,palette] of [
+   [-29,-34.5,5.8,501,'pink'],[-8,-39.5,6.0,507,'amber'],
+   [13,-34.5,5.9,513,'pink'],[35,-39.5,6.1,519,'pink'],
+   [-40,-44.5,5.6,525,'amber'],[-2,-47.0,5.8,531,'pink'],[30,-46.0,5.7,537,'amber']
+ ])gwAddBlossom(x,z,h,seed,.055,palette);
+ // Существующие передние розовые деревья у боковых участков и входа сохранены.
 let riverWaterTexture=null;
 let riverSurfaceMesh=null;
 const riverMotionObjects=[];
