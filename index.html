@@ -108,7 +108,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 </style>
 </head>
 <body>
-<canvas id="world"></canvas>
+<canvas id="world"></canvas><button id="treeDiagQuickOpen" type="button" style="position:fixed;z-index:50;top:76px;right:12px;padding:10px 13px;border:2px solid #e8c16c;border-radius:12px;background:linear-gradient(180deg,#fff3c8,#e6d29b);color:#3f512c;font-size:12px;font-weight:950;box-shadow:0 3px 10px #0005">Диагностика деревьев</button>
 <div id="toast"></div>
 <div id="farmHud" aria-label="Green Farm: уровень игрока">
  <button id="farmMenuButton" type="button" aria-label="Открыть меню" title="Меню">☰</button>
@@ -3442,10 +3442,10 @@ if(window.GREEN_WORLD_AUTH_RESULT){
 }
 </script>
 <script>
-(()=>{const open=document.getElementById('treeDiagOpen'),shade=document.getElementById('treeDiagShade'),out=document.getElementById('treeDiagOutput'),status=document.getElementById('treeDiagStatus'),refresh=document.getElementById('treeDiagRefresh'),copy=document.getElementById('treeDiagCopy'),close=document.getElementById('treeDiagClose');if(!open||!shade||!out||!status||!refresh||!copy||!close)return;
+(()=>{const openers=[document.getElementById('treeDiagOpen'),document.getElementById('treeDiagQuickOpen')].filter(Boolean),shade=document.getElementById('treeDiagShade'),out=document.getElementById('treeDiagOutput'),status=document.getElementById('treeDiagStatus'),refresh=document.getElementById('treeDiagRefresh'),copy=document.getElementById('treeDiagCopy'),close=document.getElementById('treeDiagClose');if(!openers.length||!shade||!out||!status||!refresh||!copy||!close)return;
 const update=()=>{const d=window.GREEN_WORLD_TREE_BOUNDS_DIAGNOSTIC;if(!d){status.textContent='Данные пока не готовы. Убедись, что 3D-мир загрузился, затем нажми «Обновить».';out.value='Диагностика ещё не создана. Возможно, генерация мира не запускалась или остановилась до создания деревьев.';return;}
 const fmt=n=>Number(n).toFixed(2);const lines=['ДЕРЕВЬЯ: '+d.count,'ВОЗМОЖНЫЕ ПЕРЕСЕЧЕНИЯ ГРАНИЧНЫХ ОБЪЁМОВ: '+d.crownFootprintOverlaps.length,'','СПИСОК ДЕРЕВЬЕВ:'];for(const t of d.trees){lines.push('#'+t.index+' центр X='+fmt(t.center.x)+' Z='+fmt(t.center.z)+' | ширина='+fmt(t.width)+' глубина='+fmt(t.depth)+' высота='+fmt(t.height));}lines.push('','ВОЗМОЖНЫЕ ПЕРЕСЕЧЕНИЯ:');if(!d.crownFootprintOverlaps.length)lines.push('Не обнаружены по порогу 0.35 × 0.35.');else for(const p of d.crownFootprintOverlaps)lines.push('#'+p.a+' ↔ #'+p.b+' | X='+fmt(p.overlapX)+' Z='+fmt(p.overlapZ));lines.push('','Примечание: AABB-пересечения — сигнал для проверки, а не доказательство визуального наложения.');out.value=lines.join('\n');status.textContent='Расчёт получен. Деревьев: '+d.count+'; возможных пересечений: '+d.crownFootprintOverlaps.length+'.';};
-open.addEventListener('click',()=>{shade.classList.add('open');update();});refresh.addEventListener('click',update);close.addEventListener('click',()=>shade.classList.remove('open'));shade.addEventListener('click',e=>{if(e.target===shade)shade.classList.remove('open');});copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(out.value);status.textContent='Результат скопирован. Вставь его в чат.';}catch(e){out.focus();out.select();status.textContent='Выделил текст. Удерживай и выбери «Копировать», затем вставь в чат.';}});document.addEventListener('keydown',e=>{if(e.key==='Escape')shade.classList.remove('open');});})();
+openers.forEach(open=>open.addEventListener('click',()=>{shade.classList.add('open');update();}));refresh.addEventListener('click',update);close.addEventListener('click',()=>shade.classList.remove('open'));shade.addEventListener('click',e=>{if(e.target===shade)shade.classList.remove('open');});copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(out.value);status.textContent='Результат скопирован. Вставь его в чат.';}catch(e){out.focus();out.select();status.textContent='Выделил текст. Удерживай и выбери «Копировать», затем вставь в чат.';}});document.addEventListener('keydown',e=>{if(e.key==='Escape')shade.classList.remove('open');});})();
 </script>
 </body>
 </html>
