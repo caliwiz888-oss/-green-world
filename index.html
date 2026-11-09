@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-05';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-06';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2474,13 +2474,15 @@ function makeHouse(){
  facadeTrimBump.repeat.set(.72,.72);facadeTrimBump.needsUpdate=true;
  const facadeTrimRoughness=manorWallRoughness.clone();
  facadeTrimRoughness.repeat.set(.72,.72);facadeTrimRoughness.needsUpdate=true;
- const facadeStone=new THREE.MeshStandardMaterial({
+ const facadeStone=new THREE.MeshPhysicalMaterial({
   color:0xe8d2ae,map:facadeTrimTexture,bumpMap:facadeTrimBump,
-  roughnessMap:facadeTrimRoughness,bumpScale:.050,roughness:.88
+  roughnessMap:facadeTrimRoughness,bumpScale:.053,roughness:.88,
+  metalness:0,clearcoat:.08,clearcoatRoughness:.9,specularIntensity:.2
  });
- const facadeStoneShade=new THREE.MeshStandardMaterial({
+ const facadeStoneShade=new THREE.MeshPhysicalMaterial({
   color:0xb69b70,map:facadeTrimTexture,bumpMap:facadeTrimBump,
-  roughnessMap:facadeTrimRoughness,bumpScale:.042,roughness:.91
+  roughnessMap:facadeTrimRoughness,bumpScale:.045,roughness:.91,
+  metalness:0,clearcoat:.06,clearcoatRoughness:.92,specularIntensity:.17
  });
  function facadeArch(w,h,base=0){
   const r=w/2,straight=h-r,sh=new THREE.Shape();
