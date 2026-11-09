@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-06';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-07';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -374,7 +374,14 @@ M.gold.roughness=.31;M.gold.clearcoat=.28;M.gold.clearcoatRoughness=.3;M.gold.en
 M.glass.roughness=.235;M.glass.clearcoat=.6;M.glass.clearcoatRoughness=.16;M.glass.envMapIntensity=1.08;
 // Настраиваем силу отражений физического неба отдельно для камня, кровли, металла и стекла.
 M.stone.envMapIntensity=.42;M.stone2.envMapIntensity=.45;
-M.roof.envMapIntensity=.9;M.roof2.envMapIntensity=.86;
+M.roof.envMapIntensity=.92;M.roof2.envMapIntensity=.88;
+// Более чёткая глазурованная фактура существующей сланцевой кровли.
+// Усиливаем только микрорельеф и мягкий верхний блик: цвет, форма и укладка не меняются.
+for(const roofMaterial of [M.roof,M.roof2]){
+ roofMaterial.clearcoat=Math.min(.36,roofMaterial.clearcoat+.035);
+ roofMaterial.clearcoatRoughness=Math.max(.42,roofMaterial.clearcoatRoughness-.025);
+ roofMaterial.needsUpdate=true;
+}
 M.gold.envMapIntensity=.9;M.glass.envMapIntensity=1.05;
 
 function makeSurfaceTexture(kind,seed){
@@ -669,7 +676,7 @@ const surfaceBumps=[
  [M.leaf,surfaceMaps.leaf,.012],[M.leaf2,surfaceMaps.leaf,.012],
  [M.path,surfaceMaps.path,.052],
  [M.wood,surfaceMaps.wood,.046],[M.wood2,surfaceMaps.wood,.041],
- [M.roof,surfaceMaps.roof,.034],[M.roof2,surfaceMaps.roof,.034]
+ [M.roof,surfaceMaps.roof,.039],[M.roof2,surfaceMaps.roof,.039]
 ];
 for(const [material,texture,scale] of surfaceBumps){
  // Bump maps use linear data, unlike the visible color maps.
