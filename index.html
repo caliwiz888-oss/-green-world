@@ -3496,7 +3496,7 @@ window.GREEN_WORLD_GET_CENTRAL_FOUNTAIN_VISIBILITY=()=>{
    const houseHits=raycaster.intersectObject(house,true);
    const houseBlocker=houseHits.find(hit=>hit.distance<distance-.035)||null;
    const sceneHits=raycaster.intersectObjects(world.children,true);
-   const sceneBlocker=sceneHits.find(hit=>hit.distance<distance-.035&&hit.object!==object)||null;
+   const sceneBlocker=sceneHits.find(hit=>hit.distance<distance-.035&&!targets.some(entry=>entry.object===hit.object))||null;
    const projected=target.clone().project(camera);
    const inFrame=projected.x>=-1&&projected.x<=1&&projected.y>=-1&&projected.y<=1&&projected.z>=-1&&projected.z<=1;
    const blockerObject=sceneBlocker?.object;
