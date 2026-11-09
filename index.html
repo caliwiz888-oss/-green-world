@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-graphics-09';
+const GREEN_WORLD_BUILD_ID = '20261109-graphics-10';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2441,9 +2441,9 @@ function makeHouse(){
  doorReliefTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const facadeWood=new THREE.MeshStandardMaterial({
   color:0x3e3028,map:doorGrainTexture,bumpMap:doorReliefTexture,
-  roughnessMap:doorReliefTexture,bumpScale:.012,roughness:.62,metalness:.04
+  roughnessMap:doorReliefTexture,bumpScale:.014,roughness:.62,metalness:.04
  });
- const facadeWood2=new THREE.MeshStandardMaterial({color:0x634735,roughness:.55,metalness:.06});
+ const facadeWood2=new THREE.MeshPhysicalMaterial({color:0x634735,bumpMap:doorReliefTexture,roughnessMap:doorReliefTexture,bumpScale:.009,roughness:.55,metalness:.06,clearcoat:.07,clearcoatRoughness:.78,specularIntensity:.22});
  const facadeGlass=new THREE.MeshPhysicalMaterial({color:0x35b9c1,roughness:.18,metalness:.12,transparent:true,opacity:.9,side:THREE.DoubleSide,clearcoat:.92,clearcoatRoughness:.10,reflectivity:.72,ior:1.46,thickness:.12,specularIntensity:.9,specularColor:0xc9f5f2});
  // Текстура известняка распространяется и на существующие каменные обрамления фасада.
  // Отдельный масштаб не даёт крупным швам основной стены повторяться на наличниках.
