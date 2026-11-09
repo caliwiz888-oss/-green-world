@@ -28,9 +28,22 @@ test('frontend does not persist game state in local storage', () => {
   assert.doesNotMatch(html, /localStorage/);
 });
 
-test('creates the detailed manor once and keeps the fallback roof flush with its gable', () => {
-  assert.match(html, /const manor=makeHouse\(\);\s*buildingObjects\.push\(manor\);/);
-  assert.match(html, /catch\(houseError\)/);
-  assert.match(html, /box\(fallback,3\.95,\.34,8\.08,-1\.93,5\.72,-\.02,fallbackRoof\)/);
-  assert.match(html, /box\(fallback,3\.95,\.34,8\.08,1\.43,5\.72,-\.02,fallbackRoof\)/);
+test('creates the approved manor once on the central courtyard axis', () => {
+  assert.match(html, /function makeHouse\(\)\s*\{/);
+  assert.match(html, /const house=makeHouse\(\);\s*buildingObjects\.push\(house\);/);
+  assert.match(html, /g=group\(world,0,0,-12\.442\);g\.name='green-world-manor-full-reference-rebuild';/);
+  assert.match(html, /g\.scale\.set\(1\.452,1\.452,1\.452\)/);
+});
+
+test('keeps only two symmetric flower beds and symmetric shrub groups', () => {
+  assert.match(html, /for\(const \[x,z\] of \[\[-8\.4,7\.2\],\[8\.4,7\.2\]\]\)makeFlowerBed\(x,z\)/);
+  assert.match(html, /\[-13\.55,-15\.0,0\],\[13\.55,-15\.0,1\]/);
+  assert.match(html, /\[-13\.55,-5\.0,1\],\[13\.55,-5\.0,2\]/);
+  assert.match(html, /\[-13\.55,5\.8,2\],\[13\.55,5\.8,0\]/);
+});
+
+test('includes the rear pond, three fountains and right-side gazebo', () => {
+  assert.match(html, /GREEN_WORLD_Rear_Pond/);
+  assert.match(html, /for\(const x of \[-14,0,14\]\)/);
+  assert.match(html, /GREEN_WORLD_Rear_Gazebo/);
 });
