@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261109-gazebo-frustum-29';
+const GREEN_WORLD_BUILD_ID = '20261109-gazebo-frustum-30';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -2025,6 +2025,7 @@ for(const x of [-14,0,14]){
 }
 // Беседка на правом берегу заднего водоёма, вне центральной оси и проходов.
 const gazebo=new THREE.Group();gazebo.name='GREEN_WORLD_Rear_Gazebo';
+window.GREEN_WORLD_GAZEBO_OBJECT=gazebo;
 gazebo.position.set(26.2,0,-27.35);world.add(gazebo);
 const gazeboStone=M.stone2.clone();gazeboStone.color=new THREE.Color(0xd8c6a2);gazeboStone.roughness=.88;gazeboStone.needsUpdate=true;
 const gazeboGold=M.gold?M.gold.clone():new THREE.MeshStandardMaterial({color:0xc59a4c,roughness:.38});
@@ -2069,6 +2070,7 @@ window.GREEN_WORLD_LAYOUT_DIAGNOSTIC={
 // деревьев и элементов ограждения. Геометрия и координаты объектов не изменяются.
 world.updateMatrixWorld(true);const gwForestForGazebo=window.GREEN_WORLD_TREE_FOREST;const gwFenceForGazebo=window.GREEN_WORLD_FENCE_GROUP;const gwAreaForGazebo=window.GREEN_WORLD_AREA_BOUNDS;if(gwForestForGazebo)gwForestForGazebo.updateMatrixWorld(true);if(gwFenceForGazebo)gwFenceForGazebo.updateMatrixWorld(true);
 const gwGazeboBox=new THREE.Box3().setFromObject(gazebo);
+window.GREEN_WORLD_GAZEBO_BOX=gwGazeboBox;
 const gwBoxRecord=b=>({min:{x:b.min.x,y:b.min.y,z:b.min.z},max:{x:b.max.x,y:b.max.y,z:b.max.z},
  width:b.max.x-b.min.x,depth:b.max.z-b.min.z,height:b.max.y-b.min.y});
 const gwGazeboTreeHits=[];
@@ -3446,10 +3448,16 @@ function updateOrbitCamera(){const orbitRadius=Math.hypot(cameraRadius,cameraHei
 
 function cameraPosition(){updateOrbitCamera()}
 window.GREEN_WORLD_GET_GAZEBO_CAMERA_DIAGNOSTIC=()=>{
+ const gazeboObject=window.GREEN_WORLD_GAZEBO_OBJECT;
+ if(!gazeboObject)throw new Error('Объект беседки ещё не создан функцией makeWorldLandscape');
+ gazeboObject.updateWorldMatrix(true,true);
  camera.updateMatrixWorld(true);
- const box=gazebo.getWorldPosition(new THREE.Vector3());
+ camera.updateProjectionMatrix();
+ const gazeboBounds=new THREE.Box3().setFromObject(gazeboObject);
+ if(gazeboBounds.isEmpty())throw new Error('Не удалось получить мировые габариты беседки');
+ const box=gazeboObject.getWorldPosition(new THREE.Vector3());
  const corners=[];
- for(const x of [gwGazeboBox.min.x,gwGazeboBox.max.x])for(const y of [gwGazeboBox.min.y,gwGazeboBox.max.y])for(const z of [gwGazeboBox.min.z,gwGazeboBox.max.z]){
+ for(const x of [gazeboBounds.min.x,gazeboBounds.max.x])for(const y of [gazeboBounds.min.y,gazeboBounds.max.y])for(const z of [gazeboBounds.min.z,gazeboBounds.max.z]){
   const p=new THREE.Vector3(x,y,z).project(camera);
   corners.push({x:p.x,y:p.y,z:p.z});
  }
