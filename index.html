@@ -3587,8 +3587,8 @@ window.GREEN_WORLD_GET_CENTRAL_FOUNTAIN_VISIBILITY=()=>{
    [new THREE.Vector3(center.x,b.max.y,center.z),new THREE.Vector3(center.x-.45,b.max.y,center.z),new THREE.Vector3(center.x+.45,b.max.y,center.z)])
    .map(point=>({point,object}));
  });
- for(const height of [38,42,46,50,55,60]){
-  for(const azimuthDegrees of [-30,-20,-10,0,10,20,30]){
+ for(const height of [30,34,38,42,46,50,55,60]){
+  for(const azimuthDegrees of [-60,-55,-50,-45,-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40,45,50,55,60]){
    const azimuth=THREE.MathUtils.degToRad(azimuthDegrees);
    const testCamera=new THREE.PerspectiveCamera(camera.fov,camera.aspect,camera.near,camera.far);
    testCamera.position.set(cameraTarget.x+cameraRadius*Math.sin(azimuth),height,cameraTarget.z+cameraRadius*Math.cos(azimuth));
