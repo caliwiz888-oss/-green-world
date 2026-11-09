@@ -108,7 +108,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 </style>
 </head>
 <body>
-<canvas id="world"></canvas><button id="treeDiagQuickOpen" type="button" style="position:fixed;z-index:50;top:76px;right:12px;padding:10px 13px;border:2px solid #e8c16c;border-radius:12px;background:linear-gradient(180deg,#fff3c8,#e6d29b);color:#3f512c;font-size:12px;font-weight:950;box-shadow:0 3px 10px #0005">Диагностика деревьев</button>
+<canvas id="world"></canvas><button id="treeDiagQuickOpen" type="button" style="position:fixed;z-index:50;top:76px;right:12px;padding:10px 13px;border:2px solid #e8c16c;border-radius:12px;background:linear-gradient(180deg,#fff3c8,#e6d29b);color:#3f512c;font-size:12px;font-weight:950;box-shadow:0 3px 10px #0005">Диагностика деревьев</button><button id="gazeboDiagQuickOpen" type="button" style="position:fixed;z-index:50;top:122px;right:12px;padding:10px 13px;border:2px solid #9ac6b0;border-radius:12px;background:linear-gradient(180deg,#e8fff0,#b9dfc9);color:#24533c;font-size:12px;font-weight:950;box-shadow:0 3px 10px #0005">Проверка беседки</button>
 <div id="toast"></div>
 <div id="farmHud" aria-label="Green Farm: уровень игрока">
  <button id="farmMenuButton" type="button" aria-label="Открыть меню" title="Меню">☰</button>
@@ -140,7 +140,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 </script>
 <div id="login"><div class="login-card"><h1>GREEN WORLD</h1><p>Новый мир готовится к открытию. Войди через Telegram, чтобы открыть 3D-мир.</p><button class="smallbtn" id="retry-login">ПОДКЛЮЧИТЬ TELEGRAM</button><p id="login-error"></p></div></div>
 </div></div>
-<div id="treeDiagShade" role="dialog" aria-modal="true" aria-label="Диагностика деревьев"><div id="treeDiagPanel"><h2>Диагностика деревьев GREEN WORLD</h2><p id="treeDiagStatus">Нажми «Обновить», когда 3D-мир загрузится.</p><textarea id="treeDiagOutput" readonly spellcheck="false"></textarea><div class="treeDiagActions"><button id="treeDiagRefresh" type="button">Обновить</button><button id="treeDiagCopy" type="button">Копировать результат</button><button id="treeDiagClose" type="button">Закрыть</button></div></div></div>
+<div id="treeDiagShade" role="dialog" aria-modal="true" aria-label="Диагностика деревьев"><div id="treeDiagPanel"><h2 id="treeDiagTitle">Диагностика деревьев GREEN WORLD</h2><p id="treeDiagStatus">Нажми «Обновить», когда 3D-мир загрузится.</p><textarea id="treeDiagOutput" readonly spellcheck="false"></textarea><div class="treeDiagActions"><button id="treeDiagRefresh" type="button">Обновить</button><button id="treeDiagCopy" type="button">Копировать результат</button><button id="treeDiagClose" type="button">Закрыть</button></div></div></div>
 <script>window.GREEN_WORLD_API_URL='https://green-world-api-mx3v.onrender.com';</script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
@@ -2062,6 +2062,47 @@ window.GREEN_WORLD_LAYOUT_DIAGNOSTIC={
  note:'Проверяются реальные объекты заднего водоёма; визуальная проверка рендера отдельно необходима.'
 };
 
+// Полная пространственная диагностика беседки: фактические Box3 всех её деталей,
+// деревьев и элементов ограждения. Геометрия и координаты объектов не изменяются.
+world.updateMatrixWorld(true);gwForest.updateMatrixWorld(true);fenceGroup.updateMatrixWorld(true);
+const gwGazeboBox=new THREE.Box3().setFromObject(gazebo);
+const gwBoxRecord=b=>({min:{x:b.min.x,y:b.min.y,z:b.min.z},max:{x:b.max.x,y:b.max.y,z:b.max.z},
+ width:b.max.x-b.min.x,depth:b.max.z-b.min.z,height:b.max.y-b.min.y});
+const gwGazeboTreeHits=[];
+for(let i=0;i<gwForest.children.length;i++){
+ const tree=gwForest.children[i],b=new THREE.Box3().setFromObject(tree);
+ const ox=Math.min(gwGazeboBox.max.x,b.max.x)-Math.max(gwGazeboBox.min.x,b.min.x);
+ const oy=Math.min(gwGazeboBox.max.y,b.max.y)-Math.max(gwGazeboBox.min.y,b.min.y);
+ const oz=Math.min(gwGazeboBox.max.z,b.max.z)-Math.max(gwGazeboBox.min.z,b.min.z);
+ if(ox>0.05&&oy>0.05&&oz>0.05)gwGazeboTreeHits.push({tree:i,overlapX:ox,overlapY:oy,overlapZ:oz});
+}
+const gwGazeboFenceHits=[];
+fenceGroup.traverse(o=>{
+ if(!o.isMesh||!o.geometry)return;
+ const b=new THREE.Box3().setFromObject(o);
+ const ox=Math.min(gwGazeboBox.max.x,b.max.x)-Math.max(gwGazeboBox.min.x,b.min.x);
+ const oy=Math.min(gwGazeboBox.max.y,b.max.y)-Math.max(gwGazeboBox.min.y,b.min.y);
+ const oz=Math.min(gwGazeboBox.max.z,b.max.z)-Math.max(gwGazeboBox.min.z,b.min.z);
+ if(ox>0.05&&oy>0.05&&oz>0.05)gwGazeboFenceHits.push({object:o.name||o.type,overlapX:ox,overlapY:oy,overlapZ:oz});
+});
+const gwGazeboFootprint={minX:gwGazeboBox.min.x,maxX:gwGazeboBox.max.x,minZ:gwGazeboBox.min.z,maxZ:gwGazeboBox.max.z};
+const gwGazeboChecks=[
+ {name:'attached_to_world',ok:gazebo.parent===world},
+ {name:'clear_of_pond_water',ok:gwGazeboClearance>0,clearance:gwGazeboClearance},
+ {name:'inside_right_site_boundary',ok:gwGazeboFootprint.minX>areaBounds.right,clearance:gwGazeboFootprint.minX-areaBounds.right},
+ {name:'behind_rear_fence',ok:gwGazeboFootprint.maxZ<areaBounds.back,clearance:areaBounds.back-gwGazeboFootprint.maxZ},
+ {name:'clear_of_all_trees',ok:gwGazeboTreeHits.length===0,hits:gwGazeboTreeHits.length},
+ {name:'clear_of_fence_geometry',ok:gwGazeboFenceHits.length===0,hits:gwGazeboFenceHits.length}
+];
+window.GREEN_WORLD_GAZEBO_DIAGNOSTIC={
+ position:{x:gazebo.position.x,z:gazebo.position.z},
+ bounds:gwBoxRecord(gwGazeboBox),footprint:gwGazeboFootprint,
+ pondWaterClearance:gwGazeboClearance,treeCount:gwForest.children.length,
+ treeIntersections:gwGazeboTreeHits,fenceIntersections:gwGazeboFenceHits,
+ checks:gwGazeboChecks,passed:gwGazeboChecks.filter(c=>c.ok).length,total:gwGazeboChecks.length,
+ note:'AABB-пересечения проверяют фактические мировые габариты. Отсутствие пересечений не заменяет оценку композиции по эталону.'
+};
+
 // Тонкие природные каменные кромки берегов подчёркивают границу воды.
 // Они лежат вне русла и не меняют ширину, положение или форму реки.
 const riverBankMaterial=M.stone2.clone();
@@ -3442,10 +3483,11 @@ if(window.GREEN_WORLD_AUTH_RESULT){
 }
 </script>
 <script>
-(()=>{const openers=[document.getElementById('treeDiagOpen'),document.getElementById('treeDiagQuickOpen')].filter(Boolean),shade=document.getElementById('treeDiagShade'),out=document.getElementById('treeDiagOutput'),status=document.getElementById('treeDiagStatus'),refresh=document.getElementById('treeDiagRefresh'),copy=document.getElementById('treeDiagCopy'),close=document.getElementById('treeDiagClose');if(!openers.length||!shade||!out||!status||!refresh||!copy||!close)return;
-const update=()=>{const d=window.GREEN_WORLD_TREE_BOUNDS_DIAGNOSTIC;if(!d){status.textContent='Данные пока не готовы. Убедись, что 3D-мир загрузился, затем нажми «Обновить».';out.value='Диагностика ещё не создана. Возможно, генерация мира не запускалась или остановилась до создания деревьев.';return;}
+(()=>{const openers=[document.getElementById('treeDiagOpen'),document.getElementById('treeDiagQuickOpen')].filter(Boolean),gazeboOpen=document.getElementById('gazeboDiagQuickOpen'),title=document.getElementById('treeDiagTitle'),shade=document.getElementById('treeDiagShade'),out=document.getElementById('treeDiagOutput'),status=document.getElementById('treeDiagStatus'),refresh=document.getElementById('treeDiagRefresh'),copy=document.getElementById('treeDiagCopy'),close=document.getElementById('treeDiagClose');if(!openers.length||!shade||!out||!status||!refresh||!copy||!close)return;
+let mode='trees';
+const update=()=>{if(mode==='gazebo'){const d=window.GREEN_WORLD_GAZEBO_DIAGNOSTIC;if(!d){status.textContent='Мир ещё загружается.';out.value='Диагностика беседки пока не создана.';return;}const f=n=>Number(n).toFixed(2);const lines=['БЕСЕДКА GREEN WORLD','ЦЕНТР: X='+f(d.position.x)+' Z='+f(d.position.z),'ГАБАРИТЫ: ширина='+f(d.bounds.width)+' глубина='+f(d.bounds.depth)+' высота='+f(d.bounds.height),'ГРАНИЦЫ: X '+f(d.footprint.minX)+'…'+f(d.footprint.maxX)+' | Z '+f(d.footprint.minZ)+'…'+f(d.footprint.maxZ),'','ПРОВЕРКИ: '+d.passed+'/'+d.total];for(const c of d.checks)lines.push((c.ok?'OK  ':'РИСК  ')+c.name+(c.clearance!==undefined?' | зазор='+f(c.clearance):'')+(c.hits!==undefined?' | пересечений='+c.hits:''));lines.push('','ПЕРЕСЕЧЕНИЯ С ДЕРЕВЬЯМИ:');if(!d.treeIntersections.length)lines.push('Не обнаружены.');else for(const h of d.treeIntersections)lines.push('Дерево #'+h.tree+' | X='+f(h.overlapX)+' Y='+f(h.overlapY)+' Z='+f(h.overlapZ));lines.push('','ПЕРЕСЕЧЕНИЯ С ОГРАЖДЕНИЕМ:');if(!d.fenceIntersections.length)lines.push('Не обнаружены.');else for(const h of d.fenceIntersections)lines.push(h.object+' | X='+f(h.overlapX)+' Y='+f(h.overlapY)+' Z='+f(h.overlapZ));lines.push('','Примечание: AABB — проверка габаритов, не оценка визуальной композиции.');out.value=lines.join('\\n');status.textContent='Проверка беседки завершена: '+d.passed+'/'+d.total+'.';return;}const d=window.GREEN_WORLD_TREE_BOUNDS_DIAGNOSTIC;if(!d){status.textContent='Данные пока не готовы. Убедись, что 3D-мир загрузился, затем нажми «Обновить».';out.value='Диагностика ещё не создана. Возможно, генерация мира не запускалась или остановилась до создания деревьев.';return;}
 const fmt=n=>Number(n).toFixed(2);const lines=['ДЕРЕВЬЯ: '+d.count,'ВОЗМОЖНЫЕ ПЕРЕСЕЧЕНИЯ ГРАНИЧНЫХ ОБЪЁМОВ: '+d.crownFootprintOverlaps.length,'','СПИСОК ДЕРЕВЬЕВ:'];for(const t of d.trees){lines.push('#'+t.index+' центр X='+fmt(t.center.x)+' Z='+fmt(t.center.z)+' | ширина='+fmt(t.width)+' глубина='+fmt(t.depth)+' высота='+fmt(t.height));}lines.push('','ВОЗМОЖНЫЕ ПЕРЕСЕЧЕНИЯ:');if(!d.crownFootprintOverlaps.length)lines.push('Не обнаружены по порогу 0.35 × 0.35.');else for(const p of d.crownFootprintOverlaps)lines.push('#'+p.a+' ↔ #'+p.b+' | X='+fmt(p.overlapX)+' Z='+fmt(p.overlapZ));lines.push('','Примечание: AABB-пересечения — сигнал для проверки, а не доказательство визуального наложения.');out.value=lines.join('\n');status.textContent='Расчёт получен. Деревьев: '+d.count+'; возможных пересечений: '+d.crownFootprintOverlaps.length+'.';};
-openers.forEach(open=>open.addEventListener('click',()=>{shade.classList.add('open');update();}));refresh.addEventListener('click',update);close.addEventListener('click',()=>shade.classList.remove('open'));shade.addEventListener('click',e=>{if(e.target===shade)shade.classList.remove('open');});copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(out.value);status.textContent='Результат скопирован. Вставь его в чат.';}catch(e){out.focus();out.select();status.textContent='Выделил текст. Удерживай и выбери «Копировать», затем вставь в чат.';}});document.addEventListener('keydown',e=>{if(e.key==='Escape')shade.classList.remove('open');});})();
+openers.forEach(open=>open.addEventListener('click',()=>{mode='trees';if(title)title.textContent='Диагностика деревьев GREEN WORLD';shade.classList.add('open');update();}));if(gazeboOpen)gazeboOpen.addEventListener('click',()=>{mode='gazebo';if(title)title.textContent='Проверка беседки GREEN WORLD';shade.classList.add('open');update();});refresh.addEventListener('click',update);close.addEventListener('click',()=>shade.classList.remove('open'));shade.addEventListener('click',e=>{if(e.target===shade)shade.classList.remove('open');});copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(out.value);status.textContent='Результат скопирован. Вставь его в чат.';}catch(e){out.focus();out.select();status.textContent='Выделил текст. Удерживай и выбери «Копировать», затем вставь в чат.';}});document.addEventListener('keydown',e=>{if(e.key==='Escape')shade.classList.remove('open');});})();
 </script>
 </body>
 </html>
