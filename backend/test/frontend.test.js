@@ -32,6 +32,9 @@ test('uses a compact sky texture on mobile to limit GPU memory', () => {
   assert.match(html, /skyCanvas\.width=mobile\?1024:4096/);
   assert.match(html, /skyCanvas\.height=mobile\?512:2048/);
   assert.match(html, /skyCtx\.scale\(mobile\?1:4,mobile\?1:4\)/);
+  assert.match(html, /const minRenderQuality=mobile\?\.75:1\.5/);
+  assert.match(html, /Math\.max\(minRenderQuality,currentRenderQuality-\.5\)/);
+  assert.match(html, /Math\.min\(renderQualityTarget,currentRenderQuality\+\.25\)/);
 });
 
 test('frontend does not persist game state in local storage', () => {
