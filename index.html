@@ -1654,17 +1654,17 @@ function makeWorldDecor(){
  const gwAmberB=new THREE.MeshPhysicalMaterial({color:0xe88718,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.18,.18),bumpMap:gwBloomBump,bumpScale:.011,roughness:.945,sheen:.44,sheenColor:0xffa52b,sheenRoughness:.97,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
  const gwAmberC=new THREE.MeshPhysicalMaterial({color:0xffd77b,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwBloomBump,bumpScale:.009,roughness:.95,sheen:.36,sheenColor:0xffe3a0,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
  const gwLeaf=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.16,.16),bumpMap:gwPineBump,bumpScale:.014,roughness:.965,sheen:.34,sheenColor:0xa4c985,sheenRoughness:.93,clearcoat:.025,clearcoatRoughness:.96});
- const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,72,32);
- const gwPineGeos=[new THREE.ConeGeometry(1,1,56,12),new THREE.ConeGeometry(.82,.92,56,12),new THREE.ConeGeometry(.63,.82,56,12)];
- const gwCrownGeo=new THREE.SphereGeometry(1,64,48);
+ const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,mobile?12:72,mobile?6:32);
+ const gwPineGeos=[new THREE.ConeGeometry(1,1,mobile?12:56,mobile?4:12),new THREE.ConeGeometry(.82,.92,mobile?12:56,mobile?4:12),new THREE.ConeGeometry(.63,.82,mobile?12:56,mobile?4:12)];
+ const gwCrownGeo=new THREE.SphereGeometry(1,mobile?16:64,mobile?12:48);
  // Общие формы ветвей и корней переиспользуются всеми деревьями.
- const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,40,7);
- const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,36,8);
-  const gwNeedleGeo=new THREE.ConeGeometry(.011,.115,7,2);
-  const gwPetalGeo=new THREE.SphereGeometry(1,16,12);
- const gwRootGeo=new THREE.CylinderGeometry(.008,.095,1,28,8);
- const gwBlossomBranchGeo=new THREE.CylinderGeometry(.012,.082,1,48,16);
- const gwSproutGeo=new THREE.ConeGeometry(.075,.28,12,3);
+ const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,mobile?10:40,mobile?3:7);
+ const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,mobile?8:36,mobile?3:8);
+ const gwNeedleGeo=new THREE.ConeGeometry(.011,.115,mobile?5:7,mobile?1:2);
+ const gwPetalGeo=new THREE.SphereGeometry(1,mobile?8:16,mobile?6:12);
+ const gwRootGeo=new THREE.CylinderGeometry(.008,.095,1,mobile?8:28,mobile?3:8);
+ const gwBlossomBranchGeo=new THREE.CylinderGeometry(.012,.082,1,mobile?10:48,mobile?4:16);
+ const gwSproutGeo=new THREE.ConeGeometry(.075,.28,mobile?8:12,mobile?2:3);
  // Лёгкая органическая неровность уже существующих крон убирает идеально конусные и шарообразные контуры.
  function gwSoftenTreeSilhouette(geo,amount,mode='cone'){
    const p=geo.attributes.position;
@@ -1714,15 +1714,15 @@ function makeWorldDecor(){
      g.add(crown);
    }
    // Короткие боковые лапы дают видимый многослойный контур хвои.
-   for(let k=0;k<24;k++){
-     const a=seed+k*Math.PI*2/24,level=k%8;
+   for(let k=0;k<(mobile?12:24);k++){
+     const a=seed+k*Math.PI*2/(mobile?12:24),level=k%(mobile?6:8);
      const reach=h*(.125+(level%4)*.016),thickness=h*(.038+(level%3)*.007);
      const bough=new THREE.Mesh(gwPineBoughGeo,k%4===0?gwPineC:(k%3===0?gwPineA:gwPineB));
      bough.position.set(Math.cos(a)*reach,h*(.225+level*.082),Math.sin(a)*reach);
      bough.scale.set(thickness,1+(k%3)*.16,thickness*(.88+(k%4)*.06));
      bough.rotation.z=Math.cos(a)*-.66;bough.rotation.x=Math.sin(a)*.66;
      bough.rotation.y=a;g.add(bough);
-     if(k%2===0){
+     if(k%(mobile?3:2)===(mobile?0:0)){
        const twig=new THREE.Mesh(gwPineTwigGeo,k%4===0?gwPineA:gwPineC);
        twig.position.set(Math.cos(a)*reach*1.58,h*(.245+level*.082),Math.sin(a)*reach*1.58);
        twig.scale.set(h*.026,1+(k%3)*.12,h*.026);
@@ -1730,8 +1730,8 @@ function makeWorldDecor(){
      }
    }
    // Корневые наплывы и короткие нижние ветви делают основание ели менее геометричным.
-   for(let k=0;k<9;k++){
-     const a=seed+k*Math.PI*2/9;
+   for(let k=0;k<(mobile?5:9);k++){
+     const a=seed+k*Math.PI*2/(mobile?5:9);
      const root=new THREE.Mesh(gwRootGeo,gwBark);
      root.position.set(Math.cos(a)*h*.085,h*.055,Math.sin(a)*h*.085);root.scale.y=h*.19;
      root.rotation.z=Math.cos(a)*-.72;root.rotation.x=Math.sin(a)*.72;g.add(root);
@@ -1753,47 +1753,57 @@ function makeWorldDecor(){
     crownCore.scale.set(h*.285,h*.155,h*.265);
     g.add(crownCore);
    // Разветвлённая крона с открытыми промежутками между ветвями.
-   for(let k=0;k<24;k++){
-     const a=seed+k*Math.PI*2/24;
+   for(let k=0;k<(mobile?12:24);k++){
+     const a=seed+k*Math.PI*2/(mobile?12:24);
      const branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
      branch.position.set(Math.cos(a)*h*(.17+(k%3)*.025),h*(.46+(k%4)*.045),Math.sin(a)*h*(.17+(k%3)*.025));
       // Ветви удлинены внутрь к стволу: их внутренние концы входят в древесину, а не висят отдельно.
       branch.scale.y=h*(.42+(k%3)*.035);
      branch.rotation.z=Math.cos(a)*-.68;branch.rotation.x=Math.sin(a)*.68;g.add(branch);
    }
-   // Крона цветущего дерева собрана из разнокалиберных групп с естественной асимметрией.
+   // Соцветия используют InstancedMesh: внешний вид и палитра сохранены, но сотни отдельных draw calls заменены тремя пакетами.
    const petals=palette==='amber'?[gwAmberA,gwAmberB,gwAmberC,gwAmberB,gwAmberA,gwAmberC,gwAmberB]:[gwPinkA,gwPinkB,gwPinkC,gwPinkB,gwPinkA,gwPinkC,gwPinkB];
    const bloomCount=68+Math.abs(Math.floor(seed*7))%15;
+   const bloomMeshes=petals.slice(0,3).map(material=>new THREE.InstancedMesh(gwCrownGeo,material,bloomCount+56));
+   const bloomCounts=[0,0,0],bloomDummy=new THREE.Object3D();
+   const addBloomInstance=(materialIndex,x,y,z,sx,sy,sz,rotation)=>{
+     const mesh=bloomMeshes[materialIndex],index=bloomCounts[materialIndex]++;
+     bloomDummy.position.set(x,y,z);bloomDummy.scale.set(sx,sy,sz);bloomDummy.rotation.set(0,rotation,0);bloomDummy.updateMatrix();
+     mesh.setMatrixAt(index,bloomDummy.matrix);
+   };
    for(let k=0;k<bloomCount;k++){
      const a=k*2.399963+seed;
      const ring=k<Math.floor(bloomCount*.56)?1:(k<Math.floor(bloomCount*.86)?2:0);
      const irregular=.78+.16*Math.sin(a*3.1+seed)+.09*Math.cos(a*5.3-seed*.7);
      const rad=(ring===1?h*(.19+(k%4)*.024):ring===2?h*(.115+(k%3)*.02):h*.035)*irregular;
-     const bloom=new THREE.Mesh(gwCrownGeo,petals[(k*5+Math.floor(seed*3))%petals.length]);
      const crownY=.625+(k%5)*.027+.035*Math.sin(a*2.2+seed)+.018*Math.cos(a*4.1);
-     bloom.position.set(Math.cos(a)*rad*.9,h*crownY,Math.sin(a)*rad*.9);
      const size=h*(ring===1?.116:(ring===2?.103:.132))*(.84+(k%4)*.075)*(.91+.09*Math.sin(a*3+seed));
-     bloom.scale.set(size*(.9+(k%3)*.19),size*(.68+(k%2)*.16),size*(.9+(k%4)*.07));
-     g.add(bloom);
+     const materialIndex=petals.indexOf(petals[(k*5+Math.floor(seed*3))%petals.length]);
+     addBloomInstance(materialIndex,Math.cos(a)*rad*.9,h*crownY,Math.sin(a)*rad*.9,
+       size*(.9+(k%3)*.19),size*(.68+(k%2)*.16),size*(.9+(k%4)*.07),a);
    }
-   // Отдельные лепестки поверх цветочных масс создают мелкий живой силуэт кроны.
-   const petalCount=320,petalsMesh=new THREE.InstancedMesh(gwPetalGeo,palette==='amber'?gwAmberC:gwPinkC,petalCount),petalDummy=new THREE.Object3D();
+   // Крайние мелкие соцветия также пакетируются без потери их расстановки.
+   for(let k=0;k<56;k++){
+     const a=seed+k*2.399963;
+     const edgeRadius=h*(.245+.035*Math.sin(a*2.8+seed)+.018*Math.cos(a*4.7));
+     const materialIndex=palette==='amber'?(k%3===0?1:0):(k%3===0?1:0);
+     addBloomInstance(materialIndex,Math.cos(a)*edgeRadius,h*(.665+(k%4)*.029+.025*Math.sin(a*2.1+seed)),Math.sin(a)*edgeRadius,
+       h*(.064+(k%3)*.01),h*(.045+(k%2)*.009),h*(.066+(k%4)*.007),a);
+   }
+   for(let i=0;i<bloomMeshes.length;i++){
+     bloomMeshes[i].count=bloomCounts[i];
+     if(bloomCounts[i]){bloomMeshes[i].instanceMatrix.needsUpdate=true;bloomMeshes[i].castShadow=false;bloomMeshes[i].receiveShadow=true;g.add(bloomMeshes[i]);}
+   }
+   // Мелкие лепестки остаются отдельной инстансированной геометрией; на телефонах их меньше.
+   const petalCount=mobile?96:320,petalsMesh=new THREE.InstancedMesh(gwPetalGeo,palette==='amber'?gwAmberC:gwPinkC,petalCount),petalDummy=new THREE.Object3D();
    for(let n=0;n<petalCount;n++){
      const a=seed+n*2.399963,ring=n%3,rad=h*(.145+ring*.078+(n%5)*.009)*(.88+.12*Math.sin(a*2.7));
      petalDummy.position.set(Math.cos(a)*rad*.9,h*(.615+(n%11)*.018+.025*Math.sin(a*2.4)),Math.sin(a)*rad*.9);
      const ps=h*(.018+(n%4)*.003);petalDummy.scale.set(ps*.72,ps*1.35,ps*.34);
      petalDummy.rotation.set(.25*Math.sin(a),a,.35*Math.cos(a));petalDummy.updateMatrix();petalsMesh.setMatrixAt(n,petalDummy.matrix);
-      const shade=.88+(n%7)*.025;petalsMesh.setColorAt(n,new THREE.Color(shade,shade*(.97+(n%3)*.015),shade*(.94+(n%5)*.012)));
+     const shade=.88+(n%7)*.025;petalsMesh.setColorAt(n,new THREE.Color(shade,shade*(.97+(n%3)*.015),shade*(.94+(n%5)*.012)));
    }
    petalsMesh.instanceMatrix.needsUpdate=true;if(petalsMesh.instanceColor)petalsMesh.instanceColor.needsUpdate=true;g.add(petalsMesh);
-   // Несколько мелких соцветий по внешнему краю разбивают ровный контур кроны.
-   for(let k=0;k<56;k++){
-     const a=seed+k*2.399963;
-     const petal=new THREE.Mesh(gwCrownGeo,palette==='amber'?(k%3===0?gwAmberB:gwAmberA):(k%3===0?gwPinkB:gwPinkA));
-     const edgeRadius=h*(.245+.035*Math.sin(a*2.8+seed)+.018*Math.cos(a*4.7));
-     petal.position.set(Math.cos(a)*edgeRadius,h*(.665+(k%4)*.029+.025*Math.sin(a*2.1+seed)),Math.sin(a)*edgeRadius);
-     petal.scale.set(h*(.064+(k%3)*.01),h*(.045+(k%2)*.009),h*(.066+(k%4)*.007));g.add(petal);
-   }
    // Корневая шейка плавно расширяет ствол у самой земли; выступающие наружу корни удалены.
     const rootFlare=new THREE.Mesh(gwTrunkGeo,gwBark);
     rootFlare.position.y=h*.085;
@@ -1820,14 +1830,14 @@ function makeWorldDecor(){
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
    trunk.position.y=h*.34;trunk.scale.set(.68,h*.69,.68);g.add(trunk);
    // Несколько расходящихся ветвей поддерживают широкую естественную крону.
-   for(let k=0;k<7;k++){
-     const a=seed+k*Math.PI*2/7,branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
+   for(let k=0;k<(mobile?5:7);k++){
+     const a=seed+k*Math.PI*2/(mobile?5:7),branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
      branch.position.set(Math.cos(a)*h*.105,h*(.48+(k%3)*.035),Math.sin(a)*h*.105);
      branch.scale.y=h*(.28+(k%3)*.025);
      branch.rotation.z=Math.cos(a)*-.62;branch.rotation.x=Math.sin(a)*.62;g.add(branch);
    }
    // Крона из отдельных округлых групп разного размера, с просветами между ними.
-   const clusters=13;
+   const clusters=mobile?8:13;
    for(let k=0;k<clusters;k++){
      const a=seed+k*2.399963;
      const ring=k<8?.19:.09,rad=h*ring*(.88+.12*Math.sin(a*2.7));
@@ -3852,16 +3862,16 @@ scene.traverse(object=>{
  const materials=Array.isArray(object.material)?object.material:[object.material];
  for(const material of materials){
    if(!material)continue;
-   material.dithering=!object.userData.crispRoad&&!material.isMeshBasicMaterial;
+   material.dithering=!mobile&&!object.userData.crispRoad&&!material.isMeshBasicMaterial;
    window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH.materials++;
    for(const key of ['map','alphaMap','aoMap','bumpMap','displacementMap','emissiveMap','lightMap','metalnessMap','normalMap','roughnessMap']){
      const texture=material[key];
      if(!texture||!texture.isTexture)continue;
-     const startupAnisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),innerWidth<700?8:16);
+     const startupAnisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),mobile?2:16);
      if(texture.anisotropy!==startupAnisotropy){texture.anisotropy=startupAnisotropy;texture.needsUpdate=true;}
      window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH.textures++;
    }
-   material.needsUpdate=true;
+   if(!mobile)material.needsUpdate=true;
  }
 });
 cameraPosition();function animate(){requestAnimationFrame(animate);adaptRenderQuality(performance.now());const flowDelta=Math.min(riverFlowClock.getDelta(),.05),flowTime=riverFlowClock.elapsedTime;if(riverWaterTexture){riverWaterTexture.offset.x=(riverWaterTexture.offset.x+flowDelta*(.19+.025*Math.sin(flowTime*.21)))%1;riverWaterTexture.offset.y=(riverWaterTexture.offset.y+flowDelta*(.012+.004*Math.sin(flowTime*.17)))%1;}if(riverSurfaceMesh){const p=riverSurfaceMesh.geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i);const wave=Math.sin(x*.34-flowTime*1.72+z*.22)*.031+Math.sin(x*.17-flowTime*1.18-z*.48)*.022+Math.sin(z*.9+flowTime*.94)*.009+Math.sin(x*.105-flowTime*.91+z*.13)*.012+Math.sin(x*.48-flowTime*1.36-z*.31)*.007;p.setZ(i,wave);}p.needsUpdate=true;riverSurfaceMesh.geometry.computeVertexNormals();}for(const sparkle of riverSparkles){const x=-25+((sparkle.phase+flowTime*sparkle.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,5.5);const pulse=.45+.55*(.5+.5*Math.sin(flowTime*2.4+sparkle.phase2));sparkle.mesh.position.x=x;sparkle.mesh.position.y=.145+Math.sin(flowTime*1.6+sparkle.phase2)*.006;sparkle.mesh.position.z=sparkle.z+Math.sin(flowTime*.9+sparkle.phase2)*.065;sparkle.material.opacity=(.025+.22*fade)*pulse;sparkle.mesh.scale.x=(1.1+.7*pulse);}for(const ribbon of riverFlowRibbons){const x=-25+((ribbon.phase+flowTime*ribbon.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,4.8);ribbon.mesh.position.x=x;ribbon.mesh.position.y=.128+Math.sin(flowTime*1.8+ribbon.offset)*.004;ribbon.mesh.position.z=ribbon.z+Math.sin(flowTime*.7+ribbon.offset)*.055;ribbon.material.opacity=(.025+.19*fade)*(.78+.22*Math.sin(flowTime*1.35+ribbon.offset));}for(const current of riverCurrentObjects){const x=-25+((current.phase+flowTime*current.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,4.2);current.mesh.position.x=x;current.mesh.position.y=.116+Math.sin(flowTime*1.7+current.offset)*.003;current.mesh.position.z=current.baseZ+Math.sin(flowTime*.62+current.offset)*.045;current.material.opacity=(.035+.19*fade)*(.82+.18*Math.sin(flowTime*1.25+current.offset));}for(const item of riverMotionObjects){const wave=Math.sin(flowTime*item.speed+item.phase);item.mesh.position.x=item.baseX+Math.sin(flowTime*item.speed*.72+item.phase)*item.range;item.mesh.position.y=.092+Math.max(0,wave)*.018;const pulse=.78+.22*Math.sin(flowTime*item.speed*1.8+item.phase);item.mesh.scale.x=pulse;item.mesh.material.opacity=item.baseLength<.6?.13+.16*(.5+.5*wave):.12+.12*(.5+.5*wave)}for(const ring of riverRingObjects){const cycle=(flowTime*ring.speed+ring.phase)%(Math.PI*2),progress=(1-Math.cos(cycle))*.5;const radius=.12+progress*.72;ring.mesh.position.x=ring.baseX+Math.sin(flowTime*.31+ring.phase)*.12;ring.mesh.position.z=ring.baseZ+Math.cos(flowTime*.27+ring.phase)*.1;ring.mesh.scale.set(radius,1,radius*.72);ring.material.opacity=.2*(1-progress)}for(const foam of riverFoamObjects){const drift=(flowTime*foam.speed+foam.phase)%(Math.PI*2);foam.mesh.position.x=foam.baseX+Math.sin(drift)*foam.drift;foam.mesh.position.y=.108+Math.max(0,Math.sin(drift*1.35+foam.phase))*.012;foam.mesh.position.z=foam.baseZ+Math.cos(drift*.7)*.16;const pulse=.68+.32*Math.sin(drift*1.6);foam.mesh.scale.x=(.22+(foam.phase%3)*.06)*pulse;foam.mesh.scale.z=(.055+(foam.phase%2)*.018)*(.88+.12*Math.cos(drift));foam.material.opacity=.045+.11*(.5+.5*Math.sin(drift+foam.phase))}for(const streak of riverDriftStreaks){const travel=(streak.phase+flowTime*streak.speed)%50;const edge=Math.min(travel,50-travel);const fade=THREE.MathUtils.smoothstep(edge,0,5.2);const pulse=.72+.28*Math.sin(flowTime*2.1+streak.offset);streak.mesh.position.x=-25+travel;streak.mesh.position.y=.137+Math.sin(flowTime*1.45+streak.offset)*.004;streak.mesh.position.z=streak.z+Math.sin(flowTime*.72+streak.offset)*.035;streak.mesh.scale.x=.82+.38*pulse;streak.material.opacity=(.035+.19*fade)*pulse;}for(const crest of riverWaveCrests){const travel=(crest.phase+flowTime*crest.speed)%50;const edge=Math.min(travel,50-travel);const fade=THREE.MathUtils.smoothstep(edge,0,5.5);const swell=Math.sin(flowTime*1.7+crest.offset);crest.mesh.position.x=-25+travel;crest.mesh.position.y=.145+Math.max(0,swell)*.012;crest.mesh.position.z=crest.z+Math.sin(flowTime*.83+crest.offset)*.06;crest.mesh.rotation.y=Math.sin(flowTime*.55+crest.offset)*.035;crest.material.opacity=(.018+.16*fade)*(.68+.32*(.5+.5*swell));}renderer.render(scene,camera)}animate();
