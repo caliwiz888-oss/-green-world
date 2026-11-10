@@ -153,7 +153,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 (()=>{
  const button=document.getElementById('retry-login');
  window.GREEN_WORLD_MODULE_READY=false;
- setTimeout(()=>{if(!window.GREEN_WORLD_MODULE_READY){if(error)error.textContent='Графический модуль не запустился. Проверяю загрузку 3D-сцены.';}},25000);
+ setTimeout(()=>{if(window.GREEN_WORLD_MODULE_REQUESTED&&!window.GREEN_WORLD_MODULE_READY){if(error)error.textContent='Графический модуль не запустился. Проверь интернет и повтори запуск 3D-мира.';}},25000);
  const error=document.getElementById('login-error');
  const api=window.GREEN_WORLD_API_URL;
  let connecting=false;
@@ -190,7 +190,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
   }finally{
    connecting=false;
    button.disabled=false;
-   button.textContent='ПОДКЛЮЧИТЬ TELEGRAM';
+   button.textContent='ЗАПУСТИТЬ 3D-МИР';
   }
  }
  button.addEventListener('click',connectTelegram);
@@ -203,7 +203,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
  connectTelegram();
 })();
 </script>
-<script type="module">
+<script id="green-world-module-source" type="text/plain">
 let THREE;
 const loadThreeWithTimeout=(url,ms=8000)=>Promise.race([
  import(url),
@@ -3831,6 +3831,35 @@ if(window.GREEN_WORLD_AUTH_RESULT){
  applyPlayer();
 
 }
+</script>
+<script>
+/* Load the heavy Three.js scene only after an explicit tap in Telegram WebView. */
+(()=>{
+ const source=document.getElementById("green-world-module-source");
+ const button=document.getElementById("retry-login");
+ if(!source||!button)return;
+ let started=false;
+ window.GREEN_WORLD_MODULE_REQUESTED=false;
+ button.textContent="ЗАПУСТИТЬ 3D-МИР";
+ button.addEventListener("click",()=>{
+  if(started)return;
+  started=true;
+  window.GREEN_WORLD_MODULE_REQUESTED=true;
+  button.disabled=true;
+  button.textContent="ЗАГРУЗКА 3D-МИРА…";
+  const moduleScript=document.createElement("script");
+  moduleScript.type="module";
+  moduleScript.textContent=source.textContent;
+  moduleScript.onerror=()=>{
+   const error=document.getElementById("login-error");
+   if(error)error.textContent="Не удалось запустить 3D-мир. Нажми кнопку ещё раз после перезагрузки.";
+   button.disabled=false;
+   button.textContent="ПОВТОРИТЬ ЗАПУСК 3D";
+   started=false;
+  };
+  document.body.appendChild(moduleScript);
+ },{passive:true});
+})();
 </script>
 <script>
 (()=>{const openers=[document.getElementById('treeDiagOpen'),document.getElementById('treeDiagQuickOpen')].filter(Boolean),gazeboOpen=document.getElementById('gazeboDiagQuickOpen'),gazeboCameraOpen=document.getElementById('gazeboCameraDiagQuickOpen'),fullLayoutOpen=document.getElementById('fullLayoutDiagQuickOpen'),title=document.getElementById('treeDiagTitle'),shade=document.getElementById('treeDiagShade'),out=document.getElementById('treeDiagOutput'),status=document.getElementById('treeDiagStatus'),refresh=document.getElementById('treeDiagRefresh'),copy=document.getElementById('treeDiagCopy'),close=document.getElementById('treeDiagClose');if((!openers.length&&!gazeboOpen&&!gazeboCameraOpen&&!fullLayoutOpen)||!shade||!out||!status||!refresh||!copy||!close)return;
