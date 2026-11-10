@@ -3699,14 +3699,19 @@ window.GREEN_WORLD_GET_REAR_POND_CAMERA_DIAGNOSTIC=()=>{
   const target=new THREE.Vector3(x,.16,-31-py),p=target.clone().project(camera),inFrame=p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1&&p.z>=-1&&p.z<=1;
   const dir=target.clone().sub(camera.position),dist=dir.length();dir.normalize();ray.set(camera.position,dir);ray.near=.02;ray.far=Math.max(.02,dist-.06);
   const houseHit=ray.intersectObject(house,true)[0]||null;
-  const hits=ray.intersectObjects(world.children,true).filter(h=>{let o=h.object;while(o&&o!==world){if(!o.visible)return false;o=o.parent;}return h.object!==pond&&h.object!==bank&&h.object!==upper;});
+  const fountainObjects=(window.GREEN_WORLD_FOUNTAIN_VISIBILITY_OBJECTS||[]).map(v=>v.object).filter(Boolean);
+  const isWithin=(object,root)=>{for(let o=object;o;o=o.parent)if(o===root)return true;return false;};
+  const hits=ray.intersectObjects(world.children,true).filter(h=>{
+   let o=h.object;while(o&&o!==world){if(!o.visible)return false;o=o.parent;}
+   return !isWithin(h.object,pond)&&!isWithin(h.object,bank)&&!isWithin(h.object,upper)&&!isWithin(h.object,house)&&!fountainObjects.some(root=>isWithin(h.object,root));
+  });
   const blocker=hits[0]||null;
-  samples.push({x:+x.toFixed(1),z:+(-31-py).toFixed(1),screen:{x:+p.x.toFixed(3),y:+p.y.toFixed(3),depth:+p.z.toFixed(3)},inFrame,blockedByHouse:!!houseHit,blocker:blocker?(blocker.object.name||blocker.object.parent?.name||blocker.object.type):null,visible:inFrame&&!blocker});
+  samples.push({x:+x.toFixed(1),z:+(-31-py).toFixed(1),screen:{x:+p.x.toFixed(3),y:+p.y.toFixed(3),depth:+p.z.toFixed(3)},inFrame,blockedByHouse:!!houseHit,blocker:blocker?(blocker.object.name||blocker.object.parent?.name||blocker.object.type):null,visible:inFrame&&!houseHit&&!blocker});
  }
- const visible=samples.filter(s=>s.visible).length,frame=samples.filter(s=>s.inFrame).length,blocked=samples.filter(s=>s.blockedByHouse).length,b=boxOf(pond),hb=boxOf(house),projected=[];
+ const visible=samples.filter(s=>s.visible).length,frame=samples.filter(s=>s.inFrame).length,blocked=samples.filter(s=>s.inFrame&&s.blockedByHouse).length,sceneBlockers={};for(const sample of samples)if(sample.inFrame&&sample.blocker)sceneBlockers[sample.blocker]=(sceneBlockers[sample.blocker]||0)+1;const b=boxOf(pond),hb=boxOf(house),projected=[];
  for(const x of [b.min.x,b.max.x])for(const y of [b.min.y,b.max.y])for(const z of [b.min.z,b.max.z])projected.push(new THREE.Vector3(x,y,z).project(camera));
  const minX=Math.min(...projected.map(p=>p.x)),maxX=Math.max(...projected.map(p=>p.x)),minY=Math.min(...projected.map(p=>p.y)),maxY=Math.max(...projected.map(p=>p.y));
- return {camera:{position:{x:+camera.position.x.toFixed(2),y:+camera.position.y.toFixed(2),z:+camera.position.z.toFixed(2)},target:{x:cameraTarget.x,y:cameraTarget.y,z:cameraTarget.z},radius:cameraRadius,azimuth:+THREE.MathUtils.radToDeg(cameraAzimuth).toFixed(2),fov:camera.fov,aspect:+camera.aspect.toFixed(3),viewport:{width:innerWidth,height:innerHeight},near:camera.near,far:camera.far},pond:{bounds:b,screen:{left:+((minX+1)*50).toFixed(1),right:+((maxX+1)*50).toFixed(1),top:+((1-maxY)*50).toFixed(1),bottom:+((1-minY)*50).toFixed(1)},sampleCount:samples.length,insideFrame:frame,visible,blockedByHouse:blocked,blockedByScene:samples.filter(s=>!!s.blocker).length,visiblePercent:+(visible/Math.max(1,samples.length)*100).toFixed(1),samples},house:{name:house.name,bounds:hb},bank:bank?boxOf(bank):null,upperRim:upper?boxOf(upper):null,verdict:visible===samples.length?'Все контрольные точки поверхности пруда видны':visible?'Пруд виден частично':'Пруд не виден с текущей камеры'};
+ return {camera:{position:{x:+camera.position.x.toFixed(2),y:+camera.position.y.toFixed(2),z:+camera.position.z.toFixed(2)},target:{x:cameraTarget.x,y:cameraTarget.y,z:cameraTarget.z},radius:cameraRadius,azimuth:+THREE.MathUtils.radToDeg(cameraAzimuth).toFixed(2),fov:camera.fov,aspect:+camera.aspect.toFixed(3),viewport:{width:innerWidth,height:innerHeight},near:camera.near,far:camera.far},pond:{bounds:b,screen:{left:+((minX+1)*50).toFixed(1),right:+((maxX+1)*50).toFixed(1),top:+((1-maxY)*50).toFixed(1),bottom:+((1-minY)*50).toFixed(1)},sampleCount:samples.length,insideFrame:frame,visible,blockedByHouse:blocked,blockedByScene:samples.filter(s=>s.inFrame&&!!s.blocker).length,sceneBlockers:Object.entries(sceneBlockers).sort((a,b)=>b[1]-a[1]).map(([name,count])=>({name,count})),visiblePercent:+(visible/Math.max(1,samples.length)*100).toFixed(1),samples},house:{name:house.name,bounds:hb},bank:bank?boxOf(bank):null,upperRim:upper?boxOf(upper):null,verdict:visible===samples.length?'Все контрольные точки поверхности пруда видны':visible?'Пруд виден частично':'Пруд не виден с текущей камеры'};
 };
 window.GREEN_WORLD_GET_FULL_LAYOUT_DIAGNOSTIC=()=>{
  const boxRecord=(obj)=>{if(!obj)return null;obj.updateWorldMatrix(true,true);const b=new THREE.Box3().setFromObject(obj);if(b.isEmpty())return null;return {min:{x:b.min.x,y:b.min.y,z:b.min.z},max:{x:b.max.x,y:b.max.y,z:b.max.z},size:{x:b.max.x-b.min.x,y:b.max.y-b.min.y,z:b.max.z-b.min.z}}};
@@ -3875,7 +3880,9 @@ document.addEventListener('click',function(event){
    'ТОЧКИ ВИДИМЫ: '+d.pond.visible+'/'+d.pond.sampleCount,
    'ТОЧКИ В КАДРЕ: '+d.pond.insideFrame,
    'ЗАКРЫТЫ ДОМОМ: '+d.pond.blockedByHouse,
-   'ЗАКРЫТЫ ДРУГИМИ ОБЪЕКТАМИ: '+d.pond.blockedByScene,
+   'ЗАКРЫТЫ ДРУГИМИ ОБЪЕКТАМИ (БЕЗ ДОМА И ФОНТАНОВ): '+d.pond.blockedByScene,
+   'СПИСОК ПЕРЕКРЫВАЮЩИХ ОБЪЕКТОВ:',
+   ...(d.pond.sceneBlockers||[]).map(q=>q.name+': '+q.count+' точек'),
    'ОБЩАЯ ВИДИМОСТЬ: '+f(d.pond.visiblePercent)+'%',
    'ДОМ: X '+f(d.house.bounds.min.x)+'…'+f(d.house.bounds.max.x)+' | Z '+f(d.house.bounds.min.z)+'…'+f(d.house.bounds.max.z),
    'ВЫВОД: '+d.verdict,
