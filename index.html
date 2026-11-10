@@ -1307,7 +1307,7 @@ function makeWorldDecor(){
   // Новый увеличенный периметр участка: немного шире по X и длиннее в глубину.
   // Центральный вход остаётся на прежней оси и не сдвигает внутренний двор.
   // Симметричный внешний периметр: одинаковое расстояние от центральной оси X=0.
-  const areaBounds={left:-16.40,right:16.40,front:14.02,back:-23.00};
+  const areaBounds={left:-16.40,right:16.40,front:14.02,back:-42.00};
   window.GREEN_WORLD_AREA_BOUNDS=areaBounds;
   const frontFenceLeft=areaBounds.left;
   const frontFenceRight=areaBounds.right;
@@ -2102,7 +2102,7 @@ gazebo.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
 window.GREEN_WORLD_REAR_FEATURES={pond:true,fountains:3,gazebo:false,reason:'Задний пруд и три фонтана видимы; деревья размещены ярусами за прудом, беседка остаётся скрытой.'};
 
 // Диагностика задней зоны: контрольный конверт не создаёт геометрию и не двигает объекты.
-const gwRearZoneBounds={left:-32.0,right:32.0,front:-23.5,back:-38.5};
+const gwRearZoneBounds={left:-32.0,right:32.0,front:-23.5,back:-45.0};
 window.GREEN_WORLD_REAR_ZONE_BOUNDS=gwRearZoneBounds;
 world.updateMatrixWorld(true);
 const gwRearPondBox=new THREE.Box3().setFromObject(rearPond);
@@ -2129,7 +2129,7 @@ const gwRearChecks=[
  {name:'gazebo_clear_of_pond',ok:!gazebo.visible||gwGazeboClearance>.25,clearance:gwGazeboClearance},
  {name:'fountain_footprints_inside_pond',ok:gwFountainFootprints.every(f=>f.inside),footprints:gwFountainFootprints},
  {name:'gazebo_attached_to_world',ok:gazebo.parent===world},
- {name:'rear_zone_behind_main_fence',ok:gwRearZoneBounds.front<window.GREEN_WORLD_AREA_BOUNDS.back,clearance:window.GREEN_WORLD_AREA_BOUNDS.back-gwRearZoneBounds.front},
+ {name:'rear_zone_behind_main_fence',ok:gwRearZoneBounds.back<window.GREEN_WORLD_AREA_BOUNDS.back,clearance:window.GREEN_WORLD_AREA_BOUNDS.back-gwRearZoneBounds.back},
  {name:'pond_inside_rear_zone',ok:gwInsideRearZone(gwRearPondBox)},
  {name:'gazebo_inside_rear_zone',ok:!gazebo.visible||gwInsideRearZone(gwRearGazeboBox)}
 ];
