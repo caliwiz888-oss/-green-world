@@ -2108,10 +2108,21 @@ const gwPondGazeboDx=Math.max(0,gwRearPondBox.min.x-gwRearGazeboBox.max.x,gwRear
 const gwPondGazeboDz=Math.max(0,gwRearPondBox.min.z-gwRearGazeboBox.max.z,gwRearGazeboBox.min.z-gwRearPondBox.max.z);
 const gwGazeboClearance=Math.hypot(gwPondGazeboDx,gwPondGazeboDz);
 const gwInsideRearZone=b=>!b.isEmpty()&&b.min.x>=gwRearZoneBounds.left&&b.max.x<=gwRearZoneBounds.right&&b.min.z>=gwRearZoneBounds.back&&b.max.z<=gwRearZoneBounds.front;
+// Самостоятельная проверка попадания точки в полигон: не зависит от версий THREE.ShapeUtils.
+const gwRearPondPolygon=rearPondShape.extractPoints(64).shape;
+const gwPointInRearPond=(px,py,poly)=>{
+ let inside=false;
+ for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+  const xi=poly[i].x,yi=poly[i].y,xj=poly[j].x,yj=poly[j].y;
+  if(((yi>py)!==(yj>py))&&(px<(xj-xi)*(py-yi)/(yj-yi)+xi))inside=!inside;
+ }
+ return inside;
+};
+const gwFountainFootprints=[-20,0,20].map(x=>({x,inside:Array.from({length:32},(_,i)=>{const a=i*Math.PI*2/32;return gwPointInRearPond(x+Math.cos(a)*.94,Math.sin(a)*.94,gwRearPondPolygon);}).every(Boolean)}));
 const gwRearChecks=[
  {name:'pond_attached_to_world',ok:rearPond.parent===world},
  {name:'gazebo_clear_of_pond',ok:gwGazeboClearance>.25,clearance:gwGazeboClearance},
- {name:'fountain_footprints_inside_pond',ok:[-20,0,20].every(x=>Array.from({length:32},(_,i)=>{const a=i*Math.PI*2/32;return THREE.ShapeUtils.isPointInsidePolygon(new THREE.Vector2(x+Math.cos(a)*.94,Math.sin(a)*.94),rearPondShape.extractPoints(64).shape);}).every(Boolean)),footprints:[-20,0,20].map(x=>({x,inside:Array.from({length:32},(_,i)=>{const a=i*Math.PI*2/32;return THREE.ShapeUtils.isPointInsidePolygon(new THREE.Vector2(x+Math.cos(a)*.94,Math.sin(a)*.94),rearPondShape.extractPoints(64).shape);}).every(Boolean)}))},
+ {name:'fountain_footprints_inside_pond',ok:gwFountainFootprints.every(f=>f.inside),footprints:gwFountainFootprints},
  {name:'gazebo_attached_to_world',ok:gazebo.parent===world},
  {name:'rear_zone_behind_main_fence',ok:gwRearZoneBounds.front<window.GREEN_WORLD_AREA_BOUNDS.back,clearance:window.GREEN_WORLD_AREA_BOUNDS.back-gwRearZoneBounds.front},
  {name:'pond_inside_rear_zone',ok:gwInsideRearZone(gwRearPondBox)},
