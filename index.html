@@ -1748,10 +1748,10 @@ function makeWorldDecor(){
   // Передняя сторона, боковые стороны и задняя сторона; въезд и дорожки свободны.
   for(const [x,z,h,seed] of [
     [-10.8,17.4,4.35,12],[10.9,17.8,4.5,18],[-19.0,8.2,4.3,23],[-19.4,-7.0,4.55,29],
-    [20.8,6.5,4.4,34],[20.2,-11.5,4.5,41],[-12.11,-47.0,4.4,47],[1.2,-51.16,4.55,53],[9.86,-47.9,4.35,59]
+    [20.8,6.5,4.4,34],[20.2,-11.5,4.5,41],[-28.0,-50.0,4.4,47],[38.0,-60.0,4.55,53],[49.0,-50.0,4.35,59]
   ])gwAddBlossom(x,z,h,seed,.08);
   // Три янтарных дерева разбросаны в разных точках за задним ограждением.
-  for(const [x,z,h,seed] of [[-24.0,-43.5,4.45,67],[7.83,-56.0,4.55,73],[25.34,-46.5,4.4,81]])gwAddBlossom(x,z,h,seed,.08,'amber');
+  for(const [x,z,h,seed] of [[ -39.0,-68.0,4.45,67],[28.0,-72.0,4.55,73],[49.0,-68.0,4.4,81]])gwAddBlossom(x,z,h,seed,.08,'amber');
   // GREEN WORLD — смешанный лес по утверждённому эталону.
  // Хвойные деревья образуют дальний высокий фон; лиственные и цветущие стоят впереди,
  // в свободной шахматной расстановке. Все деревья остаются за задней оградой.
@@ -1786,25 +1786,25 @@ function makeWorldDecor(){
  }
  // Дальний ярус елей: редкие высокие силуэты, а не сплошная стена.
  const gwPineBack=[
-   [-43,-49.39,6.8,301],[-35,-53,7.4,307],[-26,-48,6.9,313],[-17,-55,7.6,319],
-   [-7.91,-49,6.7,325],[2.65,-56,7.5,331],[14.26,-49,6.9,337],[25,-55,7.6,343],
-   [36,-49,6.9,349],[45,-54,7.2,355],[-45,-38.81,6.1,361],[-30.4,-42.41,6.4,367],
-   [-15,-41.53,6.0,373],[0.39,-40.3,6.5,379],[16.95,-39.65,6.1,385],[35.71,-43.42,6.4,391],[46,-39,6.0,397]
+   [-48,-58,6.8,301],[-37,-68,7.4,307],[-27,-58,6.9,313],[-48,-78,7.6,319],
+   [-37,-88,6.7,325],[-27,-78,7.5,331],[27,-58,6.9,337],[37,-68,7.6,343],
+   [48,-58,6.9,349],[48,-78,7.2,355],[27,-88,6.1,361],[37,-98,6.4,367],
+   [48,-98,6.0,373],[-48,-98,6.5,379],[-37,-108,6.1,385],[-27,-98,6.4,391],[27,-108,6.0,397]
  ];
  for(const [x,z,h,seed] of gwPineBack)gwAddPine(x,z,h,seed,.055);
  // Средний ярус широколиственных деревьев — заметно шире и светлее елей.
  const gwLeafBack=[
-   [-41,-33,6.0,411],[-34.28,-36.61,6.5,417],[-22.69,-32,6.2,423],[-14,-35.43,6.6,429],
-   [-4,-32,6.1,435],[6.27,-37,6.7,441],[19.18,-32,6.2,447],[29,-38,6.6,453],
-   [40.35,-33,6.0,459],[-35.74,-45,5.8,465],[-20,-44,6.1,471],[2.81,-45.81,6.0,477],
-   [20.29,-45.74,6.2,483],[42,-45,5.9,489]
+   [-48,-32,6.0,411],[-37,-42,6.5,417],[-27,-32,6.2,423],[-48,-44,6.6,429],
+   [-37,-54,6.1,435],[-27,-44,6.7,441],[27,-32,6.2,447],[37,-42,6.6,453],
+   [48,-32,6.0,459],[48,-44,5.8,465],[37,-54,6.1,471],[27,-54,6.0,477],
+   [48,-54,6.2,483],[37,-64,5.9,489]
  ];
  for(const [x,z,h,seed] of gwLeafBack)gwAddDeciduous(x,z,h,seed);
  // Цветущие деревья вплетены в лиственный ряд и не образуют отдельную ровную полосу.
  for(const [x,z,h,seed,palette] of [
-   [-29,-34.5,5.8,501,'pink'],[-8,-39.5,6.0,507,'amber'],
-   [13.07,-33.92,5.9,513,'pink'],[34.66,-38.08,6.1,519,'pink'],
-   [-41.8,-44.31,5.6,525,'amber'],[-2.75,-46.64,5.8,531,'pink'],[30.42,-46.0,5.7,537,'amber']
+   [-28,-68,5.8,501,'pink'],[-40,-78,6.0,507,'amber'],
+   [28,-68,5.9,513,'pink'],[40,-78,6.1,519,'pink'],
+   [-50,-88,5.6,525,'amber'],[50,-88,5.8,531,'pink'],[40,-98,5.7,537,'amber']
  ])gwAddBlossom(x,z,h,seed,.055,palette);
  // Группы кустарников создаются непосредственно при сборке мира после основных объектов.
  // Кусты стоят вдоль боковых границ и не занимают центральный газон.
@@ -2034,6 +2034,7 @@ rearPond.name='GREEN_WORLD_Rear_Pond';
 rearPond.rotation.x=-Math.PI/2;
 rearPond.position.set(0,.115,-27.35);
 rearPond.receiveShadow=true;rearPond.castShadow=false;rearPond.frustumCulled=false;
+rearPond.visible=false; // В эталоне нет отдельного заднего пруда: оставляем диагностический объект, но не показываем лишнюю чашу.
 world.add(rearPond);
 // Непрерывная округлая каменная кромка повторяет изгибы берега.
 const rearBankMat=M.stone2.clone();
@@ -2045,26 +2046,26 @@ const rearBankPoints=rearBankOutline.map(p=>new THREE.Vector3(p.x,.16,-27.35-p.y
 const rearBankCurve=new THREE.CatmullRomCurve3(rearBankPoints,true,'centripetal');
 const rearBank=new THREE.Mesh(new THREE.TubeGeometry(rearBankCurve,360,.17,8,true),rearBankMat);
 rearBank.name='GREEN_WORLD_Rear_Pond_Bank';
-rearBank.castShadow=false;rearBank.receiveShadow=true;world.add(rearBank);
+rearBank.castShadow=false;rearBank.receiveShadow=true;rearBank.visible=false;world.add(rearBank);
 // Три невысоких фонтана, симметрично распределённых по заднему водоёму.
 const fountainStone= M.stone2.clone();fountainStone.color=new THREE.Color(0xd9c7a4);fountainStone.roughness=.88;fountainStone.needsUpdate=true;
 const fountainWater=new THREE.MeshPhysicalMaterial({color:0x9ce8f1,roughness:.12,metalness:.04,transparent:true,opacity:.58,clearcoat:.9,side:THREE.DoubleSide});
 window.GREEN_WORLD_FOUNTAIN_VISIBILITY_OBJECTS=[];
 for(const x of [-20,0,20]){
  const basin=new THREE.Mesh(new THREE.CylinderGeometry(.82,.94,.34,32),fountainStone);
- basin.position.set(x,.34,-27.35);basin.castShadow=true;basin.receiveShadow=true;world.add(basin);
+ basin.position.set(x,.34,-27.35);basin.castShadow=true;basin.receiveShadow=true;basin.visible=false;world.add(basin);
  const waterDisk=new THREE.Mesh(new THREE.CylinderGeometry(.69,.69,.035,32),fountainWater);
- waterDisk.position.set(x,.53,-27.35);world.add(waterDisk);
+ waterDisk.position.set(x,.53,-27.35);waterDisk.visible=false;world.add(waterDisk);
  const jet=new THREE.Mesh(new THREE.CylinderGeometry(.045,.12,1.55,12),fountainWater);
- jet.position.set(x,1.31,-27.35);world.add(jet);
+ jet.position.set(x,1.31,-27.35);jet.visible=false;world.add(jet);
  const crown=new THREE.Mesh(new THREE.SphereGeometry(.19,16,10),fountainWater);
- crown.position.set(x,2.12,-27.35);crown.scale.set(.8,1.35,.8);world.add(crown);
+ crown.position.set(x,2.12,-27.35);crown.scale.set(.8,1.35,.8);crown.visible=false;world.add(crown);
  if(x===0)window.GREEN_WORLD_FOUNTAIN_VISIBILITY_OBJECTS.push({name:'basin',object:basin},{name:'water',object:waterDisk},{name:'jet',object:jet},{name:'crown',object:crown});
 }
 // Беседка на правом берегу заднего водоёма, вне центральной оси и проходов.
 const gazebo=new THREE.Group();gazebo.name='GREEN_WORLD_Rear_Gazebo';
 window.GREEN_WORLD_GAZEBO_OBJECT=gazebo;
-gazebo.position.set(26.2,0,-33.3);world.add(gazebo);
+gazebo.position.set(26.2,0,-33.3);gazebo.visible=false;world.add(gazebo);
 const gazeboStone=M.stone2.clone();gazeboStone.color=new THREE.Color(0xd8c6a2);gazeboStone.roughness=.88;gazeboStone.needsUpdate=true;
 const gazeboGold=M.gold?M.gold.clone():new THREE.MeshStandardMaterial({color:0xc59a4c,roughness:.38});
 const gazeboRoof=M.roof2?M.roof2.clone():new THREE.MeshStandardMaterial({color:0x315574,roughness:.7});
@@ -2086,7 +2087,7 @@ gazeboDome.position.y=3.06;gazeboDome.scale.y=.88;gazebo.add(gazeboDome);
 const gazeboFinial=new THREE.Mesh(new THREE.SphereGeometry(.18,16,10),gazeboGold);
 gazeboFinial.position.y=4.92;gazebo.add(gazeboFinial);
 gazebo.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
-window.GREEN_WORLD_REAR_FEATURES={pond:rearPond.parent===world,fountains:3,gazebo:gazebo.parent===world};
+window.GREEN_WORLD_REAR_FEATURES={pond:false,fountains:0,gazebo:false,reason:'Эталонная композиция не содержит отдельного заднего пруда и беседки; диагностические объекты скрыты.'};
 
 // Диагностика задней зоны: контрольный конверт не создаёт геометрию и не двигает объекты.
 const gwRearZoneBounds={left:-32.0,right:32.0,front:-23.5,back:-38.5};
