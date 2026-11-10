@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261110-mobile-webview-stability-31';
+const GREEN_WORLD_BUILD_ID = '20261110-mobile-webview-stability-32';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -327,16 +327,16 @@ const deviceMemory=Number(navigator.deviceMemory)||0;
 const cpuCores=Number(navigator.hardwareConcurrency)||0;
 const highEnd=deviceMemory>=8&&cpuCores>=8;
 const midRange=deviceMemory>=4&&cpuCores>=6;
-const renderQualityTarget=mobile?1.5:(highEnd?4:(midRange?3.5:2.75));
+const renderQualityTarget=mobile?1.0:(highEnd?4:(midRange?3.5:2.75));
 let currentRenderQuality=renderQualityTarget;
 let qualityFrameCount=0,qualityFrameTotal=0,lastQualityFrame=0,lastQualityChange=performance.now();
 const applyRenderResolution=()=>{renderer.setPixelRatio(Math.min(4,currentRenderQuality));renderer.setSize(innerWidth,innerHeight);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();window.GREEN_WORLD_RENDER_DIAGNOSTICS.qualityTarget=renderQualityTarget;window.GREEN_WORLD_RENDER_DIAGNOSTICS.qualityMode='adaptive-4x';};
 const adaptRenderQuality=(now)=>{if(lastQualityFrame){qualityFrameTotal+=now-lastQualityFrame;qualityFrameCount++;}lastQualityFrame=now;if(qualityFrameCount<120)return;const averageFrame=qualityFrameTotal/qualityFrameCount;qualityFrameCount=0;qualityFrameTotal=0;let next=currentRenderQuality;if(averageFrame>34)next=Math.max(1.5,currentRenderQuality-.5);else if(averageFrame>25)next=Math.max(1.5,currentRenderQuality-.25);else if(averageFrame<17.5&&now-lastQualityChange>8000)next=Math.min(mobile?1.5:renderQualityTarget,currentRenderQuality+.25);if(next!==currentRenderQuality){currentRenderQuality=next;lastQualityChange=now;applyRenderResolution();}};
-applyRenderResolution();renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.22;renderer.useLegacyLights=false;renderer.setClearColor(0xa6d9f2,1);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();
+applyRenderResolution();renderer.shadowMap.enabled=!mobile;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.22;renderer.useLegacyLights=false;renderer.setClearColor(0xa6d9f2,1);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();
 // Низкоразрешённая копия небосвода используется как физическая карта окружения.
 // Она добавляет согласованные отражения неба на стекле, глазури, металле и влажных поверхностях,
 // не меняя фон сцены и не дублируя тяжёлую 8K-текстуру в памяти.
-try{
+if(!mobile)try{
  const environmentCanvas=document.createElement('canvas');
  environmentCanvas.width=1024;environmentCanvas.height=512;
  environmentCanvas.getContext('2d').drawImage(skyCanvas,0,0,1024,512);
@@ -362,7 +362,7 @@ scene.add(new THREE.HemisphereLight(0xf3fbff,0x729653,2.42));
 scene.add(new THREE.AmbientLight(0xffffff,.27));
 // Повышенная детализация солнечных теней с адаптацией к мобильному экрану.
 const sun=new THREE.DirectionalLight(0xfff5df,3.55);
-sun.position.set(-28,42,24);sun.castShadow=true;
+sun.position.set(-28,42,24);sun.castShadow=!mobile;
 const shadowMapResolution=Math.min(renderer.capabilities.maxTextureSize,mobile?2048:4096);
 sun.shadow.mapSize.set(shadowMapResolution,shadowMapResolution);
 sun.shadow.camera.left=-42;sun.shadow.camera.right=42;
