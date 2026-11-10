@@ -55,8 +55,11 @@ button:active{transform:translateY(2px)}button:disabled{opacity:.45;filter:grays
 select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border-radius:10px;font-weight:700;max-width:52%}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 #login{position:fixed;z-index:20;inset:0;display:flex;align-items:center;justify-content:center;padding:28px;background:linear-gradient(#7eb5d4,#d9e8ce)}
-/* Telegram account connects silently; never show a separate connection screen. */
-#login{display:none!important;visibility:hidden!important;pointer-events:none!important}
+/* Keep a clean branded splash while Telegram auth/3D starts; no connection prompts or buttons. */
+#login{display:flex!important;visibility:visible!important;pointer-events:none!important}
+#login .login-card{padding:30px 22px;background:#fffef1f2}
+#login .login-card p,#login #retry-login{display:none!important}
+#login .login-card h1{margin:0;font-size:27px;letter-spacing:2px}
 .login-card{width:min(390px,100%);padding:26px 22px;border-radius:25px;background:#fffef1f2;box-shadow:0 16px 45px #244a3850;text-align:center;color:#315b38}
 .login-card h1{font-size:25px;letter-spacing:2px;margin:0 0 7px}.login-card p{font-size:13px;line-height:1.5;color:#68806a}
 @media(min-width:700px){#dock{width:540px;left:50%;right:auto;transform:translateX(-50%);bottom:18px}.action{min-height:58px;font-size:12px}#shade{align-items:center}}
