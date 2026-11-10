@@ -2083,6 +2083,46 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  newMeadow.position.set(0,.018,-29.5);
  newMeadow.receiveShadow=true;newMeadow.castShadow=false;world.add(newMeadow);
 
+ // Реальные объёмные травинки вдоль внешних кромок газона.
+ // Инстансинг сохраняет малую стоимость рендеринга на Android и не меняет планировку двора.
+ const edgeGrassGeometry=new THREE.BufferGeometry();
+ edgeGrassGeometry.setAttribute('position',new THREE.Float32BufferAttribute([
+  0,0,0, -.036,.19,0, .036,.19,0
+ ],3));
+ edgeGrassGeometry.computeVertexNormals();
+ const edgeGrassMaterials=[
+  new THREE.MeshStandardMaterial({color:0x477b32,roughness:1,side:THREE.DoubleSide}),
+  new THREE.MeshStandardMaterial({color:0x6c9d43,roughness:1,side:THREE.DoubleSide}),
+  new THREE.MeshStandardMaterial({color:0x86ad50,roughness:1,side:THREE.DoubleSide})
+ ];
+ const edgeGrassCount=1500;
+ const edgeGrassMeshes=edgeGrassMaterials.map(material=>{
+  const mesh=new THREE.InstancedMesh(edgeGrassGeometry,material,edgeGrassCount);
+  mesh.name='GREEN_WORLD_3D_Edge_Grass';
+  mesh.castShadow=false;mesh.receiveShadow=true;
+  world.add(mesh);return mesh;
+ });
+ const edgeGrassDummy=new THREE.Object3D();
+ let edgeGrassSeed=20261110;
+ const edgeGrassRandom=()=>{edgeGrassSeed=(edgeGrassSeed*1664525+1013904223)>>>0;return edgeGrassSeed/4294967296;};
+ const edgeGrassUsed=[0,0,0];
+ for(let i=0;i<edgeGrassCount;i++){
+  // Две узкие полосы за пределами основной композиции: здания, дорожки и вода остаются свободными.
+  const side=edgeGrassRandom()<.5?-1:1;
+  const x=side*(37.2+edgeGrassRandom()*5.2);
+  const z=-62+edgeGrassRandom()*55;
+  const materialIndex=Math.floor(edgeGrassRandom()*edgeGrassMeshes.length);
+  edgeGrassDummy.position.set(x,.045,z);
+  edgeGrassDummy.rotation.set((edgeGrassRandom()-.5)*.18,edgeGrassRandom()*Math.PI*2,(edgeGrassRandom()-.5)*.16);
+  const height=.72+edgeGrassRandom()*.78;
+  edgeGrassDummy.scale.set(.72+edgeGrassRandom()*.7,height,.72+edgeGrassRandom()*.7);
+  edgeGrassDummy.updateMatrix();
+  edgeGrassMeshes[materialIndex].setMatrixAt(edgeGrassUsed[materialIndex]++,edgeGrassDummy.matrix);
+ }
+ for(let i=0;i<edgeGrassMeshes.length;i++){
+  edgeGrassMeshes[i].count=edgeGrassUsed[i];
+  edgeGrassMeshes[i].instanceMatrix.needsUpdate=true;
+ }
 
 }
 window.GREEN_WORLD_STARTUP_STAGE='building-world';
