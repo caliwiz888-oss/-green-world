@@ -297,15 +297,11 @@ const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
 let token='';
 let cameraRadius=60,cameraHeight=30;
-const cameraTarget=new THREE.Vector3(0,.8,-1.5);
-let cameraAzimuth=0;
-let cameraPolar=Math.atan2(cameraRadius,cameraHeight-.8);
 let buildingObjects=[];
-const mobile=innerWidth<700;
 const scene=new THREE.Scene();
 // Мягкий процедурный небосвод: градиент от насыщенного голубого к светлому горизонту с едва заметными облачными вуалями.
-const skyCanvas=document.createElement('canvas');skyCanvas.width=mobile?1024:4096;skyCanvas.height=mobile?512:2048;
-const skyCtx=skyCanvas.getContext('2d');skyCtx.scale(mobile?1:4,mobile?1:4);
+const skyCanvas=document.createElement('canvas');skyCanvas.width=4096;skyCanvas.height=2048;
+const skyCtx=skyCanvas.getContext('2d');skyCtx.scale(4,4);
 const skyGradient=skyCtx.createLinearGradient(0,0,0,512);
 skyGradient.addColorStop(0, '#368fc9');skyGradient.addColorStop(.34, '#72c1e8');
 skyGradient.addColorStop(.68, '#c5e8e9');skyGradient.addColorStop(1, '#eff2d6');
@@ -345,26 +341,6 @@ for(let i=0;i<14;i++){
  skyCtx.beginPath();skyCtx.moveTo(x-w,y+h*.25);
  skyCtx.quadraticCurveTo(x,y-h*.9,x+w,y-h*.12);skyCtx.stroke();
 }
-// Небольшие объёмные облачные скопления: мягкие тени снизу и светлые края сверху.
-for(let i=0;i<7;i++){
- const cx=78+i*151,cy=270+(i%3)*19,spread=62+(i%3)*15;
- const cloudShadow=skyCtx.createRadialGradient(cx,cy+10,4,cx,cy+10,spread);
- cloudShadow.addColorStop(0,'rgba(91,139,157,.075)');
- cloudShadow.addColorStop(.62,'rgba(115,158,171,.035)');
- cloudShadow.addColorStop(1,'rgba(255,255,255,0)');
- skyCtx.fillStyle=cloudShadow;
- skyCtx.beginPath();skyCtx.ellipse(cx,cy+9,spread,18+(i%2)*5,0,0,Math.PI*2);skyCtx.fill();
- for(let p=0;p<5;p++){
-  const px=cx-spread*.62+p*spread*.31;
-  const py=cy-5-Math.sin(p/4*Math.PI)*(10+(i%3)*3);
-  const radius=13+(p%3)*5+(i%2)*2;
-  const puff=skyCtx.createRadialGradient(px-radius*.24,py-radius*.35,2,px,py,radius*1.65);
-  puff.addColorStop(0,'rgba(255,255,255,.19)');
-  puff.addColorStop(.58,'rgba(255,255,255,.105)');
-  puff.addColorStop(1,'rgba(255,255,255,0)');
-  skyCtx.fillStyle=puff;skyCtx.beginPath();skyCtx.ellipse(px,py,radius*1.55,radius*.72,0,0,Math.PI*2);skyCtx.fill();
- }
-}
 // Едва тёплая дымка у горизонта мягко связывает небо с дальним ландшафтом.
 const horizonGlow=skyCtx.createLinearGradient(0,330,0,512);
 horizonGlow.addColorStop(0,'rgba(255,238,208,0)');
@@ -374,32 +350,19 @@ skyCtx.fillStyle=horizonGlow;skyCtx.fillRect(0,330,1024,182);
 const skyTexture=new THREE.CanvasTexture(skyCanvas);skyTexture.colorSpace=THREE.SRGBColorSpace;
 skyTexture.mapping=THREE.EquirectangularReflectionMapping;skyTexture.magFilter=THREE.LinearFilter;skyTexture.minFilter=THREE.LinearMipmapLinearFilter;skyTexture.generateMipmaps=true;skyTexture.needsUpdate=true;scene.background=skyTexture;
 scene.fog=new THREE.Fog(0xcce8e5,82,185);
-// Расширяем только горизонтальную область кадра на узких экранах: вертикальный FOV и масштаб объектов в пикселях сохраняются.
-const getGreenWorldCameraAspect=()=>Math.max(innerWidth/innerHeight,.64);
-const camera=new THREE.PerspectiveCamera(58,getGreenWorldCameraAspect(),4.5,200);
+const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,4.5,140);
 // Умеренно близкая near-плоскость и ограниченный far-диапазон повышают точность стандартного depth buffer на мобильных GPU.
-const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:!mobile,powerPreference:mobile?'low-power':'high-performance'});
-skyTexture.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),mobile?4:16);
+const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});
+skyTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
 window.GREEN_WORLD_STARTUP_STAGE='webgl-ready';
-window.GREEN_WORLD_RENDER_DIAGNOSTICS={reversedDepthBuffer:!!renderer.capabilities.reversedDepthBuffer,webgl2:renderer.capabilities.isWebGL2,pixelRatio:renderer.getPixelRatio(),threeRevision:THREE.REVISION,skyTextureSize:{width:skyCanvas.width,height:skyCanvas.height},mobile};
+window.GREEN_WORLD_RENDER_DIAGNOSTICS={reversedDepthBuffer:!!renderer.capabilities.reversedDepthBuffer,webgl2:renderer.capabilities.isWebGL2,pixelRatio:renderer.getPixelRatio(),threeRevision:THREE.REVISION};
 console.info('[GREEN WORLD] Render diagnostics',window.GREEN_WORLD_RENDER_DIAGNOSTICS);
 // Используем стандартный буфер глубины для стабильной совместимости с WebGL в Android Telegram WebView.
-// Адаптивное качество: максимум 4x, с автоматическим снижением при перегрузке GPU.
-const deviceMemory=Number(navigator.deviceMemory)||0;
-const cpuCores=Number(navigator.hardwareConcurrency)||0;
-const highEnd=deviceMemory>=8&&cpuCores>=8;
-const midRange=deviceMemory>=4&&cpuCores>=6;
-const renderQualityTarget=mobile?1.0:(highEnd?4:(midRange?3.5:2.75));
-const minRenderQuality=mobile?.75:1.5;
-let currentRenderQuality=renderQualityTarget;
-let qualityFrameCount=0,qualityFrameTotal=0,lastQualityFrame=0,lastQualityChange=performance.now();
-const applyRenderResolution=()=>{renderer.setPixelRatio(Math.min(4,currentRenderQuality));renderer.setSize(innerWidth,innerHeight);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();window.GREEN_WORLD_RENDER_DIAGNOSTICS.qualityTarget=renderQualityTarget;window.GREEN_WORLD_RENDER_DIAGNOSTICS.qualityMode='adaptive-4x';};
-const adaptRenderQuality=(now)=>{if(lastQualityFrame){qualityFrameTotal+=now-lastQualityFrame;qualityFrameCount++;}lastQualityFrame=now;if(qualityFrameCount<120)return;const averageFrame=qualityFrameTotal/qualityFrameCount;qualityFrameCount=0;qualityFrameTotal=0;let next=currentRenderQuality;if(averageFrame>34)next=Math.max(minRenderQuality,currentRenderQuality-.5);else if(averageFrame>25)next=Math.max(minRenderQuality,currentRenderQuality-.25);else if(averageFrame<17.5&&now-lastQualityChange>8000)next=Math.min(renderQualityTarget,currentRenderQuality+.25);if(next!==currentRenderQuality){currentRenderQuality=next;lastQualityChange=now;applyRenderResolution();}};
-applyRenderResolution();renderer.shadowMap.enabled=!mobile;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.22;renderer.useLegacyLights=false;renderer.setClearColor(0xa6d9f2,1);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();
+const applyRenderResolution=()=>{const mobile=innerWidth<700;const qualityScale=mobile?8:1.75;const pixelCap=mobile?8:5.5;renderer.setPixelRatio(Math.min((window.devicePixelRatio||1)*qualityScale,pixelCap));renderer.setSize(innerWidth,innerHeight);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();};applyRenderResolution();renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.22;renderer.useLegacyLights=false;renderer.setClearColor(0xa6d9f2,1);window.GREEN_WORLD_RENDER_DIAGNOSTICS.pixelRatio=renderer.getPixelRatio();
 // Низкоразрешённая копия небосвода используется как физическая карта окружения.
 // Она добавляет согласованные отражения неба на стекле, глазури, металле и влажных поверхностях,
 // не меняя фон сцены и не дублируя тяжёлую 8K-текстуру в памяти.
-if(!mobile)try{
+try{
  const environmentCanvas=document.createElement('canvas');
  environmentCanvas.width=1024;environmentCanvas.height=512;
  environmentCanvas.getContext('2d').drawImage(skyCanvas,0,0,1024,512);
@@ -420,13 +383,13 @@ if(!mobile)try{
 }catch(environmentError){
  console.warn('[GREEN WORLD] Environment reflections unavailable; using direct lighting.',environmentError);
 }
-// Мягкое небесное заполнение сохраняет детали в тенях на фасадах, листве и дальнем фоне.
+// Мягкое небесное заполнение сохраняет детали в тенях на фасадах, листве и горном рельефе.
 scene.add(new THREE.HemisphereLight(0xf3fbff,0x729653,2.42));
 scene.add(new THREE.AmbientLight(0xffffff,.27));
 // Повышенная детализация солнечных теней с адаптацией к мобильному экрану.
 const sun=new THREE.DirectionalLight(0xfff5df,3.55);
-sun.position.set(-28,42,24);sun.castShadow=!mobile;
-const shadowMapResolution=Math.min(renderer.capabilities.maxTextureSize,mobile?2048:4096);
+sun.position.set(-28,42,24);sun.castShadow=true;
+const shadowMapResolution=Math.min(renderer.capabilities.maxTextureSize,innerWidth<700?4096:4096);
 sun.shadow.mapSize.set(shadowMapResolution,shadowMapResolution);
 sun.shadow.camera.left=-42;sun.shadow.camera.right=42;
 sun.shadow.camera.top=42;sun.shadow.camera.bottom=-42;
@@ -440,11 +403,10 @@ const fill=new THREE.DirectionalLight(0xe9f5df,1.12);fill.position.set(24,18,-22
 // Холодный контровой дневной свет мягко отделяет силуэты зданий и листву от дальнего пейзажа без теневых карт.
 const atmosphereRim=new THREE.DirectionalLight(0xc9e3f5,.4);atmosphereRim.position.set(-24,15,-32);atmosphereRim.castShadow=false;scene.add(atmosphereRim);
 // Мягкий отражённый свет с уровня окружения подчёркивает рельеф дорожек, камня, травы и фасадов.
-// Мягкий тёплый отражённый свет чуть сильнее поддерживает нижние части фасадов и каменные дорожки.
-const worldBounce=new THREE.DirectionalLight(0xffedcf,.39);worldBounce.position.set(18,7,30);worldBounce.castShadow=false;scene.add(worldBounce);
+const worldBounce=new THREE.DirectionalLight(0xffedcf,.32);worldBounce.position.set(18,7,30);worldBounce.castShadow=false;scene.add(worldBounce);
 const mat=(c,r=.82)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:.025,dithering:true});
 const windowInterior=new THREE.MeshStandardMaterial({color:0xffdca0,emissive:0xb87932,emissiveIntensity:.2,roughness:.42,dithering:true});
-const M={grass:new THREE.MeshPhysicalMaterial({color:0x69ad48,roughness:.91,metalness:0,sheen:.2,sheenColor:0xb5d98a,sheenRoughness:.94,dithering:true}),grass2:new THREE.MeshPhysicalMaterial({color:0x75b953,roughness:.9,metalness:0,sheen:.24,sheenColor:0xc5e69a,sheenRoughness:.92,dithering:true}),soil:mat(0x96704c,.96),path:mat(0xe2c99b,.88),stone:new THREE.MeshStandardMaterial({color:0xe6d2ad,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8ae83,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x668bb0,roughness:.74,metalness:.035,clearcoat:.28,clearcoatRoughness:.48}),roof2:new THREE.MeshPhysicalMaterial({color:0x426487,roughness:.76,metalness:.025,clearcoat:.3,clearcoatRoughness:.46}),wood:mat(0x80502f,.76),wood2:mat(0xc18a4d,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x568b42,roughness:.94,metalness:0,sheen:.28,sheenColor:0xa4c878,sheenRoughness:.9}),leaf2:new THREE.MeshPhysicalMaterial({color:0x78a85a,roughness:.93,metalness:0,sheen:.32,sheenColor:0xc5dc91,sheenRoughness:.9}),trunk:mat(0x805638,.92),gold:new THREE.MeshPhysicalMaterial({color:0xe0b34d,roughness:.34,metalness:.58,clearcoat:.2,clearcoatRoughness:.34}),glass:new THREE.MeshPhysicalMaterial({color:0x9df3f0,roughness:.26,metalness:.035,emissive:0x16434a,emissiveIntensity:.075,transparent:false,opacity:1,depthWrite:true,clearcoat:.52,clearcoatRoughness:.18,reflectivity:.72,ior:1.46,specularIntensity:.72,specularColor:0xd5fffb,envMapIntensity:.95})};
+const M={grass:mat(0x6fae50,.94),grass2:mat(0x6fae50,.94),soil:mat(0x96704c,.96),path:mat(0xe2c99b,.88),stone:new THREE.MeshStandardMaterial({color:0xe6d2ad,roughness:.94,metalness:0}),stone2:new THREE.MeshStandardMaterial({color:0xc8ae83,roughness:.88,metalness:0}),roof:new THREE.MeshPhysicalMaterial({color:0x668bb0,roughness:.74,metalness:.035,clearcoat:.28,clearcoatRoughness:.48}),roof2:new THREE.MeshPhysicalMaterial({color:0x426487,roughness:.76,metalness:.025,clearcoat:.3,clearcoatRoughness:.46}),wood:mat(0x80502f,.76),wood2:mat(0xc18a4d,.7),leaf:new THREE.MeshPhysicalMaterial({color:0x568b42,roughness:.94,metalness:0,sheen:.28,sheenColor:0xa4c878,sheenRoughness:.9}),leaf2:new THREE.MeshPhysicalMaterial({color:0x78a85a,roughness:.93,metalness:0,sheen:.32,sheenColor:0xc5dc91,sheenRoughness:.9}),trunk:mat(0x805638,.92),gold:new THREE.MeshPhysicalMaterial({color:0xe0b34d,roughness:.34,metalness:.58,clearcoat:.2,clearcoatRoughness:.34}),glass:new THREE.MeshPhysicalMaterial({color:0x9df3f0,roughness:.26,metalness:.035,emissive:0x16434a,emissiveIntensity:.075,transparent:false,opacity:1,depthWrite:true,clearcoat:.52,clearcoatRoughness:.18,reflectivity:.72,ior:1.46,specularIntensity:.72,specularColor:0xd5fffb,envMapIntensity:.95})};
 // Более физичная отделка существующих деревянных деталей без изменения их оттенков.
 const upgradeWoodFinish=material=>new THREE.MeshPhysicalMaterial({
  color:material.color.clone(),roughness:material.roughness,metalness:material.metalness,
@@ -457,19 +419,11 @@ M.gold.roughness=.31;M.gold.clearcoat=.28;M.gold.clearcoatRoughness=.3;M.gold.en
 M.glass.roughness=.235;M.glass.clearcoat=.6;M.glass.clearcoatRoughness=.16;M.glass.envMapIntensity=1.08;
 // Настраиваем силу отражений физического неба отдельно для камня, кровли, металла и стекла.
 M.stone.envMapIntensity=.42;M.stone2.envMapIntensity=.45;
-M.roof.envMapIntensity=.92;M.roof2.envMapIntensity=.88;
-// Более чёткая глазурованная фактура существующей сланцевой кровли.
-// Усиливаем только микрорельеф и мягкий верхний блик: цвет, форма и укладка не меняются.
-for(const roofMaterial of [M.roof,M.roof2]){
- roofMaterial.clearcoat=Math.min(.36,roofMaterial.clearcoat+.035);
- roofMaterial.clearcoatRoughness=Math.max(.42,roofMaterial.clearcoatRoughness-.025);
- roofMaterial.needsUpdate=true;
-}
+M.roof.envMapIntensity=.9;M.roof2.envMapIntensity=.86;
 M.gold.envMapIntensity=.9;M.glass.envMapIntensity=1.05;
 
 function makeSurfaceTexture(kind,seed){
- // На мощных устройствах используем более детальные карты поверхностей; мобильный лимит сохраняет память и скорость загрузки.
- const size=mobile?256:(highEnd?1024:768),canvas=document.createElement('canvas');canvas.width=canvas.height=size;
+ const size=768,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
  const ctx=canvas.getContext('2d'),image=ctx.createImageData(size,size);
  let state=seed>>>0;
  const rand=()=>{state=(state*1664525+1013904223)>>>0;return state/4294967296};
@@ -478,7 +432,6 @@ function makeSurfaceTexture(kind,seed){
   if(kind==='wood')n+=Math.sin(y*.58)*6+Math.sin(y*.16)*4+Math.sin(y*.035)*3;
   if(kind==='stone')n+=Math.sin(x*.19)*2.2+Math.sin(y*.23)*1.8;
   if(kind==='roof')n+=Math.sin(x*.94)*3.5+Math.sin(x*.21)*1.5;
-  if(kind==='leaf')n+=Math.sin((x+y)*.12)*2.4+Math.sin((x-y)*.075)*1.6;
   if(kind==='grass'&&rand()>.975)n-=18;
   if(kind==='soil'&&rand()>.94)n-=12;
   const v=Math.max(0,Math.min(255,238+n)),i=(y*size+x)*4;
@@ -515,15 +468,6 @@ function makeSurfaceTexture(kind,seed){
    ctx.quadraticCurveTo(x+dx,y+len*.5,x+dx*.4,y+len);ctx.stroke();
   }
 
- }
- // Тонкие прожилки и мягкие перепады тона добавляют листве естественную фактуру.
- if(kind==='leaf'){
-  for(let i=0;i<360;i++){
-   const x=rand()*size,y=rand()*size,len=5+rand()*18;
-   ctx.strokeStyle=rand()>.5?'rgba(38,83,31,.075)':'rgba(220,239,163,.09)';
-   ctx.lineWidth=.35+rand()*.55;ctx.beginPath();ctx.moveTo(x,y);
-   ctx.quadraticCurveTo(x+(rand()-.5)*5,y+len*.5,x+(rand()-.5)*3,y+len);ctx.stroke();
-  }
  }
  // Мягкие травяные штрихи и редкие пятна придают газону естественную фактуру без визуального мусора.
  if(kind==='grass'){
@@ -668,7 +612,7 @@ function makeSurfaceTexture(kind,seed){
    ctx.lineWidth=.45+rand()*.65;ctx.beginPath();ctx.moveTo(x,y);
    ctx.lineTo(x+(rand()-.5)*len,y+(rand()-.5)*len*.45);ctx.stroke();
   }
-  for(let i=0;i<(mobile?100:620);i++){
+  for(let i=0;i<620;i++){
    const x=rand()*size,y=rand()*size,r=.5+rand()*1.8,tone=rand()>.5?125:75;
    ctx.fillStyle='rgba('+tone+','+tone+','+tone+','+(.12+rand()*.18)+')';
    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
@@ -721,14 +665,13 @@ function makeSurfaceTexture(kind,seed){
  const texture=new THREE.CanvasTexture(canvas);
  texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
  const textureRepeat=kind==='wood'?2:(kind==='stone'||kind==='roof'?4:3);texture.repeat.set(textureRepeat,textureRepeat);
- texture.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),mobile?2:16);
+ texture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  return texture;
 }
 const surfaceMaps={
  soil:makeSurfaceTexture('soil',23),
  stone:makeSurfaceTexture('stone',37),
  grass:makeSurfaceTexture('grass',79),
- leaf:makeSurfaceTexture('leaf',97),
  path:makeSurfaceTexture('stone',83),
  wood:makeSurfaceTexture('wood',51),
  roof:makeSurfaceTexture('roof',67)
@@ -746,8 +689,6 @@ surfaceMaps.soil.repeat.set(3,3);
 M.soil.map=surfaceMaps.soil;
 M.stone.map=surfaceMaps.stone;M.stone2.map=surfaceMaps.stone;
 M.grass.map=surfaceMaps.grass;M.grass2.map=surfaceMaps.grass;
- M.leaf.map=surfaceMaps.leaf;M.leaf2.map=surfaceMaps.leaf;
- surfaceMaps.leaf.repeat.set(5,5);
 M.path.map=surfaceMaps.path;
 for(const m of [M.wood,M.wood2])m.map=surfaceMaps.wood;
 for(const m of [M.roof,M.roof2])m.map=surfaceMaps.roof;
@@ -755,11 +696,10 @@ for(const m of [M.roof,M.roof2])m.map=surfaceMaps.roof;
 const surfaceBumps=[
  [M.soil,surfaceMaps.soil,.09],[M.stone,surfaceMaps.stone,.08],
  [M.stone2,surfaceMaps.stone,.069],
- [M.grass,surfaceMaps.grass,.027],[M.grass2,surfaceMaps.grass,.026],
- [M.leaf,surfaceMaps.leaf,.012],[M.leaf2,surfaceMaps.leaf,.012],
+ [M.grass,surfaceMaps.grass,.022],[M.grass2,surfaceMaps.grass,.022],
  [M.path,surfaceMaps.path,.052],
  [M.wood,surfaceMaps.wood,.046],[M.wood2,surfaceMaps.wood,.041],
- [M.roof,surfaceMaps.roof,.039],[M.roof2,surfaceMaps.roof,.039]
+ [M.roof,surfaceMaps.roof,.034],[M.roof2,surfaceMaps.roof,.034]
 ];
 for(const [material,texture,scale] of surfaceBumps){
  // Bump maps use linear data, unlike the visible color maps.
@@ -795,9 +735,6 @@ function upgradeStoneSurface(material,clearcoat,envIntensity){
 M.stone=upgradeStoneSurface(M.stone,.10,.42);
 M.stone2=upgradeStoneSurface(M.stone2,.085,.45);
 M.path=upgradeStoneSurface(M.path,.075,.3);
-// Чуть более собранный верхний блик на существующем бежевом мощении.
-// Тон, карта камня, микрорельеф и геометрия дорожек остаются прежними.
-M.path.clearcoat=.095;M.path.clearcoatRoughness=.72;M.path.envMapIntensity=.38;M.path.needsUpdate=true;
 // Preserve the device-specific render caps configured above; surface detail is increased independently.
 
 function box(parent,w,h,d,x,y,z,material,cast=true){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);o.position.set(x,y,z);o.castShadow=cast;o.receiveShadow=cast;parent.add(o);return o}
@@ -820,24 +757,11 @@ function makeFlowerBed(x,z){
  box(b,2.08,.09,1.03,0,.315,0,M.stone,false);
  box(b,1.88,.16,.84,0,.39,0,M.soil,false);
  const petalColors=[0xe45d72,0xf0c75e,0xfff0d8,0xb66fc2,0x4f9fc0];
- // Лепестки получают более плавное освещение и мягкий натуральный шелковистый блик.
- const petalMaterials=petalColors.map(color=>new THREE.MeshPhysicalMaterial({color,roughness:.73,metalness:0,sheen:.3,sheenColor:0xffe7d8,sheenRoughness:.82,clearcoat:.1,clearcoatRoughness:.78}));
- const centerMaterial=new THREE.MeshPhysicalMaterial({color:0xe6b94d,roughness:.64,metalness:.025,sheen:.16,sheenColor:0xffe8a8,sheenRoughness:.86,clearcoat:.08,clearcoatRoughness:.82});
- // Листья клумб получают более насыщенный естественный зелёный тон и мягкий восковой отблеск.
- const leafMaterial=new THREE.MeshPhysicalMaterial({color:0x477d3d,roughness:.9,metalness:0,sheen:.28,sheenColor:0xa8d18a,sheenRoughness:.9});
- const leafLightMaterial=new THREE.MeshPhysicalMaterial({color:0x78a957,roughness:.89,metalness:0,sheen:.32,sheenColor:0xc4e69b,sheenRoughness:.88});
- // Микрофактура листьев в клумбах согласована с общей фактурой листвы мира.
- for(const material of [leafMaterial,leafLightMaterial]){
-  material.map=surfaceMaps.leaf;
-  const detail=surfaceMaps.leaf.clone();
-  detail.colorSpace=THREE.NoColorSpace;
-  detail.needsUpdate=true;
-  material.bumpMap=detail;
-  material.bumpScale=.008;
-  material.roughnessMap=detail;
-  material.needsUpdate=true;
- }
- const flowerHead=new THREE.SphereGeometry(.075,16,12);
+ const petalMaterials=petalColors.map(color=>new THREE.MeshStandardMaterial({color,roughness:.82}));
+ const centerMaterial=new THREE.MeshStandardMaterial({color:0xe6b94d,roughness:.78});
+ const leafMaterial=new THREE.MeshStandardMaterial({color:0x718765,roughness:.96});
+ const leafLightMaterial=new THREE.MeshStandardMaterial({color:0x91a77d,roughness:.95});
+ const flowerHead=new THREE.SphereGeometry(.075,12,9);
  const leafGeo=new THREE.SphereGeometry(1,10,7);
  for(let i=0;i<7;i++){
    const px=-.75+(i%4)*.5,pz=(i%2?-.2:.2),stemHeight=.27+(i%3)*.035;
@@ -867,53 +791,16 @@ function makeFlowerBed(x,z){
    tuft.castShadow=false;tuft.receiveShadow=false;b.add(tuft);
  }
 }
- // Декоративные островки зелени внутри двора: симметричное озеленение по обе стороны дорожки.
- // Невысокие кусты и цветущие почвопокровные растения заполняют пустые участки газона,
- // не меняя положение деревьев, ограды, дома и центрального прохода.
- // Цветники внутри двора вместо разрозненных шарообразных кустов.
- // Каменные бортики, грунт, листья и отдельные цветы используют уже существующую детальную клумбу.
- // В центре двора сохраняем открытый газон; оставляем только две передние клумбы у розовых деревьев.
- for(const [x,z] of [[-8.4,7.2],[8.4,7.2]])makeFlowerBed(x,z);
  // Цветочные акценты вдоль передней линии ограды: симметрично по обе стороны от центрального входа.
- // Низкие смешанные кустарниковые группы с естественными перекрывающимися кронами.
- // Все позиции зеркальны относительно центральной дорожки; архитектура и деревья не перемещаются.
- function makeShrubCluster(x,z,variant=0){
-  const cluster=group(world,x,0,z);
-  const greens=[
-   new THREE.MeshPhysicalMaterial({color:0x356f39,roughness:.92,sheen:.22,sheenColor:0x91bd70,sheenRoughness:.9}),
-   new THREE.MeshPhysicalMaterial({color:0x4b8744,roughness:.9,sheen:.27,sheenColor:0xb0d28b,sheenRoughness:.88}),
-   new THREE.MeshPhysicalMaterial({color:0x6b9d50,roughness:.91,sheen:.24,sheenColor:0xc5dda0,sheenRoughness:.9})
-  ];
-  const crown=new THREE.SphereGeometry(1,12,9);
-  const forms=[
-   [-.62,.52,0,.82,.66,.68],[.02,.66,-.08,.96,.78,.76],
-   [.68,.48,.04,.78,.62,.66],[-.22,.88,.38,.68,.67,.62],
-   [.42,.82,-.39,.64,.61,.6]
-  ];
-  for(let i=0;i<forms.length;i++){
-   const [px,py,pz,sx,sy,sz]=forms[i];
-   const foliage=new THREE.Mesh(crown,greens[(i+variant)%greens.length]);
-   foliage.position.set(px,py,pz);foliage.scale.set(sx,sy,sz);
-   foliage.rotation.y=i*.71+variant*.37;
-   foliage.castShadow=false;foliage.receiveShadow=false;cluster.add(foliage);
-  }
-  const accents=[0xf1c75c,0xf4dce8,0xe982a5];
-  for(let i=0;i<3;i++){
-   const bloom=new THREE.Mesh(new THREE.SphereGeometry(.075,10,8),
-    new THREE.MeshStandardMaterial({color:accents[(i+variant)%accents.length],roughness:.78}));
-   bloom.position.set((i-1)*.34,.72,i%2?-.2:.2);
-   bloom.castShadow=false;cluster.add(bloom);
-  }
- }
- // Дополнительные клумбы не создаём: центральный газон остаётся свободным.
+ for(const x of [-11,-7,7,11])makeFlowerBed(x,16.25);
 function makeWorldDecor(){
   // Двухцветная палитра ограды: тёплый известняк и приглушённый шалфейно-оливковый камень.
-  const fenceBaseTrim=mat(0x4b4034),fenceLightTrim=mat(0xb6a58b),fenceRelief=mat(0x987642),fenceShadow=mat(0x382e26);
+  const fenceBaseTrim=mat(0x55483b),fenceLightTrim=mat(0xf0e2c8),fenceRelief=mat(0xb99a55),fenceShadow=mat(0x493b31);
   // Открытая территория. Каменная дорожка идёт от главного дома к берегу реки.
   // var исключает TDZ для материалов дорожки при повторном/раннем вызове декораций.
   // Бело-серая гранитная гамма дорожек: светлый камень, холодный серый и графитовые швы.
-  const roadBrickLight=new THREE.MeshPhysicalMaterial({color:0xe8dcc5,roughness:.96,metalness:0,clearcoat:.055,clearcoatRoughness:.9,envMapIntensity:.32});
-  const roadBrickDark=new THREE.MeshPhysicalMaterial({color:0xb6a88e,roughness:.96,metalness:0,clearcoat:.055,clearcoatRoughness:.9,envMapIntensity:.32});
+  const roadBrickLight=mat(0xe8dcc5,.96);
+  const roadBrickDark=mat(0xb6a88e,.96);
   // Основание в тон тёмному камню; контраст мягкий, без чисто белого и чёрного.
   // Центральная дорога: ровная ось от крыльца главного дома к берегу, одинаковая ширина по всей длине.
   const roadBase=mat(0x55483b,.98);
@@ -952,7 +839,7 @@ function makeWorldDecor(){
     geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
     geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
     geometry.setIndex(indices);geometry.computeVertexNormals();
-    const material=new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.945,metalness:0,clearcoat:.085,clearcoatRoughness:.88,envMapIntensity:.28,vertexColors:true,side:THREE.DoubleSide});
+    const material=new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.96,metalness:0,clearcoat:.07,clearcoatRoughness:.92,envMapIntensity:.2,vertexColors:true,side:THREE.DoubleSide});
     const mesh=new THREE.Mesh(geometry,material);mesh.castShadow=false;mesh.receiveShadow=false;mesh.userData.crispRoad=true;world.add(mesh);
   }
   // Гранитная дорога непрерывно проходит через арочный въезд и продолжается за пределы забора.
@@ -1039,7 +926,7 @@ function makeWorldDecor(){
     bump.repeat.set(repeatX,repeatY);bump.needsUpdate=true;
     return new THREE.MeshPhysicalMaterial({
       color,map,bumpMap:bump,roughnessMap:bump,bumpScale,roughness,metalness:0,
-      clearcoat:.10,clearcoatRoughness:.86,envMapIntensity:.36
+      clearcoat:.08,clearcoatRoughness:.9,envMapIntensity:.32
     });
   }
   // Та же тонкая фактура наносится на существующие плиты настила и основания.
@@ -1050,19 +937,15 @@ function makeWorldDecor(){
     material.bumpMap=textured.bumpMap;
     material.roughnessMap=textured.roughnessMap;
     material.bumpScale=textured.bumpScale;
-    material.clearcoat=.085;
-    material.clearcoatRoughness=.88;
-    material.envMapIntensity=.34;
+    material.clearcoat=.07;
+    material.clearcoatRoughness=.92;
+    material.envMapIntensity=.3;
     material.needsUpdate=true;
   }
   applyBridgeStoneSurface(bridgeDeckMat,2.4,1.8,.013);
   applyBridgeStoneSurface(bridgeStone,2.1,1.6,.014);
   applyBridgeStoneSurface(bridgeStoneLight,2.1,1.6,.012);
   applyBridgeStoneSurface(bridgeStoneShade,1.7,1.7,.012);
-  // Физическая микрофактура наносится и на отдельные гранитные плитки настила.
-  // Их исходные оттенки, размеры, швы и чередование сохраняются.
-  applyBridgeStoneSurface(roadBrickLight,2.15,1.65,.012);
-  applyBridgeStoneSurface(roadBrickDark,2.15,1.65,.012);
   const archMat=bridgePhysicalStone(0xd6c7aa,.98,2.2,1.35,.02);
   const pierMat=bridgePhysicalStone(0xb6a88e,.99,1.35,1.8,.018);
   for(const side of [-1,1]){
@@ -1125,8 +1008,6 @@ function makeWorldDecor(){
   // Более тёмный графитово-коричневый камень отделяет перила от светлого дорожного настила.
   const railMat=new THREE.MeshPhysicalMaterial({color:0x34495e,roughness:.78,metalness:.07,clearcoat:.16,clearcoatRoughness:.62,envMapIntensity:.48});
   const railCapMat=new THREE.MeshPhysicalMaterial({color:0x607d98,roughness:.8,metalness:.07,clearcoat:.14,clearcoatRoughness:.66,envMapIntensity:.42});
-  // Локальная отделка золотых наверший моста, без изменения общего золота сцены.
-  const bridgeGoldFinish=new THREE.MeshPhysicalMaterial({color:M.gold.color.clone(),roughness:.27,metalness:.78,clearcoat:.32,clearcoatRoughness:.26,envMapIntensity:.92});
   // Фактура камня продолжается на существующих парапетах и округлых перилах.
   // Сохраняем графитово-синий цвет, физические свойства и геометрию ограждения.
   applyBridgeStoneSurface(railMat,2.4,1.25,.012);
@@ -1146,13 +1027,13 @@ function makeWorldDecor(){
       const cap=box(world,.42,.12,.46,side*2.01,y+.95,z,railCapMat,false);
       cap.rotation.x=-Math.atan(bridgeSlope(t));
       // Золотые навершники и розетки повторяют акценты эталонных ворот.
-      const finial=new THREE.Mesh(new THREE.SphereGeometry(.095,12,10),bridgeGoldFinish);
+      const finial=new THREE.Mesh(new THREE.SphereGeometry(.095,12,10),M.gold);
       finial.position.set(side*2.01,y+1.075,z);finial.castShadow=false;finial.receiveShadow=false;world.add(finial);
-      const bridgeRosette=new THREE.Mesh(new THREE.TorusGeometry(.105,.024,8,20),bridgeGoldFinish);
+      const bridgeRosette=new THREE.Mesh(new THREE.TorusGeometry(.105,.024,8,20),M.gold);
       bridgeRosette.rotation.y=Math.PI/2;
       bridgeRosette.position.set(side*2.205,y+.48,z);
       bridgeRosette.castShadow=false;bridgeRosette.receiveShadow=false;world.add(bridgeRosette);
-      const bridgeCenter=new THREE.Mesh(new THREE.SphereGeometry(.045,10,8),bridgeGoldFinish);
+      const bridgeCenter=new THREE.Mesh(new THREE.SphereGeometry(.045,10,8),M.gold);
       bridgeCenter.position.set(side*2.21,y+.48,z);
       bridgeCenter.castShadow=false;bridgeCenter.receiveShadow=false;world.add(bridgeCenter);
     }
@@ -1177,180 +1058,68 @@ function makeWorldDecor(){
     }
   }
   // Ограда по точному цветовому макету: светлые каменные столбы и тёмная кованая решётка с золотыми медальонами.
-  // Физически корректная отделка забора: сохраняем утверждённые цвета и геометрию,
-  // добавляя мелкую каменную микрофактуру, вариации шероховатости и мягкие отражения.
-  const fenceStoneBump=surfaceMaps.stone.clone();
-  fenceStoneBump.colorSpace=THREE.NoColorSpace;
-  fenceStoneBump.needsUpdate=true;
-  const fenceStoneFinish=(source,roughness=.9,clearcoat=.07)=>new THREE.MeshPhysicalMaterial({
-    color:source.color.clone(),map:surfaceMaps.stone,bumpMap:fenceStoneBump,roughnessMap:fenceStoneBump,
-    bumpScale:.026,roughness,metalness:0,clearcoat,clearcoatRoughness:.82,
-    envMapIntensity:.42,dithering:true
-  });
-  const fenceMetalFinish=(source,roughness,metalness,clearcoat=.18)=>new THREE.MeshPhysicalMaterial({
-    color:source.color.clone(),roughness,metalness,clearcoat,clearcoatRoughness:.38,
-    envMapIntensity:.78,dithering:true
-  });
-  const fenceStone=fenceStoneFinish(mat(0x948775,.96),.91,.08);
-  const fenceIvory=fenceStoneFinish(mat(0xaaa08f,.94),.88,.09);
-  const fenceReliefStone=fenceStoneFinish(mat(0x796b58,.96),.92,.06);
-  const fenceOutline=fenceStoneFinish(mat(0x403329,.96),.86,.05);
-  const fenceSandstone=fenceStoneFinish(mat(0x927a5d,.96),.9,.07);
-  const fenceSlate=fenceMetalFinish(mat(0x465d70,.94),.72,.16,.12);
-  const fenceTeal=fenceMetalFinish(mat(0x28736f,.92),.48,.24,.28);
-  const fenceIron=fenceMetalFinish(mat(0x39332c),.5,.68,.16);
-  const fenceIronLight=fenceMetalFinish(mat(0x62513d),.46,.62,.2);
-  const fenceGold=fenceMetalFinish(mat(0xb98a43),.34,.76,.3);
-  const fenceGoldLight=fenceMetalFinish(mat(0xd4ad67),.3,.72,.34);
-  // Чуть более собранные отражения на тёмных кованых секциях: металл остаётся матовым, но лучше ловит свет.
-  fenceIron.roughness=.47;fenceIron.clearcoat=.19;fenceIron.clearcoatRoughness=.34;fenceIron.envMapIntensity=.82;
-  fenceIronLight.roughness=.44;fenceIronLight.clearcoat=.22;fenceIronLight.clearcoatRoughness=.34;fenceIronLight.envMapIntensity=.82;
+  const fenceStone=mat(0xe8dcc4),fenceIvory=mat(0xf5ead5),fenceReliefStone=mat(0xcbb995);
+  const fenceIron=mat(0x242321),fenceIronLight=mat(0x39332d),fenceGold=mat(0xd9a83f),fenceGoldLight=mat(0xf0c85d);
   const fenceNoShadow=mesh=>{mesh.castShadow=false;mesh.receiveShadow=false;return mesh;};
   // Забор собирается в отдельной группе: его можно целиком заменить без дублей геометрии.
   const fenceGroup=new THREE.Group();world.add(fenceGroup);
-  window.GREEN_WORLD_FENCE_GROUP=fenceGroup;
   // Полный декоративный периметр по утверждённому эталону GREEN WORLD.
   // Светлые известняковые столбы, тёмная кованая решётка и золотые медальоны.
   const fencePost=(x,z,baseY=0,faceAngle=0)=>{
-    // Многоступенчатое основание из тёплого известняка и песчаника.
-    fenceNoShadow(box(fenceGroup,.62,.22,.66,x,baseY+.12,z,fenceReliefStone,false));
-    fenceNoShadow(box(fenceGroup,.56,.12,.60,x,baseY+.29,z,fenceIvory,false));
-    fenceNoShadow(box(fenceGroup,.46,.10,.50,x,baseY+.40,z,fenceSandstone,false));
-    fenceNoShadow(box(fenceGroup,.40,1.58,.44,x,baseY+1.24,z,fenceStone,false));
-    // Тонкие русты и контрастные пояса подчёркивают высоту столба.
-    for(const y of [.72,1.10,1.48,1.86]){
-      fenceNoShadow(box(fenceGroup,.414,.035,.455,x,baseY+y,z,fenceSandstone,false));
-    }
-    fenceNoShadow(box(fenceGroup,.48,.11,.52,x,baseY+2.08,z,fenceReliefStone,false));
-    fenceNoShadow(box(fenceGroup,.62,.15,.66,x,baseY+2.20,z,fenceIvory,false));
-    fenceNoShadow(box(fenceGroup,.68,.065,.72,x,baseY+2.31,z,fenceGold,false));
-    fenceNoShadow(box(fenceGroup,.56,.12,.60,x,baseY+2.40,z,fenceStone,false));
+    fenceNoShadow(box(fenceGroup,.54,.30,.58,x,baseY+.16,z,fenceReliefStone,false));
+    fenceNoShadow(box(fenceGroup,.48,.12,.52,x,baseY+.37,z,fenceIvory,false));
+    fenceNoShadow(box(fenceGroup,.36,1.68,.40,x,baseY+1.25,z,fenceStone,false));
+    fenceNoShadow(box(fenceGroup,.42,.10,.46,x,baseY+2.13,z,fenceReliefStone,false));
+    fenceNoShadow(box(fenceGroup,.58,.16,.62,x,baseY+2.25,z,fenceIvory,false));
+    fenceNoShadow(box(fenceGroup,.64,.07,.68,x,baseY+2.36,z,fenceGold,false));
+    fenceNoShadow(box(fenceGroup,.52,.10,.56,x,baseY+2.45,z,fenceStone,false));
+    // Декоративная лицевая панель привязана к основанию столба и повёрнута внутрь двора.
     const relief=new THREE.Group();relief.position.set(x,baseY,z);relief.rotation.y=faceAngle;fenceGroup.add(relief);
-    // Утопленная панель с тонкой сланцевой окантовкой и бирюзовым центральным камнем.
-    fenceNoShadow(box(relief,.275,1.22,.018,0,1.27,.279,fenceOutline,false));
-    fenceNoShadow(box(relief,.255,1.20,.035,0,1.27,.235,fenceReliefStone,false));
-    fenceNoShadow(box(relief,.205,1.12,.038,0,1.27,.259,fenceIvory,false));
-    fenceNoShadow(box(relief,.105,.74,.045,0,1.27,.286,fenceSlate,false));
-    fenceNoShadow(box(relief,.052,.64,.05,0,1.27,.313,fenceTeal,false));
-    // Парные вертикальные каннелюры и резные боковые розетки добавляют столбу глубину.
-    for(const side of [-1,1]){
-      const flute=box(relief,.022,.88,.022,side*.135,1.27,.282,fenceSandstone,false);
-      const stud=new THREE.Mesh(new THREE.SphereGeometry(.035,10,8),fenceGoldLight);
-      stud.position.set(side*.135,1.27,.31);fenceNoShadow(stud);relief.add(stud);
-    }
-    const rosette=new THREE.Mesh(new THREE.OctahedronGeometry(.105,1),fenceGold);
-    rosette.position.set(0,1.28,.36);rosette.scale.set(.8,1.15,.3);fenceNoShadow(rosette);relief.add(rosette);
-    const lampBase=new THREE.Mesh(new THREE.CylinderGeometry(.11,.16,.11,12),fenceGold);
-    lampBase.position.set(x,baseY+2.53,z);fenceNoShadow(lampBase);fenceGroup.add(lampBase);
-    const finial=new THREE.Mesh(new THREE.SphereGeometry(.115,16,12),fenceGoldLight);
-    finial.position.set(x,baseY+2.67,z);finial.scale.set(.88,1.2,.88);fenceNoShadow(finial);fenceGroup.add(finial);
+    fenceNoShadow(box(relief,.23,1.12,.025,0,1.25,.207,fenceReliefStone,false));
+    fenceNoShadow(box(relief,.17,1.02,.028,0,1.25,.226,fenceIvory,false));
+    fenceNoShadow(box(relief,.025,.90,.018,-.055,1.25,.247,fenceGold,false));
+    fenceNoShadow(box(relief,.025,.90,.018,.055,1.25,.247,fenceGold,false));
+    const lampBase=new THREE.Mesh(new THREE.CylinderGeometry(.10,.14,.10,8),fenceGold);
+    lampBase.position.set(x,baseY+2.55,z);fenceNoShadow(lampBase);fenceGroup.add(lampBase);
+    const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.14,0),fenceGoldLight);
+    finial.position.set(x,baseY+2.69,z);finial.scale.set(.82,1.35,.82);fenceNoShadow(finial);fenceGroup.add(finial);
   };
   const fenceBay=(x1,z1,x2,z2,baseY=0,faceOffset=0)=>{
     const dx=x2-x1,dz=z2-z1,length=Math.hypot(dx,dz);
     if(length<.3)return;
     const angle=Math.atan2(dz,dx),cx=(x1+x2)/2,cz=(z1+z2)/2;
     const panel=new THREE.Group();panel.position.set(cx,baseY,cz);panel.rotation.y=-angle+faceOffset;fenceGroup.add(panel);
-    // Открытая каменная арка: центральный проём не закрыт декоративной плитой.
-    const span=length-.16,half=span/2,depth=.48;
-    const pierX=Math.max(.18,half-.19),springY=1.22,rise=Math.min(.88,span*.25);
-    const innerHalf=Math.max(.25,half-.36);
-    // Цоколь разделён на две опоры: центральный проход арки полностью открыт до земли.
-    const baseHalf=Math.max(.12,half-innerHalf);
-    for(const side of [-1,1]){
-      const bx=side*(innerHalf+baseHalf/2);
-      fenceNoShadow(box(panel,baseHalf+.08,.42,depth,bx,.24,0,fenceStone,false));
-      fenceNoShadow(box(panel,baseHalf+.15,.10,depth+.10,bx,.49,0,fenceReliefStone,false));
-      fenceNoShadow(box(panel,baseHalf+.115,.065,depth+.065,bx,.57,0,fenceIvory,false));
-      fenceNoShadow(box(panel,baseHalf-.005,.035,depth+.035,bx,.625,0,fenceSandstone,false));
-    }
-    // Массивные боковые опоры несут дугу; каждая имеет русты и ступенчатую капитель.
-    for(const side of [-1,1]){
-      const x=side*pierX;
-      fenceNoShadow(box(panel,.34,1.08,depth+.05,x,.91,0,fenceSandstone,false));
-      fenceNoShadow(box(panel,.28,1.00,depth+.075,x,.91,0,fenceStone,false));
-      for(let j=0;j<3;j++){
-        fenceNoShadow(box(panel,.31,.035,depth+.09,x,.62+j*.25,0,fenceReliefStone,false));
+    // Новые секции: строгая бронзово-графитовая рама с повторяющимся ромбовидным орнаментом.
+    // Существующие каменные столбы и их навершия не меняются.
+    const span=length-.16;
+    fenceNoShadow(box(panel,span,.105,.13,0,.70,0,fenceIron,false));
+    fenceNoShadow(box(panel,span,.105,.13,0,1.91,0,fenceIron,false));
+    fenceNoShadow(box(panel,span,.035,.145,0,1.985,0,fenceGold,false));
+    fenceNoShadow(box(panel,span,.045,.145,0,.775,0,fenceIronLight,false));
+    // Тонкие вертикальные прутья формируют равномерный ритм между столбами.
+    const count=Math.max(4,Math.floor(span/.34));
+    for(let i=0;i<=count;i++){
+      const x=-span/2+span*i/count;
+      fenceNoShadow(box(panel,.045,1.02,.075,x,1.305,0,fenceIron,false));
+      // Небольшие латунные втулки на концах прутьев.
+      for(const y of [.80,1.81]){
+        const collar=box(panel,.075,.055,.105,x,y,0,fenceGold,false);
       }
-      for(const fluteSide of [-1,0,1]){
-        fenceNoShadow(box(panel,.018,.56,.026,x+fluteSide*.072,.96,depth/2+.055,
-          fluteSide===0?fenceGold:fenceIvory,false));
-      }
-      const pierRose=new THREE.Mesh(new THREE.OctahedronGeometry(.055,1),fenceGoldLight);
-      pierRose.position.set(x,.69,depth/2+.085);pierRose.scale.set(.82,1.1,.32);
-      fenceNoShadow(pierRose);panel.add(pierRose);
-      // Парный медальон на верхней части каждой опоры визуально связывает устои со сводом.
-      const upperRing=new THREE.Mesh(new THREE.TorusGeometry(.105,.018,8,24),fenceGold);
-      upperRing.position.set(x,1.30,depth/2+.105);
-      fenceNoShadow(upperRing);panel.add(upperRing);
-      const upperCore=new THREE.Mesh(new THREE.SphereGeometry(.052,12,10),fenceTeal);
-      upperCore.position.set(x,1.30,depth/2+.12);
-      upperCore.scale.set(1,1,.38);fenceNoShadow(upperCore);panel.add(upperCore);
-      // Тонкие светлые плечики капители подчёркивают переход от колонны к арке.
-      fenceNoShadow(box(panel,.39,.045,depth+.13,x,1.405,0,fenceIvory,false));
-      fenceNoShadow(box(panel,.45,.035,depth+.16,x,1.455,0,fenceGoldLight,false));
-      fenceNoShadow(box(panel,.43,.12,depth+.14,x,1.49,0,fenceReliefStone,false));
-      fenceNoShadow(box(panel,.39,.065,depth+.11,x,1.585,0,fenceIvory,false));
-      fenceNoShadow(box(panel,.34,.035,depth+.08,x,1.635,0,fenceGold,false));
     }
-    // Свод собран из отдельных клиновидных камней с контрастными лицевыми фасками.
-    const segments=Math.max(17,Math.floor(span*10));
-    for(let i=0;i<segments;i++){
-      const t=(i+.5)/segments,theta=Math.PI*t;
-      const px=-innerHalf+2*innerHalf*t,py=springY+rise*Math.sin(theta);
-      const tangent=Math.atan2(rise*Math.PI*Math.cos(theta),2*innerHalf);
-      const isKey=i===Math.floor(segments/2);
-      const stone=box(panel,(2*innerHalf/segments)*1.14,.34,depth+.12,px,py,0,
-        isKey?fenceIvory:(i%4===0?fenceSandstone:fenceStone),false);
-      stone.rotation.z=tangent;
-      const face=box(panel,(2*innerHalf/segments)*.91,.055,.035,px,py,depth/2+.085,
-        isKey?fenceGold:fenceReliefStone,false);
-      face.rotation.z=tangent;
+    // Ряд вытянутых ромбов вместо прежних копий и центральных медальонов.
+    const diamonds=Math.max(2,Math.floor(span/.72));
+    for(let i=0;i<diamonds;i++){
+      const x=-span/2+span*(i+.5)/diamonds;
+      const diamond=box(panel,.235,.235,.065,x,1.305,.075,fenceGold,false);
+      diamond.rotation.z=Math.PI/4;
+      const inset=box(panel,.125,.125,.075,x,1.305,.12,fenceIronLight,false);
+      inset.rotation.z=Math.PI/4;
+      const pin=new THREE.Mesh(new THREE.SphereGeometry(.035,10,8),fenceGoldLight);
+      pin.position.set(x,1.305,.17);fenceNoShadow(pin);panel.add(pin);
     }
-    // Непрерывная светлая внутренняя кромка делает контур арки читаемым издалека.
-    const archPoints=[];
-    for(let i=0;i<=64;i++){
-      const t=i/64;
-      archPoints.push(new THREE.Vector3(-innerHalf+2*innerHalf*t,
-        springY+rise*Math.sin(Math.PI*t)-.19,depth/2+.115));
-    }
-    const archCurve=new THREE.CatmullRomCurve3(archPoints);
-    const innerTrim=new THREE.Mesh(new THREE.TubeGeometry(archCurve,128,.046,10,false),fenceIvory);
-    fenceNoShadow(innerTrim);panel.add(innerTrim);
-    const goldTrim=new THREE.Mesh(new THREE.TubeGeometry(
-      new THREE.CatmullRomCurve3(archPoints.map(p=>new THREE.Vector3(p.x,p.y-.075,p.z+.012))),
-      128,.018,8,false),fenceGold);
-    fenceNoShadow(goldTrim);panel.add(goldTrim);
-    // Сначала строим точки внешнего контура, затем используем их для всех его слоёв.
-    const outerPoints=[];
-    for(let i=0;i<=64;i++){
-      const t=i/64;
-      outerPoints.push(new THREE.Vector3(-innerHalf+2*innerHalf*t,
-        springY+rise*Math.sin(Math.PI*t)+.20,depth/2+.105));
-    }
-    // Тонкая тёмная линия подчёркивает внешний силуэт арки.
-    const darkArchOutline=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(outerPoints.map(p=>new THREE.Vector3(p.x,p.y+.105,p.z+.035))),128,.024,8,false),fenceOutline);
-    fenceNoShadow(darkArchOutline);panel.add(darkArchOutline);
-    // Внешний рельефный архивольт подчёркивает силуэт арки вторым каменным контуром.
-    const outerArchivolt=new THREE.Mesh(new THREE.TubeGeometry(
-      new THREE.CatmullRomCurve3(outerPoints),128,.055,10,false),fenceReliefStone);
-    fenceNoShadow(outerArchivolt);panel.add(outerArchivolt);
-    const outerGoldLine=new THREE.Mesh(new THREE.TubeGeometry(
-      new THREE.CatmullRomCurve3(outerPoints.map(p=>new THREE.Vector3(p.x,p.y+.085,p.z+.012))),
-      128,.018,8,false),fenceGoldLight);
-    fenceNoShadow(outerGoldLine);panel.add(outerGoldLine);
-    // Крупный замковый камень и бирюзовый акцент на вершине каждой арки.
-    const keystone=box(panel,.30,.38,depth+.17,0,springY+rise+.055,0,fenceIvory,false);
-    const keystoneGem=new THREE.Mesh(new THREE.OctahedronGeometry(.105,1),fenceTeal);
-    keystoneGem.position.set(0,springY+rise+.07,depth/2+.115);
-    keystoneGem.scale.set(.82,1.15,.30);fenceNoShadow(keystoneGem);panel.add(keystoneGem);
-    const keystoneRing=new THREE.Mesh(new THREE.TorusGeometry(.145,.018,8,28),fenceGold);
-    keystoneRing.position.set(0,springY+rise+.07,depth/2+.12);
-    fenceNoShadow(keystoneRing);panel.add(keystoneRing);
-    // Парные медальоны внутри нижней части арки удалены по просьбе пользователя.
-    // Двойной карниз связывает соседние арки в цельный архитектурный периметр.
-    fenceNoShadow(box(panel,span+.20,.085,depth+.18,0,.66,0,fenceReliefStone,false));
-    fenceNoShadow(box(panel,span+.14,.055,depth+.14,0,.735,0,fenceIvory,false));
-    fenceNoShadow(box(panel,span-.04,.035,depth+.07,0,.78,0,fenceSandstone,false));
+    // Нижняя тонкая линия и верхний декоративный пояс завершают каждую секцию.
+    fenceNoShadow(box(panel,span,.035,.15,0,.585,0,fenceGold,false));
+    fenceNoShadow(box(panel,span,.035,.15,0,2.025,0,fenceIronLight,false));
   };
   const fenceRun=(x1,z1,x2,z2,spacing=2.45,startY=0,endY=startY,options={})=>{
     const length=Math.hypot(x2-x1,z2-z1),count=Math.max(1,Math.ceil(length/spacing));
@@ -1369,55 +1138,26 @@ function makeWorldDecor(){
   // с наружными гранями площадок магазина и завода.
   // Новый увеличенный периметр участка: немного шире по X и длиннее в глубину.
   // Центральный вход остаётся на прежней оси и не сдвигает внутренний двор.
-  // Симметричный внешний периметр: одинаковое расстояние от центральной оси X=0.
-  const areaBounds={left:-50.00,right:50.00,front:14.02,back:-114.00};
-  window.GREEN_WORLD_AREA_BOUNDS=areaBounds;
-  const frontFenceLeft=-16.40;
-  const frontFenceRight=16.40;
+  // Единые координаты внешнего периметра участка.
+  const areaBounds={left:-15.40,right:17.40,front:14.02,back:-23.00};
+  const frontFenceLeft=areaBounds.left;
+  const frontFenceRight=areaBounds.right;
   const frontFenceZ=areaBounds.front;
-  const sideFenceEndZ=-24.00;
-  const sideFenceOuterZ=-42.00;
-  const sideFenceOuterX=50.00;
+  const sideFenceEndZ=areaBounds.back;
   // Передняя линия: по четыре секции слева и справа от центральной арки.
   const leftFrontSpacing=(Math.abs(frontFenceLeft)-3.20)/4;
   const rightFrontSpacing=(frontFenceRight-3.20)/4;
   fenceRun(-3.20,frontFenceZ,frontFenceLeft,frontFenceZ,leftFrontSpacing,0,0,{bayFaceAngle:Math.PI});
   fenceRun(3.20,frontFenceZ,frontFenceRight,frontFenceZ,rightFrontSpacing,0,0);
   // Боковые стороны привязаны к тем же углам, без повторных угловых столбов.
-  fenceRun(frontFenceLeft,frontFenceZ,frontFenceLeft,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:true,postFaceAngle:Math.PI/2});
-  fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:true,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
-  // За домом боковые линии раскрываются наружу, обходя пруд с обеих сторон.
-  fenceRun(frontFenceLeft,sideFenceEndZ,-sideFenceOuterX,sideFenceOuterZ,2.45,0,0,{includeStart:false,includeEnd:true,postFaceAngle:Math.PI/2});
-  fenceRun(frontFenceRight,sideFenceEndZ,sideFenceOuterX,sideFenceOuterZ,2.45,0,0,{includeStart:false,includeEnd:true,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
-  fenceRun(-sideFenceOuterX,sideFenceOuterZ,-sideFenceOuterX,areaBounds.back,2.45,0,0,{includeStart:false,includeEnd:true,postFaceAngle:Math.PI/2});
-  fenceRun(sideFenceOuterX,sideFenceOuterZ,sideFenceOuterX,areaBounds.back,2.45,0,0,{includeStart:false,includeEnd:true,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
-  // Задняя сторона замыкает расширенный периметр позади леса.
-  fenceRun(-sideFenceOuterX,areaBounds.back,sideFenceOuterX,areaBounds.back,2.45,0,0,{includeStart:false,includeEnd:false});
+  fenceRun(frontFenceLeft,frontFenceZ,frontFenceLeft,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:Math.PI/2});
+  fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
+  // Задняя сторона замыкает периметр ровно восемью секциями.
+  fenceRun(frontFenceLeft,sideFenceEndZ,frontFenceRight,sideFenceEndZ,(frontFenceRight-frontFenceLeft)/8,0,0,{includeStart:false,includeEnd:false});
   // Жёстко отключаем отбрасывание и приём теней у всех деталей ограждения, включая столбики и навершия.
   fenceGroup.traverse(object=>{if(object.isMesh){object.castShadow=false;object.receiveShadow=false;}});
   // Входная арка повторяет геометрию эталона: прямые массивные устои и полукруглый верх с тремя ступенями обрамления.
   const gateSpring=2.12,gateOuter=2.78,gateInner=2.12,gateFrontZ=13.98,gateBackZ=13.76;
-  // Локальная финишная отделка входного портала: базовая палитра и геометрия сохранены.
-  const gateStoneFinish=fenceStone.clone();
-  gateStoneFinish.bumpScale=.029;gateStoneFinish.roughness=.895;
-  gateStoneFinish.clearcoat=.12;gateStoneFinish.clearcoatRoughness=.76;
-  gateStoneFinish.envMapIntensity=.48;gateStoneFinish.needsUpdate=true;
-  const gateIvoryFinish=fenceIvory.clone();
-  gateIvoryFinish.bumpScale=.028;gateIvoryFinish.roughness=.86;
-  gateIvoryFinish.clearcoat=.13;gateIvoryFinish.clearcoatRoughness=.74;
-  gateIvoryFinish.envMapIntensity=.49;gateIvoryFinish.needsUpdate=true;
-  const gateReliefFinish=fenceReliefStone.clone();
-  gateReliefFinish.bumpScale=.028;gateReliefFinish.roughness=.90;
-  gateReliefFinish.clearcoat=.105;gateReliefFinish.clearcoatRoughness=.78;
-  gateReliefFinish.envMapIntensity=.46;gateReliefFinish.needsUpdate=true;
-  const gateGoldFinish=fenceGold.clone();
-  gateGoldFinish.roughness=.31;gateGoldFinish.clearcoat=.34;
-  gateGoldFinish.clearcoatRoughness=.29;gateGoldFinish.envMapIntensity=.86;
-  gateGoldFinish.needsUpdate=true;
-  const gateGoldLightFinish=fenceGoldLight.clone();
-  gateGoldLightFinish.roughness=.28;gateGoldLightFinish.clearcoat=.37;
-  gateGoldLightFinish.clearcoatRoughness=.27;gateGoldLightFinish.envMapIntensity=.88;
-  gateGoldLightFinish.needsUpdate=true;
   const gateShape=(outerR,innerR,springY)=>{
     const shape=new THREE.Shape();
     shape.moveTo(-outerR,0);shape.lineTo(-outerR,springY);shape.absarc(0,springY,outerR,Math.PI,0,true);shape.lineTo(outerR,0);shape.closePath();
@@ -1436,91 +1176,90 @@ function makeWorldDecor(){
     const mesh=new THREE.Mesh(geometry,material);mesh.position.set(0,.02,z);fenceNoShadow(mesh);world.add(mesh);return mesh;
   };
   // Сплошной несущий портал с высоким прямоугольным проходом и точной полуциркульной дугой.
-  gateMesh(gateOuter,gateInner,gateSpring,.64,gateStoneFinish,gateBackZ,.035);
+  gateMesh(gateOuter,gateInner,gateSpring,.64,fenceStone,gateBackZ,.035);
   // Наружная ступенчатая окантовка, как на крупном плане макета.
-  gateMesh(2.91,2.76,gateSpring,.12,gateIvoryFinish,gateFrontZ+.39,.014);
-  gateMesh(2.78,2.69,gateSpring,.075,gateGoldFinish,gateFrontZ+.49,.008);
-  gateMesh(2.68,2.57,gateSpring,.075,gateReliefFinish,gateFrontZ+.50,.008);
-  gateMesh(2.55,2.48,gateSpring,.055,gateIvoryFinish,gateFrontZ+.53,.006);
+  gateMesh(2.91,2.76,gateSpring,.12,fenceIvory,gateFrontZ+.39,.014);
+  gateMesh(2.78,2.69,gateSpring,.075,fenceGold,gateFrontZ+.49,.008);
+  gateMesh(2.68,2.57,gateSpring,.075,fenceReliefStone,gateFrontZ+.50,.008);
+  gateMesh(2.55,2.48,gateSpring,.055,fenceIvory,gateFrontZ+.53,.006);
   // Внутренний светлый откос проёма обрамляет проход непрерывной дугой.
-  gateMesh(2.19,2.12,gateSpring,.10,gateIvoryFinish,gateFrontZ+.43,.008);
+  gateMesh(2.19,2.12,gateSpring,.10,fenceIvory,gateFrontZ+.43,.008);
   // Каменные радиальные блоки-вуссуары по дуге, разделённые тонкими швами.
   for(let i=0;i<=12;i++){
     const angle=Math.PI-i*Math.PI/12;
     const r1=2.59,r2=2.75,z=gateFrontZ+.585;
     const p1=new THREE.Vector3(r1*Math.cos(angle),.02+gateSpring+r1*Math.sin(angle),z);
     const p2=new THREE.Vector3(r2*Math.cos(angle),.02+gateSpring+r2*Math.sin(angle),z);
-    const seam=new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(p1,p2),1,.012,6,false),gateStoneFinish);
+    const seam=new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(p1,p2),1,.012,6,false),fenceStone);
     fenceNoShadow(seam);world.add(seam);
   }
   // Парные прямые устои с панелями, как на изображении: цоколь, ствол, капитель и широкая плита.
   for(const side of [-1,1]){
     const x=side*2.43;
-    fenceNoShadow(box(world,1.04,.30,1.02,x,.16,14.02,gateReliefFinish,false));
-    fenceNoShadow(box(world,.96,.13,.96,x,.375,14.02,gateIvoryFinish,false));
-    fenceNoShadow(box(world,.84,2.05,.84,x,1.46,14.02,gateStoneFinish,false));
-    fenceNoShadow(box(world,.90,.10,.90,x,2.54,14.02,gateReliefFinish,false));
-    fenceNoShadow(box(world,1.12,.17,1.04,x,2.68,14.02,gateIvoryFinish,false));
-    fenceNoShadow(box(world,1.20,.075,1.10,x,2.80,14.02,gateGoldFinish,false));
-    fenceNoShadow(box(world,1.08,.12,1.00,x,2.90,14.02,gateStoneFinish,false));
+    fenceNoShadow(box(world,1.04,.30,1.02,x,.16,14.02,fenceReliefStone,false));
+    fenceNoShadow(box(world,.96,.13,.96,x,.375,14.02,fenceIvory,false));
+    fenceNoShadow(box(world,.84,2.05,.84,x,1.46,14.02,fenceStone,false));
+    fenceNoShadow(box(world,.90,.10,.90,x,2.54,14.02,fenceReliefStone,false));
+    fenceNoShadow(box(world,1.12,.17,1.04,x,2.68,14.02,fenceIvory,false));
+    fenceNoShadow(box(world,1.20,.075,1.10,x,2.80,14.02,fenceGold,false));
+    fenceNoShadow(box(world,1.08,.12,1.00,x,2.90,14.02,fenceStone,false));
     for(const face of [-1,1]){
       const z=14.02+face*.426;
-      fenceNoShadow(box(world,.48,1.56,.045,x,1.43,z,gateReliefFinish,false));
-      fenceNoShadow(box(world,.38,1.43,.055,x,1.43,z+face*.025,gateIvoryFinish,false));
-      fenceNoShadow(box(world,.035,1.24,.022,x-.18,1.43,z+face*.058,gateGoldFinish,false));
-      fenceNoShadow(box(world,.035,1.24,.022,x+.18,1.43,z+face*.058,gateGoldFinish,false));
-      fenceNoShadow(box(world,.55,.045,.025,x,.67,z+face*.06,gateGoldFinish,false));
-      fenceNoShadow(box(world,.55,.045,.025,x,2.18,z+face*.06,gateGoldFinish,false));
+      fenceNoShadow(box(world,.48,1.56,.045,x,1.43,z,fenceReliefStone,false));
+      fenceNoShadow(box(world,.38,1.43,.055,x,1.43,z+face*.025,fenceIvory,false));
+      fenceNoShadow(box(world,.035,1.24,.022,x-.18,1.43,z+face*.058,fenceGold,false));
+      fenceNoShadow(box(world,.035,1.24,.022,x+.18,1.43,z+face*.058,fenceGold,false));
+      fenceNoShadow(box(world,.55,.045,.025,x,.67,z+face*.06,fenceGold,false));
+      fenceNoShadow(box(world,.55,.045,.025,x,2.18,z+face*.06,fenceGold,false));
     }
     // Светильники стоят на внешних краях капителей.
-    fenceNoShadow(box(world,.30,.10,.30,x,3.00,14.02,gateReliefFinish,false));
-    const lampBase=new THREE.Mesh(new THREE.CylinderGeometry(.12,.17,.12,8),gateGoldFinish);
+    fenceNoShadow(box(world,.30,.10,.30,x,3.00,14.02,fenceReliefStone,false));
+    const lampBase=new THREE.Mesh(new THREE.CylinderGeometry(.12,.17,.12,8),fenceGold);
     lampBase.position.set(x,3.12,14.02);fenceNoShadow(lampBase);world.add(lampBase);
   }
   // Боковые крылья между аркой и забором временно удалены по запросу.
   // Центральный замковый камень и золотой ромбовидный герб на вершине дуги.
   const crestY=.02+gateSpring+gateOuter+.10,crestZ=gateFrontZ+.62;
-  const crestFrame=new THREE.Mesh(new THREE.OctahedronGeometry(.38,0),gateGoldFinish);
+  const crestFrame=new THREE.Mesh(new THREE.OctahedronGeometry(.38,0),fenceGold);
   crestFrame.position.set(0,crestY,crestZ);crestFrame.scale.set(1.15,1.38,.30);fenceNoShadow(crestFrame);world.add(crestFrame);
-  const crestInset=new THREE.Mesh(new THREE.OctahedronGeometry(.24,0),gateIvoryFinish);
+  const crestInset=new THREE.Mesh(new THREE.OctahedronGeometry(.24,0),fenceIvory);
   crestInset.position.set(0,crestY,crestZ+.045);crestInset.scale.set(1.0,1.25,.28);fenceNoShadow(crestInset);world.add(crestInset);
-  const crestCenter=new THREE.Mesh(new THREE.SphereGeometry(.09,14,12),gateGoldLightFinish);
+  const crestCenter=new THREE.Mesh(new THREE.SphereGeometry(.09,14,12),fenceGoldLight);
   crestCenter.position.set(0,crestY,crestZ+.12);crestCenter.scale.set(1,1,.4);fenceNoShadow(crestCenter);world.add(crestCenter);
   for(const side of [-1,1]){
-    const scroll=new THREE.Mesh(new THREE.TorusGeometry(.22,.038,8,28,Math.PI*1.3),gateGoldFinish);
+    const scroll=new THREE.Mesh(new THREE.TorusGeometry(.22,.038,8,28,Math.PI*1.3),fenceGold);
     scroll.position.set(side*.34,crestY-.08,crestZ+.06);scroll.rotation.z=side<0?Math.PI*.10:Math.PI*.90;fenceNoShadow(scroll);world.add(scroll);
-    const leaf=new THREE.Mesh(new THREE.ConeGeometry(.075,.22,7),gateGoldLightFinish);
+    const leaf=new THREE.Mesh(new THREE.ConeGeometry(.075,.22,7),fenceGoldLight);
     leaf.position.set(side*.48,crestY+.19,crestZ+.04);leaf.rotation.z=-side*.55;fenceNoShadow(leaf);world.add(leaf);
   }
   // Decorative entrance arch is built above; continue with natural ground-cover details.
  // Внешний декоративный лес по обеим сторонам бокового забора.
  // Деревья стоят снаружи периметра, не перекрывают проходы и не меняют геометрию двора.
  const gwForest=new THREE.Group();gwForest.name='green-world-perimeter-forest';world.add(gwForest);
- window.GREEN_WORLD_TREE_FOREST=gwForest;
  // Детальные процедурные карты коры, хвои и лепестков — без внешних файлов и загрузок.
  function gwMakeTreeTexture(kind){
    // Текстуры деревьев создаются в 1024x1024: вся площадь холста заполняется деталями.
-   const size=mobile?256:1024,c=document.createElement('canvas');c.width=size;c.height=size;
+   const size=1024,c=document.createElement('canvas');c.width=size;c.height=size;
    const q=c.getContext('2d');
    if(kind==='bark'){
      q.fillStyle='#765039';q.fillRect(0,0,size,size);
-     for(let i=0;i<(mobile?700:5200);i++){
+     for(let i=0;i<5200;i++){
        const x=(i*173)%size,y=(i*293)%size,w=1+(i%5),h=12+(i*37)%115;
        q.fillStyle=i%3===0?'rgba(35,20,12,.25)':'rgba(205,157,105,.13)';q.fillRect(x,y,w,h);
      }
-     for(let i=0;i<(mobile?24:112);i++){
+     for(let i=0;i<112;i++){
        const x=(i*137)%size;q.strokeStyle='rgba(30,18,12,.22)';q.lineWidth=1+(i%3);
        q.beginPath();q.moveTo(x,0);q.lineTo(x+(i%5-2)*11,size);q.stroke();
      }
      // Мелкие сучки и годичные неровности делают кору менее плоской.
-     for(let i=0;i<(mobile?36:180);i++){
+     for(let i=0;i<180;i++){
        const x=(i*137+53)%size,y=(i*211+97)%size,r=2+(i%5);
        q.strokeStyle='rgba(38,22,13,.22)';q.lineWidth=1;
        q.beginPath();q.ellipse(x,y,r*1.7,r,((i%9)-4)*.12,0,Math.PI*2);q.stroke();
        q.strokeStyle='rgba(218,169,119,.18)';q.beginPath();q.moveTo(x-r,y);q.lineTo(x+r,y);q.stroke();
      }
      // Тонкие продольные волокна коры подчёркивают направление роста ствола.
-     for(let i=0;i<(mobile?320:2100);i++){
+     for(let i=0;i<2100;i++){
        const x=(i*149+37)%size,y=(i*227+19)%size,len=18+(i*31)%94;
        q.strokeStyle=i%5===0?'rgba(226,180,132,.16)':'rgba(39,23,14,.10)';
        q.lineWidth=.45+(i%4)*.28;q.beginPath();q.moveTo(x,y);
@@ -1535,21 +1274,21 @@ function makeWorldDecor(){
      }
    }else if(kind==='pine'){
      q.fillStyle='#286b48';q.fillRect(0,0,size,size);
-     for(let i=0;i<(mobile?2200:19000);i++){
+     for(let i=0;i<19000;i++){
        const x=(i*197)%size,y=(i*313)%size,len=2.5+(i%6)*1.25,ang=((i%9)-4)*.16;
        q.strokeStyle=i%3===0?'rgba(190,220,153,.30)':i%3===1?'rgba(112,164,91,.16)':'rgba(145,190,119,.24)';
        q.lineWidth=.7+(i%4)*.42;q.lineCap='round';q.beginPath();q.moveTo(x,y);
        q.quadraticCurveTo(x+Math.cos(ang)*len*.55-1.2,y+Math.sin(ang)*len*.55-1.1,x+Math.cos(ang)*len,y+Math.sin(ang)*len);q.stroke();
      }
      // Направленные группы иголок добавляют хвое тонкую объёмную фактуру.
-     for(let i=0;i<(mobile?260:1800);i++){
+     for(let i=0;i<1800;i++){
        const x=(i*157+31)%size,y=(i*239+71)%size;
        q.strokeStyle=i%3===0?'rgba(205,231,166,.34)':'rgba(112,164,91,.14)';
        q.lineWidth=.8+(i%3)*.35;q.beginPath();
        q.moveTo(x,y);q.lineTo(x+3+(i%5),y-2-(i%4));q.stroke();
      }
      // Мелкие иголки и редкие светлые кончики хвои создают тонкую неоднородную фактуру.
-     for(let i=0;i<(mobile?1400:12000);i++){
+     for(let i=0;i<12000;i++){
        const x=(i*283+17)%size,y=(i*421+29)%size,len=2+(i%8);
        q.strokeStyle=i%4===0?'rgba(204,229,163,.27)':'rgba(119,170,98,.13)';
        q.lineWidth=.55+(i%3)*.35;q.beginPath();q.moveTo(x,y);
@@ -1557,38 +1296,38 @@ function makeWorldDecor(){
      }
    }else{
      q.fillStyle='#f0a5c1';q.fillRect(0,0,size,size);
-     for(let i=0;i<(mobile?1300:10500);i++){
+     for(let i=0;i<10500;i++){
        const x=(i*181)%size,y=(i*277)%size;
        q.fillStyle=i%3===0?'rgba(255,239,245,.55)':i%3===1?'rgba(173,67,119,.20)':'rgba(255,255,255,.25)';
        q.beginPath();q.arc(x,y,1+(i%4),0,Math.PI*2);q.fill();
      }
      // Лепестки разного направления дают цветочной кроне более живую фактуру.
-     for(let i=0;i<(mobile?180:1200);i++){
+     for(let i=0;i<1200;i++){
        const x=(i*163+19)%size,y=(i*251+43)%size;
        q.fillStyle=i%3===0?'rgba(255,248,251,.42)':'rgba(177,69,117,.16)';
        q.beginPath();q.ellipse(x,y,2+(i%4),4+(i%5),(i%11)*.27,0,Math.PI*2);q.fill();
      }
      // Тонкие прожилки и мягкие переходы оттенка делают лепестки более натуральными.
-     for(let i=0;i<(mobile?360:2600);i++){
+     for(let i=0;i<2600;i++){
        const x=(i*173+47)%size,y=(i*251+83)%size,len=5+(i*17)%19,side=i%2?1:-1;
        q.strokeStyle=i%4===0?'rgba(255,250,252,.25)':'rgba(150,57,105,.095)';
        q.lineWidth=.45+(i%3)*.32;q.beginPath();q.moveTo(x,y);
        q.quadraticCurveTo(x+side*len*.28,y-len*.36,x+side*len*.62,y-len);q.stroke();
      }
-     for(let i=0;i<(mobile?140:950);i++){
+     for(let i=0;i<950;i++){
        const x=(i*197+61)%size,y=(i*307+29)%size,r=1.1+(i%4)*.55;
        q.fillStyle=i%3===0?'rgba(255,244,248,.28)':'rgba(206,105,148,.11)';
        q.beginPath();q.arc(x,y,r,0,Math.PI*2);q.fill();
      }
      // Мягкие мелкие лепестковые блики с разной прозрачностью.
-     for(let i=0;i<(mobile?480:3400);i++){
+     for(let i=0;i<3400;i++){
        const x=(i*239+13)%size,y=(i*157+31)%size,r=1+(i%3)*.65;
        q.fillStyle=i%2?'rgba(255,250,252,.32)':'rgba(190,82,132,.13)';
        q.beginPath();q.ellipse(x,y,r,r*1.6,(i%7-3)*.18,0,Math.PI*2);q.fill();
      }
    }
    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
-   t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(18,renderer.capabilities.getMaxAnisotropy(),mobile?2:16);
+   t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(18,renderer.capabilities.getMaxAnisotropy());
    t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;return t;
  }
  const gwBarkMap=gwMakeTreeTexture('bark');
@@ -1607,13 +1346,13 @@ function makeWorldDecor(){
    ctx.putImageData(pixels,0,0);
    const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.NoColorSpace;
    texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
-   texture.anisotropy=Math.min(18,renderer.capabilities.getMaxAnisotropy(),mobile?2:16);
+   texture.anisotropy=Math.min(18,renderer.capabilities.getMaxAnisotropy());
    texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;
    texture.generateMipmaps=true;texture.needsUpdate=true;return texture;
  }
- const gwBarkBump=mobile?null:gwMakeTreeBumpMap(gwBarkMap,1.22);
- const gwPineBump=mobile?null:gwMakeTreeBumpMap(gwPineMap,1.12);
- const gwBloomBump=mobile?null:gwMakeTreeBumpMap(gwBloomMap,1.08);
+ const gwBarkBump=gwMakeTreeBumpMap(gwBarkMap,1.22);
+ const gwPineBump=gwMakeTreeBumpMap(gwPineMap,1.12);
+ const gwBloomBump=gwMakeTreeBumpMap(gwBloomMap,1.08);
  // Касательные normal maps усиливают направленный свет на существующих поверхностях без изменения геометрии.
  function gwMakeTreeNormalMap(heightMap,strength=2.8){
    const source=heightMap.image,w=source.width,h=source.height,canvas=document.createElement('canvas');
@@ -1637,9 +1376,9 @@ function makeWorldDecor(){
    texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;
    texture.generateMipmaps=true;texture.needsUpdate=true;return texture;
  }
- const gwBarkNormal=mobile?null:gwMakeTreeNormalMap(gwBarkBump,2.4);
- const gwPineNormal=mobile?null:gwMakeTreeNormalMap(gwPineBump,2.0);
- const gwBloomNormal=mobile?null:gwMakeTreeNormalMap(gwBloomBump,1.7);
+ const gwBarkNormal=gwMakeTreeNormalMap(gwBarkBump,2.4);
+ const gwPineNormal=gwMakeTreeNormalMap(gwPineBump,2.0);
+ const gwBloomNormal=gwMakeTreeNormalMap(gwBloomBump,1.7);
 
  // Мягкая контактная тень под каждым деревом усиливает глубину леса без тяжёлых shadow maps.
  const gwShadowCanvas=document.createElement('canvas');gwShadowCanvas.width=gwShadowCanvas.height=256;
@@ -1657,29 +1396,29 @@ function makeWorldDecor(){
  }
 
  // Физически корректный мягкий блеск подчёркивает уже существующую микрофактуру коры и хвои.
- const gwBark=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwBarkMap,roughnessMap:gwBarkBump,normalMap:gwBarkNormal,normalScale:new THREE.Vector2(.28,.28),bumpMap:gwBarkBump,bumpScale:.016,roughness:.94,sheen:.09,sheenColor:0x9a7958,sheenRoughness:.96,clearcoat:.085,clearcoatRoughness:.86});
- const gwPineA=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.19,.19),bumpMap:gwPineBump,bumpScale:.007,roughness:.945,sheen:.3,sheenColor:0x8cae70,sheenRoughness:.9,clearcoat:.045,clearcoatRoughness:.94});
- const gwPineB=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.2,.2),bumpMap:gwPineBump,bumpScale:.008,roughness:.95,sheen:.34,sheenColor:0x9bbd7b,sheenRoughness:.92,clearcoat:.04,clearcoatRoughness:.95});
- const gwPineC=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.19,.19),bumpMap:gwPineBump,bumpScale:.007,roughness:.945,sheen:.31,sheenColor:0x829f68,sheenRoughness:.91,clearcoat:.04,clearcoatRoughness:.95});
+ const gwBark=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwBarkMap,roughnessMap:gwBarkBump,normalMap:gwBarkNormal,normalScale:new THREE.Vector2(.22,.22),bumpMap:gwBarkBump,bumpScale:.012,roughness:.96,clearcoat:.07,clearcoatRoughness:.88});
+ const gwPineA=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwPineBump,bumpScale:.006,roughness:.96,sheen:.24,sheenColor:0x8cae70,sheenRoughness:.92});
+ const gwPineB=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.17,.17),bumpMap:gwPineBump,bumpScale:.007,roughness:.97,sheen:.29,sheenColor:0x9bbd7b,sheenRoughness:.94});
+ const gwPineC=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.16,.16),bumpMap:gwPineBump,bumpScale:.006,roughness:.96,sheen:.26,sheenColor:0x829f68,sheenRoughness:.93});
  // Лепестки получают широкий матовый световой отклик, без пластикового блеска.
- const gwPinkA=new THREE.MeshPhysicalMaterial({color:0xffd9e7,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.16,.16),bumpMap:gwBloomBump,bumpScale:.010,roughness:.945,sheen:.4,sheenColor:0xffc7dc,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
- const gwPinkB=new THREE.MeshPhysicalMaterial({color:0xffb9d1,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.18,.18),bumpMap:gwBloomBump,bumpScale:.011,roughness:.945,sheen:.44,sheenColor:0xffd2e2,sheenRoughness:.97,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
- const gwPinkC=new THREE.MeshPhysicalMaterial({color:0xffedf3,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwBloomBump,bumpScale:.009,roughness:.95,sheen:.36,sheenColor:0xffdce8,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
- const gwAmberA=new THREE.MeshPhysicalMaterial({color:0xffb52e,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.16,.16),bumpMap:gwBloomBump,bumpScale:.010,roughness:.945,sheen:.4,sheenColor:0xffc45a,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
- const gwAmberB=new THREE.MeshPhysicalMaterial({color:0xe88718,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.18,.18),bumpMap:gwBloomBump,bumpScale:.011,roughness:.945,sheen:.44,sheenColor:0xffa52b,sheenRoughness:.97,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
- const gwAmberC=new THREE.MeshPhysicalMaterial({color:0xffd77b,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwBloomBump,bumpScale:.009,roughness:.95,sheen:.36,sheenColor:0xffe3a0,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
- const gwLeaf=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.16,.16),bumpMap:gwPineBump,bumpScale:.014,roughness:.965,sheen:.34,sheenColor:0xa4c985,sheenRoughness:.93,clearcoat:.025,clearcoatRoughness:.96});
- const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,mobile?12:72,mobile?6:32);
- const gwPineGeos=[new THREE.ConeGeometry(1,1,mobile?12:56,mobile?4:12),new THREE.ConeGeometry(.82,.92,mobile?12:56,mobile?4:12),new THREE.ConeGeometry(.63,.82,mobile?12:56,mobile?4:12)];
- const gwCrownGeo=new THREE.SphereGeometry(1,mobile?16:64,mobile?12:48);
+ const gwPinkA=new THREE.MeshPhysicalMaterial({color:0xffd9e7,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.13,.13),bumpMap:gwBloomBump,bumpScale:.008,roughness:.95,sheen:.38,sheenColor:0xffc7dc,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
+ const gwPinkB=new THREE.MeshPhysicalMaterial({color:0xffb9d1,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwBloomBump,bumpScale:.009,roughness:.95,sheen:.42,sheenColor:0xffd2e2,sheenRoughness:.97,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
+ const gwPinkC=new THREE.MeshPhysicalMaterial({color:0xffedf3,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.12,.12),bumpMap:gwBloomBump,bumpScale:.007,roughness:.96,sheen:.34,sheenColor:0xffdce8,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
+ const gwAmberA=new THREE.MeshPhysicalMaterial({color:0xffb52e,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.13,.13),bumpMap:gwBloomBump,bumpScale:.008,roughness:.95,sheen:.38,sheenColor:0xffc45a,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
+ const gwAmberB=new THREE.MeshPhysicalMaterial({color:0xe88718,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwBloomBump,bumpScale:.009,roughness:.95,sheen:.42,sheenColor:0xffa52b,sheenRoughness:.97,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
+ const gwAmberC=new THREE.MeshPhysicalMaterial({color:0xffd77b,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.12,.12),bumpMap:gwBloomBump,bumpScale:.007,roughness:.96,sheen:.34,sheenColor:0xffe3a0,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
+ const gwLeaf=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,bumpMap:gwPineBump,bumpScale:.012,roughness:.97,sheen:.3,sheenColor:0x9bbd7b,sheenRoughness:.94});
+ const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,72,32);
+ const gwPineGeos=[new THREE.ConeGeometry(1,1,56,12),new THREE.ConeGeometry(.82,.92,56,12),new THREE.ConeGeometry(.63,.82,56,12)];
+ const gwCrownGeo=new THREE.SphereGeometry(1,64,48);
  // Общие формы ветвей и корней переиспользуются всеми деревьями.
- const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,mobile?10:40,mobile?3:7);
- const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,mobile?8:36,mobile?3:8);
- const gwNeedleGeo=new THREE.ConeGeometry(.011,.115,mobile?5:7,mobile?1:2);
- const gwPetalGeo=new THREE.SphereGeometry(1,mobile?8:16,mobile?6:12);
- const gwRootGeo=new THREE.CylinderGeometry(.008,.095,1,mobile?8:28,mobile?3:8);
- const gwBlossomBranchGeo=new THREE.CylinderGeometry(.012,.082,1,mobile?10:48,mobile?4:16);
- const gwSproutGeo=new THREE.ConeGeometry(.075,.28,mobile?8:12,mobile?2:3);
+ const gwPineBoughGeo=new THREE.ConeGeometry(1,.22,40,7);
+ const gwPineTwigGeo=new THREE.ConeGeometry(1,.115,36,8);
+  const gwNeedleGeo=new THREE.ConeGeometry(.011,.115,7,2);
+  const gwPetalGeo=new THREE.SphereGeometry(1,16,12);
+ const gwRootGeo=new THREE.CylinderGeometry(.008,.095,1,28,8);
+ const gwBlossomBranchGeo=new THREE.CylinderGeometry(.012,.082,1,48,16);
+ const gwSproutGeo=new THREE.ConeGeometry(.075,.28,12,3);
  // Лёгкая органическая неровность уже существующих крон убирает идеально конусные и шарообразные контуры.
  function gwSoftenTreeSilhouette(geo,amount,mode='cone'){
    const p=geo.attributes.position;
@@ -1721,7 +1460,7 @@ function makeWorldDecor(){
    for(let k=0;k<tierCount;k++){
      const t=k/(tierCount-1);
      const irregular=1+.085*Math.sin(seed*1.7+k*2.13);
-     const width=(.292-t*.045)*irregular*(1+.045*Math.cos(k*3.1+seed));
+     const width=(.245-t*.038)*irregular*(1+.035*Math.cos(k*3.1+seed));
      const crown=new THREE.Mesh(gwPineGeos[(k+Math.floor(seed*3))%3],k%3===0?gwPineA:(k%3===1?gwPineB:gwPineC));
      crown.position.set(leanX+Math.sin(seed+k*1.43)*h*.014,h*(.19+k*(.69/(tierCount-1))),leanZ+Math.cos(seed+k*1.31)*h*.014);
      crown.scale.set(h*width,h*(.30-t*.028)*(1+.04*Math.sin(seed+k)),h*width*(.91+.09*Math.sin(seed+k)));
@@ -1729,15 +1468,15 @@ function makeWorldDecor(){
      g.add(crown);
    }
    // Короткие боковые лапы дают видимый многослойный контур хвои.
-   for(let k=0;k<(mobile?12:24);k++){
-     const a=seed+k*Math.PI*2/(mobile?12:24),level=k%(mobile?6:8);
-     const reach=h*(.125+(level%4)*.016),thickness=h*(.038+(level%3)*.007);
+   for(let k=0;k<24;k++){
+     const a=seed+k*Math.PI*2/24,level=k%8;
+     const reach=h*(.105+(level%4)*.014),thickness=h*(.034+(level%3)*.006);
      const bough=new THREE.Mesh(gwPineBoughGeo,k%4===0?gwPineC:(k%3===0?gwPineA:gwPineB));
      bough.position.set(Math.cos(a)*reach,h*(.225+level*.082),Math.sin(a)*reach);
      bough.scale.set(thickness,1+(k%3)*.16,thickness*(.88+(k%4)*.06));
      bough.rotation.z=Math.cos(a)*-.66;bough.rotation.x=Math.sin(a)*.66;
      bough.rotation.y=a;g.add(bough);
-     if(k%(mobile?3:2)===(mobile?0:0)){
+     if(k%2===0){
        const twig=new THREE.Mesh(gwPineTwigGeo,k%4===0?gwPineA:gwPineC);
        twig.position.set(Math.cos(a)*reach*1.58,h*(.245+level*.082),Math.sin(a)*reach*1.58);
        twig.scale.set(h*.026,1+(k%3)*.12,h*.026);
@@ -1745,13 +1484,13 @@ function makeWorldDecor(){
      }
    }
    // Корневые наплывы и короткие нижние ветви делают основание ели менее геометричным.
-   for(let k=0;k<(mobile?5:9);k++){
-     const a=seed+k*Math.PI*2/(mobile?5:9);
+   for(let k=0;k<9;k++){
+     const a=seed+k*Math.PI*2/9;
      const root=new THREE.Mesh(gwRootGeo,gwBark);
      root.position.set(Math.cos(a)*h*.085,h*.055,Math.sin(a)*h*.085);root.scale.y=h*.19;
      root.rotation.z=Math.cos(a)*-.72;root.rotation.x=Math.sin(a)*.72;g.add(root);
    }
-   g.rotation.y=seed*.19;g.rotation.x=Math.sin(seed*2.7)*.035;g.rotation.z=Math.cos(seed*1.9)*.025;g.scale.set((.91+.13*(.5+.5*Math.sin(seed*1.31)))*1.14, .91+.16*(.5+.5*Math.cos(seed*1.73)),(.91+.13*(.5+.5*Math.cos(seed*1.17)))*1.14);
+   g.rotation.y=seed*.19;g.scale.set(1+.045*Math.sin(seed*2),1+.035*Math.cos(seed),1+.045*Math.cos(seed*1.7));
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
  
@@ -1768,57 +1507,47 @@ function makeWorldDecor(){
     crownCore.scale.set(h*.285,h*.155,h*.265);
     g.add(crownCore);
    // Разветвлённая крона с открытыми промежутками между ветвями.
-   for(let k=0;k<(mobile?12:24);k++){
-     const a=seed+k*Math.PI*2/(mobile?12:24);
+   for(let k=0;k<24;k++){
+     const a=seed+k*Math.PI*2/24;
      const branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
      branch.position.set(Math.cos(a)*h*(.17+(k%3)*.025),h*(.46+(k%4)*.045),Math.sin(a)*h*(.17+(k%3)*.025));
       // Ветви удлинены внутрь к стволу: их внутренние концы входят в древесину, а не висят отдельно.
       branch.scale.y=h*(.42+(k%3)*.035);
      branch.rotation.z=Math.cos(a)*-.68;branch.rotation.x=Math.sin(a)*.68;g.add(branch);
    }
-   // Соцветия используют InstancedMesh: внешний вид и палитра сохранены, но сотни отдельных draw calls заменены тремя пакетами.
+   // Крона цветущего дерева собрана из разнокалиберных групп с естественной асимметрией.
    const petals=palette==='amber'?[gwAmberA,gwAmberB,gwAmberC,gwAmberB,gwAmberA,gwAmberC,gwAmberB]:[gwPinkA,gwPinkB,gwPinkC,gwPinkB,gwPinkA,gwPinkC,gwPinkB];
    const bloomCount=68+Math.abs(Math.floor(seed*7))%15;
-   const bloomMeshes=petals.slice(0,3).map(material=>new THREE.InstancedMesh(gwCrownGeo,material,bloomCount+56));
-   const bloomCounts=[0,0,0],bloomDummy=new THREE.Object3D();
-   const addBloomInstance=(materialIndex,x,y,z,sx,sy,sz,rotation)=>{
-     const mesh=bloomMeshes[materialIndex],index=bloomCounts[materialIndex]++;
-     bloomDummy.position.set(x,y,z);bloomDummy.scale.set(sx,sy,sz);bloomDummy.rotation.set(0,rotation,0);bloomDummy.updateMatrix();
-     mesh.setMatrixAt(index,bloomDummy.matrix);
-   };
    for(let k=0;k<bloomCount;k++){
      const a=k*2.399963+seed;
      const ring=k<Math.floor(bloomCount*.56)?1:(k<Math.floor(bloomCount*.86)?2:0);
      const irregular=.78+.16*Math.sin(a*3.1+seed)+.09*Math.cos(a*5.3-seed*.7);
      const rad=(ring===1?h*(.19+(k%4)*.024):ring===2?h*(.115+(k%3)*.02):h*.035)*irregular;
+     const bloom=new THREE.Mesh(gwCrownGeo,petals[(k*5+Math.floor(seed*3))%petals.length]);
      const crownY=.625+(k%5)*.027+.035*Math.sin(a*2.2+seed)+.018*Math.cos(a*4.1);
+     bloom.position.set(Math.cos(a)*rad*.9,h*crownY,Math.sin(a)*rad*.9);
      const size=h*(ring===1?.116:(ring===2?.103:.132))*(.84+(k%4)*.075)*(.91+.09*Math.sin(a*3+seed));
-     const materialIndex=petals.indexOf(petals[(k*5+Math.floor(seed*3))%petals.length]);
-     addBloomInstance(materialIndex,Math.cos(a)*rad*.9,h*crownY,Math.sin(a)*rad*.9,
-       size*(.9+(k%3)*.19),size*(.68+(k%2)*.16),size*(.9+(k%4)*.07),a);
+     bloom.scale.set(size*(.9+(k%3)*.19),size*(.68+(k%2)*.16),size*(.9+(k%4)*.07));
+     g.add(bloom);
    }
-   // Крайние мелкие соцветия также пакетируются без потери их расстановки.
-   for(let k=0;k<56;k++){
-     const a=seed+k*2.399963;
-     const edgeRadius=h*(.245+.035*Math.sin(a*2.8+seed)+.018*Math.cos(a*4.7));
-     const materialIndex=palette==='amber'?(k%3===0?1:0):(k%3===0?1:0);
-     addBloomInstance(materialIndex,Math.cos(a)*edgeRadius,h*(.665+(k%4)*.029+.025*Math.sin(a*2.1+seed)),Math.sin(a)*edgeRadius,
-       h*(.064+(k%3)*.01),h*(.045+(k%2)*.009),h*(.066+(k%4)*.007),a);
-   }
-   for(let i=0;i<bloomMeshes.length;i++){
-     bloomMeshes[i].count=bloomCounts[i];
-     if(bloomCounts[i]){bloomMeshes[i].instanceMatrix.needsUpdate=true;bloomMeshes[i].castShadow=false;bloomMeshes[i].receiveShadow=true;g.add(bloomMeshes[i]);}
-   }
-   // Мелкие лепестки остаются отдельной инстансированной геометрией; на телефонах их меньше.
-   const petalCount=mobile?96:320,petalsMesh=new THREE.InstancedMesh(gwPetalGeo,palette==='amber'?gwAmberC:gwPinkC,petalCount),petalDummy=new THREE.Object3D();
+   // Отдельные лепестки поверх цветочных масс создают мелкий живой силуэт кроны.
+   const petalCount=320,petalsMesh=new THREE.InstancedMesh(gwPetalGeo,palette==='amber'?gwAmberC:gwPinkC,petalCount),petalDummy=new THREE.Object3D();
    for(let n=0;n<petalCount;n++){
      const a=seed+n*2.399963,ring=n%3,rad=h*(.145+ring*.078+(n%5)*.009)*(.88+.12*Math.sin(a*2.7));
      petalDummy.position.set(Math.cos(a)*rad*.9,h*(.615+(n%11)*.018+.025*Math.sin(a*2.4)),Math.sin(a)*rad*.9);
      const ps=h*(.018+(n%4)*.003);petalDummy.scale.set(ps*.72,ps*1.35,ps*.34);
      petalDummy.rotation.set(.25*Math.sin(a),a,.35*Math.cos(a));petalDummy.updateMatrix();petalsMesh.setMatrixAt(n,petalDummy.matrix);
-     const shade=.88+(n%7)*.025;petalsMesh.setColorAt(n,new THREE.Color(shade,shade*(.97+(n%3)*.015),shade*(.94+(n%5)*.012)));
+      const shade=.88+(n%7)*.025;petalsMesh.setColorAt(n,new THREE.Color(shade,shade*(.97+(n%3)*.015),shade*(.94+(n%5)*.012)));
    }
    petalsMesh.instanceMatrix.needsUpdate=true;if(petalsMesh.instanceColor)petalsMesh.instanceColor.needsUpdate=true;g.add(petalsMesh);
+   // Несколько мелких соцветий по внешнему краю разбивают ровный контур кроны.
+   for(let k=0;k<56;k++){
+     const a=seed+k*2.399963;
+     const petal=new THREE.Mesh(gwCrownGeo,palette==='amber'?(k%3===0?gwAmberB:gwAmberA):(k%3===0?gwPinkB:gwPinkA));
+     const edgeRadius=h*(.245+.035*Math.sin(a*2.8+seed)+.018*Math.cos(a*4.7));
+     petal.position.set(Math.cos(a)*edgeRadius,h*(.665+(k%4)*.029+.025*Math.sin(a*2.1+seed)),Math.sin(a)*edgeRadius);
+     petal.scale.set(h*(.064+(k%3)*.01),h*(.045+(k%2)*.009),h*(.066+(k%4)*.007));g.add(petal);
+   }
    // Корневая шейка плавно расширяет ствол у самой земли; выступающие наружу корни удалены.
     const rootFlare=new THREE.Mesh(gwTrunkGeo,gwBark);
     rootFlare.position.y=h*.085;
@@ -1827,104 +1556,77 @@ function makeWorldDecor(){
    g.rotation.y=seed*.13;g.scale.set(1+.05*Math.sin(seed),1+.035*Math.cos(seed*1.4),1+.05*Math.cos(seed));
    g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
  }
+ // Возвращены все семь ранее утверждённых елей на их исходные координаты.
+ // Четыре ели в центральном заднем ряду и три справа; магазин и завод не восстанавливаются.
+ for(const [x,z,h,seed] of [
+   [-1.25,-10.0,5.2,14],
+   [0.25,-10.0,5.2,8],
+   [1.75,-10.0,5.5,5],
+   [3.25,-10.0,5.2,11],
+   [16.0,-10.0,5.2,21],
+   [17.5,-10.0,5.5,25],
+   [19.0,-10.0,5.2,28]
+ ])gwAddPine(x,z,h,seed);
+ // Лесной пояс у гор распределён свободно: деревья смещены и по ширине, и по глубине,
+ // поэтому кроны не складываются в две ровные горизонтальные линии.
+ const mountainForestRows=[-35.2,-41.0];
+ for(let row=0;row<mountainForestRows.length;row++){
+   const baseZ=mountainForestRows[row];
+   for(let i=0;i<17;i++){
+     const wave=Math.sin(i*1.71+row*1.9),cross=Math.cos(i*1.13+row*.8);
+     const x=-44+i*5.5+(row===0?0:2.25)+wave*1.15;
+     const z=baseZ+cross*1.65+(i%3-1)*.48;
+     const moveRightBloom=(row===0&&i===16);
+     const treeX=moveRightBloom?12:x;
+     const treeZ=moveRightBloom?-32.5:z;
+     const localV=-(treeZ+36.5);
+     const t=THREE.MathUtils.clamp((localV+15.5)/31,0,1);
+     const baseY=.08+3.0*THREE.MathUtils.smoothstep(t,.02,.98);
+     const seed=i*.73+row*2.1;
+     // Старые фоновые розовые деревья не используются.
+
+   }
+ }
+ // Боковые хвойные деревья разнесены дальше друг от друга, чтобы кроны не слипались.
+ // Розовые деревья вынесены отдельно за боковые секции ограды на уровень передней дороги.
+ const sideTreeRows=[17,8,-1,-10,-19,-27];
+ for(const side of [-1,1]){
+   sideTreeRows.forEach((baseZ,i)=>{
+     const x=side*(21.4+(i%2)*2.8+Math.sin(i*1.8)*.55);
+     const z=baseZ+Math.cos(i*1.37)*1.0+(i%2?1.1:-.7);
+     const h=4.85+(i%3)*.42;
+
+   });
+   // Два розовых дерева стоят снаружи бокового забора, рядом с уровнем дороги.
+   // Два розовых дерева у бокового забора удалены по запросу.
+ }
   // Новые розовые деревья расставлены СНАРУЖИ периметра ограды.
   // Передняя сторона, боковые стороны и задняя сторона; въезд и дорожки свободны.
   for(const [x,z,h,seed] of [
     [-10.8,17.4,4.35,12],[10.9,17.8,4.5,18],[-19.0,8.2,4.3,23],[-19.4,-7.0,4.55,29],
-    [20.8,6.5,4.4,34],[20.2,-11.5,4.5,41],[-46,-74,4.4,47],[0,-74,4.55,53],[46,-74,4.35,59]
+    [20.8,6.5,4.4,34],[20.2,-11.5,4.5,41],[-11.5,-47.0,4.4,47],[0.8,-50.0,4.55,53],[12.0,-47.9,4.35,59]
   ])gwAddBlossom(x,z,h,seed,.08);
   // Три янтарных дерева разбросаны в разных точках за задним ограждением.
-  // Небольшой сдвиг назад разводит их кроны с цветущим рядом на Z=-57.
-  for(const [x,z,h,seed] of [[-46,-83,4.45,67],[0,-83,4.55,73],[46,-83,4.4,81]])gwAddBlossom(x,z,h,seed,.08,'amber');
-  // GREEN WORLD — смешанный лес по утверждённому эталону.
- // Хвойные деревья образуют дальний высокий фон; лиственные и цветущие стоят впереди,
- // в свободной шахматной расстановке. Все деревья остаются за задней оградой.
- function gwAddDeciduous(x,z,h,seed=0){
-   const g=new THREE.Group();g.position.set(x,.055,z);gwForest.add(g);
-   gwAddTreeContactShadow(g,h,1.08);
-   const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
-   trunk.position.y=h*.34;trunk.scale.set(.68,h*.69,.68);g.add(trunk);
-   // Несколько расходящихся ветвей поддерживают широкую естественную крону.
-   for(let k=0;k<(mobile?5:7);k++){
-     const a=seed+k*Math.PI*2/(mobile?5:7),branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
-     branch.position.set(Math.cos(a)*h*.105,h*(.48+(k%3)*.035),Math.sin(a)*h*.105);
-     branch.scale.y=h*(.28+(k%3)*.025);
-     branch.rotation.z=Math.cos(a)*-.62;branch.rotation.x=Math.sin(a)*.62;g.add(branch);
-   }
-   // Крона из отдельных округлых групп разного размера, с просветами между ними.
-   const clusters=mobile?8:13;
-   for(let k=0;k<clusters;k++){
-     const a=seed+k*2.399963;
-     const ring=k<8?.19:.09,rad=h*ring*(.88+.12*Math.sin(a*2.7));
-     const crown=new THREE.Mesh(gwCrownGeo,k%4===0?gwPineC:gwLeaf);
-     crown.position.set(Math.cos(a)*rad,h*(.68+(k%4)*.035),Math.sin(a)*rad);
-     const size=h*(.105+(k%4)*.012);
-     crown.scale.set(size*(1.05+.12*Math.sin(a)),size*(.72+(k%3)*.08),size*(.98+.1*Math.cos(a)));
-     g.add(crown);
-   }
-   const top=new THREE.Mesh(gwCrownGeo,gwLeaf);
-   top.position.y=h*.79;top.scale.set(h*.18,h*.14,h*.17);g.add(top);
-   g.rotation.y=seed*.17;
-   g.scale.set(1+.045*Math.sin(seed),.96+.06*Math.cos(seed*1.3),1+.045*Math.cos(seed));
-   g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
+  for(const [x,z,h,seed] of [[-24.0,-43.5,4.45,67],[7.5,-56.0,4.55,73],[25.0,-46.5,4.4,81]])gwAddBlossom(x,z,h,seed,.08,'amber');
+ // Редкий дополнительный ряд перенесён глубже к лесному фону, чтобы заполнить дальние просветы,
+ // не создавать третью тесную полосу позади основных деревьев.
+ for(let i=0;i<13;i++){
+   const x=-39+i*6.5+(i%2?1.35:-.65)+Math.sin(i*1.6)*.5;
+   const z=-35.0+(i%2)*3.0+Math.cos(i*1.31)*.7;
+   const h=4.55+(i%4)*.32;
+   
  }
- // Дальний ярус елей: редкие высокие силуэты, а не сплошная стена.
- const gwPineBack=[
-   [-42,-98,6.8,301],[-31.5,-98,7.4,307],[-21,-98,6.9,313],[-10.5,-98,7.6,319],
-   [0,-98,6.7,325],[10.5,-98,7.5,331],[21,-98,6.9,337],[31.5,-98,7.6,343],[42,-98,6.4,349],
-   [-39,-108,6.9,355],[-28,-108,7.2,361],[-17,-108,6.1,367],[-6,-108,6.4,373],
-   [6,-108,6.0,379],[17,-108,6.5,385],[28,-108,6.1,391],[39,-108,6.4,397]
- ];
- for(const [x,z,h,seed] of gwPineBack)gwAddPine(x,z,h,seed,.055);
- // Средний ярус широколиственных деревьев — заметно шире и светлее елей.
- const gwLeafBack=[
-   [-40,-69,6.0,411],[-29,-69,6.5,417],[-18,-69,6.2,423],[-7,-69,6.6,429],
-   [7,-69,6.1,435],[18,-69,6.7,441],[29,-69,6.2,447],[40,-69,6.6,453],
-   [-35,-79,6.0,459],[-21,-79,5.8,465],[-7,-79,6.1,471],
-   [7,-79,6.0,477],[21,-79,6.2,483],[35,-79,5.9,489]
- ];
- for(const [x,z,h,seed] of gwLeafBack)gwAddDeciduous(x,z,h,seed);
- // Цветущие деревья вплетены в лиственный ряд и не образуют отдельную ровную полосу.
- for(const [x,z,h,seed,palette] of [
-   [-39,-88,5.8,501,'pink'],[-26,-88,6.0,507,'amber'],
-   [-13,-88,5.9,513,'pink'],[0,-88,6.1,519,'pink'],
-   [13,-88,5.6,525,'amber'],[26,-88,5.8,531,'pink'],[39,-88,5.7,537,'amber']
- ])gwAddBlossom(x,z,h,seed,.055,palette);
- // Группы кустарников создаются непосредственно при сборке мира после основных объектов.
- // Кусты стоят вдоль боковых границ и не занимают центральный газон.
- const shrubLayout=[
-  [-13.55,-15.0,0],[13.55,-15.0,1],
-  [-13.55,-5.0,1],[13.55,-5.0,2],
-  [-13.55,5.8,2],[13.55,5.8,0]
- ];
- for(const [x,z,v] of shrubLayout)makeShrubCluster(x,z,v);
- window.GREEN_WORLD_SHRUB_DIAGNOSTIC={created:shrubLayout.length,positions:shrubLayout.map(([x,z])=>({x,z}))};
- // Деревья возвращены в задний фон после перестройки пруда и периметра.
- // Сохранены виды, размеры и seed; для задних рядов изменены только координаты.
- for(const tree of gwForest.children)tree.visible=true;
- window.GREEN_WORLD_REAR_TREES_STATE={visible:true,hiddenCount:0,restoreReady:true,rule:'all rear rows repositioned behind pond'};
-  // Фактические мировые габариты каждой группы деревьев после построения всей геометрии.
-  // В расчёт входят кроны, ветви и стволы; никаких объектов не перемещаем.
-  gwForest.updateMatrixWorld(true);
-  const gwTreeBounds=gwForest.children.map((tree,index)=>{
-    const box=new THREE.Box3().setFromObject(tree);
-    return {index,center:{x:(box.min.x+box.max.x)/2,z:(box.min.z+box.max.z)/2},
-      min:{x:box.min.x,z:box.min.z},max:{x:box.max.x,z:box.max.z},
-      width:box.max.x-box.min.x,depth:box.max.z-box.min.z,height:box.max.y-box.min.y};
-  });
-  const gwTreeOverlaps=[];
-  for(let i=0;i<gwTreeBounds.length;i++)for(let j=i+1;j<gwTreeBounds.length;j++){
-    const a=gwTreeBounds[i],b=gwTreeBounds[j];
-    const overlapX=Math.min(a.max.x,b.max.x)-Math.max(a.min.x,b.min.x);
-    const overlapZ=Math.min(a.max.z,b.max.z)-Math.max(a.min.z,b.min.z);
-    if(overlapX>.35&&overlapZ>.35)gwTreeOverlaps.push({a:a.index,b:b.index,overlapX,overlapZ});
-  }
-  window.GREEN_WORLD_TREE_BOUNDS_DIAGNOSTIC={
-    count:gwTreeBounds.length,trees:gwTreeBounds,
-    crownFootprintOverlaps:gwTreeOverlaps,
-    note:'AABB-граничные объёмы полных деревьев; перекрытия показывают возможное пересечение силуэтов, не доказывая визуальный дефект.'
-  };
- // Существующие передние розовые деревья у боковых участков и входа сохранены.
+ // Задняя часть периметра тоже имеет глубину: деревья чередуются между двумя
+ // диагонально смещёнными дорожками, а не образуют одну сплошную стену.
+ for(let i=0;i<15;i++){
+   const lane=i%2;
+   const x=-27+i*3.8+(lane?1.35:-.7)+Math.sin(i*1.4)*.85;
+   const z=-26.0+lane*3.0+Math.cos(i*1.67)*1.25;
+   const h=5.0+(i%4)*.4;
+   // Старые фоновые розовые деревья не используются.
+
+ }
+  // Удалены мелкие светлые камешки за правой стороной ограды, чтобы убрать тонкую светлую отметку.
 }
 let riverWaterTexture=null;
 let riverSurfaceMesh=null;
@@ -1940,8 +1642,7 @@ function makeWorldLandscape(){
  // A soft vertex-coloured sky dome replaces the flat horizon with a natural blue-to-haze gradient.
  const skyGeo=new THREE.SphereGeometry(148,40,24);
  const skyColors=[],skyPos=skyGeo.attributes.position;
- // Более естественный голубой градиент: верх неба чуть насыщеннее, средняя зона чище, переход к горизонту мягче.
- const skyTop=new THREE.Color(0x397fb5),skyMid=new THREE.Color(0x82c3e8),skyHorizon=new THREE.Color(0xcfe6e2);
+ const skyTop=new THREE.Color(0x4388bd),skyMid=new THREE.Color(0x91c9e8),skyHorizon=new THREE.Color(0xd8e5e0);
  for(let i=0;i<skyPos.count;i++){
    const t=THREE.MathUtils.clamp((skyPos.getY(i)/148+.12)/1.05,0,1);
    const c=t<.58?skyHorizon.clone().lerp(skyMid,t/.58):skyMid.clone().lerp(skyTop,(t-.58)/.42);
@@ -1950,36 +1651,12 @@ function makeWorldLandscape(){
  skyGeo.setAttribute('color',new THREE.Float32BufferAttribute(skyColors,3));
  const skyDome=new THREE.Mesh(skyGeo,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,depthWrite:false,fog:false}));
  skyDome.position.y=10;skyDome.renderOrder=-2;world.add(skyDome);
- // Горные хребты, скальные выступы и водопады полностью удалены.
- // Небо плавно переходит к зелёной линии дальнего леса.
  // Удалены дальние облачные полосы вместе с горным фоном.
  // Fine high-altitude cirrus wisps add depth to the sky while staying translucent.
- const cirrusMat=new THREE.MeshBasicMaterial({color:0xf4f7f2,transparent:true,opacity:.105,depthWrite:false,fog:false});
+ const cirrusMat=new THREE.MeshBasicMaterial({color:0xf4f7f2,transparent:true,opacity:.085,depthWrite:false,fog:false});
  for(const [x,y,z,sx,sy,sz,rz] of [[-27,29,-53,8,.16,.62,-.08],[-8,31,-61,10,.13,.48,.035],[12,28,-57,7,.14,.55,-.045],[29,26,-49,6,.12,.42,.07]]){
    const wisp=new THREE.Mesh(new THREE.SphereGeometry(1,20,8),cirrusMat);
    wisp.position.set(x,y,z);wisp.scale.set(sx,sy,sz);wisp.rotation.z=rz;world.add(wisp);
- }
- // Объёмные облачные банки: несколько мягко перекрывающихся слоёв вместо отдельных овальных пятен.
- // Более читаемый объём облаков: усиливаем мягкие полутона и светлые верхние грани, не меняя небо и линию горизонта.
- const gwCloudMat=new THREE.MeshBasicMaterial({color:0xf7ffff,transparent:true,opacity:.24,depthWrite:false,fog:false});
- const gwCloudHighlight=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.17,depthWrite:false,fog:false});
- const gwCloudBanks=[
-   {x:-30,y:30,z:-59,s:1.0},{x:-7,y:33,z:-63,s:.92},
-   {x:19,y:31,z:-60,s:1.08},{x:39,y:27,z:-55,s:.82},
-   {x:-43,y:24,z:-50,s:.72}
- ];
- for(const bank of gwCloudBanks){
-   const group=new THREE.Group();group.position.set(bank.x,bank.y,bank.z);group.scale.setScalar(bank.s);world.add(group);
-   const lobes=[
-     [-5.2,0,0,4.9,3.0,3.5],[-1.8,1.15,-.25,5.2,4.0,4.0],
-     [2.5,.45,.15,4.9,3.55,3.7],[6.1,-.15,.35,3.9,2.7,3.1],
-     [-.3,-.8,-1.0,6.8,2.0,4.1]
-   ];
-   for(let i=0;i<lobes.length;i++){
-     const [x,y,z,sx,sy,sz]=lobes[i];
-     const cloud=new THREE.Mesh(new THREE.SphereGeometry(1,24,16),i===1||i===2?gwCloudHighlight:gwCloudMat);
-     cloud.position.set(x,y,z);cloud.scale.set(sx,sy,sz);cloud.renderOrder=-1;group.add(cloud);
-   }
  }
  const water=new THREE.MeshPhysicalMaterial({color:0x4aa9c5,roughness:.19,metalness:.055,clearcoat:.48,clearcoatRoughness:.2,reflectivity:.68,transparent:true,opacity:.84});
  // Едва заметная направленная фактура речной поверхности — без изменения русла и берегов.
@@ -2085,234 +1762,27 @@ riverSurfaceMesh.castShadow=false;
 riverSurfaceMesh.receiveShadow=true;
 riverSurfaceMesh.frustumCulled=false;
 world.add(riverSurfaceMesh);
-
-// Задний водоём: широкая архитектурная чаша с плавными берегами и полноценным полукруглым правым завершением.
-const rearPondMaterial=new THREE.MeshPhysicalMaterial({
- color:0x42aabd,roughness:.2,metalness:.035,clearcoat:.72,clearcoatRoughness:.16,
- transparent:true,opacity:.91,side:THREE.DoubleSide
-});
-const makeRearPondContour=()=>{
- const shape=new THREE.Shape();
- // Новая широкая чаша: 64 единицы по ширине и 16 по глубине.
- // Берега плавные; правое завершение — точная полуокружность радиусом 8.
- const r=8,cx=24,k=.5522847498;
- shape.moveTo(-32,0);
- shape.bezierCurveTo(-32,4.6,-28.5,7.25,-24,7.65);
- shape.bezierCurveTo(-19.5,8,-15.5,7.45,-11.5,7.7);
- shape.bezierCurveTo(-7.5,7.95,-3.8,7.55,0,7.8);
- shape.bezierCurveTo(4,8,7.5,7.5,11.5,7.72);
- shape.bezierCurveTo(16,7.95,20,7.65,cx,r);
- shape.bezierCurveTo(cx+k*r,r,32,k*r,32,0);
- shape.bezierCurveTo(32,-k*r,cx+k*r,-r,cx,-r);
- shape.bezierCurveTo(20,-7.65,16,-7.95,11.5,-7.72);
- shape.bezierCurveTo(7.5,-7.5,4,-8,0,-7.8);
- shape.bezierCurveTo(-3.8,-7.55,-7.5,-7.95,-11.5,-7.7);
- shape.bezierCurveTo(-15.5,-7.45,-19.5,-8,-24,-7.65);
- shape.bezierCurveTo(-28.5,-7.25,-32,-4.6,-32,0);
- shape.closePath();
- return shape;
-};
-const rearPondCenterZ=-56.0;
-const rearPondShape=makeRearPondContour();
-window.GREEN_WORLD_REAR_POND_SHAPE=rearPondShape; // Общая ссылка для внешней диагностики камеры.
-const rearPondGeometry=new THREE.ShapeGeometry(rearPondShape,32);
-const rearPond=new THREE.Mesh(rearPondGeometry,rearPondMaterial);
-rearPond.name='GREEN_WORLD_Rear_Pond';
-rearPond.rotation.x=-Math.PI/2;
-rearPond.position.set(0,.115,rearPondCenterZ);
-rearPond.receiveShadow=true;rearPond.castShadow=false;rearPond.frustumCulled=false;
-rearPond.visible=true; // Задний пруд является частью сцены; показываем его перед лесным фоном.
-world.add(rearPond);
-// Двухуровневая каменная архитектура берега: широкое основание и тонкий верхний кант.
-const rearBankMat=M.stone2.clone();
-rearBankMat.color=new THREE.Color(0xc8b995);rearBankMat.roughness=.92;rearBankMat.needsUpdate=true;
-const rearBankTopMat=M.stone2.clone();
-rearBankTopMat.color=new THREE.Color(0xe0d1b2);rearBankTopMat.roughness=.84;rearBankTopMat.needsUpdate=true;
-const rearBankOutline=rearPondShape.getPoints(240);
-if(rearBankOutline.length>2&&rearBankOutline[0].distanceToSquared(rearBankOutline[rearBankOutline.length-1])<1e-8)rearBankOutline.pop();
-const rearBankCurveAt=y=>new THREE.CatmullRomCurve3(rearBankOutline.map(p=>new THREE.Vector3(p.x,y,rearPondCenterZ-p.y)),true,'centripetal');
-const rearBank=new THREE.Mesh(new THREE.TubeGeometry(rearBankCurveAt(.20),480,.34,10,true),rearBankMat);
-rearBank.name='GREEN_WORLD_Rear_Pond_Bank';
-rearBank.castShadow=false;rearBank.receiveShadow=true;rearBank.visible=true;world.add(rearBank);
-const rearBankTop=new THREE.Mesh(new THREE.TubeGeometry(rearBankCurveAt(.34),480,.105,8,true),rearBankTopMat);
-rearBankTop.name='GREEN_WORLD_Rear_Pond_Upper_Stone_Rim';
-rearBankTop.castShadow=false;rearBankTop.receiveShadow=true;rearBankTop.visible=true;world.add(rearBankTop);
-// Три невысоких фонтана, симметрично распределённых по заднему водоёму.
-const fountainStone= M.stone2.clone();fountainStone.color=new THREE.Color(0xd9c7a4);fountainStone.roughness=.88;fountainStone.needsUpdate=true;
-const fountainWater=new THREE.MeshPhysicalMaterial({color:0x9ce8f1,roughness:.12,metalness:.04,transparent:true,opacity:.58,clearcoat:.9,side:THREE.DoubleSide});
-window.GREEN_WORLD_FOUNTAIN_VISIBILITY_OBJECTS=[];
-for(const x of [-22,0,22]){
- const basin=new THREE.Mesh(new THREE.CylinderGeometry(.82,.94,.34,32),fountainStone);
- basin.position.set(x,.34,rearPondCenterZ);basin.castShadow=true;basin.receiveShadow=true;basin.visible=true;world.add(basin);
- const waterDisk=new THREE.Mesh(new THREE.CylinderGeometry(.69,.69,.035,32),fountainWater);
- waterDisk.position.set(x,.53,rearPondCenterZ);waterDisk.visible=true;world.add(waterDisk);
- const jet=new THREE.Mesh(new THREE.CylinderGeometry(.045,.12,1.55,12),fountainWater);
- jet.position.set(x,1.31,rearPondCenterZ);jet.visible=true;world.add(jet);
- const crown=new THREE.Mesh(new THREE.SphereGeometry(.19,16,10),fountainWater);
- crown.position.set(x,2.12,rearPondCenterZ);crown.scale.set(.8,1.35,.8);crown.visible=true;world.add(crown);
- if(x===0)window.GREEN_WORLD_FOUNTAIN_VISIBILITY_OBJECTS.push({name:'basin',object:basin},{name:'water',object:waterDisk},{name:'jet',object:jet},{name:'crown',object:crown});
-}
-// Беседка на правом берегу заднего водоёма, вне центральной оси и проходов.
-const gazebo=new THREE.Group();gazebo.name='GREEN_WORLD_Rear_Gazebo';
-window.GREEN_WORLD_GAZEBO_OBJECT=gazebo;
-gazebo.position.set(28.0,0,rearPondCenterZ-2.5);gazebo.visible=false;world.add(gazebo);
-const gazeboStone=M.stone2.clone();gazeboStone.color=new THREE.Color(0xd8c6a2);gazeboStone.roughness=.88;gazeboStone.needsUpdate=true;
-const gazeboGold=M.gold?M.gold.clone():new THREE.MeshStandardMaterial({color:0xc59a4c,roughness:.38});
-const gazeboRoof=M.roof2?M.roof2.clone():new THREE.MeshStandardMaterial({color:0x315574,roughness:.7});
-const gazeboBase=new THREE.Mesh(new THREE.CylinderGeometry(2.45,2.6,.28,12),gazeboStone);
-gazeboBase.position.y=.14;gazebo.add(gazeboBase);
-const gazeboFloor=new THREE.Mesh(new THREE.CylinderGeometry(2.18,2.18,.12,12),gazeboStone);
-gazeboFloor.position.y=.34;gazebo.add(gazeboFloor);
-for(let k=0;k<8;k++){
- const a=k*Math.PI/4,px=Math.cos(a)*1.82,pz=Math.sin(a)*1.82;
- const column=new THREE.Mesh(new THREE.CylinderGeometry(.105,.14,2.55,12),gazeboStone);
- column.position.set(px,1.62,pz);gazebo.add(column);
- const capital=new THREE.Mesh(new THREE.CylinderGeometry(.19,.17,.13,12),gazeboGold);
- capital.position.set(px,2.91,pz);gazebo.add(capital);
-}
-const gazeboRing=new THREE.Mesh(new THREE.CylinderGeometry(2.16,2.16,.2,12),gazeboGold);
-gazeboRing.position.y=2.98;gazebo.add(gazeboRing);
-const gazeboDome=new THREE.Mesh(new THREE.SphereGeometry(2.16,32,16,0,Math.PI*2,0,Math.PI/2),gazeboRoof);
-gazeboDome.position.y=3.06;gazeboDome.scale.y=.88;gazebo.add(gazeboDome);
-const gazeboFinial=new THREE.Mesh(new THREE.SphereGeometry(.18,16,10),gazeboGold);
-gazeboFinial.position.y=4.92;gazebo.add(gazeboFinial);
-gazebo.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
-window.GREEN_WORLD_REAR_FEATURES={pond:true,fountains:3,gazebo:false,reason:'Задний пруд и три фонтана видимы; деревья размещены ярусами за прудом, беседка остаётся скрытой.'};
-
-// Диагностика задней зоны: контрольный конверт не создаёт геометрию и не двигает объекты.
-const gwRearZoneBounds={left:-34.0,right:34.0,front:-46.0,back:-116.0};
-window.GREEN_WORLD_REAR_ZONE_BOUNDS=gwRearZoneBounds;
-world.updateMatrixWorld(true);
-const gwRearPondBox=new THREE.Box3().setFromObject(rearPond);
-const gwRearGazeboBox=new THREE.Box3().setFromObject(gazebo);
-const gwPondHalfWidth=(gwRearPondBox.max.x-gwRearPondBox.min.x)/2;
-const gwPondHalfDepth=(gwRearPondBox.max.z-gwRearPondBox.min.z)/2;
-const gwPondGazeboDx=Math.max(0,gwRearPondBox.min.x-gwRearGazeboBox.max.x,gwRearGazeboBox.min.x-gwRearPondBox.max.x);
-const gwPondGazeboDz=Math.max(0,gwRearPondBox.min.z-gwRearGazeboBox.max.z,gwRearGazeboBox.min.z-gwRearPondBox.max.z);
-const gwGazeboClearance=Math.hypot(gwPondGazeboDx,gwPondGazeboDz);
-const gwInsideRearZone=b=>!b.isEmpty()&&b.min.x>=gwRearZoneBounds.left&&b.max.x<=gwRearZoneBounds.right&&b.min.z>=gwRearZoneBounds.back&&b.max.z<=gwRearZoneBounds.front;
-// Самостоятельная проверка попадания точки в полигон: не зависит от версий THREE.ShapeUtils.
-const gwRearPondPolygon=rearPondShape.extractPoints(64).shape;
-const gwPointInRearPond=(px,py,poly)=>{
- let inside=false;
- for(let i=0,j=poly.length-1;i<poly.length;j=i++){
-  const xi=poly[i].x,yi=poly[i].y,xj=poly[j].x,yj=poly[j].y;
-  if(((yi>py)!==(yj>py))&&(px<(xj-xi)*(py-yi)/(yj-yi)+xi))inside=!inside;
- }
- return inside;
-};
-const gwFountainFootprints=[-20,0,20].map(x=>({x,inside:Array.from({length:32},(_,i)=>{const a=i*Math.PI*2/32;return gwPointInRearPond(x+Math.cos(a)*.94,Math.sin(a)*.94,gwRearPondPolygon);}).every(Boolean)}));
-const gwRearChecks=[
- {name:'pond_attached_to_world',ok:rearPond.parent===world},
- {name:'gazebo_clear_of_pond',ok:!gazebo.visible||gwGazeboClearance>.25,clearance:gwGazeboClearance},
- {name:'fountain_footprints_inside_pond',ok:gwFountainFootprints.every(f=>f.inside),footprints:gwFountainFootprints},
- {name:'gazebo_attached_to_world',ok:gazebo.parent===world},
- {name:'rear_zone_behind_main_fence',ok:gwRearZoneBounds.back<window.GREEN_WORLD_AREA_BOUNDS.back,clearance:window.GREEN_WORLD_AREA_BOUNDS.back-gwRearZoneBounds.back},
- {name:'pond_inside_rear_zone',ok:gwInsideRearZone(gwRearPondBox)},
- {name:'gazebo_inside_rear_zone',ok:!gazebo.visible||gwInsideRearZone(gwRearGazeboBox)}
-];
-window.GREEN_WORLD_LAYOUT_DIAGNOSTIC={
- passed:gwRearChecks.filter(c=>c.ok).length,
- total:gwRearChecks.length,
- checks:gwRearChecks,
- rearZone:{bounds:gwRearZoneBounds,pondInside:gwInsideRearZone(gwRearPondBox),gazeboInside:!gazebo.visible||gwInsideRearZone(gwRearGazeboBox),pondBounds:{minX:gwRearPondBox.min.x,maxX:gwRearPondBox.max.x,minZ:gwRearPondBox.min.z,maxZ:gwRearPondBox.max.z},gazeboBounds:{minX:gwRearGazeboBox.min.x,maxX:gwRearGazeboBox.max.x,minZ:gwRearGazeboBox.min.z,maxZ:gwRearGazeboBox.max.z}},
- cameraProjection:(()=>{cameraPosition();camera.updateProjectionMatrix();camera.updateMatrixWorld(true);const project=b=>{const p=[];for(const x of [b.min.x,b.max.x])for(const y of [b.min.y,b.max.y])for(const z of [b.min.z,b.max.z])p.push(new THREE.Vector3(x,y,z).project(camera));const xs=p.map(v=>v.x),ys=p.map(v=>v.y);return {left:Number(((Math.min(...xs)+1)*50).toFixed(1)),right:Number(((Math.max(...xs)+1)*50).toFixed(1)),top:Number(((1-Math.max(...ys))*50).toFixed(1)),bottom:Number(((1-Math.min(...ys))*50).toFixed(1)),allCornersInFrame:p.every(v=>v.x>=-1&&v.x<=1&&v.y>=-1&&v.y<=1&&v.z>=-1&&v.z<=1)}};return {camera:{x:Number(camera.position.x.toFixed(2)),y:Number(camera.position.y.toFixed(2)),z:Number(camera.position.z.toFixed(2)),target:{x:cameraTarget.x,y:cameraTarget.y,z:cameraTarget.z},fov:camera.fov,aspect:camera.aspect,viewport:{width:innerWidth,height:innerHeight}},pond:project(gwRearPondBox),gazebo:project(gwRearGazeboBox)}})(),
- note:'Контрольная граница задней зоны — диагностический конверт, не физический забор. Габариты и кадрирование рассчитаны по мировым Box3 и действующей камере; визуальное сходство всё ещё требует просмотра рендера.'
-};
-
-// Полная пространственная диагностика беседки: фактические Box3 всех её деталей,
-// деревьев и элементов ограждения. Геометрия и координаты объектов не изменяются.
-world.updateMatrixWorld(true);const gwForestForGazebo=window.GREEN_WORLD_TREE_FOREST;const gwFenceForGazebo=window.GREEN_WORLD_FENCE_GROUP;const gwAreaForGazebo=window.GREEN_WORLD_AREA_BOUNDS;if(gwForestForGazebo)gwForestForGazebo.updateMatrixWorld(true);if(gwFenceForGazebo)gwFenceForGazebo.updateMatrixWorld(true);
-const gwGazeboBox=new THREE.Box3().setFromObject(gazebo);
-window.GREEN_WORLD_GAZEBO_BOX=gwGazeboBox;
-const gwBoxRecord=b=>({min:{x:b.min.x,y:b.min.y,z:b.min.z},max:{x:b.max.x,y:b.max.y,z:b.max.z},
- width:b.max.x-b.min.x,depth:b.max.z-b.min.z,height:b.max.y-b.min.y});
-const gwGazeboTreeHits=[];
-for(let i=0;i<(gwForestForGazebo?.children.length||0);i++){
- const tree=gwForestForGazebo.children[i],b=new THREE.Box3().setFromObject(tree);
- const ox=Math.min(gwGazeboBox.max.x,b.max.x)-Math.max(gwGazeboBox.min.x,b.min.x);
- const oy=Math.min(gwGazeboBox.max.y,b.max.y)-Math.max(gwGazeboBox.min.y,b.min.y);
- const oz=Math.min(gwGazeboBox.max.z,b.max.z)-Math.max(gwGazeboBox.min.z,b.min.z);
- if(ox>0.05&&oy>0.05&&oz>0.05)gwGazeboTreeHits.push({tree:i,overlapX:ox,overlapY:oy,overlapZ:oz});
-}
-const gwGazeboFenceHits=[];
-if(gwFenceForGazebo)gwFenceForGazebo.traverse(o=>{
- if(!o.isMesh||!o.geometry)return;
- const b=new THREE.Box3().setFromObject(o);
- const ox=Math.min(gwGazeboBox.max.x,b.max.x)-Math.max(gwGazeboBox.min.x,b.min.x);
- const oy=Math.min(gwGazeboBox.max.y,b.max.y)-Math.max(gwGazeboBox.min.y,b.min.y);
- const oz=Math.min(gwGazeboBox.max.z,b.max.z)-Math.max(gwGazeboBox.min.z,b.min.z);
- if(ox>0.05&&oy>0.05&&oz>0.05)gwGazeboFenceHits.push({object:o.name||o.type,overlapX:ox,overlapY:oy,overlapZ:oz});
-});
-const gwGazeboFootprint={minX:gwGazeboBox.min.x,maxX:gwGazeboBox.max.x,minZ:gwGazeboBox.min.z,maxZ:gwGazeboBox.max.z};
-const gwGazeboChecks=[
- {name:'attached_to_world',ok:gazebo.parent===world},
- {name:'clear_of_pond_water',ok:gwGazeboClearance>0,clearance:gwGazeboClearance},
- {name:'outside_right_site_boundary',ok:gwGazeboFootprint.minX>gwAreaForGazebo.right,clearance:gwGazeboFootprint.minX-gwAreaForGazebo.right},
- {name:'behind_rear_fence',ok:gwGazeboFootprint.maxZ<gwAreaForGazebo.back,clearance:gwAreaForGazebo.back-gwGazeboFootprint.maxZ},
- {name:'clear_of_all_trees',ok:gwGazeboTreeHits.length===0,hits:gwGazeboTreeHits.length},
- {name:'clear_of_fence_geometry',ok:gwGazeboFenceHits.length===0,hits:gwGazeboFenceHits.length}
-];
-window.GREEN_WORLD_GAZEBO_DIAGNOSTIC={
- position:{x:gazebo.position.x,z:gazebo.position.z},
- bounds:gwBoxRecord(gwGazeboBox),footprint:gwGazeboFootprint,
- pondWaterClearance:gwGazeboClearance,treeCount:gwForestForGazebo?.children.length||0,
- treeIntersections:gwGazeboTreeHits,fenceIntersections:gwGazeboFenceHits,
- checks:gwGazeboChecks,passed:gwGazeboChecks.filter(c=>c.ok).length,total:gwGazeboChecks.length,
- note:'AABB-пересечения проверяют фактические мировые габариты. Отсутствие пересечений не заменяет оценку композиции по эталону.'
-};
-
-// Тонкие природные каменные кромки берегов подчёркивают границу воды.
-// Они лежат вне русла и не меняют ширину, положение или форму реки.
-const riverBankMaterial=M.stone2.clone();
-riverBankMaterial.color=new THREE.Color(0xc8b995);
-riverBankMaterial.roughness=.94;
-riverBankMaterial.clearcoat=.045;
-riverBankMaterial.clearcoatRoughness=.92;
-riverBankMaterial.envMapIntensity=.24;
-riverBankMaterial.needsUpdate=true;
-for(const bankZ of [18.43,25.97]){
- const bankGeometry=new THREE.PlaneGeometry(50,.26,100,1);
- const bankMesh=new THREE.Mesh(bankGeometry,riverBankMaterial);
- bankMesh.name='GREEN_WORLD_River_Bank_Edge';
- bankMesh.rotation.x=-Math.PI/2;
- bankMesh.position.set(0,.105,bankZ);
- bankMesh.castShadow=false;
- bankMesh.receiveShadow=true;
- bankMesh.frustumCulled=false;
- world.add(bankMesh);
-}
-riverGeometry.computeBoundingBox();
-const riverWorldBounds=new THREE.Box3().setFromObject(riverSurfaceMesh);
 window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  surfaceCreated:!!riverSurfaceMesh,
  parented:riverSurfaceMesh.parent===world,
  visible:riverSurfaceMesh.visible,
- width:Number((riverWorldBounds.max.x-riverWorldBounds.min.x).toFixed(2)),
- depth:Number((riverWorldBounds.max.z-riverWorldBounds.min.z).toFixed(2)),
- position:{x:riverSurfaceMesh.position.x,y:riverSurfaceMesh.position.y,z:riverSurfaceMesh.position.z},
+ width:50,
+ depth:11.5,
+ position:{x:0,y:.095,z:-49},
  vertices:riverGeometry.attributes.position.count
 };
 
-// Горная геометрия и связанные материалы удалены.
+// Материалы гор и снега удалены вместе с горной геометрией.
  // GREEN WORLD — новая увеличенная ровная внешняя площадка.
  // Старая плоскость заменена одной цельной поверхностью 88 x 78 без дополнительных слоёв.
- // Внутренний двор и дальние деревья сохранены; участок расширен под новый периметр.
- const newTerrainGeometry=new THREE.PlaneGeometry(88,112,232,300);
+ // Внутренний двор и исходные горы сохранены; участок расширен под новый периметр.
+ const newTerrainGeometry=new THREE.PlaneGeometry(88,78,232,208);
  const newTerrainPositions=newTerrainGeometry.attributes.position;
  const newTerrainColors=[];
- const flatMeadowColor=new THREE.Color(0x4aa83b);
- // Едва заметная крупномасштабная вариация оттенка убирает эффект однотонной пластиковой плоскости.
- // Высота, границы и геометрия внешней площадки остаются прежними.
+ const flatMeadowColor=new THREE.Color(0x36c928);
  for(let i=0;i<newTerrainPositions.count;i++){
-   const px=newTerrainPositions.getX(i),pz=newTerrainPositions.getY(i);
    newTerrainPositions.setZ(i,0);
-   const variation=1+Math.sin(px*.19+pz*.11)*.025+Math.cos(px*.09-pz*.17)*.018;
-   newTerrainColors.push(
-    THREE.MathUtils.clamp(flatMeadowColor.r*variation,0,1),
-    THREE.MathUtils.clamp(flatMeadowColor.g*variation,0,1),
-    THREE.MathUtils.clamp(flatMeadowColor.b*variation,0,1)
-   );
+   newTerrainColors.push(flatMeadowColor.r,flatMeadowColor.g,flatMeadowColor.b);
  }
  newTerrainGeometry.setAttribute('color',new THREE.Float32BufferAttribute(newTerrainColors,3));
  newTerrainGeometry.computeVertexNormals();
@@ -2386,9 +1856,8 @@ function clearDynamic(){
 }
 function makeHouse(){
  const g=group(world,0,0,-12.442);g.name='green-world-manor-full-reference-rebuild';
- // Заметно увеличенная усадьба: главный корпус, башни и вся архитектурная отделка масштабируются единым целым.
- // Центр и положение дома во дворе сохранены; пропорции утверждённого дизайна не меняются.
- g.scale.set(1.452,1.452,1.452);
+ // Небольшое общее увеличение усадьбы без изменения её положения во дворе.
+ g.scale.set(1.15,1.15,1.15);
  const ivory=mat(0xdcc7a4,.91),cream=mat(0xe8d2ae,.86),stone=mat(0xb69b70,.93),stoneDark=mat(0x806849,.9);
  const slate=mat(0x29445f,.78),slateDark=mat(0x182f49,.82),teal=mat(0x25b8c4,.24),tealLight=mat(0x8be2df,.2);
  // Физически корректное остекление существующих арочных окон башен.
@@ -2651,13 +2120,13 @@ function makeHouse(){
  for(const material of [stone,stoneDark]){
   material.bumpMap=manorDetailBump;
   material.roughnessMap=manorDetailRoughness;
-  material.bumpScale=.018;
+  material.bumpScale=.016;
   material.roughness=material===stone?.89:.91;
   material.needsUpdate=true;
  }
  const manorWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:manorWallTexture,bumpMap:manorWallBump,
-  roughnessMap:manorWallRoughness,bumpScale:.082,roughness:.91,metalness:0,
+  roughnessMap:manorWallRoughness,bumpScale:.078,roughness:.91,metalness:0,
   clearcoat:.10,clearcoatRoughness:.88,specularIntensity:.22
  });
  // Для круглых башен используется та же кремовая кладка с масштабом по окружности.
@@ -2669,7 +2138,7 @@ function makeHouse(){
  towerWallRoughness.repeat.set(4,2.5);towerWallRoughness.needsUpdate=true;
  const towerWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:towerWallTexture,bumpMap:towerWallBump,
-  roughnessMap:towerWallRoughness,bumpScale:.071,roughness:.92,metalness:0,
+  roughnessMap:towerWallRoughness,bumpScale:.068,roughness:.92,metalness:0,
   clearcoat:.09,clearcoatRoughness:.9,specularIntensity:.20
  });
  // Отдельная настройка материала только для уже существующих колонн:
@@ -2836,8 +2305,8 @@ function makeHouse(){
   material.roughnessMap=facadeMetalRoughness;
   material.needsUpdate=true;
  }
- const facadeGold=new THREE.MeshPhysicalMaterial({color:0xc69a43,roughness:.285,metalness:.82,roughnessMap:facadeMetalRoughness,clearcoat:.28,clearcoatRoughness:.26,envMapIntensity:.96});
- const facadeBronze=new THREE.MeshPhysicalMaterial({color:0x493326,roughness:.45,metalness:.38,roughnessMap:facadeMetalRoughness,clearcoat:.19,clearcoatRoughness:.44,envMapIntensity:.61});
+ const facadeGold=new THREE.MeshPhysicalMaterial({color:0xc69a43,roughness:.3,metalness:.82,roughnessMap:facadeMetalRoughness,clearcoat:.24,clearcoatRoughness:.3,envMapIntensity:.92});
+ const facadeBronze=new THREE.MeshPhysicalMaterial({color:0x493326,roughness:.46,metalness:.38,roughnessMap:facadeMetalRoughness,clearcoat:.16,clearcoatRoughness:.48,envMapIntensity:.58});
  // Тонкая вертикальная текстура натурального дерева только для входной двери и её филёнок.
  const doorGrainCanvas=document.createElement('canvas');
  doorGrainCanvas.width=128;doorGrainCanvas.height=256;
@@ -2883,10 +2352,10 @@ function makeHouse(){
  doorReliefTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
  const facadeWood=new THREE.MeshStandardMaterial({
   color:0x3e3028,map:doorGrainTexture,bumpMap:doorReliefTexture,
-  roughnessMap:doorReliefTexture,bumpScale:.014,roughness:.62,metalness:.04
+  roughnessMap:doorReliefTexture,bumpScale:.012,roughness:.62,metalness:.04
  });
- const facadeWood2=new THREE.MeshPhysicalMaterial({color:0x634735,bumpMap:doorReliefTexture,roughnessMap:doorReliefTexture,bumpScale:.009,roughness:.55,metalness:.06,clearcoat:.07,clearcoatRoughness:.78,specularIntensity:.22});
- const facadeGlass=new THREE.MeshPhysicalMaterial({color:0x35b9c1,roughness:.18,metalness:.12,transparent:true,opacity:.9,side:THREE.DoubleSide,clearcoat:.92,clearcoatRoughness:.10,reflectivity:.72,ior:1.46,thickness:.12,specularIntensity:.9,specularColor:0xc9f5f2});
+ const facadeWood2=new THREE.MeshStandardMaterial({color:0x634735,roughness:.55,metalness:.06});
+ const facadeGlass=new THREE.MeshPhysicalMaterial({color:0x35b9c1,roughness:.16,metalness:.12,transparent:true,opacity:.9,side:THREE.DoubleSide,clearcoat:.92,clearcoatRoughness:.10,reflectivity:.72,ior:1.46,thickness:.12,specularIntensity:.85,specularColor:0xc9f5f2});
  // Текстура известняка распространяется и на существующие каменные обрамления фасада.
  // Отдельный масштаб не даёт крупным швам основной стены повторяться на наличниках.
  const facadeTrimTexture=manorWallTexture.clone();
@@ -2923,15 +2392,13 @@ function makeHouse(){
  facadeTrimBump.repeat.set(.72,.72);facadeTrimBump.needsUpdate=true;
  const facadeTrimRoughness=manorWallRoughness.clone();
  facadeTrimRoughness.repeat.set(.72,.72);facadeTrimRoughness.needsUpdate=true;
- const facadeStone=new THREE.MeshPhysicalMaterial({
+ const facadeStone=new THREE.MeshStandardMaterial({
   color:0xe8d2ae,map:facadeTrimTexture,bumpMap:facadeTrimBump,
-  roughnessMap:facadeTrimRoughness,bumpScale:.053,roughness:.88,
-  metalness:0,clearcoat:.08,clearcoatRoughness:.9,specularIntensity:.2
+  roughnessMap:facadeTrimRoughness,bumpScale:.050,roughness:.88
  });
- const facadeStoneShade=new THREE.MeshPhysicalMaterial({
+ const facadeStoneShade=new THREE.MeshStandardMaterial({
   color:0xb69b70,map:facadeTrimTexture,bumpMap:facadeTrimBump,
-  roughnessMap:facadeTrimRoughness,bumpScale:.045,roughness:.91,
-  metalness:0,clearcoat:.06,clearcoatRoughness:.92,specularIntensity:.17
+  roughnessMap:facadeTrimRoughness,bumpScale:.042,roughness:.91
  });
  function facadeArch(w,h,base=0){
   const r=w/2,straight=h-r,sh=new THREE.Shape();
@@ -3124,17 +2591,9 @@ function makeHouse(){
  porticoLine([pv(-1.31,3.625,3.522),pv(0,3.972,3.522),pv(1.31,3.625,3.522)],.009,porticoGold);
  porticoLine([pv(-1.37,3.60,3.515),pv(1.37,3.60,3.515)],.014,facadeStoneShade);
  sphere(center,.09,0,3.72,3.53,facadeGold,.9);
- // Локальная физическая отделка парадной лестницы: не меняет общий материал фасада.
- const stairStoneFinish=new THREE.MeshPhysicalMaterial({
-  color:cream.color.clone(),map:cream.map||null,
-  bumpMap:cream.bumpMap||null,roughnessMap:cream.roughnessMap||null,
-  bumpScale:cream.bumpScale??.02,roughness:.82,metalness:.025,
-  clearcoat:.12,clearcoatRoughness:.78,envMapIntensity:.45,
-  dithering:true
- });
- // Парадная лестница с широкими каменными ступенями — исходная геометрия и расстановка сохранены.
+ // Парадная лестница с широкими каменными ступенями.
  for(let i=0;i<5;i++){
-  box(center,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,stairStoneFinish);
+  box(center,2.65-i*.12,.13,.36,0,.08+i*.13,2.88+i*.29,cream);
  }
  // Главная крыша — точная архитектурная форма утверждённого эталона:
  // высокая двускатная сланцево-синяя кровля, фронтон обращён к фасаду,
@@ -3203,25 +2662,6 @@ for(const material of [...copperMats,copperBright,copperDark]){
  porticoTile.bumpScale=.007;
  porticoTile.roughness=.69;
  porticoTile.needsUpdate=true;
- // Переводим существующие панели и тонкие линии кровли портика на физическую отделку.
- // Цвета, фактура сланца, геометрия и расположение всех деталей остаются прежними.
- const porticoBluePhysical=new THREE.MeshPhysicalMaterial({
-  color:porticoBlue.color.clone(),bumpMap:porticoBlue.bumpMap,
-  roughnessMap:porticoBlue.roughnessMap,bumpScale:porticoBlue.bumpScale,
-  roughness:.72,metalness:porticoBlue.metalness,side:porticoBlue.side,
-  clearcoat:.14,clearcoatRoughness:.62,envMapIntensity:.38
- });
- const porticoTilePhysical=new THREE.MeshPhysicalMaterial({
-  color:porticoTile.color.clone(),bumpMap:porticoTile.bumpMap,
-  roughnessMap:porticoTile.roughnessMap,bumpScale:porticoTile.bumpScale,
-  roughness:.69,metalness:porticoTile.metalness,side:porticoTile.side,
-  clearcoat:.16,clearcoatRoughness:.58,envMapIntensity:.40
- });
- center.traverse(object=>{
-  if(!object.isMesh)return;
-  if(object.material===porticoBlue)object.material=porticoBluePhysical;
-  else if(object.material===porticoTile)object.material=porticoTilePhysical;
- });
  const manorRoofBase=new THREE.MeshStandardMaterial({color:0x263f5b,roughness:.74,metalness:.08,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.012,side:THREE.DoubleSide});
  const manorRoofTileA=new THREE.MeshStandardMaterial({color:0x355675,roughness:.68,metalness:.08,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.011});
  const manorRoofTileB=new THREE.MeshStandardMaterial({color:0x294662,roughness:.74,metalness:.07,bumpMap:slateReliefTexture,roughnessMap:slateReliefTexture,bumpScale:.011});
@@ -3436,23 +2876,6 @@ for(const material of [...copperMats,copperBright,copperDark]){
    // Центральный замковый камень слегка выступает над остальными сегментами.
    box(t,.17,.19,.095,0,archCenter+radius+.015,1.08,cream,false);
   }
-   // Локальная физическая отделка балконов: не затрагивает общие материалы башни.
-   const balconyStoneFinish=new THREE.MeshPhysicalMaterial({
-    color:stone.color.clone(),map:stone.map||null,bumpMap:stone.bumpMap||null,
-    roughnessMap:stone.roughnessMap||null,bumpScale:stone.bumpScale??.02,
-    roughness:.84,metalness:0,clearcoat:.13,clearcoatRoughness:.78,
-    envMapIntensity:.48
-   });
-   const balconyIvoryFinish=new THREE.MeshPhysicalMaterial({
-    color:cream.color.clone(),map:cream.map||null,bumpMap:cream.bumpMap||null,
-    roughnessMap:cream.roughnessMap||null,bumpScale:cream.bumpScale??.02,
-    roughness:.8,metalness:0,clearcoat:.16,clearcoatRoughness:.72,
-    envMapIntensity:.5
-   });
-   const balconyGoldFinish=new THREE.MeshPhysicalMaterial({
-    color:gold.color.clone(),roughness:.29,metalness:.72,
-    clearcoat:.3,clearcoatRoughness:.28,envMapIntensity:.9
-   });
    // Полукруглые балконы по эталону: половина круга выступает вперёд,
    // задняя прямая кромка скрыто входит в стену башни; центр строго по оси башни.
    for(const balconyY of [1.02,2.92]){
@@ -3464,12 +2887,12 @@ for(const material of [...copperMats,copperBright,copperDark]){
     balconyShape.closePath();
     const platformGeo=new THREE.ExtrudeGeometry(balconyShape,{depth:.14,bevelEnabled:false,steps:1});
     platformGeo.rotateX(-Math.PI/2);
-    const platform=new THREE.Mesh(platformGeo,balconyStoneFinish);
+    const platform=new THREE.Mesh(platformGeo,stone);
     platform.position.set(0,balconyY-.07,chordZ);
     platform.castShadow=false;platform.receiveShadow=false;t.add(platform);
     const rimGeo=new THREE.ExtrudeGeometry(balconyShape,{depth:.045,bevelEnabled:false,steps:1});
     rimGeo.rotateX(-Math.PI/2);
-    const rim=new THREE.Mesh(rimGeo,balconyIvoryFinish);
+    const rim=new THREE.Mesh(rimGeo,cream);
     rim.position.set(0,balconyY+.07,chordZ);
     rim.castShadow=false;rim.receiveShadow=false;t.add(rim);
     // Золотой кант и поручень повторяют только переднюю полукруглую дугу.
@@ -3478,23 +2901,23 @@ for(const material of [...copperMats,copperBright,copperDark]){
      const a=Math.PI+j*Math.PI/48;
      arcPoints.push(new THREE.Vector3(radius*.97*Math.cos(a),balconyY+.12,chordZ-radius*.97*Math.sin(a)));
     }
-    const edge=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(arcPoints),64,.018,8,false),balconyGoldFinish);
+    const edge=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(arcPoints),64,.018,8,false),gold);
     edge.castShadow=false;edge.receiveShadow=false;t.add(edge);
     const railPoints=[];
     for(let j=0;j<=40;j++){
      const a=Math.PI+j*Math.PI/40,x=.67*Math.cos(a),z=chordZ-.67*Math.sin(a);
      railPoints.push(new THREE.Vector3(x,balconyY+.39,z));
      if(j%2===0){
-      cylinder(t,.022,.025,.20,x,balconyY+.245,z,balconyIvoryFinish,10);
-      sphere(t,.03,x,balconyY+.355,z,balconyGoldFinish,.75);
+      cylinder(t,.022,.025,.20,x,balconyY+.245,z,cream,10);
+      sphere(t,.03,x,balconyY+.355,z,gold,.75);
      }
     }
-    const rail=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(railPoints),64,.025,8,false),balconyGoldFinish);
+    const rail=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(railPoints),64,.025,8,false),gold);
     rail.castShadow=false;rail.receiveShadow=false;t.add(rail);
     // Цветочные кашпо расположены симметрично по передней дуге.
     for(let j=0;j<7;j++){
      const a=Math.PI+(j/6)*Math.PI,x=.58*Math.cos(a),z=chordZ-.58*Math.sin(a);
-     box(t,.085,.05,.075,x,balconyY+.115,z,balconyStoneFinish,false);
+     box(t,.085,.05,.075,x,balconyY+.115,z,stone,false);
      sphere(t,.03,x,balconyY+.18,z,green,.78);
      sphere(t,.034,x,balconyY+.225,z,j%3===0?lilac:(j%2?white:pink),.82);
      sphere(t,.023,x-.02,balconyY+.21,z+.012,j%2?pink:white,.9);
@@ -3593,280 +3016,18 @@ function drawPlayer(){
  }
 }
 function applyPlayer(){try{drawPlayer();window.GREEN_WORLD_STARTUP_STAGE='player-world-built';$('login').style.display='none'}catch(e){console.error('[render] World drawing failed:',e);if(typeof window.GREEN_WORLD_REPORT_STARTUP_ERROR==='function')window.GREEN_WORLD_REPORT_STARTUP_ERROR('Ошибка построения 3D-сцены: '+(e?.message||e));else $('login-error').textContent='Ошибка отображения мира: '+(e?.message||e)}}
-window.GREEN_WORLD_GET_WHOLE_SCENE_FRAME_DIAGNOSTIC=()=>{
- world.updateMatrixWorld(true);cameraPosition();camera.updateProjectionMatrix();camera.updateMatrixWorld(true);
- const roots=[];
- const cornersOf=b=>[
-  new THREE.Vector3(b.min.x,b.min.y,b.min.z),new THREE.Vector3(b.min.x,b.min.y,b.max.z),
-  new THREE.Vector3(b.min.x,b.max.y,b.min.z),new THREE.Vector3(b.min.x,b.max.y,b.max.z),
-  new THREE.Vector3(b.max.x,b.min.y,b.min.z),new THREE.Vector3(b.max.x,b.min.y,b.max.z),
-  new THREE.Vector3(b.max.x,b.max.y,b.min.z),new THREE.Vector3(b.max.x,b.max.y,b.max.z)
- ];
- world.children.forEach((root,rootIndex)=>{
-  const bounds=new THREE.Box3().setFromObject(root);if(bounds.isEmpty())return;
-  const containsCamera=bounds.containsPoint(camera.position);
-  let meshCount=0,firstNamed='',named=[];
-  root.traverse(o=>{if(o.isMesh)meshCount++;if(o.name){if(!firstNamed)firstNamed=o.name;if(named.length<5)named.push(o.name)}});
-  const projected=cornersOf(bounds).map(p=>p.project(camera));
-  const inDepth=projected.some(p=>p.z>=-1&&p.z<=1);
-  const minX=Math.min(...projected.map(p=>p.x)),maxX=Math.max(...projected.map(p=>p.x));
-  const minY=Math.min(...projected.map(p=>p.y)),maxY=Math.max(...projected.map(p=>p.y));
-  const intersects=containsCamera||(inDepth&&maxX>=-1&&minX<=1&&maxY>=-1&&minY<=1);
-  const fullyInside=!containsCamera&&projected.every(p=>p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1&&p.z>=-1&&p.z<=1);
-  const name=root.name||firstNamed||root.type+' без имени';
-  const background=/Expanded_Exterior_Terrain|perimeter-forest/i.test(name)||containsCamera;
-  const area=Math.max(0,Math.min(2,maxX)-Math.max(-2,minX))*Math.max(0,Math.min(2,maxY)-Math.max(-2,minY));
-  roots.push({rootIndex,name,rootType:root.type,childCount:root.children.length,meshCount,named,intersects,fullyInside,containsCamera,background,area,bounds:{min:{x:bounds.min.x,y:bounds.min.y,z:bounds.min.z},max:{x:bounds.max.x,y:bounds.max.y,z:bounds.max.z}},screen:{left:minX,right:maxX,top:minY,bottom:maxY}});
- });
- const meaningful=roots.filter(r=>!r.background);
- const inside=meaningful.filter(r=>r.fullyInside).length,clipped=meaningful.filter(r=>r.intersects&&!r.fullyInside).length,outside=meaningful.filter(r=>!r.intersects).length;
- const sort=(a,b)=>b.area-a.area;
- return {camera:{x:camera.position.x,y:camera.position.y,z:camera.position.z,fov:camera.fov,aspect:camera.aspect},total:roots.length,background:roots.filter(r=>r.background).length,meaningfulTotal:meaningful.length,inside,clipped,outside,largestClipped:meaningful.filter(r=>r.intersects&&!r.fullyInside).sort(sort).slice(0,12),largestOutside:meaningful.filter(r=>!r.intersects).sort(sort).slice(0,8),roots};
-};
-window.GREEN_WORLD_GET_CENTRAL_FOUNTAIN_VISIBILITY=()=>{
- const targets=window.GREEN_WORLD_FOUNTAIN_VISIBILITY_OBJECTS||[];
- if(!targets.length)throw new Error('Объекты центрального фонтана не зарегистрированы');
- world.updateMatrixWorld(true);cameraPosition();camera.updateMatrixWorld(true);camera.updateProjectionMatrix();
- const house=buildingObjects[0];if(!house)throw new Error('Главный дом ещё не создан');
- house.updateWorldMatrix(true,true);
- const raycaster=new THREE.Raycaster();const results=[];
- for(const item of targets){
-  const object=item.object;object.updateWorldMatrix(true,true);
-  const center=new THREE.Vector3();object.getWorldPosition(center);
-  const localBox=new THREE.Box3().setFromObject(object);
-  const samples=item.name==='crown'?[new THREE.Vector3(center.x,localBox.max.y,center.z)]:item.name==='jet'?[new THREE.Vector3(center.x,center.y,center.z),new THREE.Vector3(center.x,localBox.max.y,center.z)]:item.name==='water'?[new THREE.Vector3(center.x,localBox.max.y,center.z)]:[new THREE.Vector3(center.x,localBox.max.y,center.z),new THREE.Vector3(center.x-.45,localBox.max.y,center.z),new THREE.Vector3(center.x+.45,localBox.max.y,center.z)];
-  for(let i=0;i<samples.length;i++){
-   const target=samples[i],direction=target.clone().sub(camera.position),distance=direction.length();direction.normalize();
-   raycaster.set(camera.position,direction);raycaster.near=0;raycaster.far=distance;
-   const houseHits=raycaster.intersectObject(house,true);
-   const houseBlocker=houseHits.find(hit=>hit.distance<distance-.035)||null;
-   const sceneHits=raycaster.intersectObjects(world.children,true);
-   const sceneBlocker=sceneHits.find(hit=>hit.distance<distance-.035&&!targets.some(entry=>entry.object===hit.object))||null;
-   const projected=target.clone().project(camera);
-   const inFrame=projected.x>=-1&&projected.x<=1&&projected.y>=-1&&projected.y<=1&&projected.z>=-1&&projected.z<=1;
-   const blockerObject=sceneBlocker?.object;
-   const blockerName=blockerObject?(blockerObject.name||blockerObject.parent?.name||blockerObject.type):null;
-   results.push({part:item.name,sample:i+1,target:{x:target.x,y:target.y,z:target.z},screen:{x:projected.x,y:projected.y,z:projected.z},inFrame,blockedByHouse:!!houseBlocker,blockedByScene:!!sceneBlocker,blockerName,blockerDistance:sceneBlocker?.distance??null,targetDistance:distance,visible:!sceneBlocker&&inFrame});
-  }
- }
- const visible=results.filter(r=>r.visible).length,blocked=results.filter(r=>r.blockedByHouse).length,blockedByScene=results.filter(r=>r.blockedByScene).length,inFrame=results.filter(r=>r.inFrame).length;
- const sceneBlockers=Object.entries(results.filter(r=>r.blockedByScene).reduce((counts,r)=>{counts[r.blockerName||'неизвестный объект']=(counts[r.blockerName||'неизвестный объект']||0)+1;return counts;},{})).map(([name,count])=>({name,count}));
- // Проверяем альтернативную высоту камеры без изменения действующего ракурса или координат объектов.
- const heightSweep=[];
- for(const height of [30,40,50,60,70,80,90,105,125,150]){
-  const testCamera=new THREE.PerspectiveCamera(camera.fov,camera.aspect,camera.near,camera.far);
-  testCamera.position.set(camera.position.x,height,camera.position.z);
-  testCamera.lookAt(cameraTarget);testCamera.updateMatrixWorld(true);testCamera.updateProjectionMatrix();
-  let visiblePoints=0,blockedPoints=0,framePoints=0;
-  for(const item of targets){
-   const object=item.object;object.updateWorldMatrix(true,true);
-   const center=new THREE.Vector3();object.getWorldPosition(center);
-   const b=new THREE.Box3().setFromObject(object);
-   const points=item.name==='crown'?[new THREE.Vector3(center.x,b.max.y,center.z)]:item.name==='jet'?[new THREE.Vector3(center.x,center.y,center.z),new THREE.Vector3(center.x,b.max.y,center.z)]:item.name==='water'?[new THREE.Vector3(center.x,b.max.y,center.z)]:[new THREE.Vector3(center.x,b.max.y,center.z),new THREE.Vector3(center.x-.45,b.max.y,center.z),new THREE.Vector3(center.x+.45,b.max.y,center.z)];
-   for(const target of points){
-    const projected=target.clone().project(testCamera),inFrame=projected.x>=-1&&projected.x<=1&&projected.y>=-1&&projected.y<=1&&projected.z>=-1&&projected.z<=1;
-    const direction=target.clone().sub(testCamera.position),distance=direction.length();direction.normalize();
-    raycaster.set(testCamera.position,direction);raycaster.near=0;raycaster.far=distance;
-    const hit=raycaster.intersectObject(house,true).find(h=>h.distance<distance-.035);
-    if(inFrame)framePoints++;if(hit)blockedPoints++;if(inFrame&&!hit)visiblePoints++;
-   }
-  }
-  heightSweep.push({cameraY:height,visible:visiblePoints,blockedByHouse:blockedPoints,inFrame:framePoints});
- }
- const bestHeight=heightSweep.reduce((best,current)=>current.visible>best.visible||(current.visible===best.visible&&current.cameraY<best.cameraY)?current:best,heightSweep[0]);
- // Совместный подбор высоты и азимута: ищем более низкий, объёмный ракурс,
- // при котором все контрольные части центрального фонтана видны и ключевые объекты остаются в кадре.
- const cameraAngleSweep=[];
- const keyFrameObjects=[
-  ['house',house],
-  ['pond',world.getObjectByName('GREEN_WORLD_Rear_Pond')],
-  ['gazebo',window.GREEN_WORLD_GAZEBO_OBJECT],
-  ['river',world.getObjectByName('GREEN_WORLD_River_Surface')],
-  ['fence',window.GREEN_WORLD_FENCE_GROUP]
- ];
- const fountainTargets=targets.flatMap(item=>{
-  const object=item.object;object.updateWorldMatrix(true,true);
-  const center=new THREE.Vector3();object.getWorldPosition(center);
-  const b=new THREE.Box3().setFromObject(object);
-  return (item.name==='crown'?[new THREE.Vector3(center.x,b.max.y,center.z)]:
-   item.name==='jet'?[new THREE.Vector3(center.x,center.y,center.z),new THREE.Vector3(center.x,b.max.y,center.z)]:
-   item.name==='water'?[new THREE.Vector3(center.x,b.max.y,center.z)]:
-   [new THREE.Vector3(center.x,b.max.y,center.z),new THREE.Vector3(center.x-.45,b.max.y,center.z),new THREE.Vector3(center.x+.45,b.max.y,center.z)])
-   .map(point=>({point,object}));
- });
- for(const height of [30,34,38,42,46,50,55,60]){
-  for(const azimuthDegrees of [-60,-55,-50,-45,-40,-35,-30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30,35,40,45,50,55,60]){
-   const azimuth=THREE.MathUtils.degToRad(azimuthDegrees);
-   const testCamera=new THREE.PerspectiveCamera(camera.fov,camera.aspect,camera.near,camera.far);
-   testCamera.position.set(cameraTarget.x+cameraRadius*Math.sin(azimuth),height,cameraTarget.z+cameraRadius*Math.cos(azimuth));
-   testCamera.lookAt(cameraTarget);testCamera.updateMatrixWorld(true);testCamera.updateProjectionMatrix();
-   let visiblePoints=0,blockedPoints=0,inFramePoints=0;
-   for(const sample of fountainTargets){
-    const target=sample.point,projected=target.clone().project(testCamera);
-    const inFrame=projected.x>=-1&&projected.x<=1&&projected.y>=-1&&projected.y<=1&&projected.z>=-1&&projected.z<=1;
-    const direction=target.clone().sub(testCamera.position),distance=direction.length();direction.normalize();
-    raycaster.set(testCamera.position,direction);raycaster.near=0;raycaster.far=distance;
-    const blocker=raycaster.intersectObjects(world.children,true).find(hit=>hit.distance<distance-.035&&!fountainTargets.some(entry=>entry.object===hit.object));
-    if(inFrame)inFramePoints++;
-    if(blocker)blockedPoints++;
-    if(inFrame&&!blocker)visiblePoints++;
-   }
-   let keyObjectsInFrame=0;
-   const keyFrames=[];
-   for(const [name,object] of keyFrameObjects){
-    if(!object)continue;
-    object.updateWorldMatrix(true,true);
-    const bounds=new THREE.Box3().setFromObject(object);if(bounds.isEmpty())continue;
-    const corners=[];
-    for(const x of [bounds.min.x,bounds.max.x])for(const y of [bounds.min.y,bounds.max.y])for(const z of [bounds.min.z,bounds.max.z]){
-     corners.push(new THREE.Vector3(x,y,z).project(testCamera));
-    }
-    const inside=corners.every(p=>p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1&&p.z>=-1&&p.z<=1);
-    if(inside)keyObjectsInFrame++;
-    keyFrames.push({name,inside});
-   }
-   cameraAngleSweep.push({cameraY:height,azimuthDegrees,elevationDegrees:Number(THREE.MathUtils.radToDeg(Math.atan2(height-cameraTarget.y,cameraRadius)).toFixed(1)),visible:visiblePoints,total:fountainTargets.length,blocked:blockedPoints,inFrame:inFramePoints,keyObjectsInFrame,keyFrames});
-  }
- }
- const successfulCameraAngles=cameraAngleSweep.filter(c=>c.visible===c.total&&c.inFrame===c.total&&c.keyObjectsInFrame>=4)
-  .sort((a,b)=>a.elevationDegrees-b.elevationDegrees||Math.abs(a.azimuthDegrees)-Math.abs(b.azimuthDegrees)||b.keyObjectsInFrame-a.keyObjectsInFrame);
-
- // Отдельно проверяем кадрирование ключевых объектов при высотах-кандидатах.
- const sceneFrameSweep=[];
- for(const height of [90,105]){
-  const frameCamera=new THREE.PerspectiveCamera(camera.fov,camera.aspect,camera.near,camera.far);
-  frameCamera.position.set(camera.position.x,height,camera.position.z);
-  frameCamera.lookAt(cameraTarget);frameCamera.updateMatrixWorld(true);frameCamera.updateProjectionMatrix();
-  const objects=[
-   ['Главный дом',house],
-   ['Задний пруд',world.getObjectByName('GREEN_WORLD_Rear_Pond')],
-   ['Беседка',window.GREEN_WORLD_GAZEBO_OBJECT],
-   ['Река',world.getObjectByName('GREEN_WORLD_River_Surface')],
-   ['Забор',window.GREEN_WORLD_FENCE_GROUP]
-  ];
-  const frames=objects.map(([name,object])=>{
-   if(!object)return {name,available:false};
-   object.updateWorldMatrix(true,true);
-   const bounds=new THREE.Box3().setFromObject(object);
-   if(bounds.isEmpty())return {name,available:false};
-   const corners=[];
-   for(const x of [bounds.min.x,bounds.max.x])for(const y of [bounds.min.y,bounds.max.y])for(const z of [bounds.min.z,bounds.max.z]){
-    const p=new THREE.Vector3(x,y,z).project(frameCamera);corners.push(p);
-   }
-   const minX=Math.min(...corners.map(p=>p.x)),maxX=Math.max(...corners.map(p=>p.x));
-   const minY=Math.min(...corners.map(p=>p.y)),maxY=Math.max(...corners.map(p=>p.y));
-   const minZ=Math.min(...corners.map(p=>p.z)),maxZ=Math.max(...corners.map(p=>p.z));
-   return {name,available:true,intersectsScreen:maxX>=-1&&minX<=1&&maxY>=-1&&minY<=1&&maxZ>=-1&&minZ<=1,
-    boundsPercent:{left:Number(((minX+1)*50).toFixed(1)),right:Number(((maxX+1)*50).toFixed(1)),top:Number(((1-maxY)*50).toFixed(1)),bottom:Number(((1-minY)*50).toFixed(1))},
-    cornersInFrame:corners.filter(p=>p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1&&p.z>=-1&&p.z<=1).length};
-  });
-  sceneFrameSweep.push({cameraY:height,frames});
- }
- return {camera:{x:camera.position.x,y:camera.position.y,z:camera.position.z,target:{x:cameraTarget.x,y:cameraTarget.y,z:cameraTarget.z},fov:camera.fov,aspect:camera.aspect},house:{name:house.name,bounds:(()=>{const b=new THREE.Box3().setFromObject(house);return {min:{x:b.min.x,y:b.min.y,z:b.min.z},max:{x:b.max.x,y:b.max.y,z:b.max.z}}})()},fountain:{x:0,z:-27.35},samples:results,summary:{total:results.length,inFrame,blockedByHouse:blocked,blockedByScene,sceneBlockers,visible},heightSweep,bestHeight,cameraAngleSweep,successfulCameraAngles,sceneFrameSweep,verdict:visible===results.length?'Все проверенные точки центрального фонтана свободны от перекрытий объектами сцены.':visible?'Часть точек центрального фонтана видна, часть перекрыта объектами сцены.':blocked?'Центральный фонтан попадает в кадр, но проверенные точки перекрыты объектами сцены.':'Проверенные части центрального фонтана не попадают в кадр.'};
-};
-window.GREEN_WORLD_GET_REAR_POND_CAMERA_DIAGNOSTIC=()=>{
- world.updateMatrixWorld(true);cameraPosition();camera.updateProjectionMatrix();camera.updateMatrixWorld(true);
- const pond=world.getObjectByName('GREEN_WORLD_Rear_Pond'),bank=world.getObjectByName('GREEN_WORLD_Rear_Pond_Bank'),upper=world.getObjectByName('GREEN_WORLD_Rear_Pond_Upper_Stone_Rim'),house=buildingObjects[0];
- if(!pond||!house)throw new Error('Пруд или главный дом ещё не созданы');
- const boxOf=o=>{o.updateWorldMatrix(true,true);const b=new THREE.Box3().setFromObject(o);return {min:{x:+b.min.x.toFixed(2),y:+b.min.y.toFixed(2),z:+b.min.z.toFixed(2)},max:{x:+b.max.x.toFixed(2),y:+b.max.y.toFixed(2),z:+b.max.z.toFixed(2)},size:{x:+(b.max.x-b.min.x).toFixed(2),y:+(b.max.y-b.min.y).toFixed(2),z:+(b.max.z-b.min.z).toFixed(2)}}};
- const pondShape=window.GREEN_WORLD_REAR_POND_SHAPE;if(!pondShape)throw new Error('Контур заднего пруда ещё не зарегистрирован');
- const poly=pondShape.extractPoints(96).shape;
- const inside=(x,y)=>{let v=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if(((a.y>y)!==(b.y>y))&&(x<(b.x-a.x)*(y-a.y)/(b.y-a.y)+a.x))v=!v;}return v;};
- const ray=new THREE.Raycaster(),samples=[];
- for(let py=-7.4;py<=7.41;py+=1.85)for(let x=-30.5;x<=30.51;x+=4.0){if(!inside(x,py))continue;
-  const target=new THREE.Vector3(x,.16,pond.position.z-py),p=target.clone().project(camera),inFrame=p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1&&p.z>=-1&&p.z<=1;
-  const dir=target.clone().sub(camera.position),dist=dir.length();dir.normalize();ray.set(camera.position,dir);ray.near=.02;ray.far=Math.max(.02,dist-.06);
-  const houseHit=ray.intersectObject(house,true)[0]||null;
-  const fountainObjects=(window.GREEN_WORLD_FOUNTAIN_VISIBILITY_OBJECTS||[]).map(v=>v.object).filter(Boolean);
-  const isWithin=(object,root)=>{for(let o=object;o;o=o.parent)if(o===root)return true;return false;};
-  const hits=ray.intersectObjects(world.children,true).filter(h=>{
-   let o=h.object;while(o&&o!==world){if(!o.visible)return false;o=o.parent;}
-   return !isWithin(h.object,pond)&&!isWithin(h.object,bank)&&!isWithin(h.object,upper)&&!isWithin(h.object,house)&&!fountainObjects.some(root=>isWithin(h.object,root));
-  });
-  const blocker=hits[0]||null;
-  let blockerInfo=null;
-  if(blocker){
-   const object=blocker.object,position=object.getWorldPosition(new THREE.Vector3()),chain=[];
-   for(let node=object;node&&node!==world;node=node.parent)chain.push({name:node.name||'',type:node.type});
-   let top=object;while(top.parent&&top.parent!==world)top=top.parent;
-   blockerInfo={label:object.name||object.type,objectType:object.type,uuid:object.uuid,geometryType:object.geometry?.type||null,worldPosition:{x:+position.x.toFixed(2),y:+position.y.toFixed(2),z:+position.z.toFixed(2)},distance:+blocker.distance.toFixed(2),topLevelName:top.name||top.type,topLevelType:top.type,chain};
-  }
-  samples.push({x:+x.toFixed(1),z:+(pond.position.z-py).toFixed(1),screen:{x:+p.x.toFixed(3),y:+p.y.toFixed(3),depth:+p.z.toFixed(3)},inFrame,blockedByHouse:!!houseHit,blocker:blockerInfo?.label||null,blockerInfo,visible:inFrame&&!houseHit&&!blocker});
- }
- const visible=samples.filter(s=>s.visible).length,frame=samples.filter(s=>s.inFrame).length,blocked=samples.filter(s=>s.inFrame&&s.blockedByHouse).length,sceneBlockers={};for(const sample of samples)if(sample.inFrame&&sample.blockerInfo){const q=sample.blockerInfo,key=[q.topLevelName,q.topLevelType,q.geometryType,q.worldPosition.x,q.worldPosition.y,q.worldPosition.z].join('|');if(!sceneBlockers[key])sceneBlockers[key]={...q,count:0};sceneBlockers[key].count++;}const b=boxOf(pond),hb=boxOf(house),projected=[];
- for(const x of [b.min.x,b.max.x])for(const y of [b.min.y,b.max.y])for(const z of [b.min.z,b.max.z])projected.push(new THREE.Vector3(x,y,z).project(camera));
- const minX=Math.min(...projected.map(p=>p.x)),maxX=Math.max(...projected.map(p=>p.x)),minY=Math.min(...projected.map(p=>p.y)),maxY=Math.max(...projected.map(p=>p.y));
- return {camera:{position:{x:+camera.position.x.toFixed(2),y:+camera.position.y.toFixed(2),z:+camera.position.z.toFixed(2)},target:{x:cameraTarget.x,y:cameraTarget.y,z:cameraTarget.z},radius:cameraRadius,azimuth:+THREE.MathUtils.radToDeg(cameraAzimuth).toFixed(2),fov:camera.fov,aspect:+camera.aspect.toFixed(3),viewport:{width:innerWidth,height:innerHeight},near:camera.near,far:camera.far},pond:{bounds:b,screen:{left:+((minX+1)*50).toFixed(1),right:+((maxX+1)*50).toFixed(1),top:+((1-maxY)*50).toFixed(1),bottom:+((1-minY)*50).toFixed(1)},sampleCount:samples.length,insideFrame:frame,visible,blockedByHouse:blocked,blockedByScene:samples.filter(s=>s.inFrame&&!!s.blocker).length,sceneBlockers:Object.values(sceneBlockers).sort((a,b)=>b.count-a.count),visiblePercent:+(visible/Math.max(1,samples.length)*100).toFixed(1),samples},house:{name:house.name,bounds:hb},bank:bank?boxOf(bank):null,upperRim:upper?boxOf(upper):null,verdict:visible===samples.length?'Все контрольные точки поверхности пруда видны':visible?'Пруд виден частично':'Пруд не виден с текущей камеры'};
-};
-window.GREEN_WORLD_GET_FULL_LAYOUT_DIAGNOSTIC=()=>{
- const boxRecord=(obj)=>{if(!obj)return null;obj.updateWorldMatrix(true,true);const b=new THREE.Box3().setFromObject(obj);if(b.isEmpty())return null;return {min:{x:b.min.x,y:b.min.y,z:b.min.z},max:{x:b.max.x,y:b.max.y,z:b.max.z},size:{x:b.max.x-b.min.x,y:b.max.y-b.min.y,z:b.max.z-b.min.z}}};
- world.updateMatrixWorld(true);
- const forest=window.GREEN_WORLD_TREE_FOREST,fence=window.GREEN_WORLD_FENCE_GROUP,gazebo=window.GREEN_WORLD_GAZEBO_OBJECT;
- const houseBoxes=buildingObjects.map((o,i)=>({index:i,name:o.name||'building-'+i,bounds:boxRecord(o)}));
- const treeDiag=window.GREEN_WORLD_TREE_BOUNDS_DIAGNOSTIC||null;
- const shrubDiag=window.GREEN_WORLD_SHRUB_DIAGNOSTIC||null;
- const rearDiag=window.GREEN_WORLD_LAYOUT_DIAGNOSTIC||null;
- const riverDiag=window.GREEN_WORLD_RIVER_DIAGNOSTICS||null;
- return {
-  startup:window.GREEN_WORLD_STARTUP_STAGE||'unknown',
-  house:{model:window.GREEN_WORLD_HOUSE_MODEL||'not-created',error:window.GREEN_WORLD_HOUSE_ERROR||null,count:houseBoxes.length,objects:houseBoxes},
-  site:window.GREEN_WORLD_AREA_BOUNDS||null,
-  fence:{attached:!!fence&&fence.parent===world,bounds:boxRecord(fence)},
-  trees:{count:treeDiag?.count??forest?.children.length??0,overlaps:treeDiag?.crownFootprintOverlaps?.length??null,bounds:boxRecord(forest)},
-  shrubs:{count:shrubDiag?.created??null,positions:shrubDiag?.positions??[]},
-  rear:{layoutPassed:rearDiag?.passed??null,layoutTotal:rearDiag?.total??null,checks:rearDiag?.checks??[],zone:rearDiag?.rearZone??null,pond:boxRecord(world.getObjectByName('GREEN_WORLD_Rear_Pond')),pondCamera:window.GREEN_WORLD_GET_REAR_POND_CAMERA_DIAGNOSTIC(),gazebo:boxRecord(gazebo),fountains:window.GREEN_WORLD_REAR_FEATURES?.fountains??null,cameraProjection:rearDiag?.cameraProjection??null,gazeboTreeIntersections:window.GREEN_WORLD_GAZEBO_DIAGNOSTIC?.treeIntersections??[],gazeboFenceIntersections:window.GREEN_WORLD_GAZEBO_DIAGNOSTIC?.fenceIntersections??[]},
-  river:riverDiag,
-  world:{topLevelObjects:world.children.length,renderReady:!!window.GREEN_WORLD_MODULE_READY}
- };
-};
 async function request(path,body=null,retry=true){const opts={method:body===null?'GET':'POST',credentials:'include',headers:{'Content-Type':'application/json'}};if(token)opts.headers.Authorization='Bearer '+token;if(body!==null)opts.body=JSON.stringify(body);let res=await fetch(API+path,opts);if(res.status===401&&retry&&!['/api/auth/telegram','/api/auth/refresh'].includes(path)){const rr=await fetch(API+'/api/auth/refresh',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'}});if(rr.ok){token=(await rr.json()).accessToken;return request(path,body,false)}}const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||'Ошибка сервера '+res.status);return data}
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2600)}
 async function login(){const tg=window.Telegram?.WebApp;const initData=tg?.initData||'';if(!initData){$('login-error').textContent='Открой игру из Telegram-бота, чтобы войти.';return}try{tg.ready();tg.expand();$('login-error').textContent='Подключаем аккаунт…';const data=await request('/api/auth/telegram',{initData},false);token=data.accessToken;applyPlayer()}catch(e){$('login-error').textContent='Не удалось войти: '+e.message}}
 
+const cameraTarget=new THREE.Vector3(0,.8,-1.5);
+let cameraAzimuth=0;
+let cameraPolar=Math.atan2(60,30-.8);
 function updateOrbitCamera(){const orbitRadius=Math.hypot(cameraRadius,cameraHeight-.8),sinPolar=Math.sin(cameraPolar);camera.position.set(cameraTarget.x+orbitRadius*sinPolar*Math.sin(cameraAzimuth),cameraTarget.y+orbitRadius*Math.cos(cameraPolar),cameraTarget.z+orbitRadius*sinPolar*Math.cos(cameraAzimuth));camera.lookAt(cameraTarget)}
 
 function cameraPosition(){updateOrbitCamera()}
-window.GREEN_WORLD_GET_GAZEBO_CAMERA_DIAGNOSTIC=()=>{
- const gazeboObject=window.GREEN_WORLD_GAZEBO_OBJECT;
- if(!gazeboObject)throw new Error('Объект беседки ещё не создан функцией makeWorldLandscape');
- gazeboObject.updateWorldMatrix(true,true);
- camera.updateMatrixWorld(true);
- camera.updateProjectionMatrix();
- const gazeboBounds=new THREE.Box3().setFromObject(gazeboObject);
- if(gazeboBounds.isEmpty())throw new Error('Не удалось получить мировые габариты беседки');
- const box=gazeboObject.getWorldPosition(new THREE.Vector3());
- const corners=[];
- for(const x of [gazeboBounds.min.x,gazeboBounds.max.x])for(const y of [gazeboBounds.min.y,gazeboBounds.max.y])for(const z of [gazeboBounds.min.z,gazeboBounds.max.z]){
-  const p=new THREE.Vector3(x,y,z).project(camera);
-  corners.push({x:p.x,y:p.y,z:p.z});
- }
- const xs=corners.map(p=>p.x),ys=corners.map(p=>p.y),zs=corners.map(p=>p.z);
- const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys),minZ=Math.min(...zs),maxZ=Math.max(...zs);
- const intersectsScreen=maxX>=-1&&minX<=1&&maxY>=-1&&minY<=1;
- const depthVisible=maxZ>=-1&&minZ<=1;
- const hFov=2*Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*camera.aspect);
- const dx=box.x-camera.position.x,dz=box.z-camera.position.z;
- const horizontalAngle=THREE.MathUtils.radToDeg(Math.atan2(dx,-dz));
- const projected={
-  leftPercent:(minX+1)*50,rightPercent:(maxX+1)*50,
-  topPercent:(1-maxY)*50,bottomPercent:(1-minY)*50,
-  minNdcX:minX,maxNdcX:maxX,minNdcY:minY,maxNdcY:maxY
- };
- return {
-  viewport:{width:innerWidth,height:innerHeight,aspect:innerWidth/innerHeight,projectionAspect:camera.aspect},
-  camera:{x:camera.position.x,y:camera.position.y,z:camera.position.z,target:{x:cameraTarget.x,y:cameraTarget.y,z:cameraTarget.z},verticalFov:camera.fov,horizontalFov:THREE.MathUtils.radToDeg(hFov)},
-  gazebo:{x:box.x,y:box.y,z:box.z},
-  horizontalAngleDegrees:horizontalAngle,
-  projectedBounds:projected,
-  cornersInFrame:corners.filter(p=>p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1&&p.z>=-1&&p.z<=1).length,
-  totalCorners:corners.length,
-  intersectsScreen,depthVisible,visibleInCameraFrustum:intersectsScreen&&depthVisible,
-  verdict:!depthVisible?'Беседка за ближней/дальней плоскостью камеры':!intersectsScreen?'Беседка вне границ кадра':'Проекция габаритов беседки пересекает экран',
-  note:'Проверка проецирует 8 углов мирового AABB беседки на экран. Она проверяет попадание габаритов в кадр, но не учитывает перекрытие другими объектами.'
- };
-};
 
-function resize(){camera.aspect=getGreenWorldCameraAspect();camera.updateProjectionMatrix();applyRenderResolution()}addEventListener('resize',resize);
+function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();applyRenderResolution()}addEventListener('resize',resize);
 // Плавное течение реки: сдвигаем карту бликов по руслу, сохраняя непрерывность текстуры.
 const riverFlowClock=new THREE.Clock();
 // GREEN WORLD — единая финальная настройка качества материалов всей сцены.
@@ -3877,19 +3038,19 @@ scene.traverse(object=>{
  const materials=Array.isArray(object.material)?object.material:[object.material];
  for(const material of materials){
    if(!material)continue;
-   material.dithering=!mobile&&!object.userData.crispRoad&&!material.isMeshBasicMaterial;
+   material.dithering=!object.userData.crispRoad&&!material.isMeshBasicMaterial;
    window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH.materials++;
    for(const key of ['map','alphaMap','aoMap','bumpMap','displacementMap','emissiveMap','lightMap','metalnessMap','normalMap','roughnessMap']){
      const texture=material[key];
      if(!texture||!texture.isTexture)continue;
-     const startupAnisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),mobile?2:16);
+     const startupAnisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),18);
      if(texture.anisotropy!==startupAnisotropy){texture.anisotropy=startupAnisotropy;texture.needsUpdate=true;}
      window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH.textures++;
    }
-   if(!mobile)material.needsUpdate=true;
+   material.needsUpdate=true;
  }
 });
-cameraPosition();function animate(){requestAnimationFrame(animate);adaptRenderQuality(performance.now());const flowDelta=Math.min(riverFlowClock.getDelta(),.05),flowTime=riverFlowClock.elapsedTime;if(riverWaterTexture){riverWaterTexture.offset.x=(riverWaterTexture.offset.x+flowDelta*(.19+.025*Math.sin(flowTime*.21)))%1;riverWaterTexture.offset.y=(riverWaterTexture.offset.y+flowDelta*(.012+.004*Math.sin(flowTime*.17)))%1;}if(riverSurfaceMesh){const p=riverSurfaceMesh.geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i);const wave=Math.sin(x*.34-flowTime*1.72+z*.22)*.031+Math.sin(x*.17-flowTime*1.18-z*.48)*.022+Math.sin(z*.9+flowTime*.94)*.009+Math.sin(x*.105-flowTime*.91+z*.13)*.012+Math.sin(x*.48-flowTime*1.36-z*.31)*.007;p.setZ(i,wave);}p.needsUpdate=true;riverSurfaceMesh.geometry.computeVertexNormals();}for(const sparkle of riverSparkles){const x=-25+((sparkle.phase+flowTime*sparkle.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,5.5);const pulse=.45+.55*(.5+.5*Math.sin(flowTime*2.4+sparkle.phase2));sparkle.mesh.position.x=x;sparkle.mesh.position.y=.145+Math.sin(flowTime*1.6+sparkle.phase2)*.006;sparkle.mesh.position.z=sparkle.z+Math.sin(flowTime*.9+sparkle.phase2)*.065;sparkle.material.opacity=(.025+.22*fade)*pulse;sparkle.mesh.scale.x=(1.1+.7*pulse);}for(const ribbon of riverFlowRibbons){const x=-25+((ribbon.phase+flowTime*ribbon.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,4.8);ribbon.mesh.position.x=x;ribbon.mesh.position.y=.128+Math.sin(flowTime*1.8+ribbon.offset)*.004;ribbon.mesh.position.z=ribbon.z+Math.sin(flowTime*.7+ribbon.offset)*.055;ribbon.material.opacity=(.025+.19*fade)*(.78+.22*Math.sin(flowTime*1.35+ribbon.offset));}for(const current of riverCurrentObjects){const x=-25+((current.phase+flowTime*current.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,4.2);current.mesh.position.x=x;current.mesh.position.y=.116+Math.sin(flowTime*1.7+current.offset)*.003;current.mesh.position.z=current.baseZ+Math.sin(flowTime*.62+current.offset)*.045;current.material.opacity=(.035+.19*fade)*(.82+.18*Math.sin(flowTime*1.25+current.offset));}for(const item of riverMotionObjects){const wave=Math.sin(flowTime*item.speed+item.phase);item.mesh.position.x=item.baseX+Math.sin(flowTime*item.speed*.72+item.phase)*item.range;item.mesh.position.y=.092+Math.max(0,wave)*.018;const pulse=.78+.22*Math.sin(flowTime*item.speed*1.8+item.phase);item.mesh.scale.x=pulse;item.mesh.material.opacity=item.baseLength<.6?.13+.16*(.5+.5*wave):.12+.12*(.5+.5*wave)}for(const ring of riverRingObjects){const cycle=(flowTime*ring.speed+ring.phase)%(Math.PI*2),progress=(1-Math.cos(cycle))*.5;const radius=.12+progress*.72;ring.mesh.position.x=ring.baseX+Math.sin(flowTime*.31+ring.phase)*.12;ring.mesh.position.z=ring.baseZ+Math.cos(flowTime*.27+ring.phase)*.1;ring.mesh.scale.set(radius,1,radius*.72);ring.material.opacity=.2*(1-progress)}for(const foam of riverFoamObjects){const drift=(flowTime*foam.speed+foam.phase)%(Math.PI*2);foam.mesh.position.x=foam.baseX+Math.sin(drift)*foam.drift;foam.mesh.position.y=.108+Math.max(0,Math.sin(drift*1.35+foam.phase))*.012;foam.mesh.position.z=foam.baseZ+Math.cos(drift*.7)*.16;const pulse=.68+.32*Math.sin(drift*1.6);foam.mesh.scale.x=(.22+(foam.phase%3)*.06)*pulse;foam.mesh.scale.z=(.055+(foam.phase%2)*.018)*(.88+.12*Math.cos(drift));foam.material.opacity=.045+.11*(.5+.5*Math.sin(drift+foam.phase))}for(const streak of riverDriftStreaks){const travel=(streak.phase+flowTime*streak.speed)%50;const edge=Math.min(travel,50-travel);const fade=THREE.MathUtils.smoothstep(edge,0,5.2);const pulse=.72+.28*Math.sin(flowTime*2.1+streak.offset);streak.mesh.position.x=-25+travel;streak.mesh.position.y=.137+Math.sin(flowTime*1.45+streak.offset)*.004;streak.mesh.position.z=streak.z+Math.sin(flowTime*.72+streak.offset)*.035;streak.mesh.scale.x=.82+.38*pulse;streak.material.opacity=(.035+.19*fade)*pulse;}for(const crest of riverWaveCrests){const travel=(crest.phase+flowTime*crest.speed)%50;const edge=Math.min(travel,50-travel);const fade=THREE.MathUtils.smoothstep(edge,0,5.5);const swell=Math.sin(flowTime*1.7+crest.offset);crest.mesh.position.x=-25+travel;crest.mesh.position.y=.145+Math.max(0,swell)*.012;crest.mesh.position.z=crest.z+Math.sin(flowTime*.83+crest.offset)*.06;crest.mesh.rotation.y=Math.sin(flowTime*.55+crest.offset)*.035;crest.material.opacity=(.018+.16*fade)*(.68+.32*(.5+.5*swell));}renderer.render(scene,camera)}animate();
+cameraPosition();function animate(){requestAnimationFrame(animate);const flowDelta=Math.min(riverFlowClock.getDelta(),.05),flowTime=riverFlowClock.elapsedTime;if(riverWaterTexture){riverWaterTexture.offset.x=(riverWaterTexture.offset.x+flowDelta*(.19+.025*Math.sin(flowTime*.21)))%1;riverWaterTexture.offset.y=(riverWaterTexture.offset.y+flowDelta*(.012+.004*Math.sin(flowTime*.17)))%1;}if(riverSurfaceMesh){const p=riverSurfaceMesh.geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i);const wave=Math.sin(x*.34-flowTime*1.72+z*.22)*.031+Math.sin(x*.17-flowTime*1.18-z*.48)*.022+Math.sin(z*.9+flowTime*.94)*.009+Math.sin(x*.105-flowTime*.91+z*.13)*.012+Math.sin(x*.48-flowTime*1.36-z*.31)*.007;p.setZ(i,wave);}p.needsUpdate=true;riverSurfaceMesh.geometry.computeVertexNormals();}for(const sparkle of riverSparkles){const x=-25+((sparkle.phase+flowTime*sparkle.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,5.5);const pulse=.45+.55*(.5+.5*Math.sin(flowTime*2.4+sparkle.phase2));sparkle.mesh.position.x=x;sparkle.mesh.position.y=.145+Math.sin(flowTime*1.6+sparkle.phase2)*.006;sparkle.mesh.position.z=sparkle.z+Math.sin(flowTime*.9+sparkle.phase2)*.065;sparkle.material.opacity=(.025+.22*fade)*pulse;sparkle.mesh.scale.x=(1.1+.7*pulse);}for(const ribbon of riverFlowRibbons){const x=-25+((ribbon.phase+flowTime*ribbon.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,4.8);ribbon.mesh.position.x=x;ribbon.mesh.position.y=.128+Math.sin(flowTime*1.8+ribbon.offset)*.004;ribbon.mesh.position.z=ribbon.z+Math.sin(flowTime*.7+ribbon.offset)*.055;ribbon.material.opacity=(.025+.19*fade)*(.78+.22*Math.sin(flowTime*1.35+ribbon.offset));}for(const current of riverCurrentObjects){const x=-25+((current.phase+flowTime*current.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,4.2);current.mesh.position.x=x;current.mesh.position.y=.116+Math.sin(flowTime*1.7+current.offset)*.003;current.mesh.position.z=current.baseZ+Math.sin(flowTime*.62+current.offset)*.045;current.material.opacity=(.035+.19*fade)*(.82+.18*Math.sin(flowTime*1.25+current.offset));}for(const item of riverMotionObjects){const wave=Math.sin(flowTime*item.speed+item.phase);item.mesh.position.x=item.baseX+Math.sin(flowTime*item.speed*.72+item.phase)*item.range;item.mesh.position.y=.092+Math.max(0,wave)*.018;const pulse=.78+.22*Math.sin(flowTime*item.speed*1.8+item.phase);item.mesh.scale.x=pulse;item.mesh.material.opacity=item.baseLength<.6?.13+.16*(.5+.5*wave):.12+.12*(.5+.5*wave)}for(const ring of riverRingObjects){const cycle=(flowTime*ring.speed+ring.phase)%(Math.PI*2),progress=(1-Math.cos(cycle))*.5;const radius=.12+progress*.72;ring.mesh.position.x=ring.baseX+Math.sin(flowTime*.31+ring.phase)*.12;ring.mesh.position.z=ring.baseZ+Math.cos(flowTime*.27+ring.phase)*.1;ring.mesh.scale.set(radius,1,radius*.72);ring.material.opacity=.2*(1-progress)}for(const foam of riverFoamObjects){const drift=(flowTime*foam.speed+foam.phase)%(Math.PI*2);foam.mesh.position.x=foam.baseX+Math.sin(drift)*foam.drift;foam.mesh.position.y=.108+Math.max(0,Math.sin(drift*1.35+foam.phase))*.012;foam.mesh.position.z=foam.baseZ+Math.cos(drift*.7)*.16;const pulse=.68+.32*Math.sin(drift*1.6);foam.mesh.scale.x=(.22+(foam.phase%3)*.06)*pulse;foam.mesh.scale.z=(.055+(foam.phase%2)*.018)*(.88+.12*Math.cos(drift));foam.material.opacity=.045+.11*(.5+.5*Math.sin(drift+foam.phase))}for(const streak of riverDriftStreaks){const travel=(streak.phase+flowTime*streak.speed)%50;const edge=Math.min(travel,50-travel);const fade=THREE.MathUtils.smoothstep(edge,0,5.2);const pulse=.72+.28*Math.sin(flowTime*2.1+streak.offset);streak.mesh.position.x=-25+travel;streak.mesh.position.y=.137+Math.sin(flowTime*1.45+streak.offset)*.004;streak.mesh.position.z=streak.z+Math.sin(flowTime*.72+streak.offset)*.035;streak.mesh.scale.x=.82+.38*pulse;streak.material.opacity=(.035+.19*fade)*pulse;}for(const crest of riverWaveCrests){const travel=(crest.phase+flowTime*crest.speed)%50;const edge=Math.min(travel,50-travel);const fade=THREE.MathUtils.smoothstep(edge,0,5.5);const swell=Math.sin(flowTime*1.7+crest.offset);crest.mesh.position.x=-25+travel;crest.mesh.position.y=.145+Math.max(0,swell)*.012;crest.mesh.position.z=crest.z+Math.sin(flowTime*.83+crest.offset)*.06;crest.mesh.rotation.y=Math.sin(flowTime*.55+crest.offset)*.035;crest.material.opacity=(.018+.16*fade)*(.68+.32*(.5+.5*swell));}renderer.render(scene,camera)}animate();
 window.GREEN_WORLD_STARTUP_STAGE='renderer-running';
 window.GREEN_WORLD_MODULE_READY=true;window.GREEN_WORLD_STARTUP_STAGE='module-ready';window.dispatchEvent(new Event('green-world-renderer-ready'));
 window.addEventListener('green-world-auth',event=>{
@@ -3904,7 +3065,7 @@ if(window.GREEN_WORLD_AUTH_RESULT){
  applyPlayer();
 
 }
-</script>
+
 <script>
 /* Start the 3D world automatically after Telegram authentication succeeds. */
 (()=>{
