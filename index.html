@@ -2036,6 +2036,7 @@ const makeRearPondContour=()=>{
  return shape;
 };
 const rearPondShape=makeRearPondContour();
+window.GREEN_WORLD_REAR_POND_SHAPE=rearPondShape; // Общая ссылка для внешней диагностики камеры.
 const rearPondGeometry=new THREE.ShapeGeometry(rearPondShape,32);
 const rearPond=new THREE.Mesh(rearPondGeometry,rearPondMaterial);
 rearPond.name='GREEN_WORLD_Rear_Pond';
@@ -3690,7 +3691,8 @@ window.GREEN_WORLD_GET_REAR_POND_CAMERA_DIAGNOSTIC=()=>{
  const pond=world.getObjectByName('GREEN_WORLD_Rear_Pond'),bank=world.getObjectByName('GREEN_WORLD_Rear_Pond_Bank'),upper=world.getObjectByName('GREEN_WORLD_Rear_Pond_Upper_Stone_Rim'),house=buildingObjects[0];
  if(!pond||!house)throw new Error('Пруд или главный дом ещё не созданы');
  const boxOf=o=>{o.updateWorldMatrix(true,true);const b=new THREE.Box3().setFromObject(o);return {min:{x:+b.min.x.toFixed(2),y:+b.min.y.toFixed(2),z:+b.min.z.toFixed(2)},max:{x:+b.max.x.toFixed(2),y:+b.max.y.toFixed(2),z:+b.max.z.toFixed(2)},size:{x:+(b.max.x-b.min.x).toFixed(2),y:+(b.max.y-b.min.y).toFixed(2),z:+(b.max.z-b.min.z).toFixed(2)}}};
- const poly=rearPondShape.extractPoints(96).shape;
+ const pondShape=window.GREEN_WORLD_REAR_POND_SHAPE;if(!pondShape)throw new Error('Контур заднего пруда ещё не зарегистрирован');
+ const poly=pondShape.extractPoints(96).shape;
  const inside=(x,y)=>{let v=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if(((a.y>y)!==(b.y>y))&&(x<(b.x-a.x)*(y-a.y)/(b.y-a.y)+a.x))v=!v;}return v;};
  const ray=new THREE.Raycaster(),samples=[];
  for(let py=-5.8;py<=5.81;py+=1.45)for(let x=-28.5;x<=28.51;x+=3.8){if(!inside(x,py))continue;
