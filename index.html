@@ -105,6 +105,8 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 #treeDiagOutput{display:block;width:100%;height:min(48vh,340px);margin:10px 0;padding:10px;border:1px solid #b8cfad;border-radius:10px;background:#fff;color:#254b30;font:12px/1.4 monospace;white-space:pre;overflow:auto;resize:vertical}
 .treeDiagActions{display:flex;gap:8px;flex-wrap:wrap}
 .treeDiagActions button{padding:10px 13px;border:1px solid #b7cda8;border-radius:10px;background:#dcebd4;color:#315b38;font-weight:900}
+
+#rearPondDiagQuickOpen{position:fixed;z-index:1001;top:calc(env(safe-area-inset-top,0px) + 106px);right:10px;padding:11px 14px;border:2px solid #b9e7dc;border-radius:12px;background:linear-gradient(155deg,#167f83,#104d59);color:#fff;font-size:13px;font-weight:950;box-shadow:0 3px 12px #0009;max-width:180px;min-height:44px;pointer-events:auto;cursor:pointer}
  #fullLayoutDiagQuickOpen{position:fixed;z-index:1000;top:calc(env(safe-area-inset-top,0px) + 54px);right:10px;padding:10px 13px;border:2px solid #e8c16c;border-radius:12px;background:linear-gradient(155deg,#81512d,#382116);color:#fff1cf;font-size:12px;font-weight:950;box-shadow:0 3px 10px #0009;max-width:170px;min-height:42px;pointer-events:auto;cursor:pointer}
 </style>
 </head>
@@ -117,6 +119,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 </div>
 
 <button id="fullLayoutDiagQuickOpen" type="button">🔎 Полная проверка</button>
+<button id="rearPondDiagQuickOpen" type="button">💧 Проверить пруд</button>
 <div id="walletHud" aria-label="Баланс GREEN COIN и собранные яблоки">
  <div class="walletHudMetric"><span class="walletHudIcon" aria-hidden="true">🪙</span><span class="walletHudText"><b class="walletHudValue" id="greenCoinCount">100</b><span class="walletHudLabel">GREEN COIN</span></span></div>
  <span class="walletHudDivider" aria-hidden="true"></span>
@@ -3839,6 +3842,46 @@ document.addEventListener('click',function(event){
  shade.classList.add('open');
  status.textContent='Запускаю полную проверку…';
  refresh.click();
+},true);
+
+document.addEventListener('click',function(event){
+ const button=event.target&&event.target.closest?event.target.closest('#rearPondDiagQuickOpen'):null;
+ if(!button)return;
+ event.preventDefault();
+ event.stopImmediatePropagation();
+ const shade=document.getElementById('treeDiagShade');
+ const title=document.getElementById('treeDiagTitle');
+ const status=document.getElementById('treeDiagStatus');
+ const output=document.getElementById('treeDiagOutput');
+ if(!shade||!status||!output){window.alert('Окно проверки не загрузилось. Обнови игру полностью.');return;}
+ const menu=document.getElementById('farmMenuShade');if(menu)menu.classList.remove('open');
+ if(title)title.textContent='Проверка заднего пруда GREEN WORLD';
+ shade.classList.add('open');
+ status.textContent='Рассчитываю видимость пруда с текущей камеры…';
+ try{
+  if(typeof window.GREEN_WORLD_GET_REAR_POND_CAMERA_DIAGNOSTIC!=='function')throw new Error('3D-мир ещё не загрузил диагностику. Подожди несколько секунд и нажми кнопку снова.');
+  const d=window.GREEN_WORLD_GET_REAR_POND_CAMERA_DIAGNOSTIC();
+  const f=n=>n==null?'—':Number(n).toFixed(2);
+  const b=d.pond.bounds,sc=d.pond.screen,c=d.camera;
+  output.value=[
+   'ПРОВЕРКА ЗАДНЕГО ПРУДА GREEN WORLD',
+   'КАМЕРА: X='+f(c.position.x)+' Y='+f(c.position.y)+' Z='+f(c.position.z),
+   'ЦЕЛЬ: X='+f(c.target.x)+' Y='+f(c.target.y)+' Z='+f(c.target.z),
+   'ПРУД: X '+f(b.min.x)+'…'+f(b.max.x)+' | Z '+f(b.min.z)+'…'+f(b.max.z),
+   'ЦЕНТР ПРУДА: X='+f((b.min.x+b.max.x)/2)+' Z='+f((b.min.z+b.max.z)/2),
+   'ПРУД НА ЭКРАНЕ: X '+f(sc.left)+'…'+f(sc.right)+'% | Y '+f(sc.top)+'…'+f(sc.bottom)+'%',
+   'ТОЧКИ ВИДИМЫ: '+d.pond.visible+'/'+d.pond.sampleCount,
+   'ТОЧКИ В КАДРЕ: '+d.pond.insideFrame,
+   'ЗАКРЫТЫ ДОМОМ: '+d.pond.blockedByHouse,
+   'ЗАКРЫТЫ ДРУГИМИ ОБЪЕКТАМИ: '+d.pond.blockedByScene,
+   'ОБЩАЯ ВИДИМОСТЬ: '+f(d.pond.visiblePercent)+'%',
+   'ДОМ: X '+f(d.house.bounds.min.x)+'…'+f(d.house.bounds.max.x)+' | Z '+f(d.house.bounds.min.z)+'…'+f(d.house.bounds.max.z),
+   'ВЫВОД: '+d.verdict,
+   '',
+   'Геометрия и координаты объектов этой проверкой не изменяются.'
+  ].join('\\n');
+  status.textContent='Проверка пруда завершена. Нажми «Копировать результат» и отправь отчёт сюда.';
+ }catch(error){status.textContent='Не удалось выполнить проверку';output.value='ОШИБКА ПРОВЕРКИ ПРУДА\\n'+(error?.stack||error?.message||String(error));}
 },true);
 </script>
 </body>
