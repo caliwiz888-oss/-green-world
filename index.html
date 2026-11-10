@@ -3771,5 +3771,29 @@ const update=()=>{if(mode==='fullLayout'){out.value='ПОЛНАЯ ДИАГНОС
 const fmt=n=>Number(n).toFixed(2);const lines=['ДЕРЕВЬЯ: '+d.count,'ВОЗМОЖНЫЕ ПЕРЕСЕЧЕНИЯ ГРАНИЧНЫХ ОБЪЁМОВ: '+d.crownFootprintOverlaps.length,'','СПИСОК ДЕРЕВЬЕВ:'];for(const t of d.trees){lines.push('#'+t.index+' центр X='+fmt(t.center.x)+' Z='+fmt(t.center.z)+' | ширина='+fmt(t.width)+' глубина='+fmt(t.depth)+' высота='+fmt(t.height));}lines.push('','ВОЗМОЖНЫЕ ПЕРЕСЕЧЕНИЯ:');if(!d.crownFootprintOverlaps.length)lines.push('Не обнаружены по порогу 0.35 × 0.35.');else for(const p of d.crownFootprintOverlaps)lines.push('#'+p.a+' ↔ #'+p.b+' | X='+fmt(p.overlapX)+' Z='+fmt(p.overlapZ));lines.push('','Примечание: AABB-пересечения — сигнал для проверки, а не доказательство визуального наложения.');out.value=lines.join('\n');status.textContent='Расчёт получен. Деревьев: '+d.count+'; возможных пересечений: '+d.crownFootprintOverlaps.length+'.';};
 openers.forEach(open=>open.addEventListener('click',()=>{mode='trees';if(title)title.textContent='Диагностика деревьев GREEN WORLD';shade.classList.add('open');update();}));if(gazeboOpen)gazeboOpen.addEventListener('click',()=>{mode='gazebo';if(title)title.textContent='Проверка беседки GREEN WORLD';shade.classList.add('open');update();});if(gazeboCameraOpen)gazeboCameraOpen.addEventListener('click',()=>{mode='gazeboCamera';if(title)title.textContent='Видимость беседки с камеры';shade.classList.add('open');update();});if(fullLayoutOpen)fullLayoutOpen.addEventListener('click',()=>{const menu=document.getElementById('farmMenuShade');if(menu)menu.classList.remove('open');mode='fullLayout';if(title)title.textContent='Полная проверка двора GREEN WORLD';shade.classList.add('open');update();});refresh.addEventListener('click',update);close.addEventListener('click',()=>shade.classList.remove('open'));shade.addEventListener('click',e=>{if(e.target===shade)shade.classList.remove('open');});copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(out.value);status.textContent='Результат скопирован. Вставь его в чат.';}catch(e){out.focus();out.select();status.textContent='Выделил текст. Удерживай и выбери «Копировать», затем вставь в чат.';}});document.addEventListener('keydown',e=>{if(e.key==='Escape')shade.classList.remove('open');});})();
 </script>
+<script>
+/* Mobile-safe delegated handler: works even if the diagnostics setup script ran too early. */
+document.addEventListener('click',function(event){
+ const button=event.target&&event.target.closest?event.target.closest('#fullLayoutDiagQuickOpen'):null;
+ if(!button)return;
+ event.preventDefault();
+ event.stopImmediatePropagation();
+ const shade=document.getElementById('treeDiagShade');
+ const refresh=document.getElementById('treeDiagRefresh');
+ const title=document.getElementById('treeDiagTitle');
+ const status=document.getElementById('treeDiagStatus');
+ const output=document.getElementById('treeDiagOutput');
+ if(!shade||!refresh||!output||!status){
+  window.alert('Окно диагностики не загрузилось. Обнови игру полностью.');
+  return;
+ }
+ const menu=document.getElementById('farmMenuShade');
+ if(menu)menu.classList.remove('open');
+ if(title)title.textContent='Полная проверка двора GREEN WORLD';
+ shade.classList.add('open');
+ status.textContent='Запускаю полную проверку…';
+ refresh.click();
+},true);
+</script>
 </body>
 </html>
