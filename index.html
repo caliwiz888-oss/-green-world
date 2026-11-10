@@ -3319,63 +3319,31 @@ function cameraPosition(){updateOrbitCamera()}
 function resize(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();applyRenderResolution()}addEventListener('resize',resize);
 // Плавное течение реки: сдвигаем карту бликов по руслу, сохраняя непрерывность текстуры.
 const riverFlowClock=new THREE.Clock();
-// GREEN WORLD — единый PBR-проход по ВСЕЙ уже собранной 3D-сцене.
-// Сохраняем геометрию, цвета, текстуры и координаты утверждённого мира,
-// но приводим обычные материалы к физической модели отражения Three.js.
-window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH={materials:0,physicalMaterials:0,textures:0,geometries:0};
+// GREEN WORLD — единая финальная настройка качества материалов всей сцены.
+// Дизеринг уменьшает полосы на плавных градиентах света и не меняет палитру объектов.
+window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH={materials:0,textures:0};
 window.GREEN_WORLD_SHADOW_DIAGNOSTICS={receivers:0,treeCasters:0};
-const gwPhysicalMaterialCache=new WeakMap();
-const gwTextureAnisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),18);
 scene.traverse(object=>{
- if(!object.isMesh)return;
- // Проверяем нормали/границы геометрии, не меняя вершины и размеры объектов.
- if(object.geometry&&object.geometry.isBufferGeometry){
-   const geometry=object.geometry;
-   if(geometry.attributes.position&&!geometry.attributes.normal){
-     geometry.computeVertexNormals();
-   }
-   if(!geometry.boundingSphere)geometry.computeBoundingSphere();
-   window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH.geometries++;
- }
- if(!object.material)return;
- const sourceMaterials=Array.isArray(object.material)?object.material:[object.material];
- const finishedMaterials=sourceMaterials.map(source=>{
-   if(!source)return source;
-   let material=source;
-   // MeshPhysicalMaterial наследует PBR-параметры StandardMaterial;
-   // copy() переносит карту, цвет, прозрачность, стороны и остальные настройки.
-   if(source.isMeshStandardMaterial&&!source.isMeshPhysicalMaterial){
-     material=gwPhysicalMaterialCache.get(source);
-     if(!material){
-       material=new THREE.MeshPhysicalMaterial().copy(source);
-       const roughness=THREE.MathUtils.clamp(source.roughness??.8,0,1);
-       const hasSheen=!!source.sheen;
-       material.clearcoat=hasSheen ? .018 : THREE.MathUtils.clamp((1-roughness)*.16+.025,.025,.14);
-       material.clearcoatRoughness=Math.max(.42,roughness);
-       material.envMapIntensity=source.envMapIntensity??.62;
-       material.needsUpdate=true;
-       gwPhysicalMaterialCache.set(source,material);
-       window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH.physicalMaterials++;
-     }
-   }
+ if(!object.isMesh||!object.material)return;
+ const materials=Array.isArray(object.material)?object.material:[object.material];
+ // Все непрозрачные поверхности мира принимают тени: фасады, крыши, ограда, дорожки и грунт.
+ const receivesRealShadow=materials.some(material=>material&&!material.transparent&&(material.opacity??1)>=.98&&!material.isMeshBasicMaterial);
+ if(receivesRealShadow){object.receiveShadow=true;window.GREEN_WORLD_SHADOW_DIAGNOSTICS.receivers++;}
+ if(object.castShadow)window.GREEN_WORLD_SHADOW_DIAGNOSTICS.treeCasters++;
+ for(const material of materials){
+   if(!material)continue;
    material.dithering=!object.userData.crispRoad&&!material.isMeshBasicMaterial;
    window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH.materials++;
    for(const key of ['map','alphaMap','aoMap','bumpMap','displacementMap','emissiveMap','lightMap','metalnessMap','normalMap','roughnessMap']){
      const texture=material[key];
      if(!texture||!texture.isTexture)continue;
-     if(texture.anisotropy!==gwTextureAnisotropy){texture.anisotropy=gwTextureAnisotropy;texture.needsUpdate=true;}
+     const startupAnisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),18);
+     if(texture.anisotropy!==startupAnisotropy){texture.anisotropy=startupAnisotropy;texture.needsUpdate=true;}
      window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH.textures++;
    }
    material.needsUpdate=true;
-   return material;
- });
- object.material=Array.isArray(object.material)?finishedMaterials:finishedMaterials[0];
- // Все непрозрачные физические поверхности получают реальные тени.
- const receivesRealShadow=finishedMaterials.some(material=>material&&!material.transparent&&(material.opacity??1)>=.98&&!material.isMeshBasicMaterial);
- if(receivesRealShadow){object.receiveShadow=true;window.GREEN_WORLD_SHADOW_DIAGNOSTICS.receivers++;}
- if(object.castShadow)window.GREEN_WORLD_SHADOW_DIAGNOSTICS.treeCasters++;
+ }
 });
-console.info('[GREEN WORLD] Full-scene PBR pass',window.GREEN_WORLD_GLOBAL_MATERIAL_FINISH);
 cameraPosition();function animate(){requestAnimationFrame(animate);const flowDelta=Math.min(riverFlowClock.getDelta(),.05),flowTime=riverFlowClock.elapsedTime;if(riverWaterTexture){riverWaterTexture.offset.x=(riverWaterTexture.offset.x+flowDelta*(.19+.025*Math.sin(flowTime*.21)))%1;riverWaterTexture.offset.y=(riverWaterTexture.offset.y+flowDelta*(.012+.004*Math.sin(flowTime*.17)))%1;}if(riverSurfaceMesh){const p=riverSurfaceMesh.geometry.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getY(i);const wave=Math.sin(x*.34-flowTime*1.72+z*.22)*.031+Math.sin(x*.17-flowTime*1.18-z*.48)*.022+Math.sin(z*.9+flowTime*.94)*.009+Math.sin(x*.105-flowTime*.91+z*.13)*.012+Math.sin(x*.48-flowTime*1.36-z*.31)*.007;p.setZ(i,wave);}p.needsUpdate=true;riverSurfaceMesh.geometry.computeVertexNormals();}for(const sparkle of riverSparkles){const x=-25+((sparkle.phase+flowTime*sparkle.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,5.5);const pulse=.45+.55*(.5+.5*Math.sin(flowTime*2.4+sparkle.phase2));sparkle.mesh.position.x=x;sparkle.mesh.position.y=.145+Math.sin(flowTime*1.6+sparkle.phase2)*.006;sparkle.mesh.position.z=sparkle.z+Math.sin(flowTime*.9+sparkle.phase2)*.065;sparkle.material.opacity=(.025+.22*fade)*pulse;sparkle.mesh.scale.x=(1.1+.7*pulse);}for(const ribbon of riverFlowRibbons){const x=-25+((ribbon.phase+flowTime*ribbon.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,4.8);ribbon.mesh.position.x=x;ribbon.mesh.position.y=.128+Math.sin(flowTime*1.8+ribbon.offset)*.004;ribbon.mesh.position.z=ribbon.z+Math.sin(flowTime*.7+ribbon.offset)*.055;ribbon.material.opacity=(.025+.19*fade)*(.78+.22*Math.sin(flowTime*1.35+ribbon.offset));}for(const current of riverCurrentObjects){const x=-25+((current.phase+flowTime*current.speed)%50);const edge=Math.min(x+25,25-x);const fade=THREE.MathUtils.smoothstep(edge,0,4.2);current.mesh.position.x=x;current.mesh.position.y=.116+Math.sin(flowTime*1.7+current.offset)*.003;current.mesh.position.z=current.baseZ+Math.sin(flowTime*.62+current.offset)*.045;current.material.opacity=(.035+.19*fade)*(.82+.18*Math.sin(flowTime*1.25+current.offset));}for(const item of riverMotionObjects){const wave=Math.sin(flowTime*item.speed+item.phase);item.mesh.position.x=item.baseX+Math.sin(flowTime*item.speed*.72+item.phase)*item.range;item.mesh.position.y=.092+Math.max(0,wave)*.018;const pulse=.78+.22*Math.sin(flowTime*item.speed*1.8+item.phase);item.mesh.scale.x=pulse;item.mesh.material.opacity=item.baseLength<.6?.13+.16*(.5+.5*wave):.12+.12*(.5+.5*wave)}for(const ring of riverRingObjects){const cycle=(flowTime*ring.speed+ring.phase)%(Math.PI*2),progress=(1-Math.cos(cycle))*.5;const radius=.12+progress*.72;ring.mesh.position.x=ring.baseX+Math.sin(flowTime*.31+ring.phase)*.12;ring.mesh.position.z=ring.baseZ+Math.cos(flowTime*.27+ring.phase)*.1;ring.mesh.scale.set(radius,1,radius*.72);ring.material.opacity=.2*(1-progress)}for(const foam of riverFoamObjects){const drift=(flowTime*foam.speed+foam.phase)%(Math.PI*2);foam.mesh.position.x=foam.baseX+Math.sin(drift)*foam.drift;foam.mesh.position.y=.108+Math.max(0,Math.sin(drift*1.35+foam.phase))*.012;foam.mesh.position.z=foam.baseZ+Math.cos(drift*.7)*.16;const pulse=.68+.32*Math.sin(drift*1.6);foam.mesh.scale.x=(.22+(foam.phase%3)*.06)*pulse;foam.mesh.scale.z=(.055+(foam.phase%2)*.018)*(.88+.12*Math.cos(drift));foam.material.opacity=.045+.11*(.5+.5*Math.sin(drift+foam.phase))}for(const streak of riverDriftStreaks){const travel=(streak.phase+flowTime*streak.speed)%50;const edge=Math.min(travel,50-travel);const fade=THREE.MathUtils.smoothstep(edge,0,5.2);const pulse=.72+.28*Math.sin(flowTime*2.1+streak.offset);streak.mesh.position.x=-25+travel;streak.mesh.position.y=.137+Math.sin(flowTime*1.45+streak.offset)*.004;streak.mesh.position.z=streak.z+Math.sin(flowTime*.72+streak.offset)*.035;streak.mesh.scale.x=.82+.38*pulse;streak.material.opacity=(.035+.19*fade)*pulse;}for(const crest of riverWaveCrests){const travel=(crest.phase+flowTime*crest.speed)%50;const edge=Math.min(travel,50-travel);const fade=THREE.MathUtils.smoothstep(edge,0,5.5);const swell=Math.sin(flowTime*1.7+crest.offset);crest.mesh.position.x=-25+travel;crest.mesh.position.y=.145+Math.max(0,swell)*.012;crest.mesh.position.z=crest.z+Math.sin(flowTime*.83+crest.offset)*.06;crest.mesh.rotation.y=Math.sin(flowTime*.55+crest.offset)*.035;crest.material.opacity=(.018+.16*fade)*(.68+.32*(.5+.5*swell));}renderer.render(scene,camera)}animate();
 window.GREEN_WORLD_STARTUP_STAGE='renderer-running';
 window.GREEN_WORLD_MODULE_READY=true;window.GREEN_WORLD_STARTUP_STAGE='module-ready';window.dispatchEvent(new Event('green-world-renderer-ready'));
