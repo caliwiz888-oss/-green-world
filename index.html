@@ -735,7 +735,7 @@ function group(parent,x,y,z){const g=new THREE.Group();g.position.set(x,y,z);par
 function disableCastShadows(root){root.traverse(object=>{if(object.isMesh){object.castShadow=false;object.receiveShadow=false}});return root}
 function warmLight(parent,x,y,z,intensity=0.65,distance=5){const light=new THREE.PointLight(0xffc978,intensity,distance,2);light.position.set(x,y,z);light.castShadow=false;parent.add(light);return light}
 const world=group(scene,0,0,0);
-box(world,76,.55,76,0,-.42,0,M.grass,false);
+const lawnBase=box(world,76,.55,76,0,-.42,0,M.grass,false);
 
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
 
@@ -1230,7 +1230,7 @@ function makeWorldDecor(){
   // Задняя сторона замыкает периметр ровно восемью секциями.
   fenceRun(frontFenceLeft,sideFenceEndZ,frontFenceRight,sideFenceEndZ,(frontFenceRight-frontFenceLeft)/8,0,0,{includeStart:false,includeEnd:false});
   // Жёстко отключаем отбрасывание и приём теней у всех деталей ограждения, включая столбики и навершия.
-  fenceGroup.traverse(object=>{if(object.isMesh){object.castShadow=false;object.receiveShadow=false;}});
+  fenceGroup.traverse(object=>{if(object.isMesh){object.castShadow=false;object.receiveShadow=true;}});
   // Входная арка повторяет геометрию эталона: прямые массивные устои и полукруглый верх с тремя ступенями обрамления.
   const gateSpring=2.12,gateOuter=2.78,gateInner=2.12,gateFrontZ=13.98,gateBackZ=13.76;
   const gateShape=(outerR,innerR,springY)=>{
@@ -1318,7 +1318,7 @@ function makeWorldDecor(){
    const q=c.getContext('2d');
    if(kind==='bark'){
      q.fillStyle='#765039';q.fillRect(0,0,size,size);
-     for(let i=0;i<5200;i++){
+     for(let i=0;i<3200;i++){
        const x=(i*173)%size,y=(i*293)%size,w=1+(i%5),h=12+(i*37)%115;
        q.fillStyle=i%3===0?'rgba(35,20,12,.25)':'rgba(205,157,105,.13)';q.fillRect(x,y,w,h);
      }
@@ -1683,6 +1683,22 @@ function makeWorldDecor(){
    const top=new THREE.Mesh(gwCrownGeo,gwLeaf);
    top.userData.gwPrimaryCanopyShadow=true;
    top.position.y=h*.79;top.scale.set(h*.18,h*.14,h*.17);g.add(top);
+    // Fine individual leaves add an irregular, volumetric silhouette to broadleaf crowns.
+    const leafCount=112,leafCloud=new THREE.InstancedMesh(gwPetalGeo,gwLeaf,leafCount),leafDummy=new THREE.Object3D();
+    leafCloud.name='GREEN_WORLD_Deciduous_Individual_Leaves';
+    for(let n=0;n<leafCount;n++){
+      const a=seed+n*2.399963,ring=.09+(n%5)*.038;
+      const radial=h*ring*(.84+.16*Math.sin(a*2.31+seed));
+      leafDummy.position.set(Math.cos(a)*radial,h*(.61+(n%9)*.024+.025*Math.sin(a*1.7)),Math.sin(a)*radial);
+      const size=h*(.018+(n%4)*.0035);
+      leafDummy.scale.set(size*1.25,size*.48,size*.72);
+      leafDummy.rotation.set(.18*Math.sin(a),a,.34*Math.cos(a));
+      leafDummy.updateMatrix();leafCloud.setMatrixAt(n,leafDummy.matrix);
+      const tint=.82+(n%7)*.035;leafCloud.setColorAt(n,new THREE.Color(tint,tint*1.035,tint*.91));
+    }
+    leafCloud.instanceMatrix.needsUpdate=true;
+    if(leafCloud.instanceColor)leafCloud.instanceColor.needsUpdate=true;
+    leafCloud.castShadow=false;leafCloud.receiveShadow=true;g.add(leafCloud);
    g.rotation.y=seed*.17;
    g.scale.set(1+.045*Math.sin(seed),.96+.06*Math.cos(seed*1.3),1+.045*Math.cos(seed));
    g.traverse(o=>{if(o.isMesh){
@@ -1794,11 +1810,11 @@ function makeWorldLandscape(){
  mountainRockBump.magFilter=THREE.LinearFilter;
 
  const mountainLayers=[
-  {name:'far',z:-84,base:0x82958e,mid:0x9eaaa0,high:0xc1c9bc,
+  {name:'far',z:-84,base:0x687e78,mid:0x879b91,high:0xb6c2b4,
    points:[[-108,-5],[-96,1],[-84,4],[-72,2],[-59,9],[-47,4],[-34,12],[-21,6],[-8,15],[5,7],[19,13],[32,6],[46,12],[60,5],[74,10],[88,3],[101,1],[108,-5]]},
-  {name:'main',z:-77,base:0x526c62,mid:0x788b7b,high:0xaab19c,
+  {name:'main',z:-77,base:0x435d53,mid:0x6c8271,high:0xa2b19b,
    points:[[-108,-5],[-96,2],[-83,5],[-70,3],[-57,9],[-45,6],[-34,14],[-25,20],[-16,12],[-5,17],[8,10],[20,16],[29,22],[38,13],[49,8],[61,14],[73,7],[86,11],[98,3],[108,-5]]},
-  {name:'foothills',z:-69.2,base:0x405e43,mid:0x62804f,high:0x8da16a,
+  {name:'foothills',z:-69.2,base:0x365b3c,mid:0x58794a,high:0x839b62,
    points:[[-108,-5],[-96,0],[-82,3],[-68,1],[-55,6],[-42,3],[-29,9],[-16,5],[-3,11],[10,6],[24,10],[38,4],[52,9],[66,3],[80,7],[94,1],[108,-5]]}
  ];
  const mountainColor=(layer,elevation,x,depth,index)=>{
@@ -1811,7 +1827,7 @@ function makeWorldLandscape(){
  };
  const mountainRockMaterial=new THREE.MeshStandardMaterial({
   color:0xffffff,vertexColors:true,map:mountainRockMap,bumpMap:mountainRockBump,roughnessMap:mountainRockBump,
-  bumpScale:.052,roughness:.985,metalness:0,flatShading:true,side:THREE.DoubleSide
+  bumpScale:.078,roughness:.97,metalness:0,flatShading:false,side:THREE.DoubleSide
  });
  for(let layerIndex=0;layerIndex<mountainLayers.length;layerIndex++){
   const layer=mountainLayers[layerIndex];
@@ -1829,7 +1845,8 @@ function makeWorldLandscape(){
    const x=-108+216*ix/widthSegments,ridge=ridgeAt(x);
    for(let iy=0;iy<=verticalSegments;iy++){
     const v=iy/verticalSegments,y=-6+(ridge+6)*v;
-    frontPositions.push(x,y,layer.z);
+    const relief=Math.sin(x*.31+layerIndex*1.7+v*5.2)*.19*Math.sin(Math.PI*v)+Math.sin(x*.73-v*8.1+layerIndex)*.075*Math.sin(Math.PI*v);
+     frontPositions.push(x,y,layer.z+relief);
     const c=mountainColor(layer,v,x,0,layerIndex);
     frontColors.push(c.r,c.g,c.b);
     frontUvs.push(ix/widthSegments*5,v*1.8);
@@ -1845,7 +1862,7 @@ function makeWorldLandscape(){
   frontGeometry.setAttribute('color',new THREE.Float32BufferAttribute(frontColors,3));
   frontGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(frontUvs,2));
   frontGeometry.setIndex(frontIndices);frontGeometry.computeVertexNormals();
-  const frontMaterial=mountainRockMaterial.clone();frontMaterial.bumpScale=.038;
+  const frontMaterial=mountainRockMaterial.clone();frontMaterial.bumpScale=.092;frontMaterial.flatShading=false;
   const frontWall=new THREE.Mesh(frontGeometry,frontMaterial);
   frontWall.name='GREEN_WORLD_Mountain_FrontRock_'+layer.name;
   frontWall.castShadow=false;frontWall.receiveShadow=false;mountainWorld.add(frontWall);
@@ -1890,13 +1907,7 @@ function makeWorldLandscape(){
   }));
   facet.position.z=z;facet.castShadow=false;facet.receiveShadow=false;mountainWorld.add(facet);
  };
- // Грани центральных пиков — чередование освещённого камня и прохладных теневых склонов.
- for(const [x,y,w] of [[-25,20,13],[29,22,12],[-55,9,9],[61,14,10]]){
-  const z=-76.82;
-  addRockFacet([[x-w,y*.18],[x,y],[x-w*.12,y*.52]],0x8e9a88,z);
-  addRockFacet([[x,y],[x+w,y*.22],[x-w*.12,y*.52]],0x536b61,z+.012);
-  addRockFacet([[x-w,y*.18],[x-w*.12,y*.52],[x-w*.72,y*.34]],0x65796c,z+.018);
- }
+ // Flat polygon overlays removed; displaced continuous rock geometry provides mountain relief.
  // Снежные шапки повторяют форму гребней, а не выглядят отдельными белыми треугольниками.
  const snowMaterial=new THREE.MeshStandardMaterial({color:0xe4e8df,roughness:.92,metalness:0,flatShading:true,side:THREE.DoubleSide});
  const addSnowCap=(points,z)=>{
@@ -2009,7 +2020,7 @@ function makeWorldLandscape(){
  waterReliefTexture.wrapS=waterReliefTexture.wrapT=THREE.RepeatWrapping;
  waterReliefTexture.repeat.set(2,1);
  waterReliefTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- water.bumpMap=waterReliefTexture;water.bumpScale=.014;water.roughnessMap=waterReliefTexture;water.roughness=.205;water.metalness=.035;water.clearcoat=.64;water.clearcoatRoughness=.14;water.reflectivity=.76;water.needsUpdate=true;
+ water.bumpMap=waterReliefTexture;water.bumpScale=.022;water.roughnessMap=waterReliefTexture;water.roughness=.19;water.metalness=.035;water.clearcoat=.64;water.clearcoatRoughness=.14;water.reflectivity=.76;water.needsUpdate=true;
 
 // Восстановлена отсутствовавшая геометрия самой реки.
 // Материал и карта воды выше уже создавались, но mesh поверхности не создавался,
@@ -2042,10 +2053,10 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  const newTerrainGeometry=new THREE.PlaneGeometry(88,78,232,208);
  const newTerrainPositions=newTerrainGeometry.attributes.position;
  const newTerrainColors=[];
- const meadowBase=new THREE.Color(0x36c928);
+ const meadowBase=new THREE.Color(0x3f963b);
  for(let i=0;i<newTerrainPositions.count;i++){
    const x=newTerrainPositions.getX(i),z=newTerrainPositions.getY(i);
-   newTerrainPositions.setZ(i,0);
+   newTerrainPositions.setZ(i,.028*Math.sin(x*.19+Math.sin(z*.13)*1.4)*Math.cos(z*.17-x*.08)+.012*Math.sin(x*.61+z*.47));
    const broad=.965+.025*Math.sin(x*.31+Math.sin(z*.17)*1.7)+.018*Math.cos(z*.43-x*.12);
    const fine=.988+.012*Math.sin(x*1.73+z*2.11);
    const shade=THREE.MathUtils.clamp(broad*fine,.91,1.035);
@@ -2057,7 +2068,7 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  // Неброская повторяемая травяная микрофактура — без крупных пятен, надписей и изменения палитры.
  const meadowCanvas=document.createElement('canvas');meadowCanvas.width=256;meadowCanvas.height=256;
  const meadowCtx=meadowCanvas.getContext('2d');
- meadowCtx.fillStyle='#d7e8c4';meadowCtx.fillRect(0,0,256,256);
+ meadowCtx.fillStyle='#a9c68f';meadowCtx.fillRect(0,0,256,256);
  let meadowSeed=73421;
  const meadowRandom=()=>{meadowSeed=(meadowSeed*1664525+1013904223)>>>0;return meadowSeed/4294967296;};
  for(let i=0;i<14500;i++){
@@ -2415,7 +2426,7 @@ function makeHouse(){
  }
  const manorWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:manorWallTexture,bumpMap:manorWallBump,
-  roughnessMap:manorWallRoughness,bumpScale:.078,roughness:.91,metalness:0,
+  roughnessMap:manorWallRoughness,bumpScale:.096,roughness:.89,metalness:0,
   clearcoat:.10,clearcoatRoughness:.88,specularIntensity:.22
  });
  // Для круглых башен используется та же кремовая кладка с масштабом по окружности.
@@ -2427,7 +2438,7 @@ function makeHouse(){
  towerWallRoughness.repeat.set(4,2.5);towerWallRoughness.needsUpdate=true;
  const towerWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:towerWallTexture,bumpMap:towerWallBump,
-  roughnessMap:towerWallRoughness,bumpScale:.068,roughness:.92,metalness:0,
+  roughnessMap:towerWallRoughness,bumpScale:.082,roughness:.90,metalness:0,
   clearcoat:.09,clearcoatRoughness:.9,specularIntensity:.20
  });
  // Отдельная настройка материала только для уже существующих колонн:
@@ -2440,7 +2451,7 @@ function makeHouse(){
  towerColumnRoughness.repeat.set(.9,1.45);towerColumnRoughness.needsUpdate=true;
  const towerColumnMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe8d2ae,map:towerColumnTexture,bumpMap:towerColumnBump,
-  roughnessMap:towerColumnRoughness,bumpScale:.045,roughness:.93,metalness:0,
+  roughnessMap:towerColumnRoughness,bumpScale:.058,roughness:.91,metalness:0,
   clearcoat:.07,clearcoatRoughness:.92,specularIntensity:.18
  });
  // Центральный корпус, фронтон, окна, двери и вся отделка смещаются единым блоком назад;
@@ -3289,6 +3300,79 @@ for(const material of [...copperMats,copperBright,copperDark]){
  // Два декоративных фонаря возле фасада удалены по просьбе пользователя.
  return disableCastShadows(g);
 }
+
+ // GREEN WORLD — натуральный объёмный травяной покров поверх существующего рельефа.
+ // Добавляет отдельные изогнутые 3D-лезвия, не меняя координаты зданий, деревьев,
+ // дорожек, пруда, ограды или утверждённого контура ландшафта.
+ function buildNaturalGroundDetail(){
+  if(window.GREEN_WORLD_GROUND_DETAIL_DIAGNOSTICS?.built)return;
+  const diagnostics={built:false,tufts:0,blades:0};
+  window.GREEN_WORLD_GROUND_DETAIL_DIAGNOSTICS=diagnostics;
+  try{
+   const meadow=world.getObjectByName('GREEN_WORLD_Expanded_Exterior_Terrain');
+   const groundTargets=[lawnBase,...(meadow?[meadow]:[])];
+   const forest=world.getObjectByName('green-world-perimeter-forest');
+   const treeGroups=forest?.children||[];
+   const excludedRoots=new Set([lawnBase,meadow,forest].filter(Boolean));
+   const blockers=world.children.filter(object=>!excludedRoots.has(object)&&object.name!=='GREEN_WORLD_Mountain_Backdrop');
+   const raycaster=new THREE.Raycaster(),down=new THREE.Vector3(0,-1,0),origin=new THREE.Vector3(),dummy=new THREE.Object3D();
+   let seed=0x47574f52;
+   const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+   const positions=[];
+   for(let i=0;i<5200;i++){
+    const x=-36+random()*72,z=-36+random()*72;
+    let nearTree=false;
+    for(let t=0;t<treeGroups.length;t++){
+     const tree=treeGroups[t],dx=x-tree.position.x,dz=z-tree.position.z;
+     if(dx*dx+dz*dz<5.2){nearTree=true;break;}
+    }
+    if(nearTree)continue;
+    origin.set(x,12,z);raycaster.set(origin,down);
+    const obstruction=raycaster.intersectObjects(blockers,true)[0];
+    if(obstruction&&obstruction.point.y>-.14)continue;
+    const groundHit=raycaster.intersectObjects(groundTargets,false)[0];
+    if(!groundHit||groundHit.point.y<-.3)continue;
+    positions.push({x,z,y:groundHit.point.y});
+   }
+   if(!positions.length){diagnostics.built=true;return;}
+   const bladePositions=[],bladeColors=[],bladeIndices=[];
+   const bladePalette=[0x4f8738,0x679b43,0x80aa50,0x477d35,0x91b45c];
+   for(let blade=0;blade<5;blade++){
+    const angle=blade*Math.PI*2/5+.17,dx=Math.cos(angle),dz=Math.sin(angle),px=-dz,pz=dx;
+    const start=bladePositions.length/3,shade=new THREE.Color(bladePalette[blade]);
+    for(let row=0;row<4;row++){
+     const t=row/3,width=[.105,.078,.043,.004][row],bend=.13*t*t;
+     const cx=dx*(.105*t+bend)+px*.025*Math.sin(t*Math.PI),cz=dz*(.105*t+bend)+pz*.025*Math.sin(t*Math.PI);
+     bladePositions.push(cx-px*width,t,cz-pz*width,cx+px*width,t,cz+pz*width);
+     const light=1+row*.035;
+     for(let side=0;side<2;side++)bladeColors.push(shade.r*light,shade.g*light,shade.b*light);
+    }
+    for(let row=0;row<3;row++){const a=start+row*2,b=a+2;bladeIndices.push(a,b,a+1,b,b+1,a+1);}
+   }
+   const geometry=new THREE.BufferGeometry();
+   geometry.setAttribute('position',new THREE.Float32BufferAttribute(bladePositions,3));
+   geometry.setAttribute('color',new THREE.Float32BufferAttribute(bladeColors,3));
+   geometry.setIndex(bladeIndices);geometry.computeVertexNormals();
+   const material=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.98,metalness:0,side:THREE.DoubleSide});
+   const grass=new THREE.InstancedMesh(geometry,material,positions.length);
+   grass.name='GREEN_WORLD_Natural_3D_Grass_Detail';grass.frustumCulled=false;grass.castShadow=false;grass.receiveShadow=true;
+   for(let i=0;i<positions.length;i++){
+    const p=positions[i],scale=.72+random()*.72;
+    dummy.position.set(p.x,p.y+.009,p.z);
+    dummy.rotation.set((random()-.5)*.12,random()*Math.PI*2,(random()-.5)*.12);
+    dummy.scale.set(scale,.16+random()*.18,scale);
+    dummy.updateMatrix();grass.setMatrixAt(i,dummy.matrix);
+    const tint=.88+random()*.24;
+    grass.setColorAt(i,new THREE.Color(tint,tint*(.98+random()*.035),tint*(.92+random()*.08)));
+   }
+   grass.instanceMatrix.needsUpdate=true;if(grass.instanceColor)grass.instanceColor.needsUpdate=true;
+   world.add(grass);
+   diagnostics.built=true;diagnostics.tufts=positions.length;diagnostics.blades=positions.length*5;
+  }catch(error){
+   diagnostics.built=true;diagnostics.error=error?.message||String(error);
+   console.warn('[GREEN WORLD] Natural ground detail skipped safely:',error);
+  }
+ }
 function drawPlayer(){
  if(buildingObjects.length===0){
   try{
@@ -3301,6 +3385,7 @@ function drawPlayer(){
    throw error;
   }
   // Создаём только оставшиеся утверждённые объекты игрового мира.
+  buildNaturalGroundDetail();
 
  }
 }
