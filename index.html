@@ -2111,7 +2111,7 @@ const gwInsideRearZone=b=>!b.isEmpty()&&b.min.x>=gwRearZoneBounds.left&&b.max.x<
 const gwRearChecks=[
  {name:'pond_attached_to_world',ok:rearPond.parent===world},
  {name:'gazebo_clear_of_pond',ok:gwGazeboClearance>.25,clearance:gwGazeboClearance},
- {name:'fountain_footprints_inside_pond',ok:[-20,0,20].every(x=>Array.from({length:32},(_,i)=>{const a=i*Math.PI*2/32;return rearPondShape.containsPoint(new THREE.Vector2(x+Math.cos(a)*.94,Math.sin(a)*.94));}).every(Boolean)),footprints:[-20,0,20].map(x=>({x,inside:Array.from({length:32},(_,i)=>{const a=i*Math.PI*2/32;return rearPondShape.containsPoint(new THREE.Vector2(x+Math.cos(a)*.94,Math.sin(a)*.94));}).every(Boolean)}))},
+ {name:'fountain_footprints_inside_pond',ok:[-20,0,20].every(x=>Array.from({length:32},(_,i)=>{const a=i*Math.PI*2/32;return THREE.ShapeUtils.isPointInsidePolygon(new THREE.Vector2(x+Math.cos(a)*.94,Math.sin(a)*.94),rearPondShape.extractPoints(64).shape);}).every(Boolean)),footprints:[-20,0,20].map(x=>({x,inside:Array.from({length:32},(_,i)=>{const a=i*Math.PI*2/32;return THREE.ShapeUtils.isPointInsidePolygon(new THREE.Vector2(x+Math.cos(a)*.94,Math.sin(a)*.94),rearPondShape.extractPoints(64).shape);}).every(Boolean)}))},
  {name:'gazebo_attached_to_world',ok:gazebo.parent===world},
  {name:'rear_zone_behind_main_fence',ok:gwRearZoneBounds.front<window.GREEN_WORLD_AREA_BOUNDS.back,clearance:window.GREEN_WORLD_AREA_BOUNDS.back-gwRearZoneBounds.front},
  {name:'pond_inside_rear_zone',ok:gwInsideRearZone(gwRearPondBox)},
