@@ -161,6 +161,8 @@ html.gw-diagnostic-mode body{overflow:hidden}
 <script>
 /* Telegram sign-in must not depend on the Three.js module loading successfully. */
 (()=>{
+ // Diagnostic mode must isolate the page itself: no auth request, Three.js or WebGL startup.
+ if(new URLSearchParams(location.search).has('diagnostic'))return;
  const button=document.getElementById('retry-login');
  window.GREEN_WORLD_MODULE_READY=false;
  setTimeout(()=>{if(window.GREEN_WORLD_MODULE_REQUESTED&&!window.GREEN_WORLD_MODULE_READY){if(error)error.textContent='Графический модуль не запустился. Проверь интернет и повтори запуск 3D-мира.';}},25000);
