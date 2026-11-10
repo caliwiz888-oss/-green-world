@@ -2019,13 +2019,13 @@ const makeRearPondContour=()=>{
  shape.bezierCurveTo(sx(-4.6),2.9,sx(-2.6),2.72,0,2.82);
  shape.bezierCurveTo(sx(3.4),2.92,sx(5.5),2.48,sx(8.6),2.68);
  shape.bezierCurveTo(sx(12.1),2.9,sx(14.0),2.52,sx(16.8),2.55);
- // Правый берег — отдельный точный полукруг, а не вытянутая/сплющенная оконечность.
- // Радиус 2.82 сохраняет прежние крайние габариты пруда и зазор до беседки.
- const rightRadius=2.82,rightCenter=21.5-rightRadius,k=.5522847498;
- shape.bezierCurveTo(sx(17.45),2.55,sx(18.05),rightRadius,sx(rightCenter),rightRadius);
- shape.bezierCurveTo(sx(rightCenter+k*rightRadius),rightRadius,sx(21.5),k*rightRadius,sx(21.5),0);
- shape.bezierCurveTo(sx(21.5),-k*rightRadius,sx(rightCenter+k*rightRadius),-rightRadius,sx(rightCenter),-rightRadius);
- shape.bezierCurveTo(sx(18.05),-rightRadius,sx(17.45),-2.55,sx(16.5),-2.55);
+ // Правый край — настоящий полукруг в мировых координатах: радиус по X и Z одинаковый.
+ // Не применяем sx() к этой дуге, иначе масштабирование ширины превращает её в эллипс.
+ const rightRadius=2.82,rightCenter=30-rightRadius,k=.5522847498;
+ shape.bezierCurveTo(24.6,2.55,25.9,rightRadius,rightCenter,rightRadius);
+ shape.bezierCurveTo(rightCenter+k*rightRadius,rightRadius,30,k*rightRadius,30,0);
+ shape.bezierCurveTo(30,-k*rightRadius,rightCenter+k*rightRadius,-rightRadius,rightCenter,-rightRadius);
+ shape.bezierCurveTo(25.9,-rightRadius,24.6,-2.55,sx(16.5),-2.55);
  shape.bezierCurveTo(sx(13.5),-2.78,sx(11.2),-2.35,sx(8.0),-2.62);
  shape.bezierCurveTo(sx(4.6),-2.9,sx(2.6),-2.72,0,-2.82);
  shape.bezierCurveTo(sx(-3.4),-2.92,sx(-5.5),-2.48,sx(-8.6),-2.68);
@@ -2111,7 +2111,7 @@ const gwInsideRearZone=b=>!b.isEmpty()&&b.min.x>=gwRearZoneBounds.left&&b.max.x<
 const gwRearChecks=[
  {name:'pond_attached_to_world',ok:rearPond.parent===world},
  {name:'gazebo_clear_of_pond',ok:gwGazeboClearance>.25,clearance:gwGazeboClearance},
- {name:'fountains_inside_pond',ok:[-20,0,20].every(x=>Math.abs(x)+.94<gwPondHalfWidth)},
+ {name:'fountain_footprints_inside_pond',ok:[-20,0,20].every(x=>Array.from({length:32},(_,i)=>{const a=i*Math.PI*2/32;return rearPondShape.containsPoint(new THREE.Vector2(x+Math.cos(a)*.94,Math.sin(a)*.94));}).every(Boolean)),footprints:[-20,0,20].map(x=>({x,inside:Array.from({length:32},(_,i)=>{const a=i*Math.PI*2/32;return rearPondShape.containsPoint(new THREE.Vector2(x+Math.cos(a)*.94,Math.sin(a)*.94));}).every(Boolean)}))},
  {name:'gazebo_attached_to_world',ok:gazebo.parent===world},
  {name:'rear_zone_behind_main_fence',ok:gwRearZoneBounds.front<window.GREEN_WORLD_AREA_BOUNDS.back,clearance:window.GREEN_WORLD_AREA_BOUNDS.back-gwRearZoneBounds.front},
  {name:'pond_inside_rear_zone',ok:gwInsideRearZone(gwRearPondBox)},
