@@ -1639,7 +1639,11 @@ function makeWorldDecor(){
     rootFlare.scale.set(.76,h*.17,.76);
     g.add(rootFlare);
    g.rotation.y=seed*.13;g.scale.set(1+.05*Math.sin(seed),1+.035*Math.cos(seed*1.4),1+.05*Math.cos(seed));
-   g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
+   g.traverse(o=>{if(o.isMesh){
+     // Объёмные тени кроны и ветвей отделяют деревья от плоского фона.
+     o.castShadow=!!(o.geometry===gwTrunkGeo||o.geometry===gwBlossomBranchGeo||o.geometry===gwRootGeo||o.userData.gwPrimaryCanopyShadow||o.userData.gwBranchShadow);
+     o.receiveShadow=true;
+   }});
  }
  // Новые розовые деревья расставлены СНАРУЖИ периметра ограды.
   // Передняя сторона, боковые стороны и задняя сторона; въезд и дорожки свободны.
@@ -1681,7 +1685,11 @@ function makeWorldDecor(){
    top.position.y=h*.79;top.scale.set(h*.18,h*.14,h*.17);g.add(top);
    g.rotation.y=seed*.17;
    g.scale.set(1+.045*Math.sin(seed),.96+.06*Math.cos(seed*1.3),1+.045*Math.cos(seed));
-   g.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
+   g.traverse(o=>{if(o.isMesh){
+     // Объёмные тени кроны и ветвей отделяют деревья от плоского фона.
+     o.castShadow=!!(o.geometry===gwTrunkGeo||o.geometry===gwBlossomBranchGeo||o.geometry===gwRootGeo||o.userData.gwPrimaryCanopyShadow||o.userData.gwBranchShadow);
+     o.receiveShadow=true;
+   }});
  }
  // Дальний ярус елей: редкие высокие силуэты, а не сплошная стена.
  const gwPineBack=[
