@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261110-startup-script-fix-41';
+const GREEN_WORLD_BUILD_ID = '20261110-login-overlay-fix-42';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -54,7 +54,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 #login{position:fixed;z-index:20;inset:0;display:flex;align-items:center;justify-content:center;padding:28px;background:linear-gradient(#7eb5d4,#d9e8ce)}
 /* Keep a clean branded splash while Telegram auth/3D starts; no connection prompts or buttons. */
-#login{display:flex!important;visibility:visible!important;pointer-events:none!important}
+/* После успешной авторизации inline display:none должен скрывать заставку. */
 #login .login-card{padding:30px 22px;background:#fffef1f2}
 #login #retry-login{display:none!important}
 #login .login-card h1{margin:0;font-size:27px;letter-spacing:2px}
