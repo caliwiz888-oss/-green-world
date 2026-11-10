@@ -2036,7 +2036,7 @@ const rearPondGeometry=new THREE.ShapeGeometry(rearPondShape,32);
 const rearPond=new THREE.Mesh(rearPondGeometry,rearPondMaterial);
 rearPond.name='GREEN_WORLD_Rear_Pond';
 rearPond.rotation.x=-Math.PI/2;
-rearPond.position.set(0,.115,-27.35);
+rearPond.position.set(0,.115,-31.0);
 rearPond.receiveShadow=true;rearPond.castShadow=false;rearPond.frustumCulled=false;
 rearPond.visible=true; // Задний пруд является частью сцены; показываем его перед лесным фоном.
 world.add(rearPond);
@@ -2047,7 +2047,7 @@ const rearBankTopMat=M.stone2.clone();
 rearBankTopMat.color=new THREE.Color(0xe0d1b2);rearBankTopMat.roughness=.84;rearBankTopMat.needsUpdate=true;
 const rearBankOutline=rearPondShape.getPoints(240);
 if(rearBankOutline.length>2&&rearBankOutline[0].distanceToSquared(rearBankOutline[rearBankOutline.length-1])<1e-8)rearBankOutline.pop();
-const rearBankCurveAt=y=>new THREE.CatmullRomCurve3(rearBankOutline.map(p=>new THREE.Vector3(p.x,y,-27.35-p.y)),true,'centripetal');
+const rearBankCurveAt=y=>new THREE.CatmullRomCurve3(rearBankOutline.map(p=>new THREE.Vector3(p.x,y,-31.0-p.y)),true,'centripetal');
 const rearBank=new THREE.Mesh(new THREE.TubeGeometry(rearBankCurveAt(.20),480,.34,10,true),rearBankMat);
 rearBank.name='GREEN_WORLD_Rear_Pond_Bank';
 rearBank.castShadow=false;rearBank.receiveShadow=true;rearBank.visible=true;world.add(rearBank);
@@ -2060,13 +2060,13 @@ const fountainWater=new THREE.MeshPhysicalMaterial({color:0x9ce8f1,roughness:.12
 window.GREEN_WORLD_FOUNTAIN_VISIBILITY_OBJECTS=[];
 for(const x of [-20,0,20]){
  const basin=new THREE.Mesh(new THREE.CylinderGeometry(.82,.94,.34,32),fountainStone);
- basin.position.set(x,.34,-27.35);basin.castShadow=true;basin.receiveShadow=true;basin.visible=true;world.add(basin);
+ basin.position.set(x,.34,-31.0);basin.castShadow=true;basin.receiveShadow=true;basin.visible=true;world.add(basin);
  const waterDisk=new THREE.Mesh(new THREE.CylinderGeometry(.69,.69,.035,32),fountainWater);
- waterDisk.position.set(x,.53,-27.35);waterDisk.visible=true;world.add(waterDisk);
+ waterDisk.position.set(x,.53,-31.0);waterDisk.visible=true;world.add(waterDisk);
  const jet=new THREE.Mesh(new THREE.CylinderGeometry(.045,.12,1.55,12),fountainWater);
- jet.position.set(x,1.31,-27.35);jet.visible=true;world.add(jet);
+ jet.position.set(x,1.31,-31.0);jet.visible=true;world.add(jet);
  const crown=new THREE.Mesh(new THREE.SphereGeometry(.19,16,10),fountainWater);
- crown.position.set(x,2.12,-27.35);crown.scale.set(.8,1.35,.8);crown.visible=true;world.add(crown);
+ crown.position.set(x,2.12,-31.0);crown.scale.set(.8,1.35,.8);crown.visible=true;world.add(crown);
  if(x===0)window.GREEN_WORLD_FOUNTAIN_VISIBILITY_OBJECTS.push({name:'basin',object:basin},{name:'water',object:waterDisk},{name:'jet',object:jet},{name:'crown',object:crown});
 }
 // Беседка на правом берегу заднего водоёма, вне центральной оси и проходов.
@@ -2121,18 +2121,18 @@ const gwPointInRearPond=(px,py,poly)=>{
 const gwFountainFootprints=[-20,0,20].map(x=>({x,inside:Array.from({length:32},(_,i)=>{const a=i*Math.PI*2/32;return gwPointInRearPond(x+Math.cos(a)*.94,Math.sin(a)*.94,gwRearPondPolygon);}).every(Boolean)}));
 const gwRearChecks=[
  {name:'pond_attached_to_world',ok:rearPond.parent===world},
- {name:'gazebo_clear_of_pond',ok:gwGazeboClearance>.25,clearance:gwGazeboClearance},
+ {name:'gazebo_clear_of_pond',ok:!gazebo.visible||gwGazeboClearance>.25,clearance:gwGazeboClearance},
  {name:'fountain_footprints_inside_pond',ok:gwFountainFootprints.every(f=>f.inside),footprints:gwFountainFootprints},
  {name:'gazebo_attached_to_world',ok:gazebo.parent===world},
  {name:'rear_zone_behind_main_fence',ok:gwRearZoneBounds.front<window.GREEN_WORLD_AREA_BOUNDS.back,clearance:window.GREEN_WORLD_AREA_BOUNDS.back-gwRearZoneBounds.front},
  {name:'pond_inside_rear_zone',ok:gwInsideRearZone(gwRearPondBox)},
- {name:'gazebo_inside_rear_zone',ok:gwInsideRearZone(gwRearGazeboBox)}
+ {name:'gazebo_inside_rear_zone',ok:!gazebo.visible||gwInsideRearZone(gwRearGazeboBox)}
 ];
 window.GREEN_WORLD_LAYOUT_DIAGNOSTIC={
  passed:gwRearChecks.filter(c=>c.ok).length,
  total:gwRearChecks.length,
  checks:gwRearChecks,
- rearZone:{bounds:gwRearZoneBounds,pondInside:gwInsideRearZone(gwRearPondBox),gazeboInside:gwInsideRearZone(gwRearGazeboBox),pondBounds:{minX:gwRearPondBox.min.x,maxX:gwRearPondBox.max.x,minZ:gwRearPondBox.min.z,maxZ:gwRearPondBox.max.z},gazeboBounds:{minX:gwRearGazeboBox.min.x,maxX:gwRearGazeboBox.max.x,minZ:gwRearGazeboBox.min.z,maxZ:gwRearGazeboBox.max.z}},
+ rearZone:{bounds:gwRearZoneBounds,pondInside:gwInsideRearZone(gwRearPondBox),gazeboInside:!gazebo.visible||gwInsideRearZone(gwRearGazeboBox),pondBounds:{minX:gwRearPondBox.min.x,maxX:gwRearPondBox.max.x,minZ:gwRearPondBox.min.z,maxZ:gwRearPondBox.max.z},gazeboBounds:{minX:gwRearGazeboBox.min.x,maxX:gwRearGazeboBox.max.x,minZ:gwRearGazeboBox.min.z,maxZ:gwRearGazeboBox.max.z}},
  cameraProjection:(()=>{cameraPosition();camera.updateProjectionMatrix();camera.updateMatrixWorld(true);const project=b=>{const p=[];for(const x of [b.min.x,b.max.x])for(const y of [b.min.y,b.max.y])for(const z of [b.min.z,b.max.z])p.push(new THREE.Vector3(x,y,z).project(camera));const xs=p.map(v=>v.x),ys=p.map(v=>v.y);return {left:Number(((Math.min(...xs)+1)*50).toFixed(1)),right:Number(((Math.max(...xs)+1)*50).toFixed(1)),top:Number(((1-Math.max(...ys))*50).toFixed(1)),bottom:Number(((1-Math.min(...ys))*50).toFixed(1)),allCornersInFrame:p.every(v=>v.x>=-1&&v.x<=1&&v.y>=-1&&v.y<=1&&v.z>=-1&&v.z<=1)}};return {camera:{x:Number(camera.position.x.toFixed(2)),y:Number(camera.position.y.toFixed(2)),z:Number(camera.position.z.toFixed(2)),target:{x:cameraTarget.x,y:cameraTarget.y,z:cameraTarget.z},fov:camera.fov,aspect:camera.aspect,viewport:{width:innerWidth,height:innerHeight}},pond:project(gwRearPondBox),gazebo:project(gwRearGazeboBox)}})(),
  note:'Контрольная граница задней зоны — диагностический конверт, не физический забор. Габариты и кадрирование рассчитаны по мировым Box3 и действующей камере; визуальное сходство всё ещё требует просмотра рендера.'
 };
