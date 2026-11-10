@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261110-global-visual-finish-48';
+const GREEN_WORLD_BUILD_ID = '20261110-global-visual-finish-49';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1917,26 +1917,51 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
 };
 
 // Материалы гор и снега удалены вместе с горной геометрией.
- // GREEN WORLD — новая увеличенная ровная внешняя площадка.
- // Старая плоскость заменена одной цельной поверхностью 88 x 78 без дополнительных слоёв.
- // Внутренний двор и исходные горы сохранены; участок расширен под новый периметр.
+ // GREEN WORLD — улучшенная внешняя лужайка: координаты и плоский профиль сохранены.
+ // Микрорельеф передаётся только цветом и фактурой, без изменения высот вершин и габаритов участка.
  const newTerrainGeometry=new THREE.PlaneGeometry(88,78,232,208);
  const newTerrainPositions=newTerrainGeometry.attributes.position;
  const newTerrainColors=[];
- const flatMeadowColor=new THREE.Color(0x36c928);
+ const meadowBase=new THREE.Color(0x36c928);
  for(let i=0;i<newTerrainPositions.count;i++){
+   const x=newTerrainPositions.getX(i),z=newTerrainPositions.getY(i);
    newTerrainPositions.setZ(i,0);
-   newTerrainColors.push(flatMeadowColor.r,flatMeadowColor.g,flatMeadowColor.b);
+   const broad=.965+.025*Math.sin(x*.31+Math.sin(z*.17)*1.7)+.018*Math.cos(z*.43-x*.12);
+   const fine=.988+.012*Math.sin(x*1.73+z*2.11);
+   const shade=THREE.MathUtils.clamp(broad*fine,.91,1.035);
+   const vertexColor=meadowBase.clone().multiplyScalar(shade);
+   newTerrainColors.push(vertexColor.r,vertexColor.g,vertexColor.b);
  }
  newTerrainGeometry.setAttribute('color',new THREE.Float32BufferAttribute(newTerrainColors,3));
  newTerrainGeometry.computeVertexNormals();
+ // Неброская повторяемая травяная микрофактура — без крупных пятен, надписей и изменения палитры.
+ const meadowCanvas=document.createElement('canvas');meadowCanvas.width=256;meadowCanvas.height=256;
+ const meadowCtx=meadowCanvas.getContext('2d');
+ meadowCtx.fillStyle='#d7e8c4';meadowCtx.fillRect(0,0,256,256);
+ let meadowSeed=73421;
+ const meadowRandom=()=>{meadowSeed=(meadowSeed*1664525+1013904223)>>>0;return meadowSeed/4294967296;};
+ for(let i=0;i<14500;i++){
+   const x=meadowRandom()*256,y=meadowRandom()*256;
+   const light=meadowRandom()>.53;
+   meadowCtx.strokeStyle=light?'rgba(70,133,42,.16)':'rgba(34,105,39,.13)';
+   meadowCtx.lineWidth=.45+meadowRandom()*.65;
+   meadowCtx.beginPath();meadowCtx.moveTo(x,y);
+   meadowCtx.lineTo(x-1.2+meadowRandom()*2.4,y-1.2-meadowRandom()*2.8);meadowCtx.stroke();
+ }
+ const meadowTexture=new THREE.CanvasTexture(meadowCanvas);
+ meadowTexture.colorSpace=THREE.SRGBColorSpace;
+ meadowTexture.wrapS=THREE.RepeatWrapping;meadowTexture.wrapT=THREE.RepeatWrapping;
+ meadowTexture.repeat.set(18,16);
+ meadowTexture.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),12);
+ meadowTexture.generateMipmaps=true;meadowTexture.minFilter=THREE.LinearMipmapLinearFilter;
+ meadowTexture.magFilter=THREE.LinearFilter;meadowTexture.needsUpdate=true;
  const newMeadow=new THREE.Mesh(newTerrainGeometry,new THREE.MeshStandardMaterial({
-   color:0xffffff,vertexColors:true,roughness:.98,metalness:0,side:THREE.DoubleSide
+   color:0xffffff,map:meadowTexture,vertexColors:true,roughness:1,metalness:0,side:THREE.DoubleSide
  }));
  newMeadow.name='GREEN_WORLD_Expanded_Exterior_Terrain';
  newMeadow.rotation.x=-Math.PI/2;
  newMeadow.position.set(0,.018,-29.5);
- newMeadow.receiveShadow=false;newMeadow.castShadow=false;world.add(newMeadow);
+ newMeadow.receiveShadow=true;newMeadow.castShadow=false;world.add(newMeadow);
 
 
 }
