@@ -1815,6 +1815,13 @@ function makeWorldDecor(){
  ];
  for(const [x,z,v] of shrubLayout)makeShrubCluster(x,z,v);
  window.GREEN_WORLD_SHRUB_DIAGNOSTIC={created:shrubLayout.length,positions:shrubLayout.map(([x,z])=>({x,z}))};
+ // Временный этап сборки задней сцены: скрываем только деревья дальнего фона.
+ // Геометрия, координаты, размеры, виды и seed сохраняются без изменений — позже их можно вернуть.
+ const gwRearTreesTemporarilyHidden=[];
+ for(const tree of gwForest.children){
+   if(tree.position.z < -25){tree.visible=false;gwRearTreesTemporarilyHidden.push(tree);}
+ }
+ window.GREEN_WORLD_REAR_TREES_STATE={visible:false,hiddenCount:gwRearTreesTemporarilyHidden.length,restoreReady:true,rule:'tree.position.z < -25'};
   // Фактические мировые габариты каждой группы деревьев после построения всей геометрии.
   // В расчёт входят кроны, ветви и стволы; никаких объектов не перемещаем.
   gwForest.updateMatrixWorld(true);
