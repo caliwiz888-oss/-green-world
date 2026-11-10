@@ -53,7 +53,11 @@ app.use(cookieParser());
 app.use('/api', rateLimit({ windowMs: 60000, limit: 80, standardHeaders: true, legacyHeaders: false }));
 
 function originGuard(req, res, next) {
-  if (!req.get('origin') || !ORIGINS.includes(req.get('origin'))) return res.status(403).json({ error: 'Origin not allowed' });
+  const origin=req.get('origin')||null;
+  if (!origin || !ORIGINS.includes(origin)) {
+    console.warn('[auth] rejected origin:',origin||'missing');
+    return res.status(403).json({ error: 'Origin not allowed' });
+  }
   next();
 }
 function telegramUser(raw) {
@@ -79,27 +83,47 @@ app.post('/api/auth/telegram',(req,res,next)=>{
     hasInitData: typeof req.body?.initData === 'string',
     initDataLength: typeof req.body?.initData === 'string' ? req.body.initData.length : 0
   });
+  res.on('finish',()=>console.info('[auth] Telegram login response:',res.statusCode));
   next();
 },originGuard,async(req,res)=>{
+  let stage='telegram-initData-verification';
   try {
     const u=telegramUser(req.body?.initData);
+    stage='database-connect';
     const c=await db.connect();
     try {
+      stage='player-upsert';
       await c.query('BEGIN');
       await c.query(`INSERT INTO players(telegram_id,username,first_name) VALUES($1,$2,$3)
         ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name,updated_at=NOW()`,
         [u.id,u.username,u.firstName]);
+      stage='refresh-session-create';
       const raw=crypto.randomBytes(48).toString('base64url');
       const family=crypto.randomUUID();
       await c.query(`INSERT INTO refresh_sessions(id,telegram_id,token_hash,family_id,expires_at)
         VALUES($1,$2,$3,$4,NOW()+INTERVAL '30 days')`,
         [crypto.randomUUID(),u.id,hash(raw),family]);
+      stage='player-state-read';
       const q=await c.query('SELECT * FROM players WHERE telegram_id=$1',[u.id]);
       await c.query('COMMIT');
+      stage='response';
       res.cookie(COOKIE,raw,refreshCookie);
       res.json({accessToken:issueAccess(u.id),player:state(q.rows[0])});
-    } catch(e) { await c.query('ROLLBACK');throw e; } finally { c.release(); }
-  } catch(e) { res.status(401).json({error:'Telegram authentication failed'}); }
+      console.info('[auth] Telegram login succeeded');
+    } catch(e) {
+      await c.query('ROLLBACK');
+      throw e;
+    } finally {
+      c.release();
+    }
+  } catch(e) {
+    console.error('[auth] Telegram login failed at '+stage+':', {
+      name:e?.name||'Error',
+      code:e?.code||null,
+      message:String(e?.message||'Unknown error').slice(0,180)
+    });
+    return res.status(401).json({error:'Telegram authentication failed'});
+  }
 });
 
 app.post('/api/auth/refresh',originGuard,async(req,res)=>{
