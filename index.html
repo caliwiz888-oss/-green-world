@@ -2012,8 +2012,13 @@ const makeRearPondContour=()=>{
  shape.bezierCurveTo(sx(-4.6),2.9,sx(-2.6),2.72,0,2.82);
  shape.bezierCurveTo(sx(3.4),2.92,sx(5.5),2.48,sx(8.6),2.68);
  shape.bezierCurveTo(sx(12.1),2.9,sx(14.0),2.52,sx(16.8),2.55);
- shape.bezierCurveTo(sx(19.7),2.58,sx(21.5),1.48,sx(21.5),0);
- shape.bezierCurveTo(sx(21.5),-1.45,sx(19.4),-2.65,sx(16.5),-2.72);
+ // Правый берег — отдельный точный полукруг, а не вытянутая/сплющенная оконечность.
+ // Радиус 2.82 сохраняет прежние крайние габариты пруда и зазор до беседки.
+ const rightRadius=2.82,rightCenter=21.5-rightRadius,k=.5522847498;
+ shape.bezierCurveTo(sx(17.45),2.55,sx(18.05),rightRadius,sx(rightCenter),rightRadius);
+ shape.bezierCurveTo(sx(rightCenter+k*rightRadius),rightRadius,sx(21.5),k*rightRadius,sx(21.5),0);
+ shape.bezierCurveTo(sx(21.5),-k*rightRadius,sx(rightCenter+k*rightRadius),-rightRadius,sx(rightCenter),-rightRadius);
+ shape.bezierCurveTo(sx(18.05),-rightRadius,sx(17.45),-2.55,sx(16.5),-2.55);
  shape.bezierCurveTo(sx(13.5),-2.78,sx(11.2),-2.35,sx(8.0),-2.62);
  shape.bezierCurveTo(sx(4.6),-2.9,sx(2.6),-2.72,0,-2.82);
  shape.bezierCurveTo(sx(-3.4),-2.92,sx(-5.5),-2.48,sx(-8.6),-2.68);
