@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261110-mobile-webview-stability-34';
+const GREEN_WORLD_BUILD_ID = '20261110-mobile-webview-stability-35';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -184,7 +184,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
    if(!response.ok)throw new Error(data.error||'Ошибка сервера '+response.status);
    window.GREEN_WORLD_AUTH_RESULT=data;
    window.dispatchEvent(new CustomEvent('green-world-auth',{detail:data}));
-   error.textContent=window.GREEN_WORLD_STARTUP_ERROR||'Аккаунт подключён. Загружаем хозяйство…';
+   error.textContent=window.GREEN_WORLD_STARTUP_ERROR||'Аккаунт подключён. Нажми «ЗАПУСТИТЬ 3D-МИР».';
   }catch(e){
    error.textContent=e?.name==='AbortError'?'Сервер запускается дольше обычного. Подожди до 75 секунд и попробуй ещё раз.':(e&&e.message?e.message:'Не удалось подключиться. Попробуй ещё раз.');
   }finally{
@@ -193,7 +193,7 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
    button.textContent='ЗАПУСТИТЬ 3D-МИР';
   }
  }
- button.addEventListener('click',connectTelegram);
+ button.addEventListener('click',()=>{if(!window.GREEN_WORLD_AUTH_RESULT?.accessToken)connectTelegram();});
  window.addEventListener('error',event=>{
   if(error&&event.message){window.GREEN_WORLD_STARTUP_ERROR='Ошибка загрузки игры: '+event.message;error.textContent=window.GREEN_WORLD_STARTUP_ERROR;}
  });
