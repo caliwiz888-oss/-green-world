@@ -735,7 +735,7 @@ function group(parent,x,y,z){const g=new THREE.Group();g.position.set(x,y,z);par
 function disableCastShadows(root){root.traverse(object=>{if(object.isMesh){object.castShadow=false;object.receiveShadow=false}});return root}
 function warmLight(parent,x,y,z,intensity=0.65,distance=5){const light=new THREE.PointLight(0xffc978,intensity,distance,2);light.position.set(x,y,z);light.castShadow=false;parent.add(light);return light}
 const world=group(scene,0,0,0);
-box(world,76,.55,76,0,-.42,0,M.grass,false);
+const lawnBase=box(world,76,.55,76,0,-.42,0,M.grass,false);
 
 function makeWell(x,z){const g=group(world,x,0,z);cylinder(g,.85,.9,.65,0,.32,0,M.stone2,12);cylinder(g,.62,.62,.55,0,.68,0,mat(0x4386a1),12);for(const dx of [-.7,.7])box(g,.13,2,.13,dx,1.5,0,M.wood);box(g,1.8,.16,.16,0,2.5,0,M.wood);cone(g,1.1,.8,0,2.95,0,M.roof2,4)}
 
@@ -3289,6 +3289,79 @@ for(const material of [...copperMats,copperBright,copperDark]){
  // Два декоративных фонаря возле фасада удалены по просьбе пользователя.
  return disableCastShadows(g);
 }
+
+ // GREEN WORLD — натуральный объёмный травяной покров поверх существующего рельефа.
+ // Добавляет отдельные изогнутые 3D-лезвия, не меняя координаты зданий, деревьев,
+ // дорожек, пруда, ограды или утверждённого контура ландшафта.
+ function buildNaturalGroundDetail(){
+  if(window.GREEN_WORLD_GROUND_DETAIL_DIAGNOSTICS?.built)return;
+  const diagnostics={built:false,tufts:0,blades:0};
+  window.GREEN_WORLD_GROUND_DETAIL_DIAGNOSTICS=diagnostics;
+  try{
+   const meadow=world.getObjectByName('GREEN_WORLD_Expanded_Exterior_Terrain');
+   const groundTargets=[lawnBase,...(meadow?[meadow]:[])];
+   const forest=world.getObjectByName('green-world-perimeter-forest');
+   const treeGroups=forest?.children||[];
+   const excludedRoots=new Set([lawnBase,meadow,forest].filter(Boolean));
+   const blockers=world.children.filter(object=>!excludedRoots.has(object)&&object.name!=='GREEN_WORLD_Mountain_Backdrop');
+   const raycaster=new THREE.Raycaster(),down=new THREE.Vector3(0,-1,0),origin=new THREE.Vector3(),dummy=new THREE.Object3D();
+   let seed=0x47574f52;
+   const random=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+   const positions=[];
+   for(let i=0;i<5200;i++){
+    const x=-36+random()*72,z=-36+random()*72;
+    let nearTree=false;
+    for(let t=0;t<treeGroups.length;t++){
+     const tree=treeGroups[t],dx=x-tree.position.x,dz=z-tree.position.z;
+     if(dx*dx+dz*dz<5.2){nearTree=true;break;}
+    }
+    if(nearTree)continue;
+    origin.set(x,12,z);raycaster.set(origin,down);
+    const obstruction=raycaster.intersectObjects(blockers,true)[0];
+    if(obstruction&&obstruction.point.y>-.14)continue;
+    const groundHit=raycaster.intersectObjects(groundTargets,false)[0];
+    if(!groundHit||groundHit.point.y<-.3)continue;
+    positions.push({x,z,y:groundHit.point.y});
+   }
+   if(!positions.length){diagnostics.built=true;return;}
+   const bladePositions=[],bladeColors=[],bladeIndices=[];
+   const bladePalette=[0x4f8738,0x679b43,0x80aa50,0x477d35,0x91b45c];
+   for(let blade=0;blade<5;blade++){
+    const angle=blade*Math.PI*2/5+.17,dx=Math.cos(angle),dz=Math.sin(angle),px=-dz,pz=dx;
+    const start=bladePositions.length/3,shade=new THREE.Color(bladePalette[blade]);
+    for(let row=0;row<4;row++){
+     const t=row/3,width=[.105,.078,.043,.004][row],bend=.13*t*t;
+     const cx=dx*(.105*t+bend)+px*.025*Math.sin(t*Math.PI),cz=dz*(.105*t+bend)+pz*.025*Math.sin(t*Math.PI);
+     bladePositions.push(cx-px*width,t,cz-pz*width,cx+px*width,t,cz+pz*width);
+     const light=1+row*.035;
+     for(let side=0;side<2;side++)bladeColors.push(shade.r*light,shade.g*light,shade.b*light);
+    }
+    for(let row=0;row<3;row++){const a=start+row*2,b=a+2;bladeIndices.push(a,b,a+1,b,b+1,a+1);}
+   }
+   const geometry=new THREE.BufferGeometry();
+   geometry.setAttribute('position',new THREE.Float32BufferAttribute(bladePositions,3));
+   geometry.setAttribute('color',new THREE.Float32BufferAttribute(bladeColors,3));
+   geometry.setIndex(bladeIndices);geometry.computeVertexNormals();
+   const material=new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:.98,metalness:0,side:THREE.DoubleSide});
+   const grass=new THREE.InstancedMesh(geometry,material,positions.length);
+   grass.name='GREEN_WORLD_Natural_3D_Grass_Detail';grass.frustumCulled=false;grass.castShadow=false;grass.receiveShadow=true;
+   for(let i=0;i<positions.length;i++){
+    const p=positions[i],scale=.72+random()*.72;
+    dummy.position.set(p.x,p.y+.009,p.z);
+    dummy.rotation.set((random()-.5)*.12,random()*Math.PI*2,(random()-.5)*.12);
+    dummy.scale.set(scale,.16+random()*.18,scale);
+    dummy.updateMatrix();grass.setMatrixAt(i,dummy.matrix);
+    const tint=.88+random()*.24;
+    grass.setColorAt(i,new THREE.Color(tint,tint*(.98+random()*.035),tint*(.92+random()*.08)));
+   }
+   grass.instanceMatrix.needsUpdate=true;if(grass.instanceColor)grass.instanceColor.needsUpdate=true;
+   world.add(grass);
+   diagnostics.built=true;diagnostics.tufts=positions.length;diagnostics.blades=positions.length*5;
+  }catch(error){
+   diagnostics.built=true;diagnostics.error=error?.message||String(error);
+   console.warn('[GREEN WORLD] Natural ground detail skipped safely:',error);
+  }
+ }
 function drawPlayer(){
  if(buildingObjects.length===0){
   try{
@@ -3301,6 +3374,7 @@ function drawPlayer(){
    throw error;
   }
   // Создаём только оставшиеся утверждённые объекты игрового мира.
+  buildNaturalGroundDetail();
 
  }
 }
