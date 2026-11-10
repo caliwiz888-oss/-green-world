@@ -1790,7 +1790,7 @@ function makeWorldLandscape(){
   return c;
  };
  const mountainRockMaterial=new THREE.MeshStandardMaterial({
-  color:0xffffff,map:mountainRockMap,bumpMap:mountainRockBump,roughnessMap:mountainRockBump,
+  color:0xffffff,vertexColors:true,map:mountainRockMap,bumpMap:mountainRockBump,roughnessMap:mountainRockBump,
   bumpScale:.052,roughness:.985,metalness:0,flatShading:true,side:THREE.DoubleSide
  });
  for(let layerIndex=0;layerIndex<mountainLayers.length;layerIndex++){
