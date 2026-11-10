@@ -10,6 +10,7 @@ test('loads the Telegram Mini App bridge before the deferred game module source'
   assert.match(html, /id="green-world-module-source" type="text\/plain"/);
   assert.match(html, /moduleScript\.type="module"/);
   assert.match(html, /button\.addEventListener\("click",\(\)=>\{/);
+  assert.match(html, /if\(!window\.GREEN_WORLD_AUTH_RESULT\?\.accessToken\)connectTelegram\(\)/);
 });
 
 test('frontend authenticates Telegram initData and keeps the access token in memory', () => {
