@@ -313,7 +313,7 @@ skyTexture.mapping=THREE.EquirectangularReflectionMapping;skyTexture.magFilter=T
 scene.fog=new THREE.Fog(0xcce8e5,82,185);
 // Расширяем только горизонтальную область кадра на узких экранах: вертикальный FOV и масштаб объектов в пикселях сохраняются.
 const getGreenWorldCameraAspect=()=>Math.max(innerWidth/innerHeight,.64);
-const camera=new THREE.PerspectiveCamera(58,getGreenWorldCameraAspect(),4.5,140);
+const camera=new THREE.PerspectiveCamera(58,getGreenWorldCameraAspect(),4.5,200);
 // Умеренно близкая near-плоскость и ограниченный far-диапазон повышают точность стандартного depth buffer на мобильных GPU.
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});
 skyTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
@@ -1307,12 +1307,14 @@ function makeWorldDecor(){
   // Новый увеличенный периметр участка: немного шире по X и длиннее в глубину.
   // Центральный вход остаётся на прежней оси и не сдвигает внутренний двор.
   // Симметричный внешний периметр: одинаковое расстояние от центральной оси X=0.
-  const areaBounds={left:-16.40,right:16.40,front:14.02,back:-23.00};
+  const areaBounds={left:-50.00,right:50.00,front:14.02,back:-114.00};
   window.GREEN_WORLD_AREA_BOUNDS=areaBounds;
-  const frontFenceLeft=areaBounds.left;
-  const frontFenceRight=areaBounds.right;
+  const frontFenceLeft=-16.40;
+  const frontFenceRight=16.40;
   const frontFenceZ=areaBounds.front;
-  const sideFenceEndZ=areaBounds.back;
+  const sideFenceEndZ=-24.00;
+  const sideFenceOuterZ=-42.00;
+  const sideFenceOuterX=50.00;
   // Передняя линия: по четыре секции слева и справа от центральной арки.
   const leftFrontSpacing=(Math.abs(frontFenceLeft)-3.20)/4;
   const rightFrontSpacing=(frontFenceRight-3.20)/4;
@@ -1321,8 +1323,13 @@ function makeWorldDecor(){
   // Боковые стороны привязаны к тем же углам, без повторных угловых столбов.
   fenceRun(frontFenceLeft,frontFenceZ,frontFenceLeft,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:Math.PI/2});
   fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
-  // Задняя сторона замыкает периметр ровно восемью секциями.
-  fenceRun(frontFenceLeft,sideFenceEndZ,frontFenceRight,sideFenceEndZ,(frontFenceRight-frontFenceLeft)/8,0,0,{includeStart:false,includeEnd:false});
+  // За домом боковые линии раскрываются наружу, обходя пруд с обеих сторон.
+  fenceRun(frontFenceLeft,sideFenceEndZ,-sideFenceOuterX,sideFenceOuterZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:Math.PI/2});
+  fenceRun(frontFenceRight,sideFenceEndZ,sideFenceOuterX,sideFenceOuterZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
+  fenceRun(-sideFenceOuterX,sideFenceOuterZ,-sideFenceOuterX,areaBounds.back,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:Math.PI/2});
+  fenceRun(sideFenceOuterX,sideFenceOuterZ,sideFenceOuterX,areaBounds.back,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
+  // Задняя сторона замыкает расширенный периметр позади леса.
+  fenceRun(-sideFenceOuterX,areaBounds.back,sideFenceOuterX,areaBounds.back,2.45,0,0,{includeStart:false,includeEnd:false});
   // Жёстко отключаем отбрасывание и приём теней у всех деталей ограждения, включая столбики и навершия.
   fenceGroup.traverse(object=>{if(object.isMesh){object.castShadow=false;object.receiveShadow=false;}});
   // Входная арка повторяет геометрию эталона: прямые массивные устои и полукруглый верх с тремя ступенями обрамления.
@@ -1751,11 +1758,11 @@ function makeWorldDecor(){
   // Передняя сторона, боковые стороны и задняя сторона; въезд и дорожки свободны.
   for(const [x,z,h,seed] of [
     [-10.8,17.4,4.35,12],[10.9,17.8,4.5,18],[-19.0,8.2,4.3,23],[-19.4,-7.0,4.55,29],
-    [20.8,6.5,4.4,34],[20.2,-11.5,4.5,41],[-42,-62,4.4,47],[0,-62,4.55,53],[42,-62,4.35,59]
+    [20.8,6.5,4.4,34],[20.2,-11.5,4.5,41],[-46,-74,4.4,47],[0,-74,4.55,53],[46,-74,4.35,59]
   ])gwAddBlossom(x,z,h,seed,.08);
   // Три янтарных дерева разбросаны в разных точках за задним ограждением.
   // Небольшой сдвиг назад разводит их кроны с цветущим рядом на Z=-57.
-  for(const [x,z,h,seed] of [[-28,-62,4.45,67],[14,-62,4.55,73],[28,-62,4.4,81]])gwAddBlossom(x,z,h,seed,.08,'amber');
+  for(const [x,z,h,seed] of [[-46,-83,4.45,67],[0,-83,4.55,73],[46,-83,4.4,81]])gwAddBlossom(x,z,h,seed,.08,'amber');
   // GREEN WORLD — смешанный лес по утверждённому эталону.
  // Хвойные деревья образуют дальний высокий фон; лиственные и цветущие стоят впереди,
  // в свободной шахматной расстановке. Все деревья остаются за задней оградой.
@@ -1790,25 +1797,25 @@ function makeWorldDecor(){
  }
  // Дальний ярус елей: редкие высокие силуэты, а не сплошная стена.
  const gwPineBack=[
-   [-42,-68,6.8,301],[-31.5,-68,7.4,307],[-21,-68,6.9,313],[-10.5,-68,7.6,319],
-   [0,-68,6.7,325],[10.5,-68,7.5,331],[21,-68,6.9,337],[31.5,-68,7.6,343],[42,-68,6.4,349],
-   [-39,-77,6.9,355],[-28,-77,7.2,361],[-17,-77,6.1,367],[-6,-77,6.4,373],
-   [6,-77,6.0,379],[17,-77,6.5,385],[28,-77,6.1,391],[39,-77,6.4,397]
+   [-42,-98,6.8,301],[-31.5,-98,7.4,307],[-21,-98,6.9,313],[-10.5,-98,7.6,319],
+   [0,-98,6.7,325],[10.5,-98,7.5,331],[21,-98,6.9,337],[31.5,-98,7.6,343],[42,-98,6.4,349],
+   [-39,-108,6.9,355],[-28,-108,7.2,361],[-17,-108,6.1,367],[-6,-108,6.4,373],
+   [6,-108,6.0,379],[17,-108,6.5,385],[28,-108,6.1,391],[39,-108,6.4,397]
  ];
  for(const [x,z,h,seed] of gwPineBack)gwAddPine(x,z,h,seed,.055);
  // Средний ярус широколиственных деревьев — заметно шире и светлее елей.
  const gwLeafBack=[
-   [-42,-37,6.0,411],[-30,-37,6.5,417],[-18,-37,6.2,423],[-6,-37,6.6,429],
-   [6,-37,6.1,435],[18,-37,6.7,441],[30,-37,6.2,447],[42,-37,6.6,453],
-   [-39,-48,6.0,459],[-26,-48,5.8,465],[-13,-48,6.1,471],
-   [13,-48,6.0,477],[26,-48,6.2,483],[39,-48,5.9,489]
+   [-40,-69,6.0,411],[-29,-69,6.5,417],[-18,-69,6.2,423],[-7,-69,6.6,429],
+   [7,-69,6.1,435],[18,-69,6.7,441],[29,-69,6.2,447],[40,-69,6.6,453],
+   [-35,-79,6.0,459],[-21,-79,5.8,465],[-7,-79,6.1,471],
+   [7,-79,6.0,477],[21,-79,6.2,483],[35,-79,5.9,489]
  ];
  for(const [x,z,h,seed] of gwLeafBack)gwAddDeciduous(x,z,h,seed);
  // Цветущие деревья вплетены в лиственный ряд и не образуют отдельную ровную полосу.
  for(const [x,z,h,seed,palette] of [
-   [-39,-57,5.8,501,'pink'],[-26,-57,6.0,507,'amber'],
-   [-13,-57,5.9,513,'pink'],[0,-57,6.1,519,'pink'],
-   [13,-57,5.6,525,'amber'],[26,-57,5.8,531,'pink'],[39,-57,5.7,537,'amber']
+   [-39,-88,5.8,501,'pink'],[-26,-88,6.0,507,'amber'],
+   [-13,-88,5.9,513,'pink'],[0,-88,6.1,519,'pink'],
+   [13,-88,5.6,525,'amber'],[26,-88,5.8,531,'pink'],[39,-88,5.7,537,'amber']
  ])gwAddBlossom(x,z,h,seed,.055,palette);
  // Группы кустарников создаются непосредственно при сборке мира после основных объектов.
  // Кусты стоят вдоль боковых границ и не занимают центральный газон.
@@ -1819,13 +1826,10 @@ function makeWorldDecor(){
  ];
  for(const [x,z,v] of shrubLayout)makeShrubCluster(x,z,v);
  window.GREEN_WORLD_SHRUB_DIAGNOSTIC={created:shrubLayout.length,positions:shrubLayout.map(([x,z])=>({x,z}))};
- // Временный этап сборки задней сцены: скрываем только деревья дальнего фона.
- // Геометрия, координаты, размеры, виды и seed сохраняются без изменений — позже их можно вернуть.
- const gwRearTreesTemporarilyHidden=[];
- for(const tree of gwForest.children){
-   if(tree.position.z < -25){tree.visible=false;gwRearTreesTemporarilyHidden.push(tree);}
- }
- window.GREEN_WORLD_REAR_TREES_STATE={visible:false,hiddenCount:gwRearTreesTemporarilyHidden.length,restoreReady:true,rule:'tree.position.z < -25'};
+ // Деревья возвращены в задний фон после перестройки пруда и периметра.
+ // Сохранены виды, размеры и seed; для задних рядов изменены только координаты.
+ for(const tree of gwForest.children)tree.visible=true;
+ window.GREEN_WORLD_REAR_TREES_STATE={visible:true,hiddenCount:0,restoreReady:true,rule:'all rear rows repositioned behind pond'};
   // Фактические мировые габариты каждой группы деревьев после построения всей геометрии.
   // В расчёт входят кроны, ветви и стволы; никаких объектов не перемещаем.
   gwForest.updateMatrixWorld(true);
@@ -2016,32 +2020,33 @@ const rearPondMaterial=new THREE.MeshPhysicalMaterial({
 });
 const makeRearPondContour=()=>{
  const shape=new THREE.Shape();
- // Чаша занимает почти всю заднюю зону: ширина 60, глубина 12.8.
- // Левая сторона и длинные берега плавные и симметричные; справа — геометрически точная полуокружность.
- const r=6.4,cx=30-r,k=.5522847498;
- shape.moveTo(-30,0);
- shape.bezierCurveTo(-30,3.65,-27.1,5.9,-23.6,6.18);
- shape.bezierCurveTo(-19.2,6.52,-15.6,5.88,-11.5,6.12);
- shape.bezierCurveTo(-7.4,6.36,-3.8,6.05,0,6.28);
- shape.bezierCurveTo(4.0,6.48,7.4,5.98,11.5,6.2);
- shape.bezierCurveTo(15.8,6.42,19.6,6.12,cx,r);
- shape.bezierCurveTo(cx+k*r,r,30,k*r,30,0);
- shape.bezierCurveTo(30,-k*r,cx+k*r,-r,cx,-r);
- shape.bezierCurveTo(19.6,-6.12,15.8,-6.42,11.5,-6.2);
- shape.bezierCurveTo(7.4,-5.98,4.0,-6.48,0,-6.28);
- shape.bezierCurveTo(-3.8,-6.05,-7.4,-6.36,-11.5,-6.12);
- shape.bezierCurveTo(-15.6,-5.88,-19.2,-6.52,-23.6,-6.18);
- shape.bezierCurveTo(-27.1,-5.9,-30,-3.65,-30,0);
+ // Новая широкая чаша: 64 единицы по ширине и 16 по глубине.
+ // Берега плавные; правое завершение — точная полуокружность радиусом 8.
+ const r=8,cx=24,k=.5522847498;
+ shape.moveTo(-32,0);
+ shape.bezierCurveTo(-32,4.6,-28.5,7.25,-24,7.65);
+ shape.bezierCurveTo(-19.5,8,-15.5,7.45,-11.5,7.7);
+ shape.bezierCurveTo(-7.5,7.95,-3.8,7.55,0,7.8);
+ shape.bezierCurveTo(4,8,7.5,7.5,11.5,7.72);
+ shape.bezierCurveTo(16,7.95,20,7.65,cx,r);
+ shape.bezierCurveTo(cx+k*r,r,32,k*r,32,0);
+ shape.bezierCurveTo(32,-k*r,cx+k*r,-r,cx,-r);
+ shape.bezierCurveTo(20,-7.65,16,-7.95,11.5,-7.72);
+ shape.bezierCurveTo(7.5,-7.5,4,-8,0,-7.8);
+ shape.bezierCurveTo(-3.8,-7.55,-7.5,-7.95,-11.5,-7.7);
+ shape.bezierCurveTo(-15.5,-7.45,-19.5,-8,-24,-7.65);
+ shape.bezierCurveTo(-28.5,-7.25,-32,-4.6,-32,0);
  shape.closePath();
  return shape;
 };
+const rearPondCenterZ=-56.0;
 const rearPondShape=makeRearPondContour();
 window.GREEN_WORLD_REAR_POND_SHAPE=rearPondShape; // Общая ссылка для внешней диагностики камеры.
 const rearPondGeometry=new THREE.ShapeGeometry(rearPondShape,32);
 const rearPond=new THREE.Mesh(rearPondGeometry,rearPondMaterial);
 rearPond.name='GREEN_WORLD_Rear_Pond';
 rearPond.rotation.x=-Math.PI/2;
-rearPond.position.set(0,.115,-31.0);
+rearPond.position.set(0,.115,rearPondCenterZ);
 rearPond.receiveShadow=true;rearPond.castShadow=false;rearPond.frustumCulled=false;
 rearPond.visible=true; // Задний пруд является частью сцены; показываем его перед лесным фоном.
 world.add(rearPond);
@@ -2052,7 +2057,7 @@ const rearBankTopMat=M.stone2.clone();
 rearBankTopMat.color=new THREE.Color(0xe0d1b2);rearBankTopMat.roughness=.84;rearBankTopMat.needsUpdate=true;
 const rearBankOutline=rearPondShape.getPoints(240);
 if(rearBankOutline.length>2&&rearBankOutline[0].distanceToSquared(rearBankOutline[rearBankOutline.length-1])<1e-8)rearBankOutline.pop();
-const rearBankCurveAt=y=>new THREE.CatmullRomCurve3(rearBankOutline.map(p=>new THREE.Vector3(p.x,y,-31.0-p.y)),true,'centripetal');
+const rearBankCurveAt=y=>new THREE.CatmullRomCurve3(rearBankOutline.map(p=>new THREE.Vector3(p.x,y,rearPondCenterZ-p.y)),true,'centripetal');
 const rearBank=new THREE.Mesh(new THREE.TubeGeometry(rearBankCurveAt(.20),480,.34,10,true),rearBankMat);
 rearBank.name='GREEN_WORLD_Rear_Pond_Bank';
 rearBank.castShadow=false;rearBank.receiveShadow=true;rearBank.visible=true;world.add(rearBank);
@@ -2063,21 +2068,21 @@ rearBankTop.castShadow=false;rearBankTop.receiveShadow=true;rearBankTop.visible=
 const fountainStone= M.stone2.clone();fountainStone.color=new THREE.Color(0xd9c7a4);fountainStone.roughness=.88;fountainStone.needsUpdate=true;
 const fountainWater=new THREE.MeshPhysicalMaterial({color:0x9ce8f1,roughness:.12,metalness:.04,transparent:true,opacity:.58,clearcoat:.9,side:THREE.DoubleSide});
 window.GREEN_WORLD_FOUNTAIN_VISIBILITY_OBJECTS=[];
-for(const x of [-20,0,20]){
+for(const x of [-22,0,22]){
  const basin=new THREE.Mesh(new THREE.CylinderGeometry(.82,.94,.34,32),fountainStone);
- basin.position.set(x,.34,-31.0);basin.castShadow=true;basin.receiveShadow=true;basin.visible=true;world.add(basin);
+ basin.position.set(x,.34,rearPondCenterZ);basin.castShadow=true;basin.receiveShadow=true;basin.visible=true;world.add(basin);
  const waterDisk=new THREE.Mesh(new THREE.CylinderGeometry(.69,.69,.035,32),fountainWater);
- waterDisk.position.set(x,.53,-31.0);waterDisk.visible=true;world.add(waterDisk);
+ waterDisk.position.set(x,.53,rearPondCenterZ);waterDisk.visible=true;world.add(waterDisk);
  const jet=new THREE.Mesh(new THREE.CylinderGeometry(.045,.12,1.55,12),fountainWater);
- jet.position.set(x,1.31,-31.0);jet.visible=true;world.add(jet);
+ jet.position.set(x,1.31,rearPondCenterZ);jet.visible=true;world.add(jet);
  const crown=new THREE.Mesh(new THREE.SphereGeometry(.19,16,10),fountainWater);
- crown.position.set(x,2.12,-31.0);crown.scale.set(.8,1.35,.8);crown.visible=true;world.add(crown);
+ crown.position.set(x,2.12,rearPondCenterZ);crown.scale.set(.8,1.35,.8);crown.visible=true;world.add(crown);
  if(x===0)window.GREEN_WORLD_FOUNTAIN_VISIBILITY_OBJECTS.push({name:'basin',object:basin},{name:'water',object:waterDisk},{name:'jet',object:jet},{name:'crown',object:crown});
 }
 // Беседка на правом берегу заднего водоёма, вне центральной оси и проходов.
 const gazebo=new THREE.Group();gazebo.name='GREEN_WORLD_Rear_Gazebo';
 window.GREEN_WORLD_GAZEBO_OBJECT=gazebo;
-gazebo.position.set(26.2,0,-33.3);gazebo.visible=false;world.add(gazebo);
+gazebo.position.set(28.0,0,rearPondCenterZ-2.5);gazebo.visible=false;world.add(gazebo);
 const gazeboStone=M.stone2.clone();gazeboStone.color=new THREE.Color(0xd8c6a2);gazeboStone.roughness=.88;gazeboStone.needsUpdate=true;
 const gazeboGold=M.gold?M.gold.clone():new THREE.MeshStandardMaterial({color:0xc59a4c,roughness:.38});
 const gazeboRoof=M.roof2?M.roof2.clone():new THREE.MeshStandardMaterial({color:0x315574,roughness:.7});
@@ -2102,7 +2107,7 @@ gazebo.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
 window.GREEN_WORLD_REAR_FEATURES={pond:true,fountains:3,gazebo:false,reason:'Задний пруд и три фонтана видимы; деревья размещены ярусами за прудом, беседка остаётся скрытой.'};
 
 // Диагностика задней зоны: контрольный конверт не создаёт геометрию и не двигает объекты.
-const gwRearZoneBounds={left:-32.0,right:32.0,front:-23.5,back:-45.0};
+const gwRearZoneBounds={left:-34.0,right:34.0,front:-46.0,back:-112.0};
 window.GREEN_WORLD_REAR_ZONE_BOUNDS=gwRearZoneBounds;
 world.updateMatrixWorld(true);
 const gwRearPondBox=new THREE.Box3().setFromObject(rearPond);
@@ -3696,7 +3701,7 @@ window.GREEN_WORLD_GET_REAR_POND_CAMERA_DIAGNOSTIC=()=>{
  const inside=(x,y)=>{let v=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if(((a.y>y)!==(b.y>y))&&(x<(b.x-a.x)*(y-a.y)/(b.y-a.y)+a.x))v=!v;}return v;};
  const ray=new THREE.Raycaster(),samples=[];
  for(let py=-5.8;py<=5.81;py+=1.45)for(let x=-28.5;x<=28.51;x+=3.8){if(!inside(x,py))continue;
-  const target=new THREE.Vector3(x,.16,-31-py),p=target.clone().project(camera),inFrame=p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1&&p.z>=-1&&p.z<=1;
+  const target=new THREE.Vector3(x,.16,pond.position.z-py),p=target.clone().project(camera),inFrame=p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1&&p.z>=-1&&p.z<=1;
   const dir=target.clone().sub(camera.position),dist=dir.length();dir.normalize();ray.set(camera.position,dir);ray.near=.02;ray.far=Math.max(.02,dist-.06);
   const houseHit=ray.intersectObject(house,true)[0]||null;
   const fountainObjects=(window.GREEN_WORLD_FOUNTAIN_VISIBILITY_OBJECTS||[]).map(v=>v.object).filter(Boolean);
@@ -3713,7 +3718,7 @@ window.GREEN_WORLD_GET_REAR_POND_CAMERA_DIAGNOSTIC=()=>{
    let top=object;while(top.parent&&top.parent!==world)top=top.parent;
    blockerInfo={label:object.name||object.type,objectType:object.type,uuid:object.uuid,geometryType:object.geometry?.type||null,worldPosition:{x:+position.x.toFixed(2),y:+position.y.toFixed(2),z:+position.z.toFixed(2)},distance:+blocker.distance.toFixed(2),topLevelName:top.name||top.type,topLevelType:top.type,chain};
   }
-  samples.push({x:+x.toFixed(1),z:+(-31-py).toFixed(1),screen:{x:+p.x.toFixed(3),y:+p.y.toFixed(3),depth:+p.z.toFixed(3)},inFrame,blockedByHouse:!!houseHit,blocker:blockerInfo?.label||null,blockerInfo,visible:inFrame&&!houseHit&&!blocker});
+  samples.push({x:+x.toFixed(1),z:+(pond.position.z-py).toFixed(1),screen:{x:+p.x.toFixed(3),y:+p.y.toFixed(3),depth:+p.z.toFixed(3)},inFrame,blockedByHouse:!!houseHit,blocker:blockerInfo?.label||null,blockerInfo,visible:inFrame&&!houseHit&&!blocker});
  }
  const visible=samples.filter(s=>s.visible).length,frame=samples.filter(s=>s.inFrame).length,blocked=samples.filter(s=>s.inFrame&&s.blockedByHouse).length,sceneBlockers={};for(const sample of samples)if(sample.inFrame&&sample.blockerInfo){const q=sample.blockerInfo,key=[q.topLevelName,q.topLevelType,q.geometryType,q.worldPosition.x,q.worldPosition.y,q.worldPosition.z].join('|');if(!sceneBlockers[key])sceneBlockers[key]={...q,count:0};sceneBlockers[key].count++;}const b=boxOf(pond),hb=boxOf(house),projected=[];
  for(const x of [b.min.x,b.max.x])for(const y of [b.min.y,b.max.y])for(const z of [b.min.z,b.max.z])projected.push(new THREE.Vector3(x,y,z).project(camera));
