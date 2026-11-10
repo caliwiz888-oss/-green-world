@@ -1321,13 +1321,13 @@ function makeWorldDecor(){
   fenceRun(-3.20,frontFenceZ,frontFenceLeft,frontFenceZ,leftFrontSpacing,0,0,{bayFaceAngle:Math.PI});
   fenceRun(3.20,frontFenceZ,frontFenceRight,frontFenceZ,rightFrontSpacing,0,0);
   // Боковые стороны привязаны к тем же углам, без повторных угловых столбов.
-  fenceRun(frontFenceLeft,frontFenceZ,frontFenceLeft,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:Math.PI/2});
-  fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
+  fenceRun(frontFenceLeft,frontFenceZ,frontFenceLeft,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:true,postFaceAngle:Math.PI/2});
+  fenceRun(frontFenceRight,frontFenceZ,frontFenceRight,sideFenceEndZ,2.45,0,0,{includeStart:false,includeEnd:true,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
   // За домом боковые линии раскрываются наружу, обходя пруд с обеих сторон.
-  fenceRun(frontFenceLeft,sideFenceEndZ,-sideFenceOuterX,sideFenceOuterZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:Math.PI/2});
-  fenceRun(frontFenceRight,sideFenceEndZ,sideFenceOuterX,sideFenceOuterZ,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
-  fenceRun(-sideFenceOuterX,sideFenceOuterZ,-sideFenceOuterX,areaBounds.back,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:Math.PI/2});
-  fenceRun(sideFenceOuterX,sideFenceOuterZ,sideFenceOuterX,areaBounds.back,2.45,0,0,{includeStart:false,includeEnd:false,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
+  fenceRun(frontFenceLeft,sideFenceEndZ,-sideFenceOuterX,sideFenceOuterZ,2.45,0,0,{includeStart:false,includeEnd:true,postFaceAngle:Math.PI/2});
+  fenceRun(frontFenceRight,sideFenceEndZ,sideFenceOuterX,sideFenceOuterZ,2.45,0,0,{includeStart:false,includeEnd:true,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
+  fenceRun(-sideFenceOuterX,sideFenceOuterZ,-sideFenceOuterX,areaBounds.back,2.45,0,0,{includeStart:false,includeEnd:true,postFaceAngle:Math.PI/2});
+  fenceRun(sideFenceOuterX,sideFenceOuterZ,sideFenceOuterX,areaBounds.back,2.45,0,0,{includeStart:false,includeEnd:true,postFaceAngle:-Math.PI/2,bayFaceAngle:Math.PI});
   // Задняя сторона замыкает расширенный периметр позади леса.
   fenceRun(-sideFenceOuterX,areaBounds.back,sideFenceOuterX,areaBounds.back,2.45,0,0,{includeStart:false,includeEnd:false});
   // Жёстко отключаем отбрасывание и приём теней у всех деталей ограждения, включая столбики и навершия.
@@ -2107,7 +2107,7 @@ gazebo.traverse(o=>{if(o.isMesh){o.castShadow=false;o.receiveShadow=true;}});
 window.GREEN_WORLD_REAR_FEATURES={pond:true,fountains:3,gazebo:false,reason:'Задний пруд и три фонтана видимы; деревья размещены ярусами за прудом, беседка остаётся скрытой.'};
 
 // Диагностика задней зоны: контрольный конверт не создаёт геометрию и не двигает объекты.
-const gwRearZoneBounds={left:-34.0,right:34.0,front:-46.0,back:-112.0};
+const gwRearZoneBounds={left:-34.0,right:34.0,front:-46.0,back:-116.0};
 window.GREEN_WORLD_REAR_ZONE_BOUNDS=gwRearZoneBounds;
 world.updateMatrixWorld(true);
 const gwRearPondBox=new THREE.Box3().setFromObject(rearPond);
@@ -3700,7 +3700,7 @@ window.GREEN_WORLD_GET_REAR_POND_CAMERA_DIAGNOSTIC=()=>{
  const poly=pondShape.extractPoints(96).shape;
  const inside=(x,y)=>{let v=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if(((a.y>y)!==(b.y>y))&&(x<(b.x-a.x)*(y-a.y)/(b.y-a.y)+a.x))v=!v;}return v;};
  const ray=new THREE.Raycaster(),samples=[];
- for(let py=-5.8;py<=5.81;py+=1.45)for(let x=-28.5;x<=28.51;x+=3.8){if(!inside(x,py))continue;
+ for(let py=-7.4;py<=7.41;py+=1.85)for(let x=-30.5;x<=30.51;x+=4.0){if(!inside(x,py))continue;
   const target=new THREE.Vector3(x,.16,pond.position.z-py),p=target.clone().project(camera),inFrame=p.x>=-1&&p.x<=1&&p.y>=-1&&p.y<=1&&p.z>=-1&&p.z<=1;
   const dir=target.clone().sub(camera.position),dist=dir.length();dir.normalize();ray.set(camera.position,dir);ray.near=.02;ray.far=Math.max(.02,dist-.06);
   const houseHit=ray.intersectObject(house,true)[0]||null;
