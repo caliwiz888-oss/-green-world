@@ -103,17 +103,6 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 @media(min-width:700px){#dock{width:min(700px,calc(100vw - 32px));left:50%;right:auto;transform:translateX(-50%);bottom:18px}#dock .action{min-height:64px;font-size:12px}}
 @media(max-width:360px){#dock{left:6px;right:6px;gap:5px;bottom:calc(7px + env(safe-area-inset-bottom,0px))}#dock .action{min-height:52px;padding:5px 1px;border-radius:11px;font-size:9px}#dock .action .actionIcon{font-size:21px}}
 
-#treeDiagShade{display:none;position:fixed;z-index:30;inset:0;background:#102016d9;align-items:center;justify-content:center;padding:12px}
-#treeDiagShade.open{display:flex}
-#treeDiagPanel{width:min(560px,96vw);max-height:88vh;overflow:auto;padding:15px;border:2px solid #e8c16c;border-radius:18px;background:linear-gradient(155deg,#fffdf2,#e5efd9);color:#345a39;box-shadow:0 10px 30px #0008}
-#treeDiagPanel h2{margin:0 0 8px;font-size:17px}
-#treeDiagOutput{display:block;width:100%;height:min(48vh,340px);margin:10px 0;padding:10px;border:1px solid #b8cfad;border-radius:10px;background:#fff;color:#254b30;font:12px/1.4 monospace;white-space:pre;overflow:auto;resize:vertical}
-.treeDiagActions{display:flex;gap:8px;flex-wrap:wrap}
-.treeDiagActions button{padding:10px 13px;border:1px solid #b7cda8;border-radius:10px;background:#dcebd4;color:#315b38;font-weight:900}
-
-#rearPondDiagQuickOpen{position:fixed;z-index:1001;top:calc(env(safe-area-inset-top,0px) + 106px);right:10px;padding:11px 14px;border:2px solid #b9e7dc;border-radius:12px;background:linear-gradient(155deg,#167f83,#104d59);color:#fff;font-size:13px;font-weight:950;box-shadow:0 3px 12px #0009;max-width:180px;min-height:44px;pointer-events:auto;cursor:pointer}
- #fullLayoutDiagQuickOpen{position:fixed;z-index:1000;top:calc(env(safe-area-inset-top,0px) + 54px);right:10px;padding:10px 13px;border:2px solid #e8c16c;border-radius:12px;background:linear-gradient(155deg,#81512d,#382116);color:#fff1cf;font-size:12px;font-weight:950;box-shadow:0 3px 10px #0009;max-width:170px;min-height:42px;pointer-events:auto;cursor:pointer}
-
 /* Lightweight Telegram startup isolation screen; no WebGL context or 3D module is created. */
 #gwStartupDiagnostic{display:none;position:fixed;z-index:20000;inset:0;box-sizing:border-box;padding:22px;background:#eef4e9;color:#23452d;font:16px/1.5 system-ui,sans-serif;overflow:auto}
 #gwStartupDiagnostic .gwDiagCard{max-width:560px;margin:7vh auto;padding:22px;border:2px solid #d5b66e;border-radius:18px;background:#fffdf4;box-shadow:0 8px 28px #20351d33}
@@ -133,8 +122,8 @@ html.gw-diagnostic-mode body{overflow:hidden}
  <div id="farmHudInfo"><div id="farmHudTitle">🍀 GREEN FARM</div><div id="farmHudLevel">Уровень · Ур. 1 · ✨ 0 XP</div></div>
 </div>
 
-<button id="fullLayoutDiagQuickOpen" type="button">🔎 Полная проверка</button>
-<button id="rearPondDiagQuickOpen" type="button">💧 Проверить пруд</button>
+
+
 <div id="walletHud" aria-label="Баланс GREEN COIN и собранные яблоки">
  <div class="walletHudMetric"><span class="walletHudIcon" aria-hidden="true">🪙</span><span class="walletHudText"><b class="walletHudValue" id="greenCoinCount">100</b><span class="walletHudLabel">GREEN COIN</span></span></div>
  <span class="walletHudDivider" aria-hidden="true"></span>
@@ -160,7 +149,7 @@ html.gw-diagnostic-mode body{overflow:hidden}
 </script>
 <div id="login" aria-hidden="true"><div class="login-card"><h1>GREEN WORLD</h1><button class="smallbtn" id="retry-login" type="button" hidden></button><p id="login-error" hidden></p></div></div>
 </div></div>
-<div id="treeDiagShade" role="dialog" aria-modal="true" aria-label="Диагностика деревьев"><div id="treeDiagPanel"><h2 id="treeDiagTitle">Диагностика деревьев GREEN WORLD</h2><p id="treeDiagStatus">Нажми «Обновить», когда 3D-мир загрузится.</p><textarea id="treeDiagOutput" readonly spellcheck="false"></textarea><div class="treeDiagActions"><button id="treeDiagRefresh" type="button">Обновить</button><button id="treeDiagCopy" type="button">Копировать результат</button><button id="treeDiagClose" type="button">Закрыть</button></div></div></div>
+</div>
 <script>window.GREEN_WORLD_API_URL='https://green-world-api-mx3v.onrender.com';</script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
@@ -3094,78 +3083,7 @@ if(window.GREEN_WORLD_AUTH_RESULT){
  if(window.GREEN_WORLD_AUTH_RESULT?.accessToken)startWorld();
 })();
 </script>
-<script>
-(()=>{const openers=[document.getElementById('treeDiagOpen'),document.getElementById('treeDiagQuickOpen')].filter(Boolean),gazeboOpen=document.getElementById('gazeboDiagQuickOpen'),gazeboCameraOpen=document.getElementById('gazeboCameraDiagQuickOpen'),fullLayoutOpen=document.getElementById('fullLayoutDiagQuickOpen'),title=document.getElementById('treeDiagTitle'),shade=document.getElementById('treeDiagShade'),out=document.getElementById('treeDiagOutput'),status=document.getElementById('treeDiagStatus'),refresh=document.getElementById('treeDiagRefresh'),copy=document.getElementById('treeDiagCopy'),close=document.getElementById('treeDiagClose');if((!openers.length&&!gazeboOpen&&!gazeboCameraOpen&&!fullLayoutOpen)||!shade||!out||!status||!refresh||!copy||!close)return;
-let mode='trees';
-const update=()=>{if(mode==='fullLayout'){out.value='ПОЛНАЯ ДИАГНОСТИКА ДВОРА GREEN WORLD\nСобираю мировые габариты объектов…';status.textContent='Проверяю сцену без перемещения объектов.';let d;try{if(typeof window.GREEN_WORLD_GET_FULL_LAYOUT_DIAGNOSTIC!=='function')throw new Error('Функция полной диагностики не загружена');d=window.GREEN_WORLD_GET_FULL_LAYOUT_DIAGNOSTIC();}catch(error){status.textContent='Ошибка полной проверки';out.value='ОШИБКА ПОЛНОЙ ДИАГНОСТИКИ\n'+(error?.stack||error?.message||String(error));return;}const f=n=>n==null?'—':Number(n).toFixed(2);const b=(v)=>v?'ДА':'НЕТ';const lines=['ПОЛНАЯ ДИАГНОСТИКА ДВОРА GREEN WORLD','ЭТАП ЗАГРУЗКИ: '+d.startup,'ОБЪЕКТЫ МИРА: '+d.world.topLevelObjects+' | 3D-модуль готов: '+b(d.world.renderReady),'','ГЛАВНЫЙ ДОМ: модель='+d.house.model+' | объектов='+d.house.count];if(d.house.error)lines.push('ОШИБКА ДОМА: '+d.house.error);for(const h of d.house.objects){const q=h.bounds;lines.push('Дом #'+h.index+' '+h.name+' | '+(q?'центр X='+f((q.min.x+q.max.x)/2)+' Z='+f((q.min.z+q.max.z)/2)+' | размер X='+f(q.size.x)+' Z='+f(q.size.z):'габариты недоступны'));}const s=d.site;if(s)lines.push('','ГРАНИЦЫ УЧАСТКА: X '+f(s.left)+'…'+f(s.right)+' | Z '+f(s.back)+'…'+f(s.front));lines.push('ЗАБОР: прикреплён к миру='+b(d.fence.attached)+' | габариты '+(d.fence.bounds?'X '+f(d.fence.bounds.min.x)+'…'+f(d.fence.bounds.max.x)+'; Z '+f(d.fence.bounds.min.z)+'…'+f(d.fence.bounds.max.z):'недоступны'));lines.push('','ДЕРЕВЬЯ: '+d.trees.count+' | возможные AABB-пересечения: '+(d.trees.overlaps??'нет данных'));lines.push('КУСТАРНИКИ: '+(d.shrubs.count??'нет данных'));lines.push('','ЗАДНЯЯ ЗОНА: фонтаны='+d.rear.fountains+' | проверки='+d.rear.layoutPassed+'/'+d.rear.layoutTotal);if(d.rear.pondCamera){const p=d.rear.pondCamera;lines.push('КАМЕРА ПРУДА: X='+f(p.camera.position.x)+' Y='+f(p.camera.position.y)+' Z='+f(p.camera.position.z)+' | цель X='+f(p.camera.target.x)+' Y='+f(p.camera.target.y)+' Z='+f(p.camera.target.z)+' | радиус='+f(p.camera.radius)+' | азимут='+f(p.camera.azimuth)+'° | FOV='+f(p.camera.fov)+'° | aspect='+f(p.camera.aspect));lines.push('ПРУД: X '+f(p.pond.bounds.min.x)+'…'+f(p.pond.bounds.max.x)+' | Y '+f(p.pond.bounds.min.y)+'…'+f(p.pond.bounds.max.y)+' | Z '+f(p.pond.bounds.min.z)+'…'+f(p.pond.bounds.max.z));lines.push('ПРУД НА ЭКРАНЕ: X '+f(p.pond.screen.left)+'…'+f(p.pond.screen.right)+'% | Y '+f(p.pond.screen.top)+'…'+f(p.pond.screen.bottom)+'% | видимые точки '+p.pond.visible+'/'+p.pond.sampleCount+' | в кадре '+p.pond.insideFrame+' | закрыты домом '+p.pond.blockedByHouse+' | закрыты сценой '+p.pond.blockedByScene+' | видимость '+f(p.pond.visiblePercent)+'%');lines.push('ДОМ: X '+f(p.house.bounds.min.x)+'…'+f(p.house.bounds.max.x)+' | Y '+f(p.house.bounds.min.y)+'…'+f(p.house.bounds.max.y)+' | Z '+f(p.house.bounds.min.z)+'…'+f(p.house.bounds.max.z));lines.push('ВЫВОД: '+p.verdict);for(const s of p.pond.samples)if(s.blocker)lines.push('ПЕРЕКРЫТИЕ X='+f(s.x)+' Z='+f(s.z)+': '+s.blocker);}for(const q of d.rear.checks)lines.push((q.ok?'OK  ':'РИСК  ')+q.name+(q.clearance!==undefined?' | зазор='+f(q.clearance):''));if(d.rear.zone){const z=d.rear.zone.bounds;lines.push('КОНТРОЛЬНЫЕ ГРАНИЦЫ ЗАДНЕЙ ЗОНЫ: X '+f(z.left)+'…'+f(z.right)+' | Z '+f(z.back)+'…'+f(z.front));lines.push('Пруд внутри задней зоны: '+(d.rear.zone.pondInside?'ДА':'НЕТ')+' | беседка внутри: '+(d.rear.zone.gazeboInside?'ДА':'НЕТ'));}for(const [name,q] of [['Пруд',d.rear.pond],['Беседка',d.rear.gazebo]])lines.push(name+': '+(q?'X '+f(q.min.x)+'…'+f(q.max.x)+' | Z '+f(q.min.z)+'…'+f(q.max.z):'габариты недоступны'));if(d.river)lines.push('','РЕКА: '+JSON.stringify(d.river));try{const frame=window.GREEN_WORLD_GET_WHOLE_SCENE_FRAME_DIAGNOSTIC();const pct=q=>(q*50+50).toFixed(1);lines.push('','ОБЩЕЕ КАДРИРОВАНИЕ СЦЕНЫ ПРИ ТЕКУЩЕЙ КАМЕРЕ:','ОБЪЕКТОВ СЦЕНЫ: '+frame.total+' | фоновых/охватывающих камеру: '+frame.background,'ОСТАЛЬНЫХ ОБЪЕКТОВ: '+frame.meaningfulTotal+' | полностью в кадре: '+frame.inside+' | частично обрезаны: '+frame.clipped+' | вне кадра: '+frame.outside,'КРУПНЫЕ ЧАСТИЧНО ОБРЕЗАННЫЕ ОБЪЕКТЫ:');for(const q of frame.largestClipped)lines.push('#'+q.rootIndex+' '+q.name+' | meshes='+q.meshCount+' children='+q.childCount+' | X '+pct(q.screen.left)+'…'+pct(q.screen.right)+'% | Y '+pct(-q.screen.top)+'…'+pct(-q.screen.bottom)+'% | world X '+q.bounds.min.x.toFixed(1)+'…'+q.bounds.max.x.toFixed(1)+' Z '+q.bounds.min.z.toFixed(1)+'…'+q.bounds.max.z.toFixed(1));lines.push('КРУПНЫЕ ОБЪЕКТЫ ВНЕ КАДРА:');for(const q of frame.largestOutside)lines.push('#'+q.rootIndex+' '+q.name+' | meshes='+q.meshCount+' children='+q.childCount+' | X '+pct(q.screen.left)+'…'+pct(q.screen.right)+'% | Y '+pct(-q.screen.top)+'…'+pct(-q.screen.bottom)+'% | world X '+q.bounds.min.x.toFixed(1)+'…'+q.bounds.max.x.toFixed(1)+' Z '+q.bounds.min.z.toFixed(1)+'…'+q.bounds.max.z.toFixed(1));}catch(error){lines.push('','ОБЩЕЕ КАДРИРОВАНИЕ: ОШИБКА — '+(error?.message||String(error)));}try{const v=window.GREEN_WORLD_GET_CENTRAL_FOUNTAIN_VISIBILITY();lines.push('','ВИДИМОСТЬ ЦЕНТРАЛЬНОГО ФОНТАНА: '+v.verdict,'КАМЕРА: X='+f(v.camera.x)+' Y='+f(v.camera.y)+' Z='+f(v.camera.z)+' | цель X='+f(v.camera.target.x)+' Y='+f(v.camera.target.y)+' Z='+f(v.camera.target.z),'ПРОВЕРКА ТОЧЕК: в кадре '+v.summary.inFrame+'/'+v.summary.total+' | закрыто домом '+v.summary.blockedByHouse+' | закрыто объектами сцены '+v.summary.blockedByScene+' | полностью видимо '+v.summary.visible,'ПОДБОР ВЫСОТЫ КАМЕРЫ (без изменения ракурса): '+v.heightSweep.map(h=>'Y='+h.cameraY+': видно '+h.visible+'/'+v.summary.total).join(' | '),'ЛУЧШИЙ ПРОВЕРЕННЫЙ ВАРИАНТ: Y='+v.bestHeight.cameraY+' | видно '+v.bestHeight.visible+'/'+v.summary.total,'ПОДБОР НИЗКОГО РАКУРСА (высота + азимут, горизонтальный радиус 60):');if(v.successfulCameraAngles.length){for(const c of v.successfulCameraAngles.slice(0,12))lines.push('Y='+c.cameraY+' | азимут='+c.azimuthDegrees+'° | наклон='+c.elevationDegrees+'° | фонтан '+c.visible+'/'+c.total+' | ключевых объектов полностью в кадре '+c.keyObjectsInFrame+'/5');}else{lines.push('Пока нет низкого ракурса, где все точки фонтана и минимум 4 из 5 ключевых объектов полностью в кадре.');}lines.push('КАДРИРОВАНИЕ СЦЕНЫ ПРИ ВЫСОТАХ-КАНДИДАТАХ:');for(const candidate of v.sceneFrameSweep){lines.push('КАМЕРА Y='+candidate.cameraY);for(const frame of candidate.frames)lines.push(frame.name+': '+(!frame.available?'нет данных':(frame.intersectsScreen?'в кадре':'вне кадра')+' | экран X '+frame.boundsPercent.left+'…'+frame.boundsPercent.right+'% | Y '+frame.boundsPercent.top+'…'+frame.boundsPercent.bottom+'% | углов в кадре '+frame.cornersInFrame+'/8'));}for(const q of v.samples)lines.push(q.part+' #'+q.sample+': '+(q.visible?'ВИДЕН':q.blockedByScene?'ЗАКРЫТ: '+q.blockerName:q.blockedByHouse?'ЗАКРЫТ ДОМОМ':'ВНЕ КАДРА')+' | экран X='+f(q.screen.x)+' Y='+f(q.screen.y));if(v.summary.sceneBlockers.length)lines.push('ПЕРЕКРЫВАЮЩИЕ ОБЪЕКТЫ: '+v.summary.sceneBlockers.map(b=>b.name+' ('+b.count+')').join('; '));}catch(error){lines.push('','ВИДИМОСТЬ ФОНТАНА: ОШИБКА — '+(error?.message||String(error)));}lines.push('','ВАЖНО: лучи проверяют пересечения со всеми объектами 3D-сцены до контрольных точек фонтана; собственная поверхность каждой проверяемой части исключается. Новый подбор проверяет одновременно высоту, боковой угол, все точки фонтана и габариты пяти ключевых объектов. Это геометрическая проверка, не визуальное сравнение с эталоном. Геометрия и координаты объектов не изменялись.');out.value=lines.join('\n');status.textContent='Полная структурная проверка завершена. Объекты не изменены.';return;}if(mode==='gazeboCamera'){out.value='Вычисляю положение беседки относительно камеры…';status.textContent='Проверяю текущий кадр.';let d;try{if(typeof window.GREEN_WORLD_GET_GAZEBO_CAMERA_DIAGNOSTIC!=='function')throw new Error('Функция диагностики камеры не загружена');d=window.GREEN_WORLD_GET_GAZEBO_CAMERA_DIAGNOSTIC();}catch(error){status.textContent='Ошибка проверки камеры';out.value='ОШИБКА ДИАГНОСТИКИ БЕСЕДКИ\n'+(error?.stack||error?.message||String(error));return;}if(!d){status.textContent='Камера или беседка ещё не готовы.';out.value='Не удалось получить проекцию. Обнови проверку после загрузки мира.';return;}const f=n=>Number(n).toFixed(2);const p=d.projectedBounds;const lines=['ВИДИМОСТЬ БЕСЕДКИ GREEN WORLD','ЭКРАН: '+d.viewport.width+' × '+d.viewport.height+' | aspect='+f(d.viewport.aspect)+' | aspect камеры='+f(d.viewport.projectionAspect),'КАМЕРА: X='+f(d.camera.x)+' Y='+f(d.camera.y)+' Z='+f(d.camera.z),'ЦЕЛЬ КАМЕРЫ: X='+f(d.camera.target.x)+' Y='+f(d.camera.target.y)+' Z='+f(d.camera.target.z),'FOV: вертикальный='+f(d.camera.verticalFov)+'° | горизонтальный='+f(d.camera.horizontalFov)+'°','БЕСЕДКА: X='+f(d.gazebo.x)+' Y='+f(d.gazebo.y)+' Z='+f(d.gazebo.z),'УГОЛ ОТ ОСИ КАМЕРЫ: '+f(d.horizontalAngleDegrees)+'°','ПРОЕКЦИЯ НА ЭКРАН:','ЛЕВЫЙ КРАЙ: '+f(p.leftPercent)+'% | ПРАВЫЙ КРАЙ: '+f(p.rightPercent)+'%','ВЕРХ: '+f(p.topPercent)+'% | НИЗ: '+f(p.bottomPercent)+'%','УГЛОВ ВНУТРИ КАДРА: '+d.cornersInFrame+'/'+d.totalCorners,'ПЕРЕСЕКАЕТ ЭКРАН: '+(d.intersectsScreen?'ДА':'НЕТ'),'ПО ГЛУБИНЕ В ДИАПАЗОНЕ КАМЕРЫ: '+(d.depthVisible?'ДА':'НЕТ'),'','ВЫВОД: '+d.verdict,'','Важно: проверяются габариты беседки в проекции камеры. Перекрытие деревьями, забором или зданиями эта проверка не определяет.'];out.value=lines.join('\n');status.textContent='Проекция рассчитана для текущего размера экрана.';return;}if(mode==='gazebo'){const d=window.GREEN_WORLD_GAZEBO_DIAGNOSTIC;if(!d){status.textContent='Мир ещё загружается.';out.value='Диагностика беседки пока не создана.';return;}const f=n=>Number(n).toFixed(2);const lines=['БЕСЕДКА GREEN WORLD','ЦЕНТР: X='+f(d.position.x)+' Z='+f(d.position.z),'ГАБАРИТЫ: ширина='+f(d.bounds.width)+' глубина='+f(d.bounds.depth)+' высота='+f(d.bounds.height),'ГРАНИЦЫ: X '+f(d.footprint.minX)+'…'+f(d.footprint.maxX)+' | Z '+f(d.footprint.minZ)+'…'+f(d.footprint.maxZ),'','ПРОВЕРКИ: '+d.passed+'/'+d.total];for(const c of d.checks)lines.push((c.ok?'OK  ':'РИСК  ')+c.name+(c.clearance!==undefined?' | зазор='+f(c.clearance):'')+(c.hits!==undefined?' | пересечений='+c.hits:''));lines.push('','ПЕРЕСЕЧЕНИЯ С ДЕРЕВЬЯМИ:');if(!d.treeIntersections.length)lines.push('Не обнаружены.');else for(const h of d.treeIntersections)lines.push('Дерево #'+h.tree+' | X='+f(h.overlapX)+' Y='+f(h.overlapY)+' Z='+f(h.overlapZ));lines.push('','ПЕРЕСЕЧЕНИЯ С ОГРАЖДЕНИЕМ:');if(!d.fenceIntersections.length)lines.push('Не обнаружены.');else for(const h of d.fenceIntersections)lines.push(h.object+' | X='+f(h.overlapX)+' Y='+f(h.overlapY)+' Z='+f(h.overlapZ));lines.push('','Примечание: AABB — проверка габаритов, не оценка визуальной композиции.');out.value=lines.join('\n');status.textContent='Проверка беседки завершена: '+d.passed+'/'+d.total+'.';return;}const d=window.GREEN_WORLD_TREE_BOUNDS_DIAGNOSTIC;if(!d){status.textContent='Данные пока не готовы. Убедись, что 3D-мир загрузился, затем нажми «Обновить».';out.value='Диагностика ещё не создана. Возможно, генерация мира не запускалась или остановилась до создания деревьев.';return;}
-const fmt=n=>Number(n).toFixed(2);const lines=['ДЕРЕВЬЯ: '+d.count,'ВОЗМОЖНЫЕ ПЕРЕСЕЧЕНИЯ ГРАНИЧНЫХ ОБЪЁМОВ: '+d.crownFootprintOverlaps.length,'','СПИСОК ДЕРЕВЬЕВ:'];for(const t of d.trees){lines.push('#'+t.index+' центр X='+fmt(t.center.x)+' Z='+fmt(t.center.z)+' | ширина='+fmt(t.width)+' глубина='+fmt(t.depth)+' высота='+fmt(t.height));}lines.push('','ВОЗМОЖНЫЕ ПЕРЕСЕЧЕНИЯ:');if(!d.crownFootprintOverlaps.length)lines.push('Не обнаружены по порогу 0.35 × 0.35.');else for(const p of d.crownFootprintOverlaps)lines.push('#'+p.a+' ↔ #'+p.b+' | X='+fmt(p.overlapX)+' Z='+fmt(p.overlapZ));lines.push('','Примечание: AABB-пересечения — сигнал для проверки, а не доказательство визуального наложения.');out.value=lines.join('\n');status.textContent='Расчёт получен. Деревьев: '+d.count+'; возможных пересечений: '+d.crownFootprintOverlaps.length+'.';};
-openers.forEach(open=>open.addEventListener('click',()=>{mode='trees';if(title)title.textContent='Диагностика деревьев GREEN WORLD';shade.classList.add('open');update();}));if(gazeboOpen)gazeboOpen.addEventListener('click',()=>{mode='gazebo';if(title)title.textContent='Проверка беседки GREEN WORLD';shade.classList.add('open');update();});if(gazeboCameraOpen)gazeboCameraOpen.addEventListener('click',()=>{mode='gazeboCamera';if(title)title.textContent='Видимость беседки с камеры';shade.classList.add('open');update();});if(fullLayoutOpen)fullLayoutOpen.addEventListener('click',()=>{const menu=document.getElementById('farmMenuShade');if(menu)menu.classList.remove('open');mode='fullLayout';if(title)title.textContent='Полная проверка двора GREEN WORLD';shade.classList.add('open');update();});refresh.addEventListener('click',update);close.addEventListener('click',()=>shade.classList.remove('open'));shade.addEventListener('click',e=>{if(e.target===shade)shade.classList.remove('open');});copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(out.value);status.textContent='Результат скопирован. Вставь его в чат.';}catch(e){out.focus();out.select();status.textContent='Выделил текст. Удерживай и выбери «Копировать», затем вставь в чат.';}});document.addEventListener('keydown',e=>{if(e.key==='Escape')shade.classList.remove('open');});})();
 </script>
-<script>
-/* Mobile-safe delegated handler: works even if the diagnostics setup script ran too early. */
-document.addEventListener('click',function(event){
- const button=event.target&&event.target.closest?event.target.closest('#fullLayoutDiagQuickOpen'):null;
- if(!button)return;
- event.preventDefault();
- event.stopImmediatePropagation();
- const shade=document.getElementById('treeDiagShade');
- const refresh=document.getElementById('treeDiagRefresh');
- const title=document.getElementById('treeDiagTitle');
- const status=document.getElementById('treeDiagStatus');
- const output=document.getElementById('treeDiagOutput');
- if(!shade||!refresh||!output||!status){
-  window.alert('Окно диагностики не загрузилось. Обнови игру полностью.');
-  return;
- }
- const menu=document.getElementById('farmMenuShade');
- if(menu)menu.classList.remove('open');
- if(title)title.textContent='Полная проверка двора GREEN WORLD';
- shade.classList.add('open');
- status.textContent='Запускаю полную проверку…';
- refresh.click();
-},true);
-
-document.addEventListener('click',function(event){
- const button=event.target&&event.target.closest?event.target.closest('#rearPondDiagQuickOpen'):null;
- if(!button)return;
- event.preventDefault();
- event.stopImmediatePropagation();
- const shade=document.getElementById('treeDiagShade');
- const title=document.getElementById('treeDiagTitle');
- const status=document.getElementById('treeDiagStatus');
- const output=document.getElementById('treeDiagOutput');
- if(!shade||!status||!output){window.alert('Окно проверки не загрузилось. Обнови игру полностью.');return;}
- const menu=document.getElementById('farmMenuShade');if(menu)menu.classList.remove('open');
- if(title)title.textContent='Проверка заднего пруда GREEN WORLD';
- shade.classList.add('open');
- status.textContent='Рассчитываю видимость пруда с текущей камеры…';
- try{
-  if(typeof window.GREEN_WORLD_GET_REAR_POND_CAMERA_DIAGNOSTIC!=='function')throw new Error('3D-мир ещё не загрузил диагностику. Подожди несколько секунд и нажми кнопку снова.');
-  const d=window.GREEN_WORLD_GET_REAR_POND_CAMERA_DIAGNOSTIC();
-  const f=n=>n==null?'—':Number(n).toFixed(2);
-  const b=d.pond.bounds,sc=d.pond.screen,c=d.camera;
-  output.value=[
-   'ПРОВЕРКА ЗАДНЕГО ПРУДА GREEN WORLD',
-   'КАМЕРА: X='+f(c.position.x)+' Y='+f(c.position.y)+' Z='+f(c.position.z),
-   'ЦЕЛЬ: X='+f(c.target.x)+' Y='+f(c.target.y)+' Z='+f(c.target.z),
-   'ПРУД: X '+f(b.min.x)+'…'+f(b.max.x)+' | Z '+f(b.min.z)+'…'+f(b.max.z),
-   'ЦЕНТР ПРУДА: X='+f((b.min.x+b.max.x)/2)+' Z='+f((b.min.z+b.max.z)/2),
-   'ПРУД НА ЭКРАНЕ: X '+f(sc.left)+'…'+f(sc.right)+'% | Y '+f(sc.top)+'…'+f(sc.bottom)+'%',
-   'ТОЧКИ ВИДИМЫ: '+d.pond.visible+'/'+d.pond.sampleCount,
-   'ТОЧКИ В КАДРЕ: '+d.pond.insideFrame,
-   'ЗАКРЫТЫ ДОМОМ: '+d.pond.blockedByHouse,
-   'ЗАКРЫТЫ ДРУГИМИ ОБЪЕКТАМИ (БЕЗ ДОМА И ФОНТАНОВ): '+d.pond.blockedByScene,
-   'СПИСОК ПЕРЕКРЫВАЮЩИХ ОБЪЕКТОВ:',
-   ...(d.pond.sceneBlockers||[]).flatMap(q=>[q.topLevelName+' ('+q.topLevelType+') | '+q.geometryType+' | '+q.count+' точек','Позиция Mesh: X='+f(q.worldPosition.x)+' Y='+f(q.worldPosition.y)+' Z='+f(q.worldPosition.z),'Цепочка: '+q.chain.map(v=>(v.name||v.type)+' ['+v.type+']').join(' ← ')]),
-   'ОБЩАЯ ВИДИМОСТЬ: '+f(d.pond.visiblePercent)+'%',
-   'ДОМ: X '+f(d.house.bounds.min.x)+'…'+f(d.house.bounds.max.x)+' | Z '+f(d.house.bounds.min.z)+'…'+f(d.house.bounds.max.z),
-   'ВЫВОД: '+d.verdict,
-   '',
-   'Геометрия и координаты объектов этой проверкой не изменяются.'
-  ].join('\\n');
-  status.textContent='Проверка пруда завершена. Нажми «Копировать результат» и отправь отчёт сюда.';
- }catch(error){status.textContent='Не удалось выполнить проверку';output.value='ОШИБКА ПРОВЕРКИ ПРУДА\\n'+(error?.stack||error?.message||String(error));}
-},true);
 </script>
 </body>
 </html>
