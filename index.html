@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261110-landscape-relief-44';
+const GREEN_WORLD_BUILD_ID = '20261110-restore-landscape-arches-45';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1047,68 +1047,154 @@ function makeWorldDecor(){
     }
   }
   // Ограда по точному цветовому макету: светлые каменные столбы и тёмная кованая решётка с золотыми медальонами.
-  const fenceStone=mat(0xe8dcc4),fenceIvory=mat(0xf5ead5),fenceReliefStone=mat(0xcbb995);
-  const fenceIron=mat(0x242321),fenceIronLight=mat(0x39332d),fenceGold=mat(0xd9a83f),fenceGoldLight=mat(0xf0c85d);
+  const fenceStone=mat(0xcbb99a,.94),fenceIvory=mat(0xd9c6a4,.92),fenceReliefStone=mat(0xa98d68,.94),fenceOutline=mat(0x51402f,.94);
+  const fenceSandstone=mat(0xb99a72,.94),fenceSlate=mat(0x526575,.9),fenceTeal=mat(0x367c78,.88);
+  const fenceIron=mat(0x514638),fenceIronLight=mat(0x76634b),fenceGold=mat(0xc99b52),fenceGoldLight=mat(0xe4c17a);
   const fenceNoShadow=mesh=>{mesh.castShadow=false;mesh.receiveShadow=false;return mesh;};
   // Забор собирается в отдельной группе: его можно целиком заменить без дублей геометрии.
   const fenceGroup=new THREE.Group();world.add(fenceGroup);
   // Полный декоративный периметр по утверждённому эталону GREEN WORLD.
   // Светлые известняковые столбы, тёмная кованая решётка и золотые медальоны.
   const fencePost=(x,z,baseY=0,faceAngle=0)=>{
-    fenceNoShadow(box(fenceGroup,.54,.30,.58,x,baseY+.16,z,fenceReliefStone,false));
-    fenceNoShadow(box(fenceGroup,.48,.12,.52,x,baseY+.37,z,fenceIvory,false));
-    fenceNoShadow(box(fenceGroup,.36,1.68,.40,x,baseY+1.25,z,fenceStone,false));
-    fenceNoShadow(box(fenceGroup,.42,.10,.46,x,baseY+2.13,z,fenceReliefStone,false));
-    fenceNoShadow(box(fenceGroup,.58,.16,.62,x,baseY+2.25,z,fenceIvory,false));
-    fenceNoShadow(box(fenceGroup,.64,.07,.68,x,baseY+2.36,z,fenceGold,false));
-    fenceNoShadow(box(fenceGroup,.52,.10,.56,x,baseY+2.45,z,fenceStone,false));
-    // Декоративная лицевая панель привязана к основанию столба и повёрнута внутрь двора.
+    // Многоступенчатое основание из тёплого известняка и песчаника.
+    fenceNoShadow(box(fenceGroup,.62,.22,.66,x,baseY+.12,z,fenceReliefStone,false));
+    fenceNoShadow(box(fenceGroup,.56,.12,.60,x,baseY+.29,z,fenceIvory,false));
+    fenceNoShadow(box(fenceGroup,.46,.10,.50,x,baseY+.40,z,fenceSandstone,false));
+    fenceNoShadow(box(fenceGroup,.40,1.58,.44,x,baseY+1.24,z,fenceStone,false));
+    // Тонкие русты и контрастные пояса подчёркивают высоту столба.
+    for(const y of [.72,1.10,1.48,1.86]){
+      fenceNoShadow(box(fenceGroup,.414,.035,.455,x,baseY+y,z,fenceSandstone,false));
+    }
+    fenceNoShadow(box(fenceGroup,.48,.11,.52,x,baseY+2.08,z,fenceReliefStone,false));
+    fenceNoShadow(box(fenceGroup,.62,.15,.66,x,baseY+2.20,z,fenceIvory,false));
+    fenceNoShadow(box(fenceGroup,.68,.065,.72,x,baseY+2.31,z,fenceGold,false));
+    fenceNoShadow(box(fenceGroup,.56,.12,.60,x,baseY+2.40,z,fenceStone,false));
     const relief=new THREE.Group();relief.position.set(x,baseY,z);relief.rotation.y=faceAngle;fenceGroup.add(relief);
-    fenceNoShadow(box(relief,.23,1.12,.025,0,1.25,.207,fenceReliefStone,false));
-    fenceNoShadow(box(relief,.17,1.02,.028,0,1.25,.226,fenceIvory,false));
-    fenceNoShadow(box(relief,.025,.90,.018,-.055,1.25,.247,fenceGold,false));
-    fenceNoShadow(box(relief,.025,.90,.018,.055,1.25,.247,fenceGold,false));
-    const lampBase=new THREE.Mesh(new THREE.CylinderGeometry(.10,.14,.10,8),fenceGold);
-    lampBase.position.set(x,baseY+2.55,z);fenceNoShadow(lampBase);fenceGroup.add(lampBase);
-    const finial=new THREE.Mesh(new THREE.OctahedronGeometry(.14,0),fenceGoldLight);
-    finial.position.set(x,baseY+2.69,z);finial.scale.set(.82,1.35,.82);fenceNoShadow(finial);fenceGroup.add(finial);
+    // Утопленная панель с тонкой сланцевой окантовкой и бирюзовым центральным камнем.
+    fenceNoShadow(box(relief,.275,1.22,.018,0,1.27,.279,fenceOutline,false));
+    fenceNoShadow(box(relief,.255,1.20,.035,0,1.27,.235,fenceReliefStone,false));
+    fenceNoShadow(box(relief,.205,1.12,.038,0,1.27,.259,fenceIvory,false));
+    fenceNoShadow(box(relief,.105,.74,.045,0,1.27,.286,fenceSlate,false));
+    fenceNoShadow(box(relief,.052,.64,.05,0,1.27,.313,fenceTeal,false));
+    // Парные вертикальные каннелюры и резные боковые розетки добавляют столбу глубину.
+    for(const side of [-1,1]){
+      const flute=box(relief,.022,.88,.022,side*.135,1.27,.282,fenceSandstone,false);
+      const stud=new THREE.Mesh(new THREE.SphereGeometry(.035,10,8),fenceGoldLight);
+      stud.position.set(side*.135,1.27,.31);fenceNoShadow(stud);relief.add(stud);
+    }
+    const rosette=new THREE.Mesh(new THREE.OctahedronGeometry(.105,1),fenceGold);
+    rosette.position.set(0,1.28,.36);rosette.scale.set(.8,1.15,.3);fenceNoShadow(rosette);relief.add(rosette);
+    const lampBase=new THREE.Mesh(new THREE.CylinderGeometry(.11,.16,.11,12),fenceGold);
+    lampBase.position.set(x,baseY+2.53,z);fenceNoShadow(lampBase);fenceGroup.add(lampBase);
+    const finial=new THREE.Mesh(new THREE.SphereGeometry(.115,16,12),fenceGoldLight);
+    finial.position.set(x,baseY+2.67,z);finial.scale.set(.88,1.2,.88);fenceNoShadow(finial);fenceGroup.add(finial);
   };
   const fenceBay=(x1,z1,x2,z2,baseY=0,faceOffset=0)=>{
     const dx=x2-x1,dz=z2-z1,length=Math.hypot(dx,dz);
     if(length<.3)return;
     const angle=Math.atan2(dz,dx),cx=(x1+x2)/2,cz=(z1+z2)/2;
     const panel=new THREE.Group();panel.position.set(cx,baseY,cz);panel.rotation.y=-angle+faceOffset;fenceGroup.add(panel);
-    // Новые секции: строгая бронзово-графитовая рама с повторяющимся ромбовидным орнаментом.
-    // Существующие каменные столбы и их навершия не меняются.
-    const span=length-.16;
-    fenceNoShadow(box(panel,span,.105,.13,0,.70,0,fenceIron,false));
-    fenceNoShadow(box(panel,span,.105,.13,0,1.91,0,fenceIron,false));
-    fenceNoShadow(box(panel,span,.035,.145,0,1.985,0,fenceGold,false));
-    fenceNoShadow(box(panel,span,.045,.145,0,.775,0,fenceIronLight,false));
-    // Тонкие вертикальные прутья формируют равномерный ритм между столбами.
-    const count=Math.max(4,Math.floor(span/.34));
-    for(let i=0;i<=count;i++){
-      const x=-span/2+span*i/count;
-      fenceNoShadow(box(panel,.045,1.02,.075,x,1.305,0,fenceIron,false));
-      // Небольшие латунные втулки на концах прутьев.
-      for(const y of [.80,1.81]){
-        const collar=box(panel,.075,.055,.105,x,y,0,fenceGold,false);
+    // Открытая каменная арка: центральный проём не закрыт декоративной плитой.
+    const span=length-.16,half=span/2,depth=.48;
+    const pierX=Math.max(.18,half-.19),springY=1.22,rise=Math.min(.88,span*.25);
+    const innerHalf=Math.max(.25,half-.36);
+    // Цоколь разделён на две опоры: центральный проход арки полностью открыт до земли.
+    const baseHalf=Math.max(.12,half-innerHalf);
+    for(const side of [-1,1]){
+      const bx=side*(innerHalf+baseHalf/2);
+      fenceNoShadow(box(panel,baseHalf+.08,.42,depth,bx,.24,0,fenceStone,false));
+      fenceNoShadow(box(panel,baseHalf+.15,.10,depth+.10,bx,.49,0,fenceReliefStone,false));
+      fenceNoShadow(box(panel,baseHalf+.115,.065,depth+.065,bx,.57,0,fenceIvory,false));
+      fenceNoShadow(box(panel,baseHalf-.005,.035,depth+.035,bx,.625,0,fenceSandstone,false));
+    }
+    // Массивные боковые опоры несут дугу; каждая имеет русты и ступенчатую капитель.
+    for(const side of [-1,1]){
+      const x=side*pierX;
+      fenceNoShadow(box(panel,.34,1.08,depth+.05,x,.91,0,fenceSandstone,false));
+      fenceNoShadow(box(panel,.28,1.00,depth+.075,x,.91,0,fenceStone,false));
+      for(let j=0;j<3;j++){
+        fenceNoShadow(box(panel,.31,.035,depth+.09,x,.62+j*.25,0,fenceReliefStone,false));
       }
+      for(const fluteSide of [-1,0,1]){
+        fenceNoShadow(box(panel,.018,.56,.026,x+fluteSide*.072,.96,depth/2+.055,
+          fluteSide===0?fenceGold:fenceIvory,false));
+      }
+      const pierRose=new THREE.Mesh(new THREE.OctahedronGeometry(.055,1),fenceGoldLight);
+      pierRose.position.set(x,.69,depth/2+.085);pierRose.scale.set(.82,1.1,.32);
+      fenceNoShadow(pierRose);panel.add(pierRose);
+      // Парный медальон на верхней части каждой опоры визуально связывает устои со сводом.
+      const upperRing=new THREE.Mesh(new THREE.TorusGeometry(.105,.018,8,24),fenceGold);
+      upperRing.position.set(x,1.30,depth/2+.105);
+      fenceNoShadow(upperRing);panel.add(upperRing);
+      const upperCore=new THREE.Mesh(new THREE.SphereGeometry(.052,12,10),fenceTeal);
+      upperCore.position.set(x,1.30,depth/2+.12);
+      upperCore.scale.set(1,1,.38);fenceNoShadow(upperCore);panel.add(upperCore);
+      // Тонкие светлые плечики капители подчёркивают переход от колонны к арке.
+      fenceNoShadow(box(panel,.39,.045,depth+.13,x,1.405,0,fenceIvory,false));
+      fenceNoShadow(box(panel,.45,.035,depth+.16,x,1.455,0,fenceGoldLight,false));
+      fenceNoShadow(box(panel,.43,.12,depth+.14,x,1.49,0,fenceReliefStone,false));
+      fenceNoShadow(box(panel,.39,.065,depth+.11,x,1.585,0,fenceIvory,false));
+      fenceNoShadow(box(panel,.34,.035,depth+.08,x,1.635,0,fenceGold,false));
     }
-    // Ряд вытянутых ромбов вместо прежних копий и центральных медальонов.
-    const diamonds=Math.max(2,Math.floor(span/.72));
-    for(let i=0;i<diamonds;i++){
-      const x=-span/2+span*(i+.5)/diamonds;
-      const diamond=box(panel,.235,.235,.065,x,1.305,.075,fenceGold,false);
-      diamond.rotation.z=Math.PI/4;
-      const inset=box(panel,.125,.125,.075,x,1.305,.12,fenceIronLight,false);
-      inset.rotation.z=Math.PI/4;
-      const pin=new THREE.Mesh(new THREE.SphereGeometry(.035,10,8),fenceGoldLight);
-      pin.position.set(x,1.305,.17);fenceNoShadow(pin);panel.add(pin);
+    // Свод собран из отдельных клиновидных камней с контрастными лицевыми фасками.
+    const segments=Math.max(17,Math.floor(span*10));
+    for(let i=0;i<segments;i++){
+      const t=(i+.5)/segments,theta=Math.PI*t;
+      const px=-innerHalf+2*innerHalf*t,py=springY+rise*Math.sin(theta);
+      const tangent=Math.atan2(rise*Math.PI*Math.cos(theta),2*innerHalf);
+      const isKey=i===Math.floor(segments/2);
+      const stone=box(panel,(2*innerHalf/segments)*1.14,.34,depth+.12,px,py,0,
+        isKey?fenceIvory:(i%4===0?fenceSandstone:fenceStone),false);
+      stone.rotation.z=tangent;
+      const face=box(panel,(2*innerHalf/segments)*.91,.055,.035,px,py,depth/2+.085,
+        isKey?fenceGold:fenceReliefStone,false);
+      face.rotation.z=tangent;
     }
-    // Нижняя тонкая линия и верхний декоративный пояс завершают каждую секцию.
-    fenceNoShadow(box(panel,span,.035,.15,0,.585,0,fenceGold,false));
-    fenceNoShadow(box(panel,span,.035,.15,0,2.025,0,fenceIronLight,false));
+    // Непрерывная светлая внутренняя кромка делает контур арки читаемым издалека.
+    const archPoints=[];
+    for(let i=0;i<=64;i++){
+      const t=i/64;
+      archPoints.push(new THREE.Vector3(-innerHalf+2*innerHalf*t,
+        springY+rise*Math.sin(Math.PI*t)-.19,depth/2+.115));
+    }
+    const archCurve=new THREE.CatmullRomCurve3(archPoints);
+    const innerTrim=new THREE.Mesh(new THREE.TubeGeometry(archCurve,128,.046,10,false),fenceIvory);
+    fenceNoShadow(innerTrim);panel.add(innerTrim);
+    const goldTrim=new THREE.Mesh(new THREE.TubeGeometry(
+      new THREE.CatmullRomCurve3(archPoints.map(p=>new THREE.Vector3(p.x,p.y-.075,p.z+.012))),
+      128,.018,8,false),fenceGold);
+    fenceNoShadow(goldTrim);panel.add(goldTrim);
+    // Сначала строим точки внешнего контура, затем используем их для всех его слоёв.
+    const outerPoints=[];
+    for(let i=0;i<=64;i++){
+      const t=i/64;
+      outerPoints.push(new THREE.Vector3(-innerHalf+2*innerHalf*t,
+        springY+rise*Math.sin(Math.PI*t)+.20,depth/2+.105));
+    }
+    // Тонкая тёмная линия подчёркивает внешний силуэт арки.
+    const darkArchOutline=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(outerPoints.map(p=>new THREE.Vector3(p.x,p.y+.105,p.z+.035))),128,.024,8,false),fenceOutline);
+    fenceNoShadow(darkArchOutline);panel.add(darkArchOutline);
+    // Внешний рельефный архивольт подчёркивает силуэт арки вторым каменным контуром.
+    const outerArchivolt=new THREE.Mesh(new THREE.TubeGeometry(
+      new THREE.CatmullRomCurve3(outerPoints),128,.055,10,false),fenceReliefStone);
+    fenceNoShadow(outerArchivolt);panel.add(outerArchivolt);
+    const outerGoldLine=new THREE.Mesh(new THREE.TubeGeometry(
+      new THREE.CatmullRomCurve3(outerPoints.map(p=>new THREE.Vector3(p.x,p.y+.085,p.z+.012))),
+      128,.018,8,false),fenceGoldLight);
+    fenceNoShadow(outerGoldLine);panel.add(outerGoldLine);
+    // Крупный замковый камень и бирюзовый акцент на вершине каждой арки.
+    const keystone=box(panel,.30,.38,depth+.17,0,springY+rise+.055,0,fenceIvory,false);
+    const keystoneGem=new THREE.Mesh(new THREE.OctahedronGeometry(.105,1),fenceTeal);
+    keystoneGem.position.set(0,springY+rise+.07,depth/2+.115);
+    keystoneGem.scale.set(.82,1.15,.30);fenceNoShadow(keystoneGem);panel.add(keystoneGem);
+    const keystoneRing=new THREE.Mesh(new THREE.TorusGeometry(.145,.018,8,28),fenceGold);
+    keystoneRing.position.set(0,springY+rise+.07,depth/2+.12);
+    fenceNoShadow(keystoneRing);panel.add(keystoneRing);
+    // Парные медальоны внутри нижней части арки удалены по просьбе пользователя.
+    // Двойной карниз связывает соседние арки в цельный архитектурный периметр.
+    fenceNoShadow(box(panel,span+.20,.085,depth+.18,0,.66,0,fenceReliefStone,false));
+    fenceNoShadow(box(panel,span+.14,.055,depth+.14,0,.735,0,fenceIvory,false));
+    fenceNoShadow(box(panel,span-.04,.035,depth+.07,0,.78,0,fenceSandstone,false));
   };
   const fenceRun=(x1,z1,x2,z2,spacing=2.45,startY=0,endY=startY,options={})=>{
     const length=Math.hypot(x2-x1,z2-z1),count=Math.max(1,Math.ceil(length/spacing));
@@ -1760,20 +1846,10 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  const newTerrainGeometry=new THREE.PlaneGeometry(88,78,232,208);
  const newTerrainPositions=newTerrainGeometry.attributes.position;
  const newTerrainColors=[];
- // Природная вариация цвета без изменения высоты под деревьями и постройками.
- const meadowBase=new THREE.Color(0x5b9148);
- const meadowLight=new THREE.Color(0x78a957);
- const meadowShade=new THREE.Color(0x456f3b);
+ const flatMeadowColor=new THREE.Color(0x36c928);
  for(let i=0;i<newTerrainPositions.count;i++){
-   const x=newTerrainPositions.getX(i),z=newTerrainPositions.getY(i);
-   const broad=Math.sin(x*.105+z*.071)*.48+Math.cos(x*.061-z*.093)*.32+Math.sin((x+z)*.19)*.20;
-   const edge=Math.min(1,Math.max(0,(Math.abs(z)-24)/18));
-   const color=meadowBase.clone();
-   if(broad>0)color.lerp(meadowLight,Math.min(.34,broad*.23));
-   else color.lerp(meadowShade,Math.min(.28,-broad*.20));
-   color.lerp(meadowShade,edge*.16);
    newTerrainPositions.setZ(i,0);
-   newTerrainColors.push(color.r,color.g,color.b);
+   newTerrainColors.push(flatMeadowColor.r,flatMeadowColor.g,flatMeadowColor.b);
  }
  newTerrainGeometry.setAttribute('color',new THREE.Float32BufferAttribute(newTerrainColors,3));
  newTerrainGeometry.computeVertexNormals();
@@ -1784,49 +1860,6 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  newMeadow.rotation.x=-Math.PI/2;
  newMeadow.position.set(0,.018,-29.5);
  newMeadow.receiveShadow=false;newMeadow.castShadow=false;world.add(newMeadow);
-
- // Многослойный горный горизонт GREEN WORLD: плавные силуэты и воздушная перспектива.
- // Геометрия находится за задним лесом и не меняет его координаты или композицию.
- const mountainLayers=[
-  {z:-73,base:0x647b76,top:0xa9b8ad,points:[[-112,-9],[-100,1],[-88,3],[-76,2],[-64,8],[-53,4],[-41,11],[-29,5],[-16,15],[-5,8],[8,13],[20,6],[34,12],[47,5],[61,10],[75,4],[89,8],[102,2],[112,-9]]},
-  {z:-66,base:0x526f58,top:0x91a17b,points:[[-112,-9],[-100,0],[-88,2],[-76,1],[-64,5],[-52,2],[-40,8],[-28,3],[-16,10],[-4,4],[8,9],[20,3],[32,8],[44,3],[56,7],[68,2],[80,6],[94,2],[112,-9]]},
-  {z:-60,base:0x3f6546,top:0x78945d,points:[[-112,-9],[-100,0],[-88,1],[-76,0],[-64,3],[-52,1],[-40,5],[-28,2],[-16,7],[-4,3],[8,6],[20,2],[32,6],[44,2],[56,5],[68,1],[80,4],[94,1],[112,-9]]}
- ];
- for(let layerIndex=0;layerIndex<mountainLayers.length;layerIndex++){
-  const layer=mountainLayers[layerIndex];
-  const controls=layer.points.map(([x,y])=>new THREE.Vector2(x,y));
-  const profile=new THREE.SplineCurve(controls).getPoints(220);
-  const silhouette=new THREE.Shape();
-  silhouette.moveTo(-112,-10);silhouette.lineTo(profile[0].x,profile[0].y);
-  for(let i=1;i<profile.length;i++)silhouette.lineTo(profile[i].x,profile[i].y);
-  silhouette.lineTo(112,-10);silhouette.closePath();
-  const geometry=new THREE.ShapeGeometry(silhouette,2);
-  const positions=geometry.attributes.position,colors=[];
-  const low=new THREE.Color(layer.base),high=new THREE.Color(layer.top);
-  for(let i=0;i<positions.count;i++){
-   const y=positions.getY(i),t=THREE.MathUtils.clamp((y+1)/16,0,1);
-   const shade=low.clone().lerp(high,t*.78);
-   shade.multiplyScalar(.965+.035*Math.sin(positions.getX(i)*.11+layerIndex*1.7));
-   colors.push(shade.r,shade.g,shade.b);
-  }
-  geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
-  const ridge=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide,fog:true,toneMapped:false}));
-  ridge.name='GREEN_WORLD_Mountain_Ridge_'+layerIndex;
-  ridge.position.set(0,0,layer.z);ridge.renderOrder=layerIndex;
-  ridge.castShadow=false;ridge.receiveShadow=false;world.add(ridge);
- }
- // Небольшие каменные шапки на отдельных вершинах добавляют разнообразие силуэту.
- const summitMat=new THREE.MeshStandardMaterial({color:0xb2b7a4,roughness:1,metalness:0,flatShading:true});
- for(const [x,y,z,sx,sy,sz,rz] of [
-  [-17,11.8,-72,2.7,1.15,.72,-.12],[-13.7,10.5,-72,1.9,.82,.62,.18],
-  [35,9.6,-72,2.35,.95,.68,.1],[39,8.8,-72,1.55,.72,.55,-.16],
-  [-53,7.8,-72,1.8,.72,.58,.08]
- ]){
-  const peak=new THREE.Mesh(new THREE.DodecahedronGeometry(1,0),summitMat);
-  peak.position.set(x,y,z);peak.scale.set(sx,sy,sz);peak.rotation.z=rz;
-  peak.name='GREEN_WORLD_Distant_Rock_Summit';
-  peak.castShadow=false;peak.receiveShadow=false;world.add(peak);
- }
 
 
 }
