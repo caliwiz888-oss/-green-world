@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261110-mobile-webview-stability-35';
+const GREEN_WORLD_BUILD_ID = '20261110-mobile-startup-unblock-37';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -454,7 +454,7 @@ M.gold.envMapIntensity=.9;M.glass.envMapIntensity=1.05;
 
 function makeSurfaceTexture(kind,seed){
  // На мощных устройствах используем более детальные карты поверхностей; мобильный лимит сохраняет память и скорость загрузки.
- const size=mobile?512:(highEnd?1024:768),canvas=document.createElement('canvas');canvas.width=canvas.height=size;
+ const size=mobile?256:(highEnd?1024:768),canvas=document.createElement('canvas');canvas.width=canvas.height=size;
  const ctx=canvas.getContext('2d'),image=ctx.createImageData(size,size);
  let state=seed>>>0;
  const rand=()=>{state=(state*1664525+1013904223)>>>0;return state/4294967296};
@@ -653,7 +653,7 @@ function makeSurfaceTexture(kind,seed){
    ctx.lineWidth=.45+rand()*.65;ctx.beginPath();ctx.moveTo(x,y);
    ctx.lineTo(x+(rand()-.5)*len,y+(rand()-.5)*len*.45);ctx.stroke();
   }
-  for(let i=0;i<620;i++){
+  for(let i=0;i<(mobile?100:620);i++){
    const x=rand()*size,y=rand()*size,r=.5+rand()*1.8,tone=rand()>.5?125:75;
    ctx.fillStyle='rgba('+tone+','+tone+','+tone+','+(.12+rand()*.18)+')';
    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
@@ -706,7 +706,7 @@ function makeSurfaceTexture(kind,seed){
  const texture=new THREE.CanvasTexture(canvas);
  texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
  const textureRepeat=kind==='wood'?2:(kind==='stone'||kind==='roof'?4:3);texture.repeat.set(textureRepeat,textureRepeat);
- texture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+ texture.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),mobile?2:16);
  return texture;
 }
 const surfaceMaps={
@@ -1485,27 +1485,27 @@ function makeWorldDecor(){
  // Детальные процедурные карты коры, хвои и лепестков — без внешних файлов и загрузок.
  function gwMakeTreeTexture(kind){
    // Текстуры деревьев создаются в 1024x1024: вся площадь холста заполняется деталями.
-   const size=1024,c=document.createElement('canvas');c.width=size;c.height=size;
+   const size=mobile?256:1024,c=document.createElement('canvas');c.width=size;c.height=size;
    const q=c.getContext('2d');
    if(kind==='bark'){
      q.fillStyle='#765039';q.fillRect(0,0,size,size);
-     for(let i=0;i<5200;i++){
+     for(let i=0;i<(mobile?700:5200);i++){
        const x=(i*173)%size,y=(i*293)%size,w=1+(i%5),h=12+(i*37)%115;
        q.fillStyle=i%3===0?'rgba(35,20,12,.25)':'rgba(205,157,105,.13)';q.fillRect(x,y,w,h);
      }
-     for(let i=0;i<112;i++){
+     for(let i=0;i<(mobile?24:112);i++){
        const x=(i*137)%size;q.strokeStyle='rgba(30,18,12,.22)';q.lineWidth=1+(i%3);
        q.beginPath();q.moveTo(x,0);q.lineTo(x+(i%5-2)*11,size);q.stroke();
      }
      // Мелкие сучки и годичные неровности делают кору менее плоской.
-     for(let i=0;i<180;i++){
+     for(let i=0;i<(mobile?36:180);i++){
        const x=(i*137+53)%size,y=(i*211+97)%size,r=2+(i%5);
        q.strokeStyle='rgba(38,22,13,.22)';q.lineWidth=1;
        q.beginPath();q.ellipse(x,y,r*1.7,r,((i%9)-4)*.12,0,Math.PI*2);q.stroke();
        q.strokeStyle='rgba(218,169,119,.18)';q.beginPath();q.moveTo(x-r,y);q.lineTo(x+r,y);q.stroke();
      }
      // Тонкие продольные волокна коры подчёркивают направление роста ствола.
-     for(let i=0;i<2100;i++){
+     for(let i=0;i<(mobile?320:2100);i++){
        const x=(i*149+37)%size,y=(i*227+19)%size,len=18+(i*31)%94;
        q.strokeStyle=i%5===0?'rgba(226,180,132,.16)':'rgba(39,23,14,.10)';
        q.lineWidth=.45+(i%4)*.28;q.beginPath();q.moveTo(x,y);
@@ -1520,21 +1520,21 @@ function makeWorldDecor(){
      }
    }else if(kind==='pine'){
      q.fillStyle='#286b48';q.fillRect(0,0,size,size);
-     for(let i=0;i<19000;i++){
+     for(let i=0;i<(mobile?2200:19000);i++){
        const x=(i*197)%size,y=(i*313)%size,len=2.5+(i%6)*1.25,ang=((i%9)-4)*.16;
        q.strokeStyle=i%3===0?'rgba(190,220,153,.30)':i%3===1?'rgba(112,164,91,.16)':'rgba(145,190,119,.24)';
        q.lineWidth=.7+(i%4)*.42;q.lineCap='round';q.beginPath();q.moveTo(x,y);
        q.quadraticCurveTo(x+Math.cos(ang)*len*.55-1.2,y+Math.sin(ang)*len*.55-1.1,x+Math.cos(ang)*len,y+Math.sin(ang)*len);q.stroke();
      }
      // Направленные группы иголок добавляют хвое тонкую объёмную фактуру.
-     for(let i=0;i<1800;i++){
+     for(let i=0;i<(mobile?260:1800);i++){
        const x=(i*157+31)%size,y=(i*239+71)%size;
        q.strokeStyle=i%3===0?'rgba(205,231,166,.34)':'rgba(112,164,91,.14)';
        q.lineWidth=.8+(i%3)*.35;q.beginPath();
        q.moveTo(x,y);q.lineTo(x+3+(i%5),y-2-(i%4));q.stroke();
      }
      // Мелкие иголки и редкие светлые кончики хвои создают тонкую неоднородную фактуру.
-     for(let i=0;i<12000;i++){
+     for(let i=0;i<(mobile?1400:12000);i++){
        const x=(i*283+17)%size,y=(i*421+29)%size,len=2+(i%8);
        q.strokeStyle=i%4===0?'rgba(204,229,163,.27)':'rgba(119,170,98,.13)';
        q.lineWidth=.55+(i%3)*.35;q.beginPath();q.moveTo(x,y);
@@ -1542,38 +1542,38 @@ function makeWorldDecor(){
      }
    }else{
      q.fillStyle='#f0a5c1';q.fillRect(0,0,size,size);
-     for(let i=0;i<10500;i++){
+     for(let i=0;i<(mobile?1300:10500);i++){
        const x=(i*181)%size,y=(i*277)%size;
        q.fillStyle=i%3===0?'rgba(255,239,245,.55)':i%3===1?'rgba(173,67,119,.20)':'rgba(255,255,255,.25)';
        q.beginPath();q.arc(x,y,1+(i%4),0,Math.PI*2);q.fill();
      }
      // Лепестки разного направления дают цветочной кроне более живую фактуру.
-     for(let i=0;i<1200;i++){
+     for(let i=0;i<(mobile?180:1200);i++){
        const x=(i*163+19)%size,y=(i*251+43)%size;
        q.fillStyle=i%3===0?'rgba(255,248,251,.42)':'rgba(177,69,117,.16)';
        q.beginPath();q.ellipse(x,y,2+(i%4),4+(i%5),(i%11)*.27,0,Math.PI*2);q.fill();
      }
      // Тонкие прожилки и мягкие переходы оттенка делают лепестки более натуральными.
-     for(let i=0;i<2600;i++){
+     for(let i=0;i<(mobile?360:2600);i++){
        const x=(i*173+47)%size,y=(i*251+83)%size,len=5+(i*17)%19,side=i%2?1:-1;
        q.strokeStyle=i%4===0?'rgba(255,250,252,.25)':'rgba(150,57,105,.095)';
        q.lineWidth=.45+(i%3)*.32;q.beginPath();q.moveTo(x,y);
        q.quadraticCurveTo(x+side*len*.28,y-len*.36,x+side*len*.62,y-len);q.stroke();
      }
-     for(let i=0;i<950;i++){
+     for(let i=0;i<(mobile?140:950);i++){
        const x=(i*197+61)%size,y=(i*307+29)%size,r=1.1+(i%4)*.55;
        q.fillStyle=i%3===0?'rgba(255,244,248,.28)':'rgba(206,105,148,.11)';
        q.beginPath();q.arc(x,y,r,0,Math.PI*2);q.fill();
      }
      // Мягкие мелкие лепестковые блики с разной прозрачностью.
-     for(let i=0;i<3400;i++){
+     for(let i=0;i<(mobile?480:3400);i++){
        const x=(i*239+13)%size,y=(i*157+31)%size,r=1+(i%3)*.65;
        q.fillStyle=i%2?'rgba(255,250,252,.32)':'rgba(190,82,132,.13)';
        q.beginPath();q.ellipse(x,y,r,r*1.6,(i%7-3)*.18,0,Math.PI*2);q.fill();
      }
    }
    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
-   t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(18,renderer.capabilities.getMaxAnisotropy());
+   t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=Math.min(18,renderer.capabilities.getMaxAnisotropy(),mobile?2:16);
    t.minFilter=THREE.LinearMipmapLinearFilter;t.magFilter=THREE.LinearFilter;return t;
  }
  const gwBarkMap=gwMakeTreeTexture('bark');
@@ -1592,13 +1592,13 @@ function makeWorldDecor(){
    ctx.putImageData(pixels,0,0);
    const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.NoColorSpace;
    texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
-   texture.anisotropy=Math.min(18,renderer.capabilities.getMaxAnisotropy());
+   texture.anisotropy=Math.min(18,renderer.capabilities.getMaxAnisotropy(),mobile?2:16);
    texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;
    texture.generateMipmaps=true;texture.needsUpdate=true;return texture;
  }
- const gwBarkBump=gwMakeTreeBumpMap(gwBarkMap,1.22);
- const gwPineBump=gwMakeTreeBumpMap(gwPineMap,1.12);
- const gwBloomBump=gwMakeTreeBumpMap(gwBloomMap,1.08);
+ const gwBarkBump=mobile?null:gwMakeTreeBumpMap(gwBarkMap,1.22);
+ const gwPineBump=mobile?null:gwMakeTreeBumpMap(gwPineMap,1.12);
+ const gwBloomBump=mobile?null:gwMakeTreeBumpMap(gwBloomMap,1.08);
  // Касательные normal maps усиливают направленный свет на существующих поверхностях без изменения геометрии.
  function gwMakeTreeNormalMap(heightMap,strength=2.8){
    const source=heightMap.image,w=source.width,h=source.height,canvas=document.createElement('canvas');
@@ -1622,9 +1622,9 @@ function makeWorldDecor(){
    texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;
    texture.generateMipmaps=true;texture.needsUpdate=true;return texture;
  }
- const gwBarkNormal=gwMakeTreeNormalMap(gwBarkBump,2.4);
- const gwPineNormal=gwMakeTreeNormalMap(gwPineBump,2.0);
- const gwBloomNormal=gwMakeTreeNormalMap(gwBloomBump,1.7);
+ const gwBarkNormal=mobile?null:gwMakeTreeNormalMap(gwBarkBump,2.4);
+ const gwPineNormal=mobile?null:gwMakeTreeNormalMap(gwPineBump,2.0);
+ const gwBloomNormal=mobile?null:gwMakeTreeNormalMap(gwBloomBump,1.7);
 
  // Мягкая контактная тень под каждым деревом усиливает глубину леса без тяжёлых shadow maps.
  const gwShadowCanvas=document.createElement('canvas');gwShadowCanvas.width=gwShadowCanvas.height=256;
