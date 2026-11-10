@@ -72,3 +72,9 @@ test('includes the rear pond, three fountains and right-side gazebo', () => {
   assert.match(html, /for\(const x of \[-22,0,22\]\)/);
   assert.match(html, /GREEN_WORLD_Rear_Gazebo/);
 });
+
+test('keeps the startup splash visible until the world is built and exposes real startup failures', () => {
+  assert.match(html, /function applyPlayer\(\)\{try\{drawPlayer\(\);window\.GREEN_WORLD_STARTUP_STAGE='player-world-built';\$\('login'\)\.style\.display='none'/);
+  assert.match(html, /window\.GREEN_WORLD_REPORT_STARTUP_ERROR=function\(message\)/);
+  assert.match(html, /moduleScript\.onerror=\(\)=>\{\s*window\.GREEN_WORLD_REPORT_STARTUP_ERROR/);
+});
