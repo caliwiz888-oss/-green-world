@@ -1318,7 +1318,7 @@ function makeWorldDecor(){
    const q=c.getContext('2d');
    if(kind==='bark'){
      q.fillStyle='#765039';q.fillRect(0,0,size,size);
-     for(let i=0;i<5200;i++){
+     for(let i=0;i<3200;i++){
        const x=(i*173)%size,y=(i*293)%size,w=1+(i%5),h=12+(i*37)%115;
        q.fillStyle=i%3===0?'rgba(35,20,12,.25)':'rgba(205,157,105,.13)';q.fillRect(x,y,w,h);
      }
