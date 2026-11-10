@@ -32,21 +32,17 @@ test('deferred economy actions are not exposed by the frontend', () => {
 });
 
 
-test('uses a compact sky texture on mobile to limit GPU memory', () => {
-  assert.match(html, /skyCanvas\.width=mobile\?1024:4096/);
-  assert.match(html, /skyCanvas\.height=mobile\?512:2048/);
-  assert.match(html, /skyCtx\.scale\(mobile\?1:4,mobile\?1:4\)/);
-  assert.match(html, /const minRenderQuality=mobile\?\.75:1\.5/);
-  assert.match(html, /Math\.max\(minRenderQuality,currentRenderQuality-\.5\)/);
-  assert.match(html, /Math\.min\(renderQualityTarget,currentRenderQuality\+\.25\)/);
+test('restores the original full-resolution sky and mountain forest', () => {
+  assert.match(html, /skyCanvas\.width=4096/);
+  assert.match(html, /skyCanvas\.height=2048/);
+  assert.match(html, /skyCtx\.scale\(4,4\)/);
+  assert.match(html, /const mountainForestRows=\[-35\.2,-41\.0\]/);
 });
 
-test('reduces mobile tree rendering cost without removing any trees', () => {
-  assert.match(html, /new THREE\.SphereGeometry\(1,mobile\?16:64,mobile\?12:48\)/);
-  assert.match(html, /const petalCount=mobile\?96:320/);
-  assert.match(html, /new THREE\.InstancedMesh\(gwCrownGeo,material,bloomCount\+56\)/);
-  assert.match(html, /for\(let k=0;k<\(mobile\?12:24\);k\+\+\)/);
-  assert.match(html, /for\(const \[x,z,h,seed\] of gwPineBack\)/);
+test('restores the original forest tree generator and blossom geometry', () => {
+  assert.match(html, /function gwAddBlossom\(x,z,h,seed=0,baseY=0,palette='pink'\)/);
+  assert.match(html, /const mountainForestRows=\[-35\.2,-41\.0\]/);
+  assert.match(html, /for\(let row=0;row<mountainForestRows\.length;row\+\+\)/);
 });
 
 test('frontend does not persist game state in local storage', () => {
@@ -67,10 +63,8 @@ test('keeps only two symmetric flower beds and symmetric shrub groups', () => {
   assert.match(html, /\[-13\.55,5\.8,2\],\[13\.55,5\.8,0\]/);
 });
 
-test('includes the rear pond, three fountains and right-side gazebo', () => {
-  assert.match(html, /GREEN_WORLD_Rear_Pond/);
-  assert.match(html, /for\(const x of \[-22,0,22\]\)/);
-  assert.match(html, /GREEN_WORLD_Rear_Gazebo/);
+test('removes the experimental rear pond, fountains and gazebo', () => {
+  assert.doesNotMatch(html, /GREEN_WORLD_Rear_Pond|rearPondMaterial|GREEN_WORLD_Rear_Gazebo/);
 });
 
 test('keeps the startup splash visible until the world is built and exposes real startup failures', () => {
