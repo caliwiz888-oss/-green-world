@@ -37,9 +37,9 @@ jobs:
           from pathlib import Path
           import re
           html = Path('index.html').read_text()
-          match = re.search(r'<script type="module">(.*?)</script>', html, re.S)
+          match = re.search(r'<script id="green-world-module-source" type="text/plain">(.*?)</script>', html, re.S)
           if not match:
-              raise SystemExit('Frontend module script not found')
+              raise SystemExit('Deferred frontend module source not found')
           Path('/tmp/green-world-frontend.mjs').write_text(match.group(1))
           PY
           node --check /tmp/green-world-frontend.mjs
