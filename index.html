@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261110-restore-landscape-arches-45';
+const GREEN_WORLD_BUILD_ID = '20261110-alpine-mountain-architecture-46';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1718,7 +1718,84 @@ function makeWorldLandscape(){
  skyGeo.setAttribute('color',new THREE.Float32BufferAttribute(skyColors,3));
  const skyDome=new THREE.Mesh(skyGeo,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,depthWrite:false,fog:false}));
  skyDome.position.y=10;skyDome.renderOrder=-2;world.add(skyDome);
- // Удалены дальние облачные полосы вместе с горным фоном.
+
+ // GREEN WORLD — многоплановый альпийский горный массив.
+ // Скульптурные хребты, гранёные скальные плоскости и снежные вершины.
+ // Геометрия расположена за существующим лесом и не меняет ни одной координаты двора.
+ const mountainWorld=new THREE.Group();
+ mountainWorld.name='GREEN_WORLD_Alpine_Mountain_Architecture';
+ world.add(mountainWorld);
+ const mountainLayers=[
+  {name:'far',z:-84,base:0x82958e,mid:0x9eaaa0,high:0xc1c9bc,
+   points:[[-108,-5],[-96,1],[-84,4],[-72,2],[-59,9],[-47,4],[-34,12],[-21,6],[-8,15],[5,7],[19,13],[32,6],[46,12],[60,5],[74,10],[88,3],[101,1],[108,-5]]},
+  {name:'main',z:-77,base:0x526c62,mid:0x788b7b,high:0xaab19c,
+   points:[[-108,-5],[-96,2],[-83,5],[-70,3],[-57,9],[-45,6],[-34,14],[-25,20],[-16,12],[-5,17],[8,10],[20,16],[29,22],[38,13],[49,8],[61,14],[73,7],[86,11],[98,3],[108,-5]]},
+  {name:'foothills',z:-69.2,base:0x405e43,mid:0x62804f,high:0x8da16a,
+   points:[[-108,-5],[-96,0],[-82,3],[-68,1],[-55,6],[-42,3],[-29,9],[-16,5],[-3,11],[10,6],[24,10],[38,4],[52,9],[66,3],[80,7],[94,1],[108,-5]]}
+ ];
+ for(let layerIndex=0;layerIndex<mountainLayers.length;layerIndex++){
+  const layer=mountainLayers[layerIndex];
+  const controls=layer.points.map(([x,y])=>new THREE.Vector2(x,y));
+  const ridgeLine=new THREE.SplineCurve(controls).getPoints(280);
+  const shape=new THREE.Shape();
+  shape.moveTo(-108,-6);shape.lineTo(ridgeLine[0].x,ridgeLine[0].y);
+  for(let i=1;i<ridgeLine.length;i++)shape.lineTo(ridgeLine[i].x,ridgeLine[i].y);
+  shape.lineTo(108,-6);shape.closePath();
+  const geometry=new THREE.ShapeGeometry(shape,3);
+  const positions=geometry.attributes.position,colors=[];
+  const low=new THREE.Color(layer.base),middle=new THREE.Color(layer.mid),high=new THREE.Color(layer.high);
+  for(let i=0;i<positions.count;i++){
+   const x=positions.getX(i),y=positions.getY(i);
+   const elevation=THREE.MathUtils.clamp((y+2)/24,0,1);
+   const light=elevation<.52?low.clone().lerp(middle,elevation/.52):middle.clone().lerp(high,(elevation-.52)/.48);
+   const rockShade=.91+.07*Math.sin(x*.17+layerIndex*1.9)+.025*Math.cos(x*.39-y*.22);
+   light.multiplyScalar(rockShade);
+   colors.push(light.r,light.g,light.b);
+  }
+  geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+  const mountain=new THREE.Mesh(geometry,new THREE.MeshStandardMaterial({
+   color:0xffffff,vertexColors:true,roughness:.98,metalness:0,flatShading:true,side:THREE.DoubleSide
+  }));
+  mountain.name='GREEN_WORLD_Mountain_Range_'+layer.name;
+  mountain.position.set(0,0,layer.z);mountain.castShadow=false;mountain.receiveShadow=false;
+  mountainWorld.add(mountain);
+ }
+ // Гранёные скальные плоскости на главных вершинах создают ощущение настоящего массива.
+ const addRockFacet=(points,color,z)=>{
+  const facetShape=new THREE.Shape();facetShape.moveTo(points[0][0],points[0][1]);
+  for(let i=1;i<points.length;i++)facetShape.lineTo(points[i][0],points[i][1]);
+  facetShape.closePath();
+  const facet=new THREE.Mesh(new THREE.ShapeGeometry(facetShape),new THREE.MeshStandardMaterial({
+   color,roughness:1,metalness:0,flatShading:true,side:THREE.DoubleSide
+  }));
+  facet.position.z=z;facet.castShadow=false;facet.receiveShadow=false;mountainWorld.add(facet);
+ };
+ // Грани центральных пиков — чередование освещённого камня и прохладных теневых склонов.
+ for(const [x,y,w] of [[-25,20,13],[29,22,12],[-55,9,9],[61,14,10]]){
+  const z=-76.82;
+  addRockFacet([[x-w,y*.18],[x,y],[x-w*.12,y*.52]],0x8e9a88,z);
+  addRockFacet([[x,y],[x+w,y*.22],[x-w*.12,y*.52]],0x536b61,z+.012);
+  addRockFacet([[x-w,y*.18],[x-w*.12,y*.52],[x-w*.72,y*.34]],0x65796c,z+.018);
+ }
+ // Снежные шапки повторяют форму гребней, а не выглядят отдельными белыми треугольниками.
+ const snowMaterial=new THREE.MeshStandardMaterial({color:0xe4e8df,roughness:.92,metalness:0,flatShading:true,side:THREE.DoubleSide});
+ const addSnowCap=(points,z)=>{
+  const snowShape=new THREE.Shape();snowShape.moveTo(points[0][0],points[0][1]);
+  for(let i=1;i<points.length;i++)snowShape.lineTo(points[i][0],points[i][1]);
+  snowShape.closePath();
+  const cap=new THREE.Mesh(new THREE.ShapeGeometry(snowShape,2),snowMaterial);
+  cap.position.z=z;cap.castShadow=false;cap.receiveShadow=false;mountainWorld.add(cap);
+ };
+ addSnowCap([[-34,14],[-30,17],[-25,20],[-21,17],[-17,12],[-22,14],[-26,15],[-30,13]],-76.79);
+ addSnowCap([[20,15],[25,19],[29,22],[33,18],[38,13],[33,15],[29,16],[25,14]],-76.78);
+ addSnowCap([[-59,7],[-57,8.5],[-55,9],[-52,7],[-50,5.8],[-54,7],[-57,6.7]],-76.77);
+ // Тонкие ледниковые полосы на затенённых склонах добавляют масштаб, не перегружая силуэт.
+ const glacierMat=new THREE.MeshBasicMaterial({color:0xc8d4ca,transparent:true,opacity:.28,depthWrite:false,side:THREE.DoubleSide});
+ for(const [x,y,z,sx,sy,rz] of [[-29,12.7,-76.75,2.8,.22,-.62],[25,13.8,-76.74,2.4,.18,.55],[57,8.5,-76.7,1.8,.14,-.48]]){
+  const streak=new THREE.Mesh(new THREE.PlaneGeometry(sx,sy),glacierMat);
+  streak.position.set(x,y,z);streak.rotation.z=rz;mountainWorld.add(streak);
+ }
+
  // Fine high-altitude cirrus wisps add depth to the sky while staying translucent.
  const cirrusMat=new THREE.MeshBasicMaterial({color:0xf4f7f2,transparent:true,opacity:.085,depthWrite:false,fog:false});
  for(const [x,y,z,sx,sy,sz,rz] of [[-27,29,-53,8,.16,.62,-.08],[-8,31,-61,10,.13,.48,.035],[12,28,-57,7,.14,.55,-.045],[29,26,-49,6,.12,.42,.07]]){
