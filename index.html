@@ -55,6 +55,8 @@ button:active{transform:translateY(2px)}button:disabled{opacity:.45;filter:grays
 select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border-radius:10px;font-weight:700;max-width:52%}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 #login{position:fixed;z-index:20;inset:0;display:flex;align-items:center;justify-content:center;padding:28px;background:linear-gradient(#7eb5d4,#d9e8ce)}
+/* Telegram account connects silently; never show a separate connection screen. */
+#login{display:none!important;visibility:hidden!important;pointer-events:none!important}
 .login-card{width:min(390px,100%);padding:26px 22px;border-radius:25px;background:#fffef1f2;box-shadow:0 16px 45px #244a3850;text-align:center;color:#315b38}
 .login-card h1{font-size:25px;letter-spacing:2px;margin:0 0 7px}.login-card p{font-size:13px;line-height:1.5;color:#68806a}
 @media(min-width:700px){#dock{width:540px;left:50%;right:auto;transform:translateX(-50%);bottom:18px}.action{min-height:58px;font-size:12px}#shade{align-items:center}}
@@ -155,7 +157,7 @@ html.gw-diagnostic-mode body{overflow:hidden}
 <script>
 (()=>{const labels={plantAction:'Посадка',waterAction:'Полив',harvestAction:'Сбор урожая',sellAction:'Продажа'};for(const [id,label] of Object.entries(labels)){const button=document.getElementById(id);if(!button)continue;button.addEventListener('click',()=>{const toast=document.getElementById('toast');if(!toast)return;toast.textContent=label+' — игровая механика пока не подключена';toast.classList.add('show');clearTimeout(window.greenFarmActionToastTimer);window.greenFarmActionToastTimer=setTimeout(()=>toast.classList.remove('show'),2400)})}})();
 </script>
-<div id="login"><div class="login-card"><h1>GREEN WORLD</h1><p>Новый мир готовится к открытию. Войди через Telegram, чтобы открыть 3D-мир.</p><button class="smallbtn" id="retry-login" type="button" hidden>ПОДКЛЮЧЕНИЕ…</button><p id="login-error"></p></div></div>
+<div id="login" aria-hidden="true"><div class="login-card"><button class="smallbtn" id="retry-login" type="button" hidden></button><p id="login-error" hidden></p></div></div>
 </div></div>
 <div id="treeDiagShade" role="dialog" aria-modal="true" aria-label="Диагностика деревьев"><div id="treeDiagPanel"><h2 id="treeDiagTitle">Диагностика деревьев GREEN WORLD</h2><p id="treeDiagStatus">Нажми «Обновить», когда 3D-мир загрузится.</p><textarea id="treeDiagOutput" readonly spellcheck="false"></textarea><div class="treeDiagActions"><button id="treeDiagRefresh" type="button">Обновить</button><button id="treeDiagCopy" type="button">Копировать результат</button><button id="treeDiagClose" type="button">Закрыть</button></div></div></div>
 <script>window.GREEN_WORLD_API_URL='https://green-world-api-mx3v.onrender.com';</script>
@@ -198,7 +200,7 @@ html.gw-diagnostic-mode body{overflow:hidden}
    if(!response.ok)throw new Error(data.error||'Ошибка сервера '+response.status);
    window.GREEN_WORLD_AUTH_RESULT=data;
    window.dispatchEvent(new CustomEvent('green-world-auth',{detail:data}));
-   error.textContent=window.GREEN_WORLD_STARTUP_ERROR||'Аккаунт подключён. Нажми «ЗАПУСТИТЬ 3D-МИР».';
+   error.textContent='';
   }catch(e){
    const message=e?.name==='AbortError'?'Сервер запускается дольше обычного. Подожди до 75 секунд и попробуй ещё раз.':(e&&e.message?e.message:'Не удалось подключиться. Попробуй ещё раз.');
    error.textContent=message;
