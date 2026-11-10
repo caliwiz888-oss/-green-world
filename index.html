@@ -239,10 +239,11 @@ const cameraTarget=new THREE.Vector3(0,.8,-1.5);
 let cameraAzimuth=0;
 let cameraPolar=Math.atan2(cameraRadius,cameraHeight-.8);
 let buildingObjects=[];
+const mobile=innerWidth<700;
 const scene=new THREE.Scene();
 // Мягкий процедурный небосвод: градиент от насыщенного голубого к светлому горизонту с едва заметными облачными вуалями.
-const skyCanvas=document.createElement('canvas');skyCanvas.width=4096;skyCanvas.height=2048;
-const skyCtx=skyCanvas.getContext('2d');skyCtx.scale(4,4);
+const skyCanvas=document.createElement('canvas');skyCanvas.width=mobile?1024:4096;skyCanvas.height=mobile?512:2048;
+const skyCtx=skyCanvas.getContext('2d');skyCtx.scale(mobile?1:4,mobile?1:4);
 const skyGradient=skyCtx.createLinearGradient(0,0,0,512);
 skyGradient.addColorStop(0, '#368fc9');skyGradient.addColorStop(.34, '#72c1e8');
 skyGradient.addColorStop(.68, '#c5e8e9');skyGradient.addColorStop(1, '#eff2d6');
@@ -315,11 +316,10 @@ scene.fog=new THREE.Fog(0xcce8e5,82,185);
 const getGreenWorldCameraAspect=()=>Math.max(innerWidth/innerHeight,.64);
 const camera=new THREE.PerspectiveCamera(58,getGreenWorldCameraAspect(),4.5,200);
 // Умеренно близкая near-плоскость и ограниченный far-диапазон повышают точность стандартного depth buffer на мобильных GPU.
-const mobile=innerWidth<700;
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:!mobile,powerPreference:mobile?'low-power':'high-performance'});
 skyTexture.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),mobile?4:16);
 window.GREEN_WORLD_STARTUP_STAGE='webgl-ready';
-window.GREEN_WORLD_RENDER_DIAGNOSTICS={reversedDepthBuffer:!!renderer.capabilities.reversedDepthBuffer,webgl2:renderer.capabilities.isWebGL2,pixelRatio:renderer.getPixelRatio(),threeRevision:THREE.REVISION};
+window.GREEN_WORLD_RENDER_DIAGNOSTICS={reversedDepthBuffer:!!renderer.capabilities.reversedDepthBuffer,webgl2:renderer.capabilities.isWebGL2,pixelRatio:renderer.getPixelRatio(),threeRevision:THREE.REVISION,skyTextureSize:{width:skyCanvas.width,height:skyCanvas.height},mobile};
 console.info('[GREEN WORLD] Render diagnostics',window.GREEN_WORLD_RENDER_DIAGNOSTICS);
 // Используем стандартный буфер глубины для стабильной совместимости с WebGL в Android Telegram WebView.
 // Адаптивное качество: максимум 4x, с автоматическим снижением при перегрузке GPU.
