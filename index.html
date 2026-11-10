@@ -108,6 +108,16 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
 
 #rearPondDiagQuickOpen{position:fixed;z-index:1001;top:calc(env(safe-area-inset-top,0px) + 106px);right:10px;padding:11px 14px;border:2px solid #b9e7dc;border-radius:12px;background:linear-gradient(155deg,#167f83,#104d59);color:#fff;font-size:13px;font-weight:950;box-shadow:0 3px 12px #0009;max-width:180px;min-height:44px;pointer-events:auto;cursor:pointer}
  #fullLayoutDiagQuickOpen{position:fixed;z-index:1000;top:calc(env(safe-area-inset-top,0px) + 54px);right:10px;padding:10px 13px;border:2px solid #e8c16c;border-radius:12px;background:linear-gradient(155deg,#81512d,#382116);color:#fff1cf;font-size:12px;font-weight:950;box-shadow:0 3px 10px #0009;max-width:170px;min-height:42px;pointer-events:auto;cursor:pointer}
+
+/* Lightweight Telegram startup isolation screen; no WebGL context or 3D module is created. */
+#gwStartupDiagnostic{display:none;position:fixed;z-index:20000;inset:0;box-sizing:border-box;padding:22px;background:#eef4e9;color:#23452d;font:16px/1.5 system-ui,sans-serif;overflow:auto}
+#gwStartupDiagnostic .gwDiagCard{max-width:560px;margin:7vh auto;padding:22px;border:2px solid #d5b66e;border-radius:18px;background:#fffdf4;box-shadow:0 8px 28px #20351d33}
+#gwStartupDiagnostic h1{margin:0 0 12px;font-size:25px}
+#gwStartupDiagnostic p{margin:9px 0}
+#gwStartupDiagnostic pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border-radius:10px;background:#edf2e8;font:13px/1.45 monospace}
+html.gw-diagnostic-mode #gwStartupDiagnostic{display:block}
+html.gw-diagnostic-mode body{overflow:hidden}
+
 </style>
 </head>
 <body>
@@ -186,7 +196,9 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
    window.dispatchEvent(new CustomEvent('green-world-auth',{detail:data}));
    error.textContent=window.GREEN_WORLD_STARTUP_ERROR||'Аккаунт подключён. Нажми «ЗАПУСТИТЬ 3D-МИР».';
   }catch(e){
-   error.textContent=e?.name==='AbortError'?'Сервер запускается дольше обычного. Подожди до 75 секунд и попробуй ещё раз.':(e&&e.message?e.message:'Не удалось подключиться. Попробуй ещё раз.');
+   const message=e?.name==='AbortError'?'Сервер запускается дольше обычного. Подожди до 75 секунд и попробуй ещё раз.':(e&&e.message?e.message:'Не удалось подключиться. Попробуй ещё раз.');
+   error.textContent=message;
+   window.dispatchEvent(new CustomEvent('green-world-auth-error',{detail:{message}}));
   }finally{
    connecting=false;
    button.disabled=false;
@@ -201,6 +213,41 @@ select{background:#fff;border:1px solid #b8cfad;color:#315b38;padding:9px;border
   if(error){window.GREEN_WORLD_STARTUP_ERROR='Ошибка: '+(event.reason?.message||String(event.reason||'неизвестная ошибка'));error.textContent=window.GREEN_WORLD_STARTUP_ERROR;}
  });
  connectTelegram();
+})();
+</script>
+<script>
+/* ?diagnostic=1 intentionally bypasses the 3D startup to isolate Telegram WebView. */
+(()=>{
+ const params=new URLSearchParams(location.search);
+ if(!params.has('diagnostic'))return;
+ document.documentElement.classList.add('gw-diagnostic-mode');
+ const button=document.getElementById('retry-login');
+ if(button){button.disabled=true;button.textContent='ДИАГНОСТИКА: 3D НЕ ЗАПУСКАЕТСЯ';}
+ const panel=document.createElement('section');
+ panel.id='gwStartupDiagnostic';
+ panel.innerHTML='<div class="gwDiagCard"><h1>GREEN WORLD — проверка запуска</h1><p>Это облегчённая проверочная страница. 3D-сцена и WebGL не запускаются.</p><pre id="gwDiagOutput">Подготовка проверки…</pre><p>Оставь эту страницу открытой примерно 15 секунд. Если Telegram не закроется, напиши: «Диагностика открылась».</p></div>';
+ document.body.appendChild(panel);
+ const output=panel.querySelector('#gwDiagOutput');
+ const tg=window.Telegram&&window.Telegram.WebApp;
+ const lines=[
+  'Страница: загружена',
+  'Режим: диагностика без 3D',
+  'Telegram WebApp: '+(tg?'обнаружен':'не обнаружен'),
+  'initData: '+(tg&&tg.initData?'получен':'не получен'),
+  'Платформа Telegram: '+(tg?.platform||'не определена'),
+  'Версия Telegram: '+(tg?.version||'не определена'),
+  'Экран: '+innerWidth+' × '+innerHeight,
+  'WebGL API доступен в браузере: '+(typeof WebGLRenderingContext!=='undefined'?'да':'нет'),
+  '3D-модуль запрошен: НЕТ',
+  'Авторизация: проверяется…'
+ ];
+ const render=()=>{output.textContent=lines.join('\n');};
+ render();
+ if(window.GREEN_WORLD_AUTH_RESULT?.accessToken)lines[9]='Авторизация: успешно подтверждена';
+ window.addEventListener('green-world-auth',()=>{lines[9]='Авторизация: успешно подтверждена';render();});
+ window.addEventListener('green-world-auth-error',e=>{lines[9]='Авторизация: ошибка — '+(e.detail?.message||'неизвестно');render();});
+ window.addEventListener('error',e=>{lines.push('Ошибка страницы: '+(e.message||'неизвестная ошибка'));render();});
+ window.addEventListener('unhandledrejection',e=>{lines.push('Ошибка JavaScript: '+(e.reason?.message||String(e.reason||'неизвестная ошибка')));render();});
 })();
 </script>
 <script id="green-world-module-source" type="text/plain">
