@@ -5,8 +5,11 @@ import { readFile } from 'node:fs/promises';
 const html = await readFile(new URL('../../index.html', import.meta.url), 'utf8');
 const server = await readFile(new URL('../server.js', import.meta.url), 'utf8');
 
-test('loads the Telegram Mini App bridge before the game module', () => {
-  assert.ok(html.indexOf('telegram-web-app.js') < html.indexOf('<script type="module">'));
+test('loads the Telegram Mini App bridge before the deferred game module source', () => {
+  assert.ok(html.indexOf('telegram-web-app.js') < html.indexOf('id="green-world-module-source"'));
+  assert.match(html, /id="green-world-module-source" type="text\/plain"/);
+  assert.match(html, /moduleScript\.type="module"/);
+  assert.match(html, /button\.addEventListener\("click",\(\)=>\{/);
 });
 
 test('frontend authenticates Telegram initData and keeps the access token in memory', () => {
@@ -22,6 +25,13 @@ test('deferred economy actions are not exposed by the frontend', () => {
   assert.deepEqual(routes, []);
   assert.match(server, /app\.post\('\/api\/auth\/telegram'/);
   assert.match(server, /app\.get\('\/api\/me'/);
+});
+
+
+test('uses a compact sky texture on mobile to limit GPU memory', () => {
+  assert.match(html, /skyCanvas\.width=mobile\?1024:4096/);
+  assert.match(html, /skyCanvas\.height=mobile\?512:2048/);
+  assert.match(html, /skyCtx\.scale\(mobile\?1:4,mobile\?1:4\)/);
 });
 
 test('frontend does not persist game state in local storage', () => {
@@ -44,6 +54,6 @@ test('keeps only two symmetric flower beds and symmetric shrub groups', () => {
 
 test('includes the rear pond, three fountains and right-side gazebo', () => {
   assert.match(html, /GREEN_WORLD_Rear_Pond/);
-  assert.match(html, /for\(const x of \[-14,0,14\]\)/);
+  assert.match(html, /for\(const x of \[-22,0,22\]\)/);
   assert.match(html, /GREEN_WORLD_Rear_Gazebo/);
 });
