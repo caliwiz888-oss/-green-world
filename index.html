@@ -8,6 +8,25 @@
 <meta http-equiv="Expires" content="0">
 <meta name="theme-color" content="#91c6df">
 <script>
+/* Truly isolated Telegram/WebView test: replace the entire game document before its CSS, scripts, auth or 3D source are parsed. */
+(()=>{
+ if(!new URLSearchParams(location.search).has('diagnostic'))return;
+ document.open();
+ document.write('<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>GREEN WORLD — тест WebView</title><style>html,body{margin:0;min-height:100%;font:16px system-ui,Arial;background:#eaf4ed;color:#244b32}main{padding:24px;max-width:520px;margin:auto}h2{font-size:22px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#fff;padding:12px;border-radius:10px;font-size:12px}strong{color:#176b38}</style></head><body><main><h2>GREEN WORLD — изолированный тест</h2><p><strong id="status">Минимальная страница работает.</strong></p><p>Здесь нет игрового кода, 3D, WebGL, авторизации, Telegram SDK, изображений и внешних библиотек.</p><p>Оставь страницу открытой 20 секунд.</p><p>Время работы: <b id="seconds">0</b> сек.</p><pre id="details">Собираю сведения…</pre></main></body></html>');
+ document.close();
+ const status=document.getElementById('status');
+ const seconds=document.getElementById('seconds');
+ const details=document.getElementById('details');
+ let elapsed=0;
+ const ua=navigator.userAgent||'не определён';
+ details.textContent='Платформа: '+(navigator.platform||'—')+'\nЯзык: '+(navigator.language||'—')+'\nUser-Agent: '+ua.slice(0,500)+'\nШирина экрана: '+screen.width+'\nВысота экрана: '+screen.height;
+ window.addEventListener('error',e=>{status.textContent='Ошибка страницы: '+(e.message||'неизвестная');});
+ window.addEventListener('unhandledrejection',e=>{status.textContent='Ошибка JavaScript: '+String(e.reason||'неизвестная');});
+ window.addEventListener('pagehide',()=>{try{status.textContent='Страница закрывается';}catch(_){}});
+ setInterval(()=>{elapsed++;seconds.textContent=String(elapsed);if(elapsed>=20)status.textContent='Тест пройден: минимальная страница работает 20 секунд.';},1000);
+})();
+</script>
+<script>
 // Force Telegram WebView onto the current frontend build from either entry host.
 const GREEN_WORLD_BUILD_ID = '20261110-auto-telegram-start-38';
 if (location.hostname === 'caliwiz888-oss.github.io') {
