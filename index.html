@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261110-restore-50-trees-43';
+const GREEN_WORLD_BUILD_ID = '20261110-landscape-relief-44';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -1760,10 +1760,20 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  const newTerrainGeometry=new THREE.PlaneGeometry(88,78,232,208);
  const newTerrainPositions=newTerrainGeometry.attributes.position;
  const newTerrainColors=[];
- const flatMeadowColor=new THREE.Color(0x36c928);
+ // Природная вариация цвета без изменения высоты под деревьями и постройками.
+ const meadowBase=new THREE.Color(0x5b9148);
+ const meadowLight=new THREE.Color(0x78a957);
+ const meadowShade=new THREE.Color(0x456f3b);
  for(let i=0;i<newTerrainPositions.count;i++){
+   const x=newTerrainPositions.getX(i),z=newTerrainPositions.getY(i);
+   const broad=Math.sin(x*.105+z*.071)*.48+Math.cos(x*.061-z*.093)*.32+Math.sin((x+z)*.19)*.20;
+   const edge=Math.min(1,Math.max(0,(Math.abs(z)-24)/18));
+   const color=meadowBase.clone();
+   if(broad>0)color.lerp(meadowLight,Math.min(.34,broad*.23));
+   else color.lerp(meadowShade,Math.min(.28,-broad*.20));
+   color.lerp(meadowShade,edge*.16);
    newTerrainPositions.setZ(i,0);
-   newTerrainColors.push(flatMeadowColor.r,flatMeadowColor.g,flatMeadowColor.b);
+   newTerrainColors.push(color.r,color.g,color.b);
  }
  newTerrainGeometry.setAttribute('color',new THREE.Float32BufferAttribute(newTerrainColors,3));
  newTerrainGeometry.computeVertexNormals();
@@ -1774,6 +1784,49 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  newMeadow.rotation.x=-Math.PI/2;
  newMeadow.position.set(0,.018,-29.5);
  newMeadow.receiveShadow=false;newMeadow.castShadow=false;world.add(newMeadow);
+
+ // Многослойный горный горизонт GREEN WORLD: плавные силуэты и воздушная перспектива.
+ // Геометрия находится за задним лесом и не меняет его координаты или композицию.
+ const mountainLayers=[
+  {z:-73,base:0x647b76,top:0xa9b8ad,points:[[-112,-9],[-100,1],[-88,3],[-76,2],[-64,8],[-53,4],[-41,11],[-29,5],[-16,15],[-5,8],[8,13],[20,6],[34,12],[47,5],[61,10],[75,4],[89,8],[102,2],[112,-9]]},
+  {z:-66,base:0x526f58,top:0x91a17b,points:[[-112,-9],[-100,0],[-88,2],[-76,1],[-64,5],[-52,2],[-40,8],[-28,3],[-16,10],[-4,4],[8,9],[20,3],[32,8],[44,3],[56,7],[68,2],[80,6],[94,2],[112,-9]]},
+  {z:-60,base:0x3f6546,top:0x78945d,points:[[-112,-9],[-100,0],[-88,1],[-76,0],[-64,3],[-52,1],[-40,5],[-28,2],[-16,7],[-4,3],[8,6],[20,2],[32,6],[44,2],[56,5],[68,1],[80,4],[94,1],[112,-9]]}
+ ];
+ for(let layerIndex=0;layerIndex<mountainLayers.length;layerIndex++){
+  const layer=mountainLayers[layerIndex];
+  const controls=layer.points.map(([x,y])=>new THREE.Vector2(x,y));
+  const profile=new THREE.SplineCurve(controls).getPoints(220);
+  const silhouette=new THREE.Shape();
+  silhouette.moveTo(-112,-10);silhouette.lineTo(profile[0].x,profile[0].y);
+  for(let i=1;i<profile.length;i++)silhouette.lineTo(profile[i].x,profile[i].y);
+  silhouette.lineTo(112,-10);silhouette.closePath();
+  const geometry=new THREE.ShapeGeometry(silhouette,2);
+  const positions=geometry.attributes.position,colors=[];
+  const low=new THREE.Color(layer.base),high=new THREE.Color(layer.top);
+  for(let i=0;i<positions.count;i++){
+   const y=positions.getY(i),t=THREE.MathUtils.clamp((y+1)/16,0,1);
+   const shade=low.clone().lerp(high,t*.78);
+   shade.multiplyScalar(.965+.035*Math.sin(positions.getX(i)*.11+layerIndex*1.7));
+   colors.push(shade.r,shade.g,shade.b);
+  }
+  geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+  const ridge=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.DoubleSide,fog:true,toneMapped:false}));
+  ridge.name='GREEN_WORLD_Mountain_Ridge_'+layerIndex;
+  ridge.position.set(0,0,layer.z);ridge.renderOrder=layerIndex;
+  ridge.castShadow=false;ridge.receiveShadow=false;world.add(ridge);
+ }
+ // Небольшие каменные шапки на отдельных вершинах добавляют разнообразие силуэту.
+ const summitMat=new THREE.MeshStandardMaterial({color:0xb2b7a4,roughness:1,metalness:0,flatShading:true});
+ for(const [x,y,z,sx,sy,sz,rz] of [
+  [-17,11.8,-72,2.7,1.15,.72,-.12],[-13.7,10.5,-72,1.9,.82,.62,.18],
+  [35,9.6,-72,2.35,.95,.68,.1],[39,8.8,-72,1.55,.72,.55,-.16],
+  [-53,7.8,-72,1.8,.72,.58,.08]
+ ]){
+  const peak=new THREE.Mesh(new THREE.DodecahedronGeometry(1,0),summitMat);
+  peak.position.set(x,y,z);peak.scale.set(sx,sy,sz);peak.rotation.z=rz;
+  peak.name='GREEN_WORLD_Distant_Rock_Summit';
+  peak.castShadow=false;peak.receiveShadow=false;world.add(peak);
+ }
 
 
 }
