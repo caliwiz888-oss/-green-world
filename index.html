@@ -2005,32 +2005,29 @@ riverSurfaceMesh.receiveShadow=true;
 riverSurfaceMesh.frustumCulled=false;
 world.add(riverSurfaceMesh);
 
-// Задний водоём: плавный природный контур вместо прямоугольной чаши.
+// Задний водоём: широкая архитектурная чаша с плавными берегами и полноценным полукруглым правым завершением.
 const rearPondMaterial=new THREE.MeshPhysicalMaterial({
  color:0x42aabd,roughness:.2,metalness:.035,clearcoat:.72,clearcoatRoughness:.16,
  transparent:true,opacity:.91,side:THREE.DoubleSide
 });
 const makeRearPondContour=()=>{
- const shape=new THREE.Shape(),sx=x=>x*(30/21.5);
- // Горизонтальная природная чаша расширена симметрично относительно оси X=0.
- shape.moveTo(sx(-21.5),0);
- shape.bezierCurveTo(sx(-21.5),1.55,sx(-19.6),2.65,sx(-16.5),2.72);
- shape.bezierCurveTo(sx(-13.5),2.78,sx(-11.3),2.35,sx(-8.0),2.62);
- shape.bezierCurveTo(sx(-4.6),2.9,sx(-2.6),2.72,0,2.82);
- shape.bezierCurveTo(sx(3.4),2.92,sx(5.5),2.48,sx(8.6),2.68);
- shape.bezierCurveTo(sx(12.1),2.9,sx(14.0),2.52,sx(16.8),2.55);
- // Правый край — настоящий полукруг в мировых координатах: радиус по X и Z одинаковый.
- // Не применяем sx() к этой дуге, иначе масштабирование ширины превращает её в эллипс.
- const rightRadius=2.82,rightCenter=30-rightRadius,k=.5522847498;
- shape.bezierCurveTo(24.6,2.55,25.9,rightRadius,rightCenter,rightRadius);
- shape.bezierCurveTo(rightCenter+k*rightRadius,rightRadius,30,k*rightRadius,30,0);
- shape.bezierCurveTo(30,-k*rightRadius,rightCenter+k*rightRadius,-rightRadius,rightCenter,-rightRadius);
- shape.bezierCurveTo(25.9,-rightRadius,24.6,-2.55,sx(16.5),-2.55);
- shape.bezierCurveTo(sx(13.5),-2.78,sx(11.2),-2.35,sx(8.0),-2.62);
- shape.bezierCurveTo(sx(4.6),-2.9,sx(2.6),-2.72,0,-2.82);
- shape.bezierCurveTo(sx(-3.4),-2.92,sx(-5.5),-2.48,sx(-8.6),-2.68);
- shape.bezierCurveTo(sx(-12.1),-2.9,sx(-14.0),-2.52,sx(-16.8),-2.55);
- shape.bezierCurveTo(sx(-19.7),-2.58,sx(-21.5),-1.48,sx(-21.5),0);
+ const shape=new THREE.Shape();
+ // Чаша занимает почти всю заднюю зону: ширина 60, глубина 12.8.
+ // Левая сторона и длинные берега плавные и симметричные; справа — геометрически точная полуокружность.
+ const r=6.4,cx=30-r,k=.5522847498;
+ shape.moveTo(-30,0);
+ shape.bezierCurveTo(-30,3.65,-27.1,5.9,-23.6,6.18);
+ shape.bezierCurveTo(-19.2,6.52,-15.6,5.88,-11.5,6.12);
+ shape.bezierCurveTo(-7.4,6.36,-3.8,6.05,0,6.28);
+ shape.bezierCurveTo(4.0,6.48,7.4,5.98,11.5,6.2);
+ shape.bezierCurveTo(15.8,6.42,19.6,6.12,cx,r);
+ shape.bezierCurveTo(cx+k*r,r,30,k*r,30,0);
+ shape.bezierCurveTo(30,-k*r,cx+k*r,-r,cx,-r);
+ shape.bezierCurveTo(19.6,-6.12,15.8,-6.42,11.5,-6.2);
+ shape.bezierCurveTo(7.4,-5.98,4.0,-6.48,0,-6.28);
+ shape.bezierCurveTo(-3.8,-6.05,-7.4,-6.36,-11.5,-6.12);
+ shape.bezierCurveTo(-15.6,-5.88,-19.2,-6.52,-23.6,-6.18);
+ shape.bezierCurveTo(-27.1,-5.9,-30,-3.65,-30,0);
  shape.closePath();
  return shape;
 };
@@ -2043,17 +2040,20 @@ rearPond.position.set(0,.115,-27.35);
 rearPond.receiveShadow=true;rearPond.castShadow=false;rearPond.frustumCulled=false;
 rearPond.visible=true; // Задний пруд является частью сцены; показываем его перед лесным фоном.
 world.add(rearPond);
-// Непрерывная округлая каменная кромка повторяет изгибы берега.
+// Двухуровневая каменная архитектура берега: широкое основание и тонкий верхний кант.
 const rearBankMat=M.stone2.clone();
 rearBankMat.color=new THREE.Color(0xc8b995);rearBankMat.roughness=.92;rearBankMat.needsUpdate=true;
-const rearBankOutline=rearPondShape.getPoints(180);
-// Shape.getPoints includes the closing start point; remove it because the curve closes itself.
+const rearBankTopMat=M.stone2.clone();
+rearBankTopMat.color=new THREE.Color(0xe0d1b2);rearBankTopMat.roughness=.84;rearBankTopMat.needsUpdate=true;
+const rearBankOutline=rearPondShape.getPoints(240);
 if(rearBankOutline.length>2&&rearBankOutline[0].distanceToSquared(rearBankOutline[rearBankOutline.length-1])<1e-8)rearBankOutline.pop();
-const rearBankPoints=rearBankOutline.map(p=>new THREE.Vector3(p.x,.16,-27.35-p.y));
-const rearBankCurve=new THREE.CatmullRomCurve3(rearBankPoints,true,'centripetal');
-const rearBank=new THREE.Mesh(new THREE.TubeGeometry(rearBankCurve,360,.17,8,true),rearBankMat);
+const rearBankCurveAt=y=>new THREE.CatmullRomCurve3(rearBankOutline.map(p=>new THREE.Vector3(p.x,y,-27.35-p.y)),true,'centripetal');
+const rearBank=new THREE.Mesh(new THREE.TubeGeometry(rearBankCurveAt(.20),480,.34,10,true),rearBankMat);
 rearBank.name='GREEN_WORLD_Rear_Pond_Bank';
 rearBank.castShadow=false;rearBank.receiveShadow=true;rearBank.visible=true;world.add(rearBank);
+const rearBankTop=new THREE.Mesh(new THREE.TubeGeometry(rearBankCurveAt(.34),480,.105,8,true),rearBankTopMat);
+rearBankTop.name='GREEN_WORLD_Rear_Pond_Upper_Stone_Rim';
+rearBankTop.castShadow=false;rearBankTop.receiveShadow=true;rearBankTop.visible=true;world.add(rearBankTop);
 // Три невысоких фонтана, симметрично распределённых по заднему водоёму.
 const fountainStone= M.stone2.clone();fountainStone.color=new THREE.Color(0xd9c7a4);fountainStone.roughness=.88;fountainStone.needsUpdate=true;
 const fountainWater=new THREE.MeshPhysicalMaterial({color:0x9ce8f1,roughness:.12,metalness:.04,transparent:true,opacity:.58,clearcoat:.9,side:THREE.DoubleSide});
