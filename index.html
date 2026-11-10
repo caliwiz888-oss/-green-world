@@ -2053,10 +2053,10 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  const newTerrainGeometry=new THREE.PlaneGeometry(88,78,232,208);
  const newTerrainPositions=newTerrainGeometry.attributes.position;
  const newTerrainColors=[];
- const meadowBase=new THREE.Color(0x36c928);
+ const meadowBase=new THREE.Color(0x3f963b);
  for(let i=0;i<newTerrainPositions.count;i++){
    const x=newTerrainPositions.getX(i),z=newTerrainPositions.getY(i);
-   newTerrainPositions.setZ(i,0);
+   newTerrainPositions.setZ(i,.028*Math.sin(x*.19+Math.sin(z*.13)*1.4)*Math.cos(z*.17-x*.08)+.012*Math.sin(x*.61+z*.47));
    const broad=.965+.025*Math.sin(x*.31+Math.sin(z*.17)*1.7)+.018*Math.cos(z*.43-x*.12);
    const fine=.988+.012*Math.sin(x*1.73+z*2.11);
    const shade=THREE.MathUtils.clamp(broad*fine,.91,1.035);
@@ -2068,7 +2068,7 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  // Неброская повторяемая травяная микрофактура — без крупных пятен, надписей и изменения палитры.
  const meadowCanvas=document.createElement('canvas');meadowCanvas.width=256;meadowCanvas.height=256;
  const meadowCtx=meadowCanvas.getContext('2d');
- meadowCtx.fillStyle='#d7e8c4';meadowCtx.fillRect(0,0,256,256);
+ meadowCtx.fillStyle='#a9c68f';meadowCtx.fillRect(0,0,256,256);
  let meadowSeed=73421;
  const meadowRandom=()=>{meadowSeed=(meadowSeed*1664525+1013904223)>>>0;return meadowSeed/4294967296;};
  for(let i=0;i<14500;i++){
@@ -2426,7 +2426,7 @@ function makeHouse(){
  }
  const manorWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:manorWallTexture,bumpMap:manorWallBump,
-  roughnessMap:manorWallRoughness,bumpScale:.078,roughness:.91,metalness:0,
+  roughnessMap:manorWallRoughness,bumpScale:.096,roughness:.89,metalness:0,
   clearcoat:.10,clearcoatRoughness:.88,specularIntensity:.22
  });
  // Для круглых башен используется та же кремовая кладка с масштабом по окружности.
@@ -2438,7 +2438,7 @@ function makeHouse(){
  towerWallRoughness.repeat.set(4,2.5);towerWallRoughness.needsUpdate=true;
  const towerWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:towerWallTexture,bumpMap:towerWallBump,
-  roughnessMap:towerWallRoughness,bumpScale:.068,roughness:.92,metalness:0,
+  roughnessMap:towerWallRoughness,bumpScale:.082,roughness:.90,metalness:0,
   clearcoat:.09,clearcoatRoughness:.9,specularIntensity:.20
  });
  // Отдельная настройка материала только для уже существующих колонн:
@@ -2451,7 +2451,7 @@ function makeHouse(){
  towerColumnRoughness.repeat.set(.9,1.45);towerColumnRoughness.needsUpdate=true;
  const towerColumnMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe8d2ae,map:towerColumnTexture,bumpMap:towerColumnBump,
-  roughnessMap:towerColumnRoughness,bumpScale:.045,roughness:.93,metalness:0,
+  roughnessMap:towerColumnRoughness,bumpScale:.058,roughness:.91,metalness:0,
   clearcoat:.07,clearcoatRoughness:.92,specularIntensity:.18
  });
  // Центральный корпус, фронтон, окна, двери и вся отделка смещаются единым блоком назад;
