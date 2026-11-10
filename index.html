@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261110-mobile-startup-unblock-37';
+const GREEN_WORLD_BUILD_ID = '20261110-auto-telegram-start-38';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -153,7 +153,7 @@ html.gw-diagnostic-mode body{overflow:hidden}
 <script>
 (()=>{const labels={plantAction:'Посадка',waterAction:'Полив',harvestAction:'Сбор урожая',sellAction:'Продажа'};for(const [id,label] of Object.entries(labels)){const button=document.getElementById(id);if(!button)continue;button.addEventListener('click',()=>{const toast=document.getElementById('toast');if(!toast)return;toast.textContent=label+' — игровая механика пока не подключена';toast.classList.add('show');clearTimeout(window.greenFarmActionToastTimer);window.greenFarmActionToastTimer=setTimeout(()=>toast.classList.remove('show'),2400)})}})();
 </script>
-<div id="login"><div class="login-card"><h1>GREEN WORLD</h1><p>Новый мир готовится к открытию. Войди через Telegram, чтобы открыть 3D-мир.</p><button class="smallbtn" id="retry-login">ПОДКЛЮЧИТЬ TELEGRAM</button><p id="login-error"></p></div></div>
+<div id="login"><div class="login-card"><h1>GREEN WORLD</h1><p>Новый мир готовится к открытию. Войди через Telegram, чтобы открыть 3D-мир.</p><button class="smallbtn" id="retry-login" type="button" hidden>ПОДКЛЮЧЕНИЕ…</button><p id="login-error"></p></div></div>
 </div></div>
 <div id="treeDiagShade" role="dialog" aria-modal="true" aria-label="Диагностика деревьев"><div id="treeDiagPanel"><h2 id="treeDiagTitle">Диагностика деревьев GREEN WORLD</h2><p id="treeDiagStatus">Нажми «Обновить», когда 3D-мир загрузится.</p><textarea id="treeDiagOutput" readonly spellcheck="false"></textarea><div class="treeDiagActions"><button id="treeDiagRefresh" type="button">Обновить</button><button id="treeDiagCopy" type="button">Копировать результат</button><button id="treeDiagClose" type="button">Закрыть</button></div></div></div>
 <script>window.GREEN_WORLD_API_URL='https://green-world-api-mx3v.onrender.com';</script>
@@ -3881,32 +3881,31 @@ if(window.GREEN_WORLD_AUTH_RESULT){
 }
 </script>
 <script>
-/* Load the heavy Three.js scene only after an explicit tap in Telegram WebView. */
+/* Start the 3D world automatically after Telegram authentication succeeds. */
 (()=>{
  const source=document.getElementById("green-world-module-source");
  const button=document.getElementById("retry-login");
  if(!source||!button)return;
  let started=false;
  window.GREEN_WORLD_MODULE_REQUESTED=false;
- button.textContent="ЗАПУСТИТЬ 3D-МИР";
- button.addEventListener("click",()=>{
-  if(started)return;
+ function startWorld(){
+  if(started||new URLSearchParams(location.search).has('diagnostic'))return;
   started=true;
   window.GREEN_WORLD_MODULE_REQUESTED=true;
-  button.disabled=true;
-  button.textContent="ЗАГРУЗКА 3D-МИРА…";
+  const error=document.getElementById("login-error");
+  if(error)error.textContent="Аккаунт подключён. Загружаем 3D-мир…";
   const moduleScript=document.createElement("script");
   moduleScript.type="module";
   moduleScript.textContent=source.textContent;
   moduleScript.onerror=()=>{
-   const error=document.getElementById("login-error");
-   if(error)error.textContent="Не удалось запустить 3D-мир. Нажми кнопку ещё раз после перезагрузки.";
-   button.disabled=false;
-   button.textContent="ПОВТОРИТЬ ЗАПУСК 3D";
+   if(error)error.textContent="Не удалось загрузить 3D-мир. Обнови страницу и попробуй снова.";
    started=false;
+   window.GREEN_WORLD_MODULE_REQUESTED=false;
   };
   document.body.appendChild(moduleScript);
- },{passive:true});
+ }
+ window.addEventListener("green-world-auth",startWorld);
+ if(window.GREEN_WORLD_AUTH_RESULT?.accessToken)startWorld();
 })();
 </script>
 <script>
