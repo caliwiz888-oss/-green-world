@@ -1830,7 +1830,7 @@ function makeWorldLandscape(){
  const mountainRockCanvas=document.createElement('canvas');
  mountainRockCanvas.width=mountainRockCanvas.height=512;
  const mountainRockCtx=mountainRockCanvas.getContext('2d');
- mountainRockCtx.fillStyle='#d4d5c9';
+ mountainRockCtx.fillStyle='#aeb9b7';
  mountainRockCtx.fillRect(0,0,512,512);
  let mountainTextureSeed=472901;
  const mountainRandom=()=>{mountainTextureSeed=(mountainTextureSeed*1664525+1013904223)>>>0;return mountainTextureSeed/4294967296;};
@@ -1874,24 +1874,24 @@ function makeWorldLandscape(){
  mountainRockBump.magFilter=THREE.LinearFilter;
 
  const mountainLayers=[
-  {name:'far',z:-84,base:0x82958e,mid:0x9eaaa0,high:0xc1c9bc,
-   points:[[-108,-5],[-96,1],[-84,4],[-72,2],[-59,9],[-47,4],[-34,12],[-21,6],[-8,15],[5,7],[19,13],[32,6],[46,12],[60,5],[74,10],[88,3],[101,1],[108,-5]]},
-  {name:'main',z:-77,base:0x526c62,mid:0x788b7b,high:0xaab19c,
-   points:[[-108,-5],[-96,2],[-83,5],[-70,3],[-57,9],[-45,6],[-34,14],[-25,20],[-16,12],[-5,17],[8,10],[20,16],[29,22],[38,13],[49,8],[61,14],[73,7],[86,11],[98,3],[108,-5]]},
-  {name:'foothills',z:-69.2,base:0x405e43,mid:0x62804f,high:0x8da16a,
-   points:[[-108,-5],[-96,0],[-82,3],[-68,1],[-55,6],[-42,3],[-29,9],[-16,5],[-3,11],[10,6],[24,10],[38,4],[52,9],[66,3],[80,7],[94,1],[108,-5]]}
+  {name:'far',z:-84,base:0x718b91,mid:0x9aadb0,high:0xd0d8d5,
+   points:[[-108,-5],[-99,-1],[-92,2],[-86,1],[-79,5],[-72,2],[-65,7],[-59,4],[-52,10],[-46,5],[-39,13],[-33,7],[-26,15],[-20,8],[-13,16],[-7,9],[0,17],[7,8],[14,14],[21,7],[29,15],[36,8],[44,14],[51,6],[59,13],[66,5],[74,12],[82,5],[91,9],[99,2],[108,-5]]},
+  {name:'main',z:-77,base:0x344f59,mid:0x627d87,high:0xb5c6c8,
+   points:[[-108,-5],[-99,0],[-91,3],[-84,2],[-77,6],[-70,3],[-63,8],[-57,5],[-50,11],[-44,6],[-37,13],[-31,11],[-25,20],[-21,15],[-16,12],[-10,17],[-5,13],[1,18],[7,11],[13,14],[20,16],[25,19],[29,22],[33,17],[38,13],[44,9],[50,12],[56,9],[61,14],[66,10],[73,7],[80,11],[87,6],[95,3],[108,-5]]},
+  {name:'foothills',z:-69.2,base:0x34594f,mid:0x557c68,high:0x8fac82,
+   points:[[-108,-5],[-98,0],[-90,2],[-82,1],[-74,4],[-67,1],[-59,6],[-51,2],[-43,7],[-35,3],[-27,9],[-19,4],[-11,10],[-3,5],[5,11],[13,6],[21,10],[29,5],[37,9],[45,3],[53,8],[61,3],[69,7],[77,2],[85,6],[94,1],[108,-5]]}
  ];
  const mountainColor=(layer,elevation,x,depth,index)=>{
   const e=THREE.MathUtils.clamp(elevation,0,1);
   const low=new THREE.Color(layer.base),middle=new THREE.Color(layer.mid),high=new THREE.Color(layer.high);
   const c=e<.52?low.lerp(middle,e/.52):middle.lerp(high,(e-.52)/.48);
-  const strata=.86+.085*Math.sin(x*.17+index*1.9)+.052*Math.cos(x*.39-depth*3.1)+.025*Math.sin(elevation*31+x*.7);
+  const strata=.82+.105*Math.sin(x*.17+index*1.9)+.065*Math.cos(x*.39-depth*3.1)+.035*Math.sin(elevation*31+x*.7)+.022*Math.sin(elevation*74+x*.31);
   c.multiplyScalar(strata*(1-.12*depth));
   return c;
  };
  const mountainRockMaterial=new THREE.MeshStandardMaterial({
   color:0xffffff,vertexColors:true,map:mountainRockMap,bumpMap:mountainRockBump,roughnessMap:mountainRockBump,
-  bumpScale:.14,roughness:.99,metalness:0,flatShading:true,side:THREE.DoubleSide
+  bumpScale:.205,roughness:.96,metalness:0,flatShading:true,side:THREE.DoubleSide
  });
  for(let layerIndex=0;layerIndex<mountainLayers.length;layerIndex++){
   const layer=mountainLayers[layerIndex];
@@ -1929,7 +1929,7 @@ function makeWorldLandscape(){
   frontGeometry.setAttribute('color',new THREE.Float32BufferAttribute(frontColors,3));
   frontGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(frontUvs,2));
   frontGeometry.setIndex(frontIndices);frontGeometry.computeVertexNormals();
-  const frontMaterial=mountainRockMaterial.clone();frontMaterial.bumpScale=.15;
+  const frontMaterial=mountainRockMaterial.clone();frontMaterial.bumpScale=.22;
   const frontWall=new THREE.Mesh(frontGeometry,frontMaterial);
   frontWall.name='GREEN_WORLD_Mountain_FrontRock_'+layer.name;
   frontWall.castShadow=false;frontWall.receiveShadow=false;mountainWorld.add(frontWall);
@@ -1959,7 +1959,7 @@ function makeWorldLandscape(){
   topGeometry.setAttribute('color',new THREE.Float32BufferAttribute(topColors,3));
   topGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(topUvs,2));
   topGeometry.setIndex(topIndices);topGeometry.computeVertexNormals();
-  const topMaterial=mountainRockMaterial.clone();topMaterial.flatShading=false;topMaterial.bumpScale=.16;
+  const topMaterial=mountainRockMaterial.clone();topMaterial.flatShading=false;topMaterial.bumpScale=.19;
   const mountainSlope=new THREE.Mesh(topGeometry,topMaterial);
   mountainSlope.name='GREEN_WORLD_Mountain_Volumetric_Slope_'+layer.name;
   mountainSlope.castShadow=false;mountainSlope.receiveShadow=false;mountainWorld.add(mountainSlope);
@@ -1976,15 +1976,15 @@ function makeWorldLandscape(){
   facet.position.z=z;facet.castShadow=false;facet.receiveShadow=false;mountainWorld.add(facet);
  };
  // Грани центральных пиков — чередование освещённого камня и прохладных теневых склонов.
- for(const [x,y,w] of [[-25,20,13],[29,22,12],[-55,9,9],[61,14,10]]){
+ for(const [x,y,w] of [[-25,20,13],[29,22,12],[-55,9,9],[61,14,10],[-10,17,7],[1,18,7],[13,14,6],[50,12,6],[80,11,6]]){
   const z=-76.82;
-  addRockFacet([[x-w,y*.18],[x,y],[x-w*.12,y*.52]],0x8e9a88,z);
-  addRockFacet([[x,y],[x+w,y*.22],[x-w*.12,y*.52]],0x536b61,z+.012);
-  addRockFacet([[x-w,y*.18],[x-w*.12,y*.52],[x-w*.72,y*.34]],0x65796c,z+.018);
+  addRockFacet([[x-w,y*.18],[x,y],[x-w*.12,y*.52]],0xb2c0bd,z);
+  addRockFacet([[x,y],[x+w,y*.22],[x-w*.12,y*.52]],0x3d5964,z+.012);
+  addRockFacet([[x-w,y*.18],[x-w*.12,y*.52],[x-w*.72,y*.34]],0x718a8d,z+.018);
  }
  // Снег формирует объёмные неровные карнизы: теневая подложка подчёркивает толщину и уступы.
- const snowShadowMaterial=new THREE.MeshStandardMaterial({color:0x899b98,roughness:1,metalness:0,flatShading:true,side:THREE.DoubleSide});
- const snowMaterial=new THREE.MeshStandardMaterial({color:0xe8eee8,roughness:.86,metalness:0,flatShading:true,side:THREE.DoubleSide});
+ const snowShadowMaterial=new THREE.MeshStandardMaterial({color:0x647b85,roughness:1,metalness:0,flatShading:true,side:THREE.DoubleSide});
+ const snowMaterial=new THREE.MeshStandardMaterial({color:0xf0f5f4,roughness:.78,metalness:0,flatShading:true,side:THREE.DoubleSide});
  const addSnowCap=(points,z)=>{
   const makeSnowShape=(contour,offsetY=0)=>{
    const shape=new THREE.Shape();shape.moveTo(contour[0][0],contour[0][1]+offsetY);
@@ -2005,6 +2005,10 @@ function makeWorldLandscape(){
  // Небольшие разорванные снежные поля на гребнях создают естественный переход от снега к скале.
  addSnowCap([[-43,10.4],[-41.5,11.5],[-39.7,11.9],[-37.8,10.7],[-36,9.5],[-39.2,10],[-41,9.8]],-76.755);
  addSnowCap([[7,11.5],[9,13.2],[11,13.8],[13.2,12.4],[15,10.7],[11.8,11.3],[9.5,11.1]],-76.745);
+ // Новые снежные карнизы на дополнительных зубчатых вершинах.
+ addSnowCap([[-13,13.8],[-11,15.4],[-10,17],[-8.5,15.1],[-6.5,13.2],[-9.5,14],[-11.5,14.1]],-76.735);
+ addSnowCap([[0,14.7],[1,16.2],[2.5,18],[4,16.3],[6,13.9],[3,14.7],[1.5,14.8]],-76.73);
+ addSnowCap([[48,9.4],[49.5,10.8],[51,12],[52.8,10.5],[54.5,8.7],[51.5,9.6],[49.8,9.7]],-76.725);
  // Тонкие ледниковые полосы на затенённых склонах добавляют масштаб, не перегружая силуэт.
  const glacierMat=new THREE.MeshBasicMaterial({color:0xd9e5e0,transparent:true,opacity:.24,depthWrite:false,side:THREE.DoubleSide});
  for(const [x,y,z,sx,sy,rz] of [[-29,12.7,-76.69,2.8,.2,-.62],[25,13.8,-76.68,2.4,.17,.55],[57,8.5,-76.64,1.8,.13,-.48],[-54,6.5,-76.63,1.35,.11,.38]]){
