@@ -1050,6 +1050,11 @@ function makeWorldDecor(){
   const fenceStone=mat(0xcbb99a,.94),fenceIvory=mat(0xd9c6a4,.92),fenceReliefStone=mat(0xa98d68,.94),fenceOutline=mat(0x51402f,.94);
   const fenceSandstone=mat(0xb99a72,.94),fenceSlate=mat(0x526575,.9),fenceTeal=mat(0x367c78,.88);
   const fenceIron=mat(0x514638),fenceIronLight=mat(0x76634b),fenceGold=mat(0xc99b52),fenceGoldLight=mat(0xe4c17a);
+  // Реалистичный металл ковки и медальонов: мягкий отражённый свет вместо пластиковой матовости.
+  Object.assign(fenceIron,{metalness:.42,roughness:.58,envMapIntensity:.72});
+  Object.assign(fenceIronLight,{metalness:.34,roughness:.52,envMapIntensity:.78});
+  Object.assign(fenceGold,{metalness:.58,roughness:.38,envMapIntensity:.82});
+  Object.assign(fenceGoldLight,{metalness:.52,roughness:.32,envMapIntensity:.88});
   const fenceNoShadow=mesh=>{mesh.castShadow=false;mesh.receiveShadow=false;return mesh;};
   // Забор собирается в отдельной группе: его можно целиком заменить без дублей геометрии.
   const fenceGroup=new THREE.Group();world.add(fenceGroup);
@@ -1471,10 +1476,10 @@ function makeWorldDecor(){
  }
 
  // Физически корректный мягкий блеск подчёркивает уже существующую микрофактуру коры и хвои.
- const gwBark=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwBarkMap,roughnessMap:gwBarkBump,normalMap:gwBarkNormal,normalScale:new THREE.Vector2(.22,.22),bumpMap:gwBarkBump,bumpScale:.012,roughness:.96,clearcoat:.07,clearcoatRoughness:.88});
- const gwPineA=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwPineBump,bumpScale:.006,roughness:.96,sheen:.24,sheenColor:0x8cae70,sheenRoughness:.92});
- const gwPineB=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.17,.17),bumpMap:gwPineBump,bumpScale:.007,roughness:.97,sheen:.29,sheenColor:0x9bbd7b,sheenRoughness:.94});
- const gwPineC=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.16,.16),bumpMap:gwPineBump,bumpScale:.006,roughness:.96,sheen:.26,sheenColor:0x829f68,sheenRoughness:.93});
+ const gwBark=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwBarkMap,roughnessMap:gwBarkBump,normalMap:gwBarkNormal,normalScale:new THREE.Vector2(.26,.26),bumpMap:gwBarkBump,bumpScale:.02,roughness:.97,clearcoat:.045,clearcoatRoughness:.94});
+ const gwPineA=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.19,.19),bumpMap:gwPineBump,bumpScale:.011,roughness:.97,sheen:.24,sheenColor:0x8cae70,sheenRoughness:.92});
+ const gwPineB=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.21,.21),bumpMap:gwPineBump,bumpScale:.012,roughness:.98,sheen:.29,sheenColor:0x9bbd7b,sheenRoughness:.94});
+ const gwPineC=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.19,.19),bumpMap:gwPineBump,bumpScale:.011,roughness:.97,sheen:.26,sheenColor:0x829f68,sheenRoughness:.93});
  // Лепестки получают широкий матовый световой отклик, без пластикового блеска.
  const gwPinkA=new THREE.MeshPhysicalMaterial({color:0xffd9e7,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.13,.13),bumpMap:gwBloomBump,bumpScale:.008,roughness:.95,sheen:.38,sheenColor:0xffc7dc,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
  const gwPinkB=new THREE.MeshPhysicalMaterial({color:0xffb9d1,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwBloomBump,bumpScale:.009,roughness:.95,sheen:.42,sheenColor:0xffd2e2,sheenRoughness:.97,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
@@ -1482,7 +1487,7 @@ function makeWorldDecor(){
  const gwAmberA=new THREE.MeshPhysicalMaterial({color:0xffb52e,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.13,.13),bumpMap:gwBloomBump,bumpScale:.008,roughness:.95,sheen:.38,sheenColor:0xffc45a,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
  const gwAmberB=new THREE.MeshPhysicalMaterial({color:0xe88718,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwBloomBump,bumpScale:.009,roughness:.95,sheen:.42,sheenColor:0xffa52b,sheenRoughness:.97,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
  const gwAmberC=new THREE.MeshPhysicalMaterial({color:0xffd77b,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.12,.12),bumpMap:gwBloomBump,bumpScale:.007,roughness:.96,sheen:.34,sheenColor:0xffe3a0,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
- const gwLeaf=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,bumpMap:gwPineBump,bumpScale:.012,roughness:.97,sheen:.3,sheenColor:0x9bbd7b,sheenRoughness:.94});
+ const gwLeaf=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,bumpMap:gwPineBump,bumpScale:.018,roughness:.98,sheen:.3,sheenColor:0x9bbd7b,sheenRoughness:.94});
  const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,72,32);
  const gwPineGeos=[new THREE.ConeGeometry(1,1,56,12),new THREE.ConeGeometry(.82,.92,56,12),new THREE.ConeGeometry(.63,.82,56,12)];
  const gwCrownGeo=new THREE.SphereGeometry(1,64,48);
@@ -1662,14 +1667,14 @@ function makeWorldDecor(){
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
    trunk.position.y=h*.34;trunk.scale.set(.68,h*.69,.68);g.add(trunk);
    // Несколько расходящихся ветвей поддерживают широкую естественную крону.
-   for(let k=0;k<7;k++){
-     const a=seed+k*Math.PI*2/7,branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
+   for(let k=0;k<9;k++){
+     const a=seed+k*Math.PI*2/9,branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
      branch.position.set(Math.cos(a)*h*.105,h*(.48+(k%3)*.035),Math.sin(a)*h*.105);
      branch.scale.y=h*(.28+(k%3)*.025);
      branch.rotation.z=Math.cos(a)*-.62;branch.rotation.x=Math.sin(a)*.62;g.add(branch);
    }
    // Крона из отдельных округлых групп разного размера, с просветами между ними.
-   const clusters=13;
+   const clusters=17;
    for(let k=0;k<clusters;k++){
      const a=seed+k*2.399963;
      const ring=k<8?.19:.09,rad=h*ring*(.88+.12*Math.sin(a*2.7));
@@ -1811,7 +1816,7 @@ function makeWorldLandscape(){
  };
  const mountainRockMaterial=new THREE.MeshStandardMaterial({
   color:0xffffff,vertexColors:true,map:mountainRockMap,bumpMap:mountainRockBump,roughnessMap:mountainRockBump,
-  bumpScale:.052,roughness:.985,metalness:0,flatShading:true,side:THREE.DoubleSide
+  bumpScale:.085,roughness:.99,metalness:0,flatShading:true,side:THREE.DoubleSide
  });
  for(let layerIndex=0;layerIndex<mountainLayers.length;layerIndex++){
   const layer=mountainLayers[layerIndex];
@@ -1845,7 +1850,7 @@ function makeWorldLandscape(){
   frontGeometry.setAttribute('color',new THREE.Float32BufferAttribute(frontColors,3));
   frontGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(frontUvs,2));
   frontGeometry.setIndex(frontIndices);frontGeometry.computeVertexNormals();
-  const frontMaterial=mountainRockMaterial.clone();frontMaterial.bumpScale=.038;
+  const frontMaterial=mountainRockMaterial.clone();frontMaterial.bumpScale=.068;
   const frontWall=new THREE.Mesh(frontGeometry,frontMaterial);
   frontWall.name='GREEN_WORLD_Mountain_FrontRock_'+layer.name;
   frontWall.castShadow=false;frontWall.receiveShadow=false;mountainWorld.add(frontWall);
@@ -1875,7 +1880,7 @@ function makeWorldLandscape(){
   topGeometry.setAttribute('color',new THREE.Float32BufferAttribute(topColors,3));
   topGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(topUvs,2));
   topGeometry.setIndex(topIndices);topGeometry.computeVertexNormals();
-  const topMaterial=mountainRockMaterial.clone();topMaterial.flatShading=false;topMaterial.bumpScale=.052;
+  const topMaterial=mountainRockMaterial.clone();topMaterial.flatShading=false;topMaterial.bumpScale=.085;
   const mountainSlope=new THREE.Mesh(topGeometry,topMaterial);
   mountainSlope.name='GREEN_WORLD_Mountain_Volumetric_Slope_'+layer.name;
   mountainSlope.castShadow=false;mountainSlope.receiveShadow=false;mountainWorld.add(mountainSlope);
@@ -1885,7 +1890,8 @@ function makeWorldLandscape(){
   const facetShape=new THREE.Shape();facetShape.moveTo(points[0][0],points[0][1]);
   for(let i=1;i<points.length;i++)facetShape.lineTo(points[i][0],points[i][1]);
   facetShape.closePath();
-  const facet=new THREE.Mesh(new THREE.ShapeGeometry(facetShape),new THREE.MeshStandardMaterial({
+  const facetGeometry=new THREE.ExtrudeGeometry(facetShape,{depth:.18,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.035,bevelThickness:.025,curveSegments:4});
+  const facet=new THREE.Mesh(facetGeometry,new THREE.MeshStandardMaterial({
    color,roughness:1,metalness:0,flatShading:true,side:THREE.DoubleSide
   }));
   facet.position.z=z;facet.castShadow=false;facet.receiveShadow=false;mountainWorld.add(facet);
@@ -1903,7 +1909,8 @@ function makeWorldLandscape(){
   const snowShape=new THREE.Shape();snowShape.moveTo(points[0][0],points[0][1]);
   for(let i=1;i<points.length;i++)snowShape.lineTo(points[i][0],points[i][1]);
   snowShape.closePath();
-  const cap=new THREE.Mesh(new THREE.ShapeGeometry(snowShape,2),snowMaterial);
+  const capGeometry=new THREE.ExtrudeGeometry(snowShape,{depth:.055,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.012,bevelThickness:.01,curveSegments:3});
+  const cap=new THREE.Mesh(capGeometry,snowMaterial);
   cap.position.z=z;cap.castShadow=false;cap.receiveShadow=false;mountainWorld.add(cap);
  };
  addSnowCap([[-34,14],[-30,17],[-25,20],[-21,17],[-17,12],[-22,14],[-26,15],[-30,13]],-76.79);
@@ -2009,7 +2016,7 @@ function makeWorldLandscape(){
  waterReliefTexture.wrapS=waterReliefTexture.wrapT=THREE.RepeatWrapping;
  waterReliefTexture.repeat.set(2,1);
  waterReliefTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- water.bumpMap=waterReliefTexture;water.bumpScale=.014;water.roughnessMap=waterReliefTexture;water.roughness=.205;water.metalness=.035;water.clearcoat=.64;water.clearcoatRoughness=.14;water.reflectivity=.76;water.needsUpdate=true;
+ water.bumpMap=waterReliefTexture;water.bumpScale=.024;water.roughnessMap=waterReliefTexture;water.roughness=.17;water.metalness=.028;water.clearcoat=.82;water.clearcoatRoughness=.11;water.reflectivity=.84;water.envMapIntensity=.9;water.needsUpdate=true;
 
 // Восстановлена отсутствовавшая геометрия самой реки.
 // Материал и карта воды выше уже создавались, но mesh поверхности не создавался,
@@ -2455,7 +2462,7 @@ function makeHouse(){
  }
  const manorWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:manorWallTexture,bumpMap:manorWallBump,
-  roughnessMap:manorWallRoughness,bumpScale:.078,roughness:.91,metalness:0,
+  roughnessMap:manorWallRoughness,bumpScale:.105,roughness:.93,metalness:0,
   clearcoat:.10,clearcoatRoughness:.88,specularIntensity:.22
  });
  // Для круглых башен используется та же кремовая кладка с масштабом по окружности.
@@ -2467,7 +2474,7 @@ function makeHouse(){
  towerWallRoughness.repeat.set(4,2.5);towerWallRoughness.needsUpdate=true;
  const towerWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:towerWallTexture,bumpMap:towerWallBump,
-  roughnessMap:towerWallRoughness,bumpScale:.068,roughness:.92,metalness:0,
+  roughnessMap:towerWallRoughness,bumpScale:.09,roughness:.94,metalness:0,
   clearcoat:.09,clearcoatRoughness:.9,specularIntensity:.20
  });
  // Отдельная настройка материала только для уже существующих колонн:
