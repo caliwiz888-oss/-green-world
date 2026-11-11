@@ -2079,10 +2079,14 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  const meadowBase=new THREE.Color(0x36c928);
  for(let i=0;i<newTerrainPositions.count;i++){
    const x=newTerrainPositions.getX(i),z=newTerrainPositions.getY(i);
-   newTerrainPositions.setZ(i,0);
-   const broad=.965+.025*Math.sin(x*.31+Math.sin(z*.17)*1.7)+.018*Math.cos(z*.43-x*.12);
-   const fine=.988+.012*Math.sin(x*1.73+z*2.11);
-   const shade=THREE.MathUtils.clamp(broad*fine,.91,1.035);
+   // Мягкие холмы и неглубокие впадины: амплитуда мала, края участка плавно сходят к исходному уровню.
+   const edgeFade=Math.min(1,Math.max(0,(44-Math.abs(x))/7),Math.max(0,(39-Math.abs(z))/6));
+   const broadRelief=(Math.sin(x*.19+Math.sin(z*.13)*1.4)*.58+Math.cos(z*.27-x*.11)*.42)*.075;
+   const fineRelief=(Math.sin(x*.83+z*.71)*.012+Math.cos(x*1.17-z*.93)*.009);
+   newTerrainPositions.setZ(i,(broadRelief+fineRelief)*edgeFade);
+   const broad=.955+.035*Math.sin(x*.31+Math.sin(z*.17)*1.7)+.024*Math.cos(z*.43-x*.12);
+   const fine=.982+.018*Math.sin(x*1.73+z*2.11)+.008*Math.cos(x*2.9-z*2.2);
+   const shade=THREE.MathUtils.clamp(broad*fine,.89,1.045);
    const vertexColor=meadowBase.clone().multiplyScalar(shade);
    newTerrainColors.push(vertexColor.r,vertexColor.g,vertexColor.b);
  }
@@ -2094,7 +2098,7 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  meadowCtx.fillStyle='#d7e8c4';meadowCtx.fillRect(0,0,256,256);
  let meadowSeed=73421;
  const meadowRandom=()=>{meadowSeed=(meadowSeed*1664525+1013904223)>>>0;return meadowSeed/4294967296;};
- for(let i=0;i<14500;i++){
+ for(let i=0;i<22000;i++){
    const x=meadowRandom()*256,y=meadowRandom()*256;
    const light=meadowRandom()>.53;
    meadowCtx.strokeStyle=light?'rgba(70,133,42,.16)':'rgba(34,105,39,.13)';
@@ -2119,17 +2123,31 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
 
  // Реальные объёмные травинки вдоль внешних кромок газона.
  // Инстансинг сохраняет малую стоимость рендеринга на Android и не меняет планировку двора.
+ // Каждая инстанция — небольшой пучок из четырёх изогнутых лент-листов, а не плоский треугольник.
+ const edgeGrassPositions=[],edgeGrassIndices=[];
+ for(let blade=0;blade<4;blade++){
+  const angle=blade*Math.PI*.5+.18,base=edgeGrassPositions.length/3;
+  const dx=Math.cos(angle),dz=Math.sin(angle),width=.026;
+  for(let level=0;level<3;level++){
+   const t=level/2,reach=.035*t*t,centerX=dx*reach,centerZ=dz*reach;
+   const halfWidth=width*(1-t*.88),bend=.035*t*t;
+   edgeGrassPositions.push(centerX-dz*halfWidth+bend, t*.42, centerZ+dx*halfWidth);
+   edgeGrassPositions.push(centerX+dz*halfWidth+bend, t*.42, centerZ-dx*halfWidth);
+  }
+  for(let level=0;level<2;level++){
+   const a=base+level*2,b=a+1,c=a+2,d=a+3;
+   edgeGrassIndices.push(a,c,b,b,c,d);
+  }
+ }
  const edgeGrassGeometry=new THREE.BufferGeometry();
- edgeGrassGeometry.setAttribute('position',new THREE.Float32BufferAttribute([
-  0,0,0, -.036,.19,0, .036,.19,0
- ],3));
- edgeGrassGeometry.computeVertexNormals();
+ edgeGrassGeometry.setAttribute('position',new THREE.Float32BufferAttribute(edgeGrassPositions,3));
+ edgeGrassGeometry.setIndex(edgeGrassIndices);edgeGrassGeometry.computeVertexNormals();
  const edgeGrassMaterials=[
   new THREE.MeshStandardMaterial({color:0x477b32,roughness:1,side:THREE.DoubleSide}),
   new THREE.MeshStandardMaterial({color:0x6c9d43,roughness:1,side:THREE.DoubleSide}),
   new THREE.MeshStandardMaterial({color:0x86ad50,roughness:1,side:THREE.DoubleSide})
  ];
- const edgeGrassCount=1500;
+ const edgeGrassCount=2200;
  const edgeGrassMeshes=edgeGrassMaterials.map(material=>{
   const mesh=new THREE.InstancedMesh(edgeGrassGeometry,material,edgeGrassCount);
   mesh.name='GREEN_WORLD_3D_Edge_Grass';
@@ -2148,7 +2166,7 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
   const materialIndex=Math.floor(edgeGrassRandom()*edgeGrassMeshes.length);
   edgeGrassDummy.position.set(x,.045,z);
   edgeGrassDummy.rotation.set((edgeGrassRandom()-.5)*.18,edgeGrassRandom()*Math.PI*2,(edgeGrassRandom()-.5)*.16);
-  const height=.72+edgeGrassRandom()*.78;
+  const height=.82+edgeGrassRandom()*.88;
   edgeGrassDummy.scale.set(.72+edgeGrassRandom()*.7,height,.72+edgeGrassRandom()*.7);
   edgeGrassDummy.updateMatrix();
   edgeGrassMeshes[materialIndex].setMatrixAt(edgeGrassUsed[materialIndex]++,edgeGrassDummy.matrix);
