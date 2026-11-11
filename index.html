@@ -1477,7 +1477,7 @@ function makeWorldDecor(){
 
  // Физически корректный мягкий блеск подчёркивает уже существующую микрофактуру коры и хвои.
  const gwBark=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwBarkMap,roughnessMap:gwBarkBump,normalMap:gwBarkNormal,normalScale:new THREE.Vector2(.26,.26),bumpMap:gwBarkBump,bumpScale:.02,roughness:.97,clearcoat:.045,clearcoatRoughness:.94});
- const gwPineA=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.19,.19),bumpMap:gwPineBump,bumpScale:.011,roughness:.97,sheen:.24,sheenColor:0x8cae70,sheenRoughness:.92});
+ const gwPineA=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.22,.22),bumpMap:gwPineBump,bumpScale:.011,roughness:.97,sheen:.24,sheenColor:0x8cae70,sheenRoughness:.92});
  const gwPineB=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.21,.21),bumpMap:gwPineBump,bumpScale:.012,roughness:.98,sheen:.29,sheenColor:0x9bbd7b,sheenRoughness:.94});
  const gwPineC=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.19,.19),bumpMap:gwPineBump,bumpScale:.011,roughness:.97,sheen:.26,sheenColor:0x829f68,sheenRoughness:.93});
  // Лепестки получают широкий матовый световой отклик, без пластикового блеска.
@@ -2422,6 +2422,21 @@ function makeHouse(){
    manorBumpCtx.stroke();
   }
  }
+ // Дополнительные следы ручной тески внутри отдельных блоков.
+ // Штрихи короткие, низкоконтрастные и не пересекают швы, поэтому кладка не превращается в шум.
+ for(let i=0;i<118;i++){
+  const row=Math.floor(manorBumpRand()*4),offset=row%2?0:32;
+  const col=Math.floor(manorBumpRand()*4);
+  const x=offset+col*64+9+manorBumpRand()*43;
+  const y=row*64+10+manorBumpRand()*42;
+  const angle=(manorBumpRand()-.5)*.34;
+  const length=1.4+manorBumpRand()*4.1;
+  manorBumpCtx.strokeStyle=manorBumpRand()>.5?'rgba(34,30,25,.10)':'rgba(248,240,224,.12)';
+  manorBumpCtx.lineWidth=.28+manorBumpRand()*.38;
+  manorBumpCtx.beginPath();manorBumpCtx.moveTo(x,y);
+  manorBumpCtx.lineTo(x+Math.cos(angle)*length,y+Math.sin(angle)*length);
+  manorBumpCtx.stroke();
+ }
  // Микросколы по кромкам кладочных швов: очень мелкие неровности,
  // которые смягчают идеально ровный машинный рисунок блоков.
  for(let i=0;i<76;i++){
@@ -2530,14 +2545,14 @@ function makeHouse(){
  for(const material of [stone,stoneDark]){
   material.bumpMap=manorDetailBump;
   material.roughnessMap=manorDetailRoughness;
-  material.bumpScale=.016;
+  material.bumpScale=.019;
   material.roughness=material===stone?.89:.91;
   material.needsUpdate=true;
  }
  const manorWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:manorWallTexture,bumpMap:manorWallBump,
   normalMap:manorWallNormal,normalScale:new THREE.Vector2(.19,.19),
-  roughnessMap:manorWallRoughness,bumpScale:.095,roughness:.93,metalness:0,
+  roughnessMap:manorWallRoughness,bumpScale:.112,roughness:.93,metalness:0,
   clearcoat:.10,clearcoatRoughness:.88,specularIntensity:.22
  });
  // Для круглых башен используется та же кремовая кладка с масштабом по окружности.
@@ -2551,8 +2566,8 @@ function makeHouse(){
  towerWallNormal.repeat.set(4,2.5);towerWallNormal.needsUpdate=true;
  const towerWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:towerWallTexture,bumpMap:towerWallBump,
-  normalMap:towerWallNormal,normalScale:new THREE.Vector2(.17,.17),
-  roughnessMap:towerWallRoughness,bumpScale:.085,roughness:.94,metalness:0,
+  normalMap:towerWallNormal,normalScale:new THREE.Vector2(.20,.20),
+  roughnessMap:towerWallRoughness,bumpScale:.10,roughness:.94,metalness:0,
   clearcoat:.09,clearcoatRoughness:.9,specularIntensity:.20
  });
  // Отдельная настройка материала только для уже существующих колонн:
