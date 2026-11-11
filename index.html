@@ -2071,8 +2071,8 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
 };
 
 // Материалы гор и снега удалены вместе с горной геометрией.
- // GREEN WORLD — улучшенная внешняя лужайка: координаты и плоский профиль сохранены.
- // Микрорельеф передаётся только цветом и фактурой, без изменения высот вершин и габаритов участка.
+ // GREEN WORLD — улучшенная внешняя лужайка: габариты и планировка участка сохранены.
+ // Добавлен очень мягкий микрорельеф с плавным затуханием у краёв, без смещения объектов двора.
  const newTerrainGeometry=new THREE.PlaneGeometry(88,78,232,208);
  const newTerrainPositions=newTerrainGeometry.attributes.position;
  const newTerrainColors=[];
