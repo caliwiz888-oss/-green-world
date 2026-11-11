@@ -412,7 +412,7 @@ M.roof.envMapIntensity=.9;M.roof2.envMapIntensity=.86;
 M.gold.envMapIntensity=.9;M.glass.envMapIntensity=1.05;
 
 function makeSurfaceTexture(kind,seed){
- const size=768,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
+ const size=1024,canvas=document.createElement('canvas');canvas.width=canvas.height=size;
  const ctx=canvas.getContext('2d'),image=ctx.createImageData(size,size);
  let state=seed>>>0;
  const rand=()=>{state=(state*1664525+1013904223)>>>0;return state/4294967296};
