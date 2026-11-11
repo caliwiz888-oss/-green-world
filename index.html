@@ -1916,6 +1916,41 @@ function makeWorldLandscape(){
   streak.position.set(x,y,z);streak.rotation.z=rz;mountainWorld.add(streak);
  }
 
+
+ // Дополнительные острые скальные пики: неровные многогранные шпили поверх главного хребта.
+ // Геометрия ограничена вершинами гор и не затрагивает архитектуру или игровую площадку.
+ const alpineSpireMaterial=[
+  new THREE.MeshStandardMaterial({color:0x65766b,roughness:1,flatShading:true}),
+  new THREE.MeshStandardMaterial({color:0x829084,roughness:1,flatShading:true}),
+  new THREE.MeshStandardMaterial({color:0x4e6259,roughness:1,flatShading:true})
+ ];
+ const alpineSpireSpecs=[
+  [-26.8,16.0,4.1,7.2,-76.58,0.18],
+  [-23.1,15.0,3.0,5.3,-76.52,-0.14],
+  [27.4,17.1,4.0,7.8,-76.55,-0.16],
+  [31.2,16.0,2.8,5.7,-76.49,0.13],
+  [-56.2,6.2,2.7,4.5,-76.54,0.12],
+  [62.0,10.0,3.0,5.2,-76.50,-0.11]
+ ];
+ for(let i=0;i<alpineSpireSpecs.length;i++){
+  const [x,y,radius,height,z,lean]=alpineSpireSpecs[i];
+  const geometry=new THREE.ConeGeometry(radius,height,6,2, false);
+  const positions=geometry.attributes.position;
+  for(let v=0;v<positions.count;v++){
+   const px=positions.getX(v),py=positions.getY(v),pz=positions.getZ(v);
+   const ring=py<height*.32?1:py<height*.78?.72:.18;
+   const wobble=1+Math.sin(v*12.989+i*4.7)*.095*ring;
+   positions.setXYZ(v,px*wobble,py,pz*wobble);
+  }
+  geometry.rotateZ(lean);
+  geometry.computeVertexNormals();
+  const spire=new THREE.Mesh(geometry,alpineSpireMaterial[i%alpineSpireMaterial.length]);
+  spire.name='GREEN_WORLD_Alpine_Rock_Spire_'+i;
+  spire.position.set(x,y+height*.5,z);
+  spire.castShadow=false;spire.receiveShadow=false;
+  mountainWorld.add(spire);
+ }
+
  // Fine high-altitude cirrus wisps add depth to the sky while staying translucent.
  const cirrusMat=new THREE.MeshBasicMaterial({color:0xf4f7f2,transparent:true,opacity:.085,depthWrite:false,fog:false});
  for(const [x,y,z,sx,sy,sz,rz] of [[-27,29,-53,8,.16,.62,-.08],[-8,31,-61,10,.13,.48,.035],[12,28,-57,7,.14,.55,-.045],[29,26,-49,6,.12,.42,.07]]){
