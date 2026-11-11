@@ -1982,6 +1982,53 @@ function makeWorldLandscape(){
   addRockFacet([[x,y],[x+w,y*.22],[x-w*.12,y*.52]],0x3d5964,z+.012);
   addRockFacet([[x-w,y*.18],[x-w*.12,y*.52],[x-w*.72,y*.34]],0x718a8d,z+.018);
  }
+ // Скальные уступы и вертикальные разломы усиливают масштаб центральной стены.
+ // Линии собраны в одну геометрию, чтобы не создавать десятки отдельных объектов.
+ const cliffFracturePositions=[];
+ const fractureStarts=[[-88,1.8],[-76,2.8],[-64,4.1],[-48,5.2],[-39,6.4],[-18,7.2],[-7,6.8],[9,7.1],[18,8.2],[39,5.4],[47,4.7],[66,5.2],[77,3.8],[91,1.9]];
+ for(let i=0;i<fractureStarts.length;i++){
+  const [x0,y0]=fractureStarts[i],lean=(i%2===0?1:-1)*(.42+(i%4)*.12);
+  const pts=[
+   [x0,y0],
+   [x0+lean*.42,y0-1.45],
+   [x0-lean*.18,y0-2.85],
+   [x0+lean*.7,y0-4.35]
+  ];
+  for(let j=0;j<pts.length-1;j++){
+   const a=pts[j],b=pts[j+1];
+   cliffFracturePositions.push(a[0],a[1],-76.61,b[0],b[1],-76.61);
+  }
+ }
+ const cliffFractureGeometry=new THREE.BufferGeometry();
+ cliffFractureGeometry.setAttribute('position',new THREE.Float32BufferAttribute(cliffFracturePositions,3));
+ const cliffFractures=new THREE.LineSegments(cliffFractureGeometry,new THREE.LineBasicMaterial({
+  color:0x263f49,transparent:true,opacity:.42,depthWrite:false
+ }));
+ cliffFractures.name='GREEN_WORLD_Mountain_Cliff_Fractures';
+ cliffFractures.frustumCulled=false;mountainWorld.add(cliffFractures);
+
+ // Небольшие уступы-террасы ловят свет на изломах породы; контуры остаются внутри хребта.
+ const ledgeMaterials=[
+  new THREE.MeshStandardMaterial({color:0x526d75,roughness:1,flatShading:true,side:THREE.DoubleSide}),
+  new THREE.MeshStandardMaterial({color:0x82979a,roughness:1,flatShading:true,side:THREE.DoubleSide})
+ ];
+ const cliffLedges=[[-94,-1.1,4.2],[-81,-.1,3.8],[-68,1.2,4.6],[-53,.5,5.1],[-43,2.1,4.4],[-31,1.1,5.2],[-13,2.8,4.1],[5,2.4,4.7],[22,3.4,4.2],[42,.4,5.2],[59,1.5,4.5],[76,-.2,4.8],[91,-1.1,3.9]];
+ for(let i=0;i<cliffLedges.length;i++){
+  const [x,y,w]=cliffLedges[i],step=(i%3)*.16;
+  const shape=new THREE.Shape();
+  shape.moveTo(-w*.55,y-.22);
+  shape.lineTo(-w*.28,y+.18+step);
+  shape.lineTo(w*.18,y+.08);
+  shape.lineTo(w*.55,y-.16);
+  shape.lineTo(w*.28,y-.29);
+  shape.lineTo(-w*.22,y-.31);
+  shape.closePath();
+  const geometry=new THREE.ExtrudeGeometry(shape,{depth:.075,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.025,bevelThickness:.018});
+  const ledge=new THREE.Mesh(geometry,ledgeMaterials[i%2]);
+  ledge.position.set(x,0,-76.625+(i%3)*.012);
+  ledge.name='GREEN_WORLD_Mountain_Rock_Ledge_'+i;
+  ledge.castShadow=false;ledge.receiveShadow=false;mountainWorld.add(ledge);
+ }
  // Снег формирует объёмные неровные карнизы: теневая подложка подчёркивает толщину и уступы.
  const snowShadowMaterial=new THREE.MeshStandardMaterial({color:0x647b85,roughness:1,metalness:0,flatShading:true,side:THREE.DoubleSide});
  const snowMaterial=new THREE.MeshStandardMaterial({color:0xf0f5f4,roughness:.78,metalness:0,flatShading:true,side:THREE.DoubleSide});
