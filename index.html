@@ -1666,15 +1666,28 @@ function makeWorldDecor(){
    gwAddTreeContactShadow(g,h,1.08);
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
    trunk.position.y=h*.34;trunk.scale.set(.68,h*.69,.68);g.add(trunk);
-   // Несколько расходящихся ветвей поддерживают широкую естественную крону.
-   for(let k=0;k<9;k++){
-     const a=seed+k*Math.PI*2/9,branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
-     branch.position.set(Math.cos(a)*h*.105,h*(.48+(k%3)*.035),Math.sin(a)*h*.105);
-     branch.scale.y=h*(.28+(k%3)*.025);
-     branch.rotation.z=Math.cos(a)*-.62;branch.rotation.x=Math.sin(a)*.62;g.add(branch);
+   // Несколько ярусов расходящихся ветвей формируют читаемый каркас под листвой.
+   for(let k=0;k<12;k++){
+     const a=seed+k*Math.PI*2/12,branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
+     branch.position.set(Math.cos(a)*h*.105,h*(.46+(k%4)*.031),Math.sin(a)*h*.105);
+     branch.scale.y=h*(.27+(k%3)*.024);
+     branch.rotation.z=Math.cos(a)*-.64;branch.rotation.x=Math.sin(a)*.64;g.add(branch);
    }
+   // Разветвлённые кончики добавляются одним InstancedMesh: крона выглядит естественнее без сотен отдельных объектов.
+   const twigTips=new THREE.InstancedMesh(gwBlossomBranchGeo,gwBark,24),twigDummy=new THREE.Object3D();
+   for(let k=0;k<24;k++){
+     const a=seed+k*Math.PI*2/12,side=k%2===0?1:-1;
+     const start=new THREE.Vector3(Math.cos(a)*h*.245,h*(.61+(k%4)*.018),Math.sin(a)*h*.245);
+     const tangent=new THREE.Vector3(-Math.sin(a)*side*.055,.075,Math.cos(a)*side*.055);
+     const end=start.clone().add(new THREE.Vector3(Math.cos(a)*h*.105,.105*h,Math.sin(a)*h*.105)).add(tangent.multiplyScalar(h));
+     const direction=end.clone().sub(start),length=direction.length();
+     twigDummy.position.copy(start).add(end).multiplyScalar(.5);
+     twigDummy.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction.normalize());
+     twigDummy.scale.set(.72,length,.72);twigDummy.updateMatrix();twigTips.setMatrixAt(k,twigDummy.matrix);
+   }
+   twigTips.instanceMatrix.needsUpdate=true;twigTips.castShadow=false;twigTips.receiveShadow=true;g.add(twigTips);
    // Крона из отдельных округлых групп разного размера, с просветами между ними.
-   const clusters=17;
+   const clusters=19;
    for(let k=0;k<clusters;k++){
      const a=seed+k*2.399963;
      const ring=k<8?.19:.09,rad=h*ring*(.88+.12*Math.sin(a*2.7));
