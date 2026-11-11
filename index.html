@@ -2445,6 +2445,35 @@ function makeHouse(){
  manorWallBump.repeat.set(2,2);
  manorWallBump.anisotropy=renderer.capabilities.getMaxAnisotropy();
  manorWallBump.needsUpdate=true;
+ // Касательная normal map переводит тонкие фаски кладки в направленное освещение.
+ // Карта построена из той же высотной текстуры: швы совпадают с цветовой и bump-картой.
+ const manorNormalCanvas=document.createElement('canvas');
+ manorNormalCanvas.width=256;manorNormalCanvas.height=256;
+ const manorNormalCtx=manorNormalCanvas.getContext('2d',{willReadFrequently:true});
+ manorNormalCtx.drawImage(manorBumpCanvas,0,0);
+ const manorHeightData=manorNormalCtx.getImageData(0,0,256,256).data;
+ const manorNormalImage=manorNormalCtx.createImageData(256,256);
+ const manorHeightAt=(x,y)=>manorHeightData[(((y+256)%256)*256+(x+256)%256)*4]/255;
+ for(let y=0;y<256;y++)for(let x=0;x<256;x++){
+  const dx=(manorHeightAt(x+1,y)-manorHeightAt(x-1,y))*2.15;
+  const dy=(manorHeightAt(x,y+1)-manorHeightAt(x,y-1))*2.15;
+  let nx=-dx,ny=-dy,nz=1;
+  const length=Math.hypot(nx,ny,nz)||1;
+  const p=(y*256+x)*4;
+  manorNormalImage.data[p]=Math.round((nx/length*.5+.5)*255);
+  manorNormalImage.data[p+1]=Math.round((ny/length*.5+.5)*255);
+  manorNormalImage.data[p+2]=Math.round((nz/length*.5+.5)*255);
+  manorNormalImage.data[p+3]=255;
+ }
+ manorNormalCtx.putImageData(manorNormalImage,0,0);
+ const manorWallNormal=new THREE.CanvasTexture(manorNormalCanvas);
+ manorWallNormal.colorSpace=THREE.NoColorSpace;
+ manorWallNormal.wrapS=manorWallNormal.wrapT=THREE.RepeatWrapping;
+ manorWallNormal.repeat.set(2,2);
+ manorWallNormal.anisotropy=Math.min(12,renderer.capabilities.getMaxAnisotropy());
+ manorWallNormal.minFilter=THREE.LinearMipmapLinearFilter;
+ manorWallNormal.magFilter=THREE.LinearFilter;
+ manorWallNormal.generateMipmaps=true;manorWallNormal.needsUpdate=true;
  // Отдельная карта микрошероховатости: слегка меняет отражение на разных участках
  // известняка, сохраняя кремовый цвет, рисунок кладки и всю геометрию.
  const manorRoughnessCanvas=document.createElement('canvas');
@@ -2507,7 +2536,8 @@ function makeHouse(){
  }
  const manorWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:manorWallTexture,bumpMap:manorWallBump,
-  roughnessMap:manorWallRoughness,bumpScale:.105,roughness:.93,metalness:0,
+  normalMap:manorWallNormal,normalScale:new THREE.Vector2(.19,.19),
+  roughnessMap:manorWallRoughness,bumpScale:.095,roughness:.93,metalness:0,
   clearcoat:.10,clearcoatRoughness:.88,specularIntensity:.22
  });
  // Для круглых башен используется та же кремовая кладка с масштабом по окружности.
@@ -2517,9 +2547,12 @@ function makeHouse(){
  towerWallBump.repeat.set(4,2.5);towerWallBump.needsUpdate=true;
  const towerWallRoughness=manorWallRoughness.clone();
  towerWallRoughness.repeat.set(4,2.5);towerWallRoughness.needsUpdate=true;
+ const towerWallNormal=manorWallNormal.clone();
+ towerWallNormal.repeat.set(4,2.5);towerWallNormal.needsUpdate=true;
  const towerWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:towerWallTexture,bumpMap:towerWallBump,
-  roughnessMap:towerWallRoughness,bumpScale:.09,roughness:.94,metalness:0,
+  normalMap:towerWallNormal,normalScale:new THREE.Vector2(.17,.17),
+  roughnessMap:towerWallRoughness,bumpScale:.085,roughness:.94,metalness:0,
   clearcoat:.09,clearcoatRoughness:.9,specularIntensity:.20
  });
  // Отдельная настройка материала только для уже существующих колонн:
@@ -2530,9 +2563,12 @@ function makeHouse(){
  towerColumnBump.repeat.set(.9,1.45);towerColumnBump.needsUpdate=true;
  const towerColumnRoughness=towerWallRoughness.clone();
  towerColumnRoughness.repeat.set(.9,1.45);towerColumnRoughness.needsUpdate=true;
+ const towerColumnNormal=towerWallNormal.clone();
+ towerColumnNormal.repeat.set(.9,1.45);towerColumnNormal.needsUpdate=true;
  const towerColumnMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe8d2ae,map:towerColumnTexture,bumpMap:towerColumnBump,
-  roughnessMap:towerColumnRoughness,bumpScale:.045,roughness:.93,metalness:0,
+  normalMap:towerColumnNormal,normalScale:new THREE.Vector2(.12,.12),
+  roughnessMap:towerColumnRoughness,bumpScale:.04,roughness:.93,metalness:0,
   clearcoat:.07,clearcoatRoughness:.92,specularIntensity:.18
  });
  // Центральный корпус, фронтон, окна, двери и вся отделка смещаются единым блоком назад;
