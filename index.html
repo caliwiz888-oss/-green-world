@@ -1098,6 +1098,22 @@ function makeWorldDecor(){
     }
     const rosette=new THREE.Mesh(new THREE.OctahedronGeometry(.105,1),fenceGold);
     rosette.position.set(0,1.28,.36);rosette.scale.set(.8,1.15,.3);fenceNoShadow(rosette);relief.add(rosette);
+    // Нижний ромб и парные завитки продолжают мотив центральной розетки.
+    const lowerDiamond=new THREE.Mesh(new THREE.OctahedronGeometry(.072,0),fenceGoldLight);
+    lowerDiamond.position.set(0,.83,.335);lowerDiamond.scale.set(.82,1.22,.28);
+    fenceNoShadow(lowerDiamond);relief.add(lowerDiamond);
+    for(const side of [-1,1]){
+      const scroll=new THREE.Mesh(new THREE.TorusGeometry(.052,.009,6,16,Math.PI*1.35),fenceGold);
+      scroll.position.set(side*.082,1.66,.326);
+      scroll.rotation.z=side<0?Math.PI*.08:Math.PI*.92;
+      fenceNoShadow(scroll);relief.add(scroll);
+      const capStud=new THREE.Mesh(new THREE.SphereGeometry(.026,8,6),fenceGoldLight);
+      capStud.position.set(side*.235,2.20,.265);
+      fenceNoShadow(capStud);relief.add(capStud);
+    }
+    const lowerCore=new THREE.Mesh(new THREE.SphereGeometry(.026,8,6),fenceTeal);
+    lowerCore.position.set(0,.83,.358);lowerCore.scale.set(1,1,.35);
+    fenceNoShadow(lowerCore);relief.add(lowerCore);
     const lampBase=new THREE.Mesh(new THREE.CylinderGeometry(.11,.16,.11,12),fenceGold);
     lampBase.position.set(x,baseY+2.53,z);fenceNoShadow(lampBase);fenceGroup.add(lampBase);
     const finial=new THREE.Mesh(new THREE.SphereGeometry(.115,16,12),fenceGoldLight);
@@ -1309,6 +1325,13 @@ function makeWorldDecor(){
       fenceNoShadow(box(world,.035,1.24,.022,x+.18,1.43,z+face*.058,fenceGold,false));
       fenceNoShadow(box(world,.55,.045,.025,x,.67,z+face*.06,fenceGold,false));
       fenceNoShadow(box(world,.55,.045,.025,x,2.18,z+face*.06,fenceGold,false));
+      // Небольшой рельефный герб в центре каждой лицевой панели входного устоя.
+      const pierBadge=new THREE.Mesh(new THREE.OctahedronGeometry(.115,0),fenceGoldLight);
+      pierBadge.position.set(x,1.43,z+face*.078);
+      pierBadge.scale.set(.82,1.12,.24);fenceNoShadow(pierBadge);world.add(pierBadge);
+      const pierBadgeCore=new THREE.Mesh(new THREE.SphereGeometry(.038,10,8),fenceTeal);
+      pierBadgeCore.position.set(x,1.43,z+face*.087);
+      pierBadgeCore.scale.set(1,1,.35);fenceNoShadow(pierBadgeCore);world.add(pierBadgeCore);
     }
     // Светильники стоят на внешних краях капителей.
     fenceNoShadow(box(world,.30,.10,.30,x,3.00,14.02,fenceReliefStone,false));
