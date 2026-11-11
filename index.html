@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261110-world-depth-realism-53';
+const GREEN_WORLD_BUILD_ID = '20261111-world-composition-pass-54';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -285,7 +285,7 @@ window.GREEN_WORLD_STARTUP_STAGE='three-loaded';
 const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
 let token='';
-let cameraRadius=60,cameraHeight=30;
+let cameraRadius=49,cameraHeight=25;
 let buildingObjects=[];
 const scene=new THREE.Scene();
 // Мягкий процедурный небосвод: градиент от насыщенного голубого к светлому горизонту с едва заметными облачными вуалями.
@@ -339,7 +339,7 @@ skyCtx.fillStyle=horizonGlow;skyCtx.fillRect(0,330,1024,182);
 const skyTexture=new THREE.CanvasTexture(skyCanvas);skyTexture.colorSpace=THREE.SRGBColorSpace;
 skyTexture.mapping=THREE.EquirectangularReflectionMapping;skyTexture.magFilter=THREE.LinearFilter;skyTexture.minFilter=THREE.LinearMipmapLinearFilter;skyTexture.generateMipmaps=true;skyTexture.needsUpdate=true;scene.background=skyTexture;
 scene.fog=new THREE.Fog(0xcce8e5,82,185);
-const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,4.5,140);
+const camera=new THREE.PerspectiveCamera(54,innerWidth/innerHeight,1.0,140);
 // Умеренно близкая near-плоскость и ограниченный far-диапазон повышают точность стандартного depth buffer на мобильных GPU.
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});
 skyTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
