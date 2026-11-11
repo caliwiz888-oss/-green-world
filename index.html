@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261110-world-depth-realism-53';
+const GREEN_WORLD_BUILD_ID = '20261111-bridge-keystone-relief-58';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -285,7 +285,7 @@ window.GREEN_WORLD_STARTUP_STAGE='three-loaded';
 const $=id=>document.getElementById(id);
 const API=window.GREEN_WORLD_API_URL;
 let token='';
-let cameraRadius=60,cameraHeight=30;
+let cameraRadius=49,cameraHeight=25;
 let buildingObjects=[];
 const scene=new THREE.Scene();
 // Мягкий процедурный небосвод: градиент от насыщенного голубого к светлому горизонту с едва заметными облачными вуалями.
@@ -339,7 +339,7 @@ skyCtx.fillStyle=horizonGlow;skyCtx.fillRect(0,330,1024,182);
 const skyTexture=new THREE.CanvasTexture(skyCanvas);skyTexture.colorSpace=THREE.SRGBColorSpace;
 skyTexture.mapping=THREE.EquirectangularReflectionMapping;skyTexture.magFilter=THREE.LinearFilter;skyTexture.minFilter=THREE.LinearMipmapLinearFilter;skyTexture.generateMipmaps=true;skyTexture.needsUpdate=true;scene.background=skyTexture;
 scene.fog=new THREE.Fog(0xcce8e5,82,185);
-const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,4.5,140);
+const camera=new THREE.PerspectiveCamera(54,innerWidth/innerHeight,1.0,140);
 // Умеренно близкая near-плоскость и ограниченный far-диапазон повышают точность стандартного depth buffer на мобильных GPU.
 const renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:true,powerPreference:'high-performance'});
 skyTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
@@ -973,6 +973,15 @@ function makeWorldDecor(){
       const keystone=box(world,.48,.29,.34,side*1.91,.69,crownZ,
         voussoirMaterials[(span+1)%voussoirMaterials.length],false);
       keystone.rotation.x=-Math.atan(bridgeSlope((span+.5)/3));
+      // Резной ромб на лицевой стороне замкового камня подчёркивает центр каждого пролёта.
+      // Шесть накладок повторяют светлый известняк и не выступают за ширину арки.
+      const keystoneRelief=new THREE.Mesh(new THREE.OctahedronGeometry(.125,0),bridgeStoneLight);
+      keystoneRelief.scale.set(.78,1.18,.34);
+      keystoneRelief.position.set(side*2.145,.69,crownZ);
+      keystoneRelief.castShadow=false;keystoneRelief.receiveShadow=false;world.add(keystoneRelief);
+      const keystoneCore=new THREE.Mesh(new THREE.SphereGeometry(.036,10,8),bridgeStoneShade);
+      keystoneCore.position.set(side*2.19,.69,crownZ);
+      keystoneCore.castShadow=false;keystoneCore.receiveShadow=false;world.add(keystoneCore);
     }
     // Массивные простенки между пролётами формируют цельный каменный мост.
     for(let support=0;support<=3;support++){
@@ -1050,6 +1059,11 @@ function makeWorldDecor(){
   const fenceStone=mat(0xcbb99a,.94),fenceIvory=mat(0xd9c6a4,.92),fenceReliefStone=mat(0xa98d68,.94),fenceOutline=mat(0x51402f,.94);
   const fenceSandstone=mat(0xb99a72,.94),fenceSlate=mat(0x526575,.9),fenceTeal=mat(0x367c78,.88);
   const fenceIron=mat(0x514638),fenceIronLight=mat(0x76634b),fenceGold=mat(0xc99b52),fenceGoldLight=mat(0xe4c17a);
+  // Реалистичный металл ковки и медальонов: мягкий отражённый свет вместо пластиковой матовости.
+  Object.assign(fenceIron,{metalness:.42,roughness:.58,envMapIntensity:.72});
+  Object.assign(fenceIronLight,{metalness:.34,roughness:.52,envMapIntensity:.78});
+  Object.assign(fenceGold,{metalness:.58,roughness:.38,envMapIntensity:.82});
+  Object.assign(fenceGoldLight,{metalness:.52,roughness:.32,envMapIntensity:.88});
   const fenceNoShadow=mesh=>{mesh.castShadow=false;mesh.receiveShadow=false;return mesh;};
   // Забор собирается в отдельной группе: его можно целиком заменить без дублей геометрии.
   const fenceGroup=new THREE.Group();world.add(fenceGroup);
@@ -1084,6 +1098,22 @@ function makeWorldDecor(){
     }
     const rosette=new THREE.Mesh(new THREE.OctahedronGeometry(.105,1),fenceGold);
     rosette.position.set(0,1.28,.36);rosette.scale.set(.8,1.15,.3);fenceNoShadow(rosette);relief.add(rosette);
+    // Нижний ромб и парные завитки продолжают мотив центральной розетки.
+    const lowerDiamond=new THREE.Mesh(new THREE.OctahedronGeometry(.072,0),fenceGoldLight);
+    lowerDiamond.position.set(0,.83,.335);lowerDiamond.scale.set(.82,1.22,.28);
+    fenceNoShadow(lowerDiamond);relief.add(lowerDiamond);
+    for(const side of [-1,1]){
+      const scroll=new THREE.Mesh(new THREE.TorusGeometry(.052,.009,6,16,Math.PI*1.35),fenceGold);
+      scroll.position.set(side*.082,1.66,.326);
+      scroll.rotation.z=side<0?Math.PI*.08:Math.PI*.92;
+      fenceNoShadow(scroll);relief.add(scroll);
+      const capStud=new THREE.Mesh(new THREE.SphereGeometry(.026,8,6),fenceGoldLight);
+      capStud.position.set(side*.235,2.20,.265);
+      fenceNoShadow(capStud);relief.add(capStud);
+    }
+    const lowerCore=new THREE.Mesh(new THREE.SphereGeometry(.026,8,6),fenceTeal);
+    lowerCore.position.set(0,.83,.358);lowerCore.scale.set(1,1,.35);
+    fenceNoShadow(lowerCore);relief.add(lowerCore);
     const lampBase=new THREE.Mesh(new THREE.CylinderGeometry(.11,.16,.11,12),fenceGold);
     lampBase.position.set(x,baseY+2.53,z);fenceNoShadow(lampBase);fenceGroup.add(lampBase);
     const finial=new THREE.Mesh(new THREE.SphereGeometry(.115,16,12),fenceGoldLight);
@@ -1129,6 +1159,27 @@ function makeWorldDecor(){
       const upperCore=new THREE.Mesh(new THREE.SphereGeometry(.052,12,10),fenceTeal);
       upperCore.position.set(x,1.30,depth/2+.12);
       upperCore.scale.set(1,1,.38);fenceNoShadow(upperCore);panel.add(upperCore);
+      // Небольшие кованые манжеты и S-образные завитки на лицевой стороне каменных опор.
+      // Они лежат на поверхности кладки и не заходят в свободный проём арки.
+      for(const bandY of [.84,1.12]){
+        fenceNoShadow(box(panel,.29,.025,.022,x,bandY,depth/2+.105,fenceGold,false));
+        fenceNoShadow(box(panel,.25,.012,.012,x,bandY+.018,depth/2+.119,fenceGoldLight,false));
+      }
+      for(const flourishSide of [-1,1]){
+        const fx=x+flourishSide*.095,fz=depth/2+.132;
+        const flourishCurve=new THREE.CatmullRomCurve3([
+          new THREE.Vector3(fx-flourishSide*.035,.88,fz),
+          new THREE.Vector3(fx+flourishSide*.035,.93,fz),
+          new THREE.Vector3(fx+flourishSide*.035,1.00,fz),
+          new THREE.Vector3(fx-flourishSide*.035,1.055,fz),
+          new THREE.Vector3(fx-flourishSide*.025,1.105,fz)
+        ]);
+        const flourish=new THREE.Mesh(new THREE.TubeGeometry(flourishCurve,18,.012,6,false),fenceIronLight);
+        fenceNoShadow(flourish);panel.add(flourish);
+        const leaf=new THREE.Mesh(new THREE.ConeGeometry(.022,.075,6),fenceGoldLight);
+        leaf.position.set(fx-flourishSide*.025,1.125,fz);
+        leaf.rotation.z=-flourishSide*.48;fenceNoShadow(leaf);panel.add(leaf);
+      }
       // Тонкие светлые плечики капители подчёркивают переход от колонны к арке.
       fenceNoShadow(box(panel,.39,.045,depth+.13,x,1.405,0,fenceIvory,false));
       fenceNoShadow(box(panel,.45,.035,depth+.16,x,1.455,0,fenceGoldLight,false));
@@ -1267,6 +1318,15 @@ function makeWorldDecor(){
     const p2=new THREE.Vector3(r2*Math.cos(angle),.02+gateSpring+r2*Math.sin(angle),z);
     const seam=new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(p1,p2),1,.012,6,false),fenceStone);
     fenceNoShadow(seam);world.add(seam);
+    // Малые кованые медальоны на лицевой стороне каждого клиновидного блока.
+    // Они подчёркивают радиальную раскладку камней, не меняя контур и габариты портала.
+    const ornamentAngle=angle-Math.PI/24;
+    const ornament=new THREE.Mesh(new THREE.TorusGeometry(.047,.009,6,18),fenceGoldLight);
+    ornament.position.set(2.67*Math.cos(ornamentAngle),.02+gateSpring+2.67*Math.sin(ornamentAngle),gateFrontZ+.607);
+    fenceNoShadow(ornament);world.add(ornament);
+    const ornamentCore=new THREE.Mesh(new THREE.SphereGeometry(.018,8,6),fenceTeal);
+    ornamentCore.position.set(ornament.position.x,ornament.position.y,gateFrontZ+.613);
+    fenceNoShadow(ornamentCore);world.add(ornamentCore);
   }
   // Парные прямые устои с панелями, как на изображении: цоколь, ствол, капитель и широкая плита.
   for(const side of [-1,1]){
@@ -1286,6 +1346,13 @@ function makeWorldDecor(){
       fenceNoShadow(box(world,.035,1.24,.022,x+.18,1.43,z+face*.058,fenceGold,false));
       fenceNoShadow(box(world,.55,.045,.025,x,.67,z+face*.06,fenceGold,false));
       fenceNoShadow(box(world,.55,.045,.025,x,2.18,z+face*.06,fenceGold,false));
+      // Небольшой рельефный герб в центре каждой лицевой панели входного устоя.
+      const pierBadge=new THREE.Mesh(new THREE.OctahedronGeometry(.115,0),fenceGoldLight);
+      pierBadge.position.set(x,1.43,z+face*.078);
+      pierBadge.scale.set(.82,1.12,.24);fenceNoShadow(pierBadge);world.add(pierBadge);
+      const pierBadgeCore=new THREE.Mesh(new THREE.SphereGeometry(.038,10,8),fenceTeal);
+      pierBadgeCore.position.set(x,1.43,z+face*.087);
+      pierBadgeCore.scale.set(1,1,.35);fenceNoShadow(pierBadgeCore);world.add(pierBadgeCore);
     }
     // Светильники стоят на внешних краях капителей.
     fenceNoShadow(box(world,.30,.10,.30,x,3.00,14.02,fenceReliefStone,false));
@@ -1471,10 +1538,10 @@ function makeWorldDecor(){
  }
 
  // Физически корректный мягкий блеск подчёркивает уже существующую микрофактуру коры и хвои.
- const gwBark=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwBarkMap,roughnessMap:gwBarkBump,normalMap:gwBarkNormal,normalScale:new THREE.Vector2(.22,.22),bumpMap:gwBarkBump,bumpScale:.012,roughness:.96,clearcoat:.07,clearcoatRoughness:.88});
- const gwPineA=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwPineBump,bumpScale:.006,roughness:.96,sheen:.24,sheenColor:0x8cae70,sheenRoughness:.92});
- const gwPineB=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.17,.17),bumpMap:gwPineBump,bumpScale:.007,roughness:.97,sheen:.29,sheenColor:0x9bbd7b,sheenRoughness:.94});
- const gwPineC=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.16,.16),bumpMap:gwPineBump,bumpScale:.006,roughness:.96,sheen:.26,sheenColor:0x829f68,sheenRoughness:.93});
+ const gwBark=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwBarkMap,roughnessMap:gwBarkBump,normalMap:gwBarkNormal,normalScale:new THREE.Vector2(.26,.26),bumpMap:gwBarkBump,bumpScale:.02,roughness:.97,clearcoat:.045,clearcoatRoughness:.94});
+ const gwPineA=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.22,.22),bumpMap:gwPineBump,bumpScale:.011,roughness:.97,sheen:.24,sheenColor:0x8cae70,sheenRoughness:.92});
+ const gwPineB=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.21,.21),bumpMap:gwPineBump,bumpScale:.012,roughness:.98,sheen:.29,sheenColor:0x9bbd7b,sheenRoughness:.94});
+ const gwPineC=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,normalMap:gwPineNormal,normalScale:new THREE.Vector2(.19,.19),bumpMap:gwPineBump,bumpScale:.011,roughness:.97,sheen:.26,sheenColor:0x829f68,sheenRoughness:.93});
  // Лепестки получают широкий матовый световой отклик, без пластикового блеска.
  const gwPinkA=new THREE.MeshPhysicalMaterial({color:0xffd9e7,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.13,.13),bumpMap:gwBloomBump,bumpScale:.008,roughness:.95,sheen:.38,sheenColor:0xffc7dc,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
  const gwPinkB=new THREE.MeshPhysicalMaterial({color:0xffb9d1,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwBloomBump,bumpScale:.009,roughness:.95,sheen:.42,sheenColor:0xffd2e2,sheenRoughness:.97,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
@@ -1482,7 +1549,7 @@ function makeWorldDecor(){
  const gwAmberA=new THREE.MeshPhysicalMaterial({color:0xffb52e,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.13,.13),bumpMap:gwBloomBump,bumpScale:.008,roughness:.95,sheen:.38,sheenColor:0xffc45a,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
  const gwAmberB=new THREE.MeshPhysicalMaterial({color:0xe88718,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.15,.15),bumpMap:gwBloomBump,bumpScale:.009,roughness:.95,sheen:.42,sheenColor:0xffa52b,sheenRoughness:.97,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
  const gwAmberC=new THREE.MeshPhysicalMaterial({color:0xffd77b,map:gwBloomMap,roughnessMap:gwBloomBump,normalMap:gwBloomNormal,normalScale:new THREE.Vector2(.12,.12),bumpMap:gwBloomBump,bumpScale:.007,roughness:.96,sheen:.34,sheenColor:0xffe3a0,sheenRoughness:.96,clearcoat:.035,clearcoatRoughness:.96,envMapIntensity:.34});
- const gwLeaf=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,bumpMap:gwPineBump,bumpScale:.012,roughness:.97,sheen:.3,sheenColor:0x9bbd7b,sheenRoughness:.94});
+ const gwLeaf=new THREE.MeshPhysicalMaterial({color:0xffffff,map:gwPineMap,roughnessMap:gwPineBump,bumpMap:gwPineBump,bumpScale:.018,roughness:.98,sheen:.3,sheenColor:0x9bbd7b,sheenRoughness:.94});
  const gwTrunkGeo=new THREE.CylinderGeometry(.105,.255,1,72,32);
  const gwPineGeos=[new THREE.ConeGeometry(1,1,56,12),new THREE.ConeGeometry(.82,.92,56,12),new THREE.ConeGeometry(.63,.82,56,12)];
  const gwCrownGeo=new THREE.SphereGeometry(1,64,48);
@@ -1661,15 +1728,28 @@ function makeWorldDecor(){
    gwAddTreeContactShadow(g,h,1.08);
    const trunk=new THREE.Mesh(gwTrunkGeo,gwBark);
    trunk.position.y=h*.34;trunk.scale.set(.68,h*.69,.68);g.add(trunk);
-   // Несколько расходящихся ветвей поддерживают широкую естественную крону.
-   for(let k=0;k<7;k++){
-     const a=seed+k*Math.PI*2/7,branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
-     branch.position.set(Math.cos(a)*h*.105,h*(.48+(k%3)*.035),Math.sin(a)*h*.105);
-     branch.scale.y=h*(.28+(k%3)*.025);
-     branch.rotation.z=Math.cos(a)*-.62;branch.rotation.x=Math.sin(a)*.62;g.add(branch);
+   // Несколько ярусов расходящихся ветвей формируют читаемый каркас под листвой.
+   for(let k=0;k<12;k++){
+     const a=seed+k*Math.PI*2/12,branch=new THREE.Mesh(gwBlossomBranchGeo,gwBark);
+     branch.position.set(Math.cos(a)*h*.105,h*(.46+(k%4)*.031),Math.sin(a)*h*.105);
+     branch.scale.y=h*(.27+(k%3)*.024);
+     branch.rotation.z=Math.cos(a)*-.64;branch.rotation.x=Math.sin(a)*.64;g.add(branch);
    }
+   // Разветвлённые кончики добавляются одним InstancedMesh: крона выглядит естественнее без сотен отдельных объектов.
+   const twigTips=new THREE.InstancedMesh(gwBlossomBranchGeo,gwBark,24),twigDummy=new THREE.Object3D();
+   for(let k=0;k<24;k++){
+     const a=seed+k*Math.PI*2/12,side=k%2===0?1:-1;
+     const start=new THREE.Vector3(Math.cos(a)*h*.245,h*(.61+(k%4)*.018),Math.sin(a)*h*.245);
+     const tangent=new THREE.Vector3(-Math.sin(a)*side*.055,.075,Math.cos(a)*side*.055);
+     const end=start.clone().add(new THREE.Vector3(Math.cos(a)*h*.105,.105*h,Math.sin(a)*h*.105)).add(tangent.multiplyScalar(h));
+     const direction=end.clone().sub(start),length=direction.length();
+     twigDummy.position.copy(start).add(end).multiplyScalar(.5);
+     twigDummy.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),direction.normalize());
+     twigDummy.scale.set(.72,length,.72);twigDummy.updateMatrix();twigTips.setMatrixAt(k,twigDummy.matrix);
+   }
+   twigTips.instanceMatrix.needsUpdate=true;twigTips.castShadow=false;twigTips.receiveShadow=true;g.add(twigTips);
    // Крона из отдельных округлых групп разного размера, с просветами между ними.
-   const clusters=13;
+   const clusters=19;
    for(let k=0;k<clusters;k++){
      const a=seed+k*2.399963;
      const ring=k<8?.19:.09,rad=h*ring*(.88+.12*Math.sin(a*2.7));
@@ -1750,7 +1830,7 @@ function makeWorldLandscape(){
  const mountainRockCanvas=document.createElement('canvas');
  mountainRockCanvas.width=mountainRockCanvas.height=512;
  const mountainRockCtx=mountainRockCanvas.getContext('2d');
- mountainRockCtx.fillStyle='#d4d5c9';
+ mountainRockCtx.fillStyle='#aeb9b7';
  mountainRockCtx.fillRect(0,0,512,512);
  let mountainTextureSeed=472901;
  const mountainRandom=()=>{mountainTextureSeed=(mountainTextureSeed*1664525+1013904223)>>>0;return mountainTextureSeed/4294967296;};
@@ -1794,24 +1874,24 @@ function makeWorldLandscape(){
  mountainRockBump.magFilter=THREE.LinearFilter;
 
  const mountainLayers=[
-  {name:'far',z:-84,base:0x82958e,mid:0x9eaaa0,high:0xc1c9bc,
-   points:[[-108,-5],[-96,1],[-84,4],[-72,2],[-59,9],[-47,4],[-34,12],[-21,6],[-8,15],[5,7],[19,13],[32,6],[46,12],[60,5],[74,10],[88,3],[101,1],[108,-5]]},
-  {name:'main',z:-77,base:0x526c62,mid:0x788b7b,high:0xaab19c,
-   points:[[-108,-5],[-96,2],[-83,5],[-70,3],[-57,9],[-45,6],[-34,14],[-25,20],[-16,12],[-5,17],[8,10],[20,16],[29,22],[38,13],[49,8],[61,14],[73,7],[86,11],[98,3],[108,-5]]},
-  {name:'foothills',z:-69.2,base:0x405e43,mid:0x62804f,high:0x8da16a,
-   points:[[-108,-5],[-96,0],[-82,3],[-68,1],[-55,6],[-42,3],[-29,9],[-16,5],[-3,11],[10,6],[24,10],[38,4],[52,9],[66,3],[80,7],[94,1],[108,-5]]}
+  {name:'far',z:-84,base:0x718b91,mid:0x9aadb0,high:0xd0d8d5,
+   points:[[-108,-5],[-99,-1],[-92,2],[-86,1],[-79,5],[-72,2],[-65,7],[-59,4],[-52,10],[-46,5],[-39,13],[-33,7],[-26,15],[-20,8],[-13,16],[-7,9],[0,17],[7,8],[14,14],[21,7],[29,15],[36,8],[44,14],[51,6],[59,13],[66,5],[74,12],[82,5],[91,9],[99,2],[108,-5]]},
+  {name:'main',z:-77,base:0x344f59,mid:0x627d87,high:0xb5c6c8,
+   points:[[-108,-5],[-99,0],[-91,3],[-84,2],[-77,6],[-70,3],[-63,8],[-57,5],[-50,11],[-44,6],[-37,13],[-31,11],[-25,20],[-21,15],[-16,12],[-10,17],[-5,13],[1,18],[7,11],[13,14],[20,16],[25,19],[29,22],[33,17],[38,13],[44,9],[50,12],[56,9],[61,14],[66,10],[73,7],[80,11],[87,6],[95,3],[108,-5]]},
+  {name:'foothills',z:-69.2,base:0x34594f,mid:0x557c68,high:0x8fac82,
+   points:[[-108,-5],[-98,0],[-90,2],[-82,1],[-74,4],[-67,1],[-59,6],[-51,2],[-43,7],[-35,3],[-27,9],[-19,4],[-11,10],[-3,5],[5,11],[13,6],[21,10],[29,5],[37,9],[45,3],[53,8],[61,3],[69,7],[77,2],[85,6],[94,1],[108,-5]]}
  ];
  const mountainColor=(layer,elevation,x,depth,index)=>{
   const e=THREE.MathUtils.clamp(elevation,0,1);
   const low=new THREE.Color(layer.base),middle=new THREE.Color(layer.mid),high=new THREE.Color(layer.high);
   const c=e<.52?low.lerp(middle,e/.52):middle.lerp(high,(e-.52)/.48);
-  const strata=.91+.055*Math.sin(x*.17+index*1.9)+.026*Math.cos(x*.39-depth*3.1);
+  const strata=.82+.105*Math.sin(x*.17+index*1.9)+.065*Math.cos(x*.39-depth*3.1)+.035*Math.sin(elevation*31+x*.7)+.022*Math.sin(elevation*74+x*.31);
   c.multiplyScalar(strata*(1-.12*depth));
   return c;
  };
  const mountainRockMaterial=new THREE.MeshStandardMaterial({
   color:0xffffff,vertexColors:true,map:mountainRockMap,bumpMap:mountainRockBump,roughnessMap:mountainRockBump,
-  bumpScale:.052,roughness:.985,metalness:0,flatShading:true,side:THREE.DoubleSide
+  bumpScale:.205,roughness:.96,metalness:0,flatShading:true,side:THREE.DoubleSide
  });
  for(let layerIndex=0;layerIndex<mountainLayers.length;layerIndex++){
   const layer=mountainLayers[layerIndex];
@@ -1825,11 +1905,15 @@ function makeWorldLandscape(){
   };
   // Передняя грань сохраняет утверждённый контур, но получает реальную вертикальную толщину.
   const widthSegments=280,verticalSegments=18,frontPositions=[],frontColors=[],frontUvs=[],frontIndices=[];
+  const cliffNoise=(x,v,seed)=>Math.sin(x*.19+seed*2.3+v*8.1)*.48+Math.sin(x*.47-seed*1.7-v*13.4)*.22+Math.cos(x*.083+v*4.7)*.34;
   for(let ix=0;ix<=widthSegments;ix++){
    const x=-108+216*ix/widthSegments,ridge=ridgeAt(x);
    for(let iy=0;iy<=verticalSegments;iy++){
-    const v=iy/verticalSegments,y=-6+(ridge+6)*v;
-    frontPositions.push(x,y,layer.z);
+    const v=iy/verticalSegments;
+    const faceRelief=cliffNoise(x,v,layerIndex)*Math.sin(Math.PI*v);
+    const y=-6+(ridge+6)*v+faceRelief*.72;
+    const z=layer.z+faceRelief*1.15+Math.sin(x*.31+layerIndex)*.24*Math.sin(Math.PI*v);
+    frontPositions.push(x,y,z);
     const c=mountainColor(layer,v,x,0,layerIndex);
     frontColors.push(c.r,c.g,c.b);
     frontUvs.push(ix/widthSegments*5,v*1.8);
@@ -1845,7 +1929,7 @@ function makeWorldLandscape(){
   frontGeometry.setAttribute('color',new THREE.Float32BufferAttribute(frontColors,3));
   frontGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(frontUvs,2));
   frontGeometry.setIndex(frontIndices);frontGeometry.computeVertexNormals();
-  const frontMaterial=mountainRockMaterial.clone();frontMaterial.bumpScale=.038;
+  const frontMaterial=mountainRockMaterial.clone();frontMaterial.bumpScale=.22;
   const frontWall=new THREE.Mesh(frontGeometry,frontMaterial);
   frontWall.name='GREEN_WORLD_Mountain_FrontRock_'+layer.name;
   frontWall.castShadow=false;frontWall.receiveShadow=false;mountainWorld.add(frontWall);
@@ -1856,8 +1940,8 @@ function makeWorldLandscape(){
    const x=-108+216*ix/widthSegments,ridge=ridgeAt(x);
    for(let iz=0;iz<=depthSegments;iz++){
     const depth=iz/depthSegments,profile=Math.pow(1-depth,1.34);
-    const noise=(Math.sin(x*.12+layerIndex*1.7)*.42+Math.cos(x*.29-depth*4.2+layerIndex)*.16)*Math.sin(Math.PI*depth);
-    const y=-6+(ridge+6)*profile+noise,z=layer.z+.035-depth*(23+layerIndex*2.5);
+    const noise=(Math.sin(x*.12+layerIndex*1.7)*.78+Math.cos(x*.29-depth*4.2+layerIndex)*.42+Math.sin(x*.63+depth*9.5)*.19)*Math.sin(Math.PI*depth);
+    const y=-6+(ridge+6)*profile+noise,z=layer.z+.035-depth*(29+layerIndex*3.8);
     topPositions.push(x,y,z);
     const elevation=THREE.MathUtils.clamp((y+6)/Math.max(1,ridge+6),0,1);
     const c=mountainColor(layer,elevation,x,depth,layerIndex);
@@ -1875,7 +1959,7 @@ function makeWorldLandscape(){
   topGeometry.setAttribute('color',new THREE.Float32BufferAttribute(topColors,3));
   topGeometry.setAttribute('uv',new THREE.Float32BufferAttribute(topUvs,2));
   topGeometry.setIndex(topIndices);topGeometry.computeVertexNormals();
-  const topMaterial=mountainRockMaterial.clone();topMaterial.flatShading=false;topMaterial.bumpScale=.052;
+  const topMaterial=mountainRockMaterial.clone();topMaterial.flatShading=false;topMaterial.bumpScale=.19;
   const mountainSlope=new THREE.Mesh(topGeometry,topMaterial);
   mountainSlope.name='GREEN_WORLD_Mountain_Volumetric_Slope_'+layer.name;
   mountainSlope.castShadow=false;mountainSlope.receiveShadow=false;mountainWorld.add(mountainSlope);
@@ -1885,37 +1969,159 @@ function makeWorldLandscape(){
   const facetShape=new THREE.Shape();facetShape.moveTo(points[0][0],points[0][1]);
   for(let i=1;i<points.length;i++)facetShape.lineTo(points[i][0],points[i][1]);
   facetShape.closePath();
-  const facet=new THREE.Mesh(new THREE.ShapeGeometry(facetShape),new THREE.MeshStandardMaterial({
+  const facetGeometry=new THREE.ExtrudeGeometry(facetShape,{depth:.18,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.035,bevelThickness:.025,curveSegments:4});
+  const facet=new THREE.Mesh(facetGeometry,new THREE.MeshStandardMaterial({
    color,roughness:1,metalness:0,flatShading:true,side:THREE.DoubleSide
   }));
   facet.position.z=z;facet.castShadow=false;facet.receiveShadow=false;mountainWorld.add(facet);
  };
  // Грани центральных пиков — чередование освещённого камня и прохладных теневых склонов.
- for(const [x,y,w] of [[-25,20,13],[29,22,12],[-55,9,9],[61,14,10]]){
+ for(const [x,y,w] of [[-25,20,13],[29,22,12],[-55,9,9],[61,14,10],[-10,17,7],[1,18,7],[13,14,6],[50,12,6],[80,11,6]]){
   const z=-76.82;
-  addRockFacet([[x-w,y*.18],[x,y],[x-w*.12,y*.52]],0x8e9a88,z);
-  addRockFacet([[x,y],[x+w,y*.22],[x-w*.12,y*.52]],0x536b61,z+.012);
-  addRockFacet([[x-w,y*.18],[x-w*.12,y*.52],[x-w*.72,y*.34]],0x65796c,z+.018);
+  addRockFacet([[x-w,y*.18],[x,y],[x-w*.12,y*.52]],0xb2c0bd,z);
+  addRockFacet([[x,y],[x+w,y*.22],[x-w*.12,y*.52]],0x3d5964,z+.012);
+  addRockFacet([[x-w,y*.18],[x-w*.12,y*.52],[x-w*.72,y*.34]],0x718a8d,z+.018);
  }
- // Снежные шапки повторяют форму гребней, а не выглядят отдельными белыми треугольниками.
- const snowMaterial=new THREE.MeshStandardMaterial({color:0xe4e8df,roughness:.92,metalness:0,flatShading:true,side:THREE.DoubleSide});
+ // Скальные уступы и вертикальные разломы усиливают масштаб центральной стены.
+ // Линии собраны в одну геометрию, чтобы не создавать десятки отдельных объектов.
+ const cliffFracturePositions=[];
+ const fractureStarts=[[-88,1.8],[-76,2.8],[-64,4.1],[-48,5.2],[-39,6.4],[-18,7.2],[-7,6.8],[9,7.1],[18,8.2],[39,5.4],[47,4.7],[66,5.2],[77,3.8],[91,1.9]];
+ for(let i=0;i<fractureStarts.length;i++){
+  const [x0,y0]=fractureStarts[i],lean=(i%2===0?1:-1)*(.42+(i%4)*.12);
+  const pts=[
+   [x0,y0],
+   [x0+lean*.42,y0-1.45],
+   [x0-lean*.18,y0-2.85],
+   [x0+lean*.7,y0-4.35]
+  ];
+  for(let j=0;j<pts.length-1;j++){
+   const a=pts[j],b=pts[j+1];
+   cliffFracturePositions.push(a[0],a[1],-76.61,b[0],b[1],-76.61);
+  }
+ }
+ const cliffFractureGeometry=new THREE.BufferGeometry();
+ cliffFractureGeometry.setAttribute('position',new THREE.Float32BufferAttribute(cliffFracturePositions,3));
+ const cliffFractures=new THREE.LineSegments(cliffFractureGeometry,new THREE.LineBasicMaterial({
+  color:0x263f49,transparent:true,opacity:.42,depthWrite:false
+ }));
+ cliffFractures.name='GREEN_WORLD_Mountain_Cliff_Fractures';
+ cliffFractures.frustumCulled=false;mountainWorld.add(cliffFractures);
+
+ // Небольшие уступы-террасы ловят свет на изломах породы; контуры остаются внутри хребта.
+ const ledgeMaterials=[
+  new THREE.MeshStandardMaterial({color:0x526d75,roughness:1,flatShading:true,side:THREE.DoubleSide}),
+  new THREE.MeshStandardMaterial({color:0x82979a,roughness:1,flatShading:true,side:THREE.DoubleSide})
+ ];
+ const cliffLedges=[[-94,-1.1,4.2],[-81,-.1,3.8],[-68,1.2,4.6],[-53,.5,5.1],[-43,2.1,4.4],[-31,1.1,5.2],[-13,2.8,4.1],[5,2.4,4.7],[22,3.4,4.2],[42,.4,5.2],[59,1.5,4.5],[76,-.2,4.8],[91,-1.1,3.9]];
+ for(let i=0;i<cliffLedges.length;i++){
+  const [x,y,w]=cliffLedges[i],step=(i%3)*.16;
+  const shape=new THREE.Shape();
+  shape.moveTo(-w*.55,y-.22);
+  shape.lineTo(-w*.28,y+.18+step);
+  shape.lineTo(w*.18,y+.08);
+  shape.lineTo(w*.55,y-.16);
+  shape.lineTo(w*.28,y-.29);
+  shape.lineTo(-w*.22,y-.31);
+  shape.closePath();
+  const geometry=new THREE.ExtrudeGeometry(shape,{depth:.075,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.025,bevelThickness:.018});
+  const ledge=new THREE.Mesh(geometry,ledgeMaterials[i%2]);
+  ledge.position.set(x,0,-76.625+(i%3)*.012);
+  ledge.name='GREEN_WORLD_Mountain_Rock_Ledge_'+i;
+  ledge.castShadow=false;ledge.receiveShadow=false;mountainWorld.add(ledge);
+ }
+ // Снег формирует объёмные неровные карнизы: теневая подложка подчёркивает толщину и уступы.
+ const snowShadowMaterial=new THREE.MeshStandardMaterial({color:0x647b85,roughness:1,metalness:0,flatShading:true,side:THREE.DoubleSide});
+ const snowMaterial=new THREE.MeshStandardMaterial({color:0xf0f5f4,roughness:.78,metalness:0,flatShading:true,side:THREE.DoubleSide});
  const addSnowCap=(points,z)=>{
-  const snowShape=new THREE.Shape();snowShape.moveTo(points[0][0],points[0][1]);
-  for(let i=1;i<points.length;i++)snowShape.lineTo(points[i][0],points[i][1]);
-  snowShape.closePath();
-  const cap=new THREE.Mesh(new THREE.ShapeGeometry(snowShape,2),snowMaterial);
+  const makeSnowShape=(contour,offsetY=0)=>{
+   const shape=new THREE.Shape();shape.moveTo(contour[0][0],contour[0][1]+offsetY);
+   for(let i=1;i<contour.length;i++)shape.lineTo(contour[i][0],contour[i][1]+offsetY);
+   shape.closePath();return shape;
+  };
+  const shadowGeometry=new THREE.ExtrudeGeometry(makeSnowShape(points,-.16),{depth:.075,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.025,bevelThickness:.018,curveSegments:3});
+  const shadow=new THREE.Mesh(shadowGeometry,snowShadowMaterial);
+  shadow.position.z=z-.045;shadow.castShadow=false;shadow.receiveShadow=false;mountainWorld.add(shadow);
+  const capGeometry=new THREE.ExtrudeGeometry(makeSnowShape(points),{depth:.12,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.045,bevelThickness:.025,curveSegments:4});
+  const cap=new THREE.Mesh(capGeometry,snowMaterial);
   cap.position.z=z;cap.castShadow=false;cap.receiveShadow=false;mountainWorld.add(cap);
  };
- addSnowCap([[-34,14],[-30,17],[-25,20],[-21,17],[-17,12],[-22,14],[-26,15],[-30,13]],-76.79);
- addSnowCap([[20,15],[25,19],[29,22],[33,18],[38,13],[33,15],[29,16],[25,14]],-76.78);
- addSnowCap([[-59,7],[-57,8.5],[-55,9],[-52,7],[-50,5.8],[-54,7],[-57,6.7]],-76.77);
+ addSnowCap([[-34,14],[-32,15.7],[-30,17],[-27.8,18.2],[-25,20],[-23.1,18.5],[-21,17],[-19,14.8],[-17,12],[-20.8,13.1],[-23.5,14.2],[-26,15],[-28.4,14.2],[-31,13.2]],-76.79);
+ addSnowCap([[20,15],[22.2,16.7],[25,19],[27,20.3],[29,22],[31.2,20.2],[33,18],[35.2,15.8],[38,13],[34.5,14.1],[31.5,15.1],[29,16],[26.5,15.2],[23.5,14.1]],-76.78);
+ addSnowCap([[-59,7],[-57.5,8.1],[-55,9],[-53.5,8.1],[-52,7],[-50,5.8],[-53,6.4],[-55.5,6.7],[-57.5,6.5]],-76.77);
+ addSnowCap([[55,9.2],[58,12.1],[61,14],[63,12],[66,9.2],[62.5,10.1],[60,10.8],[57.5,9.8]],-76.76);
+ // Небольшие разорванные снежные поля на гребнях создают естественный переход от снега к скале.
+ addSnowCap([[-43,10.4],[-41.5,11.5],[-39.7,11.9],[-37.8,10.7],[-36,9.5],[-39.2,10],[-41,9.8]],-76.755);
+ addSnowCap([[7,11.5],[9,13.2],[11,13.8],[13.2,12.4],[15,10.7],[11.8,11.3],[9.5,11.1]],-76.745);
+ // Новые снежные карнизы на дополнительных зубчатых вершинах.
+ addSnowCap([[-13,13.8],[-11,15.4],[-10,17],[-8.5,15.1],[-6.5,13.2],[-9.5,14],[-11.5,14.1]],-76.735);
+ addSnowCap([[0,14.7],[1,16.2],[2.5,18],[4,16.3],[6,13.9],[3,14.7],[1.5,14.8]],-76.73);
+ addSnowCap([[48,9.4],[49.5,10.8],[51,12],[52.8,10.5],[54.5,8.7],[51.5,9.6],[49.8,9.7]],-76.725);
  // Тонкие ледниковые полосы на затенённых склонах добавляют масштаб, не перегружая силуэт.
- const glacierMat=new THREE.MeshBasicMaterial({color:0xc8d4ca,transparent:true,opacity:.28,depthWrite:false,side:THREE.DoubleSide});
- for(const [x,y,z,sx,sy,rz] of [[-29,12.7,-76.75,2.8,.22,-.62],[25,13.8,-76.74,2.4,.18,.55],[57,8.5,-76.7,1.8,.14,-.48]]){
+ const glacierMat=new THREE.MeshBasicMaterial({color:0xd9e5e0,transparent:true,opacity:.24,depthWrite:false,side:THREE.DoubleSide});
+ for(const [x,y,z,sx,sy,rz] of [[-29,12.7,-76.69,2.8,.2,-.62],[25,13.8,-76.68,2.4,.17,.55],[57,8.5,-76.64,1.8,.13,-.48],[-54,6.5,-76.63,1.35,.11,.38]]){
   const streak=new THREE.Mesh(new THREE.PlaneGeometry(sx,sy),glacierMat);
   streak.position.set(x,y,z);streak.rotation.z=rz;mountainWorld.add(streak);
  }
 
+ // Ледниковые языки спускаются по теневым кулуарам отдельными неровными лентами.
+ const glacierTongueMat=new THREE.MeshStandardMaterial({
+  color:0xc8e0e2,roughness:.42,metalness:.015,transparent:true,opacity:.62,
+  depthWrite:false,side:THREE.DoubleSide
+ });
+ const glacierShadowMat=new THREE.MeshBasicMaterial({
+  color:0x607e89,transparent:true,opacity:.24,depthWrite:false,side:THREE.DoubleSide
+ });
+ const addGlacierTongue=(contour,z)=>{
+  const shape=new THREE.Shape();shape.moveTo(contour[0][0],contour[0][1]);
+  for(let i=1;i<contour.length;i++)shape.lineTo(contour[i][0],contour[i][1]);
+  shape.closePath();
+  const shadow=new THREE.Mesh(new THREE.ShapeGeometry(shape),glacierShadowMat);
+  shadow.position.set(0,-.13,z-.035);shadow.renderOrder=2;mountainWorld.add(shadow);
+  const tongue=new THREE.Mesh(new THREE.ShapeGeometry(shape),glacierTongueMat);
+  tongue.position.z=z;tongue.renderOrder=3;tongue.name='GREEN_WORLD_Glacier_Tongue';
+  tongue.castShadow=false;tongue.receiveShadow=false;mountainWorld.add(tongue);
+ };
+ addGlacierTongue([[-33,12.8],[-31.5,11.5],[-30.8,9.8],[-29.2,8.7],[-29.8,7.1],[-28.4,5.8],[-29.1,4.5],[-30.8,5.3],[-31.6,6.9],[-33.1,8.1],[-34.2,10.2]],-75.22);
+ addGlacierTongue([[22,13.1],[23.5,11.7],[24.1,10.2],[25.7,8.8],[25.2,7.4],[26.8,6.1],[25.7,4.7],[24.4,5.8],[23.1,7.1],[22.6,8.7],[21.2,10.5]],-75.18);
+ addGlacierTongue([[58,8.2],[59.2,7.1],[60.3,5.7],[61.8,4.8],[61.1,3.6],[59.7,4.3],[58.6,5.4],[57.2,6.6]],-75.14);
+
+ // Каменные морены у подножия хребтов: небольшие сглаженные валуны,
+ // собранные в разорванные группы, вне двора и речного русла.
+ const moraineGeometry=new THREE.SphereGeometry(1,9,7);
+ const moraineMaterials=[
+  new THREE.MeshStandardMaterial({color:0x647a76,roughness:1,flatShading:true}),
+  new THREE.MeshStandardMaterial({color:0x82918a,roughness:1,flatShading:true}),
+  new THREE.MeshStandardMaterial({color:0x4e6665,roughness:1,flatShading:true})
+ ];
+ const moraineGroups=[
+  {x:-91,z:-68.38,count:8},{x:-69,z:-68.42,count:7},
+  {x:-43,z:-68.36,count:8},{x:-12,z:-68.40,count:7},
+  {x:19,z:-68.38,count:8},{x:48,z:-68.42,count:7},
+  {x:76,z:-68.36,count:8},{x:96,z:-68.40,count:7}
+ ];
+ let moraineSeed=918273;
+ const moraineRandom=()=>{moraineSeed=(moraineSeed*1664525+1013904223)>>>0;return moraineSeed/4294967296;};
+ for(let materialIndex=0;materialIndex<moraineMaterials.length;materialIndex++){
+  const count=moraineGroups.reduce((sum,g)=>sum+g.count,0);
+  const stones=new THREE.InstancedMesh(moraineGeometry,moraineMaterials[materialIndex],count);
+  const dummy=new THREE.Object3D();let index=0;
+  for(const group of moraineGroups){
+   for(let j=0;j<group.count;j++){
+    if((j+materialIndex)%3!==materialIndex)continue;
+    const x=group.x+(moraineRandom()-.5)*9;
+    const y=-5.35+moraineRandom()*.72;
+    const z=group.z+(moraineRandom()-.5)*.8;
+    const radius=.28+moraineRandom()*.48;
+    dummy.position.set(x,y,z);
+    dummy.rotation.set(moraineRandom()*.24,moraineRandom()*Math.PI,moraineRandom()*.18);
+    dummy.scale.set(radius*(1.15+moraineRandom()*.55),radius*(.48+moraineRandom()*.38),radius*(.72+moraineRandom()*.48));
+    dummy.updateMatrix();stones.setMatrixAt(index++,dummy.matrix);
+   }
+  }
+  stones.count=index;stones.instanceMatrix.needsUpdate=true;
+  stones.name='GREEN_WORLD_Foreland_Moraine_'+materialIndex;
+  stones.castShadow=false;stones.receiveShadow=false;mountainWorld.add(stones);
+ }
  // Fine high-altitude cirrus wisps add depth to the sky while staying translucent.
  const cirrusMat=new THREE.MeshBasicMaterial({color:0xf4f7f2,transparent:true,opacity:.085,depthWrite:false,fog:false});
  for(const [x,y,z,sx,sy,sz,rz] of [[-27,29,-53,8,.16,.62,-.08],[-8,31,-61,10,.13,.48,.035],[12,28,-57,7,.14,.55,-.045],[29,26,-49,6,.12,.42,.07]]){
@@ -2009,7 +2215,7 @@ function makeWorldLandscape(){
  waterReliefTexture.wrapS=waterReliefTexture.wrapT=THREE.RepeatWrapping;
  waterReliefTexture.repeat.set(2,1);
  waterReliefTexture.anisotropy=renderer.capabilities.getMaxAnisotropy();
- water.bumpMap=waterReliefTexture;water.bumpScale=.014;water.roughnessMap=waterReliefTexture;water.roughness=.205;water.metalness=.035;water.clearcoat=.64;water.clearcoatRoughness=.14;water.reflectivity=.76;water.needsUpdate=true;
+ water.bumpMap=waterReliefTexture;water.bumpScale=.024;water.roughnessMap=waterReliefTexture;water.roughness=.17;water.metalness=.028;water.clearcoat=.82;water.clearcoatRoughness=.11;water.reflectivity=.84;water.envMapIntensity=.9;water.needsUpdate=true;
 
 // Восстановлена отсутствовавшая геометрия самой реки.
 // Материал и карта воды выше уже создавались, но mesh поверхности не создавался,
@@ -2037,18 +2243,22 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
 };
 
 // Материалы гор и снега удалены вместе с горной геометрией.
- // GREEN WORLD — улучшенная внешняя лужайка: координаты и плоский профиль сохранены.
- // Микрорельеф передаётся только цветом и фактурой, без изменения высот вершин и габаритов участка.
+ // GREEN WORLD — улучшенная внешняя лужайка: габариты и планировка участка сохранены.
+ // Добавлен очень мягкий микрорельеф с плавным затуханием у краёв, без смещения объектов двора.
  const newTerrainGeometry=new THREE.PlaneGeometry(88,78,232,208);
  const newTerrainPositions=newTerrainGeometry.attributes.position;
  const newTerrainColors=[];
  const meadowBase=new THREE.Color(0x36c928);
  for(let i=0;i<newTerrainPositions.count;i++){
    const x=newTerrainPositions.getX(i),z=newTerrainPositions.getY(i);
-   newTerrainPositions.setZ(i,0);
-   const broad=.965+.025*Math.sin(x*.31+Math.sin(z*.17)*1.7)+.018*Math.cos(z*.43-x*.12);
-   const fine=.988+.012*Math.sin(x*1.73+z*2.11);
-   const shade=THREE.MathUtils.clamp(broad*fine,.91,1.035);
+   // Мягкие холмы и неглубокие впадины: амплитуда мала, края участка плавно сходят к исходному уровню.
+   const edgeFade=Math.min(1,Math.max(0,(44-Math.abs(x))/7),Math.max(0,(39-Math.abs(z))/6));
+   const broadRelief=(Math.sin(x*.19+Math.sin(z*.13)*1.4)*.58+Math.cos(z*.27-x*.11)*.42)*.075;
+   const fineRelief=(Math.sin(x*.83+z*.71)*.012+Math.cos(x*1.17-z*.93)*.009);
+   newTerrainPositions.setZ(i,(broadRelief+fineRelief)*edgeFade);
+   const broad=.955+.035*Math.sin(x*.31+Math.sin(z*.17)*1.7)+.024*Math.cos(z*.43-x*.12);
+   const fine=.982+.018*Math.sin(x*1.73+z*2.11)+.008*Math.cos(x*2.9-z*2.2);
+   const shade=THREE.MathUtils.clamp(broad*fine,.89,1.045);
    const vertexColor=meadowBase.clone().multiplyScalar(shade);
    newTerrainColors.push(vertexColor.r,vertexColor.g,vertexColor.b);
  }
@@ -2060,7 +2270,7 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  meadowCtx.fillStyle='#d7e8c4';meadowCtx.fillRect(0,0,256,256);
  let meadowSeed=73421;
  const meadowRandom=()=>{meadowSeed=(meadowSeed*1664525+1013904223)>>>0;return meadowSeed/4294967296;};
- for(let i=0;i<14500;i++){
+ for(let i=0;i<22000;i++){
    const x=meadowRandom()*256,y=meadowRandom()*256;
    const light=meadowRandom()>.53;
    meadowCtx.strokeStyle=light?'rgba(70,133,42,.16)':'rgba(34,105,39,.13)';
@@ -2083,6 +2293,60 @@ window.GREEN_WORLD_RIVER_DIAGNOSTICS={
  newMeadow.position.set(0,.018,-29.5);
  newMeadow.receiveShadow=true;newMeadow.castShadow=false;world.add(newMeadow);
 
+ // Реальные объёмные травинки вдоль внешних кромок газона.
+ // Инстансинг сохраняет малую стоимость рендеринга на Android и не меняет планировку двора.
+ // Каждая инстанция — небольшой пучок из четырёх изогнутых лент-листов, а не плоский треугольник.
+ const edgeGrassPositions=[],edgeGrassIndices=[];
+ for(let blade=0;blade<4;blade++){
+  const angle=blade*Math.PI*.5+.18,base=edgeGrassPositions.length/3;
+  const dx=Math.cos(angle),dz=Math.sin(angle),width=.026;
+  for(let level=0;level<3;level++){
+   const t=level/2,reach=.035*t*t,centerX=dx*reach,centerZ=dz*reach;
+   const halfWidth=width*(1-t*.88),bend=.035*t*t;
+   edgeGrassPositions.push(centerX-dz*halfWidth+bend, t*.42, centerZ+dx*halfWidth);
+   edgeGrassPositions.push(centerX+dz*halfWidth+bend, t*.42, centerZ-dx*halfWidth);
+  }
+  for(let level=0;level<2;level++){
+   const a=base+level*2,b=a+1,c=a+2,d=a+3;
+   edgeGrassIndices.push(a,c,b,b,c,d);
+  }
+ }
+ const edgeGrassGeometry=new THREE.BufferGeometry();
+ edgeGrassGeometry.setAttribute('position',new THREE.Float32BufferAttribute(edgeGrassPositions,3));
+ edgeGrassGeometry.setIndex(edgeGrassIndices);edgeGrassGeometry.computeVertexNormals();
+ const edgeGrassMaterials=[
+  new THREE.MeshStandardMaterial({color:0x477b32,roughness:1,side:THREE.DoubleSide}),
+  new THREE.MeshStandardMaterial({color:0x6c9d43,roughness:1,side:THREE.DoubleSide}),
+  new THREE.MeshStandardMaterial({color:0x86ad50,roughness:1,side:THREE.DoubleSide})
+ ];
+ const edgeGrassCount=2200;
+ const edgeGrassMeshes=edgeGrassMaterials.map(material=>{
+  const mesh=new THREE.InstancedMesh(edgeGrassGeometry,material,edgeGrassCount);
+  mesh.name='GREEN_WORLD_3D_Edge_Grass';
+  mesh.castShadow=false;mesh.receiveShadow=true;
+  world.add(mesh);return mesh;
+ });
+ const edgeGrassDummy=new THREE.Object3D();
+ let edgeGrassSeed=20261110;
+ const edgeGrassRandom=()=>{edgeGrassSeed=(edgeGrassSeed*1664525+1013904223)>>>0;return edgeGrassSeed/4294967296;};
+ const edgeGrassUsed=[0,0,0];
+ for(let i=0;i<edgeGrassCount;i++){
+  // Две узкие полосы за пределами основной композиции: здания, дорожки и вода остаются свободными.
+  const side=edgeGrassRandom()<.5?-1:1;
+  const x=side*(37.2+edgeGrassRandom()*5.2);
+  const z=-62+edgeGrassRandom()*55;
+  const materialIndex=Math.floor(edgeGrassRandom()*edgeGrassMeshes.length);
+  edgeGrassDummy.position.set(x,.045,z);
+  edgeGrassDummy.rotation.set((edgeGrassRandom()-.5)*.18,edgeGrassRandom()*Math.PI*2,(edgeGrassRandom()-.5)*.16);
+  const height=.82+edgeGrassRandom()*.88;
+  edgeGrassDummy.scale.set(.72+edgeGrassRandom()*.7,height,.72+edgeGrassRandom()*.7);
+  edgeGrassDummy.updateMatrix();
+  edgeGrassMeshes[materialIndex].setMatrixAt(edgeGrassUsed[materialIndex]++,edgeGrassDummy.matrix);
+ }
+ for(let i=0;i<edgeGrassMeshes.length;i++){
+  edgeGrassMeshes[i].count=edgeGrassUsed[i];
+  edgeGrassMeshes[i].instanceMatrix.needsUpdate=true;
+ }
 
 }
 window.GREEN_WORLD_STARTUP_STAGE='building-world';
@@ -2330,6 +2594,21 @@ function makeHouse(){
    manorBumpCtx.stroke();
   }
  }
+ // Дополнительные следы ручной тески внутри отдельных блоков.
+ // Штрихи короткие, низкоконтрастные и не пересекают швы, поэтому кладка не превращается в шум.
+ for(let i=0;i<118;i++){
+  const row=Math.floor(manorBumpRand()*4),offset=row%2?0:32;
+  const col=Math.floor(manorBumpRand()*4);
+  const x=offset+col*64+9+manorBumpRand()*43;
+  const y=row*64+10+manorBumpRand()*42;
+  const angle=(manorBumpRand()-.5)*.34;
+  const length=1.4+manorBumpRand()*4.1;
+  manorBumpCtx.strokeStyle=manorBumpRand()>.5?'rgba(34,30,25,.10)':'rgba(248,240,224,.12)';
+  manorBumpCtx.lineWidth=.28+manorBumpRand()*.38;
+  manorBumpCtx.beginPath();manorBumpCtx.moveTo(x,y);
+  manorBumpCtx.lineTo(x+Math.cos(angle)*length,y+Math.sin(angle)*length);
+  manorBumpCtx.stroke();
+ }
  // Микросколы по кромкам кладочных швов: очень мелкие неровности,
  // которые смягчают идеально ровный машинный рисунок блоков.
  for(let i=0;i<76;i++){
@@ -2353,6 +2632,35 @@ function makeHouse(){
  manorWallBump.repeat.set(2,2);
  manorWallBump.anisotropy=renderer.capabilities.getMaxAnisotropy();
  manorWallBump.needsUpdate=true;
+ // Касательная normal map переводит тонкие фаски кладки в направленное освещение.
+ // Карта построена из той же высотной текстуры: швы совпадают с цветовой и bump-картой.
+ const manorNormalCanvas=document.createElement('canvas');
+ manorNormalCanvas.width=256;manorNormalCanvas.height=256;
+ const manorNormalCtx=manorNormalCanvas.getContext('2d',{willReadFrequently:true});
+ manorNormalCtx.drawImage(manorBumpCanvas,0,0);
+ const manorHeightData=manorNormalCtx.getImageData(0,0,256,256).data;
+ const manorNormalImage=manorNormalCtx.createImageData(256,256);
+ const manorHeightAt=(x,y)=>manorHeightData[(((y+256)%256)*256+(x+256)%256)*4]/255;
+ for(let y=0;y<256;y++)for(let x=0;x<256;x++){
+  const dx=(manorHeightAt(x+1,y)-manorHeightAt(x-1,y))*2.15;
+  const dy=(manorHeightAt(x,y+1)-manorHeightAt(x,y-1))*2.15;
+  let nx=-dx,ny=-dy,nz=1;
+  const length=Math.hypot(nx,ny,nz)||1;
+  const p=(y*256+x)*4;
+  manorNormalImage.data[p]=Math.round((nx/length*.5+.5)*255);
+  manorNormalImage.data[p+1]=Math.round((ny/length*.5+.5)*255);
+  manorNormalImage.data[p+2]=Math.round((nz/length*.5+.5)*255);
+  manorNormalImage.data[p+3]=255;
+ }
+ manorNormalCtx.putImageData(manorNormalImage,0,0);
+ const manorWallNormal=new THREE.CanvasTexture(manorNormalCanvas);
+ manorWallNormal.colorSpace=THREE.NoColorSpace;
+ manorWallNormal.wrapS=manorWallNormal.wrapT=THREE.RepeatWrapping;
+ manorWallNormal.repeat.set(2,2);
+ manorWallNormal.anisotropy=Math.min(12,renderer.capabilities.getMaxAnisotropy());
+ manorWallNormal.minFilter=THREE.LinearMipmapLinearFilter;
+ manorWallNormal.magFilter=THREE.LinearFilter;
+ manorWallNormal.generateMipmaps=true;manorWallNormal.needsUpdate=true;
  // Отдельная карта микрошероховатости: слегка меняет отражение на разных участках
  // известняка, сохраняя кремовый цвет, рисунок кладки и всю геометрию.
  const manorRoughnessCanvas=document.createElement('canvas');
@@ -2409,13 +2717,14 @@ function makeHouse(){
  for(const material of [stone,stoneDark]){
   material.bumpMap=manorDetailBump;
   material.roughnessMap=manorDetailRoughness;
-  material.bumpScale=.016;
+  material.bumpScale=.019;
   material.roughness=material===stone?.89:.91;
   material.needsUpdate=true;
  }
  const manorWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:manorWallTexture,bumpMap:manorWallBump,
-  roughnessMap:manorWallRoughness,bumpScale:.078,roughness:.91,metalness:0,
+  normalMap:manorWallNormal,normalScale:new THREE.Vector2(.19,.19),
+  roughnessMap:manorWallRoughness,bumpScale:.112,roughness:.93,metalness:0,
   clearcoat:.10,clearcoatRoughness:.88,specularIntensity:.22
  });
  // Для круглых башен используется та же кремовая кладка с масштабом по окружности.
@@ -2425,9 +2734,12 @@ function makeHouse(){
  towerWallBump.repeat.set(4,2.5);towerWallBump.needsUpdate=true;
  const towerWallRoughness=manorWallRoughness.clone();
  towerWallRoughness.repeat.set(4,2.5);towerWallRoughness.needsUpdate=true;
+ const towerWallNormal=manorWallNormal.clone();
+ towerWallNormal.repeat.set(4,2.5);towerWallNormal.needsUpdate=true;
  const towerWallMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe4c9a4,map:towerWallTexture,bumpMap:towerWallBump,
-  roughnessMap:towerWallRoughness,bumpScale:.068,roughness:.92,metalness:0,
+  normalMap:towerWallNormal,normalScale:new THREE.Vector2(.20,.20),
+  roughnessMap:towerWallRoughness,bumpScale:.10,roughness:.94,metalness:0,
   clearcoat:.09,clearcoatRoughness:.9,specularIntensity:.20
  });
  // Отдельная настройка материала только для уже существующих колонн:
@@ -2438,9 +2750,12 @@ function makeHouse(){
  towerColumnBump.repeat.set(.9,1.45);towerColumnBump.needsUpdate=true;
  const towerColumnRoughness=towerWallRoughness.clone();
  towerColumnRoughness.repeat.set(.9,1.45);towerColumnRoughness.needsUpdate=true;
+ const towerColumnNormal=towerWallNormal.clone();
+ towerColumnNormal.repeat.set(.9,1.45);towerColumnNormal.needsUpdate=true;
  const towerColumnMaterial=new THREE.MeshPhysicalMaterial({
   color:0xe8d2ae,map:towerColumnTexture,bumpMap:towerColumnBump,
-  roughnessMap:towerColumnRoughness,bumpScale:.045,roughness:.93,metalness:0,
+  normalMap:towerColumnNormal,normalScale:new THREE.Vector2(.12,.12),
+  roughnessMap:towerColumnRoughness,bumpScale:.04,roughness:.93,metalness:0,
   clearcoat:.07,clearcoatRoughness:.92,specularIntensity:.18
  });
  // Центральный корпус, фронтон, окна, двери и вся отделка смещаются единым блоком назад;
@@ -3074,6 +3389,42 @@ for(const material of [...copperMats,copperBright,copperDark]){
   const ridgeCap=cylinder(center,.073,.073,.35,0,manorRoofPeakY+.045,2.22-cap*.375,manorRoofTileA,16);
   ridgeCap.rotation.x=Math.PI/2;
  }
+ // Малые металлические крепления вдоль карнизов подчёркивают ручную сборку сланцевой кровли.
+ // InstancedMesh добавляет 26 деталей с минимальной нагрузкой и без изменения силуэта крыши.
+ const manorEaveStuds=new THREE.InstancedMesh(
+  new THREE.SphereGeometry(.026,8,6),
+  new THREE.MeshStandardMaterial({color:0xb88d48,metalness:.62,roughness:.4,envMapIntensity:.72}),
+  26
+ );
+ const manorEaveStudMatrix=new THREE.Matrix4();
+ let manorEaveStudIndex=0;
+ for(const side of [-1,1]){
+  for(let stud=0;stud<13;stud++){
+   const z=manorRoofFrontZ-(manorRoofFrontZ-manorRoofBackZ)*(stud+.5)/13;
+   manorEaveStudMatrix.makeTranslation(side*(manorRoofHalf-.018),manorRoofEaveY+.025,z);
+   manorEaveStuds.setMatrixAt(manorEaveStudIndex++,manorEaveStudMatrix);
+  }
+ }
+ manorEaveStuds.castShadow=false;manorEaveStuds.receiveShadow=false;center.add(manorEaveStuds);
+ // Небольшие бронзовые заклёпки на лицевых рядах сланца подчёркивают ручное крепление плиток.
+ // Детали лежат на существующей плоскости ската и не меняют силуэт или габариты крыши.
+ const slateFasteners=new THREE.InstancedMesh(
+  new THREE.SphereGeometry(.021,8,6),
+  new THREE.MeshStandardMaterial({color:0xb88d48,metalness:.68,roughness:.34,envMapIntensity:.82}),
+  24
+ );
+ const slateFastenerMatrix=new THREE.Matrix4();
+ let slateFastenerIndex=0;
+ for(const side of [-1,1]){
+  for(let row=1;row<=12;row++){
+   const t=row/13;
+   const x=side*manorRoofHalf*t;
+   const y=manorRoofPeakY+(manorRoofEaveY-manorRoofPeakY)*t+.024;
+   slateFastenerMatrix.makeTranslation(x,y,manorRoofFrontZ+.028);
+   slateFasteners.setMatrixAt(slateFastenerIndex++,slateFastenerMatrix);
+  }
+ }
+ slateFasteners.castShadow=false;slateFasteners.receiveShadow=false;center.add(slateFasteners);
  sphere(center,.085,0,manorRoofPeakY+.045,manorRoofFrontZ,manorRoofGold,.9);
  cone(center,.045,.16,0,manorRoofPeakY+.16,manorRoofFrontZ,manorRoofGold,12);
  // Две башни по утверждённому эталону: выразительное каменное основание,
@@ -3257,6 +3608,26 @@ for(const material of [...copperMats,copperBright,copperDark]){
     edge.castShadow=false;edge.receiveShadow=false;t.add(edge);
    }
   }
+  // Низкопрофильные заклёпки фиксируют сланцевые панели к каркасу купола.
+  // Инстансирование сохраняет плавный силуэт и добавляет мелкий архитектурный масштаб.
+  const roofFastenerGeometry=new THREE.SphereGeometry(.022,8,6);
+  const roofFastenerMaterial=new THREE.MeshStandardMaterial({
+   color:0x9aabb8,metalness:.58,roughness:.48,envMapIntensity:.62
+  });
+  const roofFasteners=new THREE.InstancedMesh(roofFastenerGeometry,roofFastenerMaterial,144);
+  const roofFastenerMatrix=new THREE.Matrix4();
+  let roofFastenerIndex=0;
+  for(let row=0;row<9;row++){
+   const y=towerRoofY+towerRoofH*(row+.52)/10;
+   for(let j=0;j<16;j++){
+    const angle=(j+.5)*Math.PI*2/16;
+    const point=towerRoofPoint(y,angle,.042);
+    roofFastenerMatrix.makeTranslation(point.x,point.y,point.z);
+    roofFasteners.setMatrixAt(roofFastenerIndex++,roofFastenerMatrix);
+   }
+  }
+  roofFasteners.instanceMatrix.needsUpdate=true;
+  roofFasteners.castShadow=false;roofFasteners.receiveShadow=false;t.add(roofFasteners);
   cylinder(t,.075,.075,.22,0,7.85,0,goldRoof,16);
   sphere(t,.11,0,8.01,0,goldRoof,.9);
   cone(t,.06,.22,0,8.18,0,goldRoof,16);
