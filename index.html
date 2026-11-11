@@ -1907,22 +1907,32 @@ function makeWorldLandscape(){
   addRockFacet([[x,y],[x+w,y*.22],[x-w*.12,y*.52]],0x536b61,z+.012);
   addRockFacet([[x-w,y*.18],[x-w*.12,y*.52],[x-w*.72,y*.34]],0x65796c,z+.018);
  }
- // Снежные шапки повторяют форму гребней, а не выглядят отдельными белыми треугольниками.
- const snowMaterial=new THREE.MeshStandardMaterial({color:0xe4e8df,roughness:.92,metalness:0,flatShading:true,side:THREE.DoubleSide});
+ // Снег формирует объёмные неровные карнизы: теневая подложка подчёркивает толщину и уступы.
+ const snowShadowMaterial=new THREE.MeshStandardMaterial({color:0x899b98,roughness:1,metalness:0,flatShading:true,side:THREE.DoubleSide});
+ const snowMaterial=new THREE.MeshStandardMaterial({color:0xe8eee8,roughness:.86,metalness:0,flatShading:true,side:THREE.DoubleSide});
  const addSnowCap=(points,z)=>{
-  const snowShape=new THREE.Shape();snowShape.moveTo(points[0][0],points[0][1]);
-  for(let i=1;i<points.length;i++)snowShape.lineTo(points[i][0],points[i][1]);
-  snowShape.closePath();
-  const capGeometry=new THREE.ExtrudeGeometry(snowShape,{depth:.055,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.012,bevelThickness:.01,curveSegments:3});
+  const makeSnowShape=(contour,offsetY=0)=>{
+   const shape=new THREE.Shape();shape.moveTo(contour[0][0],contour[0][1]+offsetY);
+   for(let i=1;i<contour.length;i++)shape.lineTo(contour[i][0],contour[i][1]+offsetY);
+   shape.closePath();return shape;
+  };
+  const shadowGeometry=new THREE.ExtrudeGeometry(makeSnowShape(points,-.16),{depth:.075,bevelEnabled:true,bevelSegments:1,steps:1,bevelSize:.025,bevelThickness:.018,curveSegments:3});
+  const shadow=new THREE.Mesh(shadowGeometry,snowShadowMaterial);
+  shadow.position.z=z-.045;shadow.castShadow=false;shadow.receiveShadow=false;mountainWorld.add(shadow);
+  const capGeometry=new THREE.ExtrudeGeometry(makeSnowShape(points),{depth:.12,bevelEnabled:true,bevelSegments:2,steps:1,bevelSize:.045,bevelThickness:.025,curveSegments:4});
   const cap=new THREE.Mesh(capGeometry,snowMaterial);
   cap.position.z=z;cap.castShadow=false;cap.receiveShadow=false;mountainWorld.add(cap);
  };
- addSnowCap([[-34,14],[-30,17],[-25,20],[-21,17],[-17,12],[-22,14],[-26,15],[-30,13]],-76.79);
- addSnowCap([[20,15],[25,19],[29,22],[33,18],[38,13],[33,15],[29,16],[25,14]],-76.78);
- addSnowCap([[-59,7],[-57,8.5],[-55,9],[-52,7],[-50,5.8],[-54,7],[-57,6.7]],-76.77);
+ addSnowCap([[-34,14],[-32,15.7],[-30,17],[-27.8,18.2],[-25,20],[-23.1,18.5],[-21,17],[-19,14.8],[-17,12],[-20.8,13.1],[-23.5,14.2],[-26,15],[-28.4,14.2],[-31,13.2]],-76.79);
+ addSnowCap([[20,15],[22.2,16.7],[25,19],[27,20.3],[29,22],[31.2,20.2],[33,18],[35.2,15.8],[38,13],[34.5,14.1],[31.5,15.1],[29,16],[26.5,15.2],[23.5,14.1]],-76.78);
+ addSnowCap([[-59,7],[-57.5,8.1],[-55,9],[-53.5,8.1],[-52,7],[-50,5.8],[-53,6.4],[-55.5,6.7],[-57.5,6.5]],-76.77);
+ addSnowCap([[55,9.2],[58,12.1],[61,14],[63,12],[66,9.2],[62.5,10.1],[60,10.8],[57.5,9.8]],-76.76);
+ // Небольшие разорванные снежные поля на гребнях создают естественный переход от снега к скале.
+ addSnowCap([[-43,10.4],[-41.5,11.5],[-39.7,11.9],[-37.8,10.7],[-36,9.5],[-39.2,10],[-41,9.8]],-76.755);
+ addSnowCap([[7,11.5],[9,13.2],[11,13.8],[13.2,12.4],[15,10.7],[11.8,11.3],[9.5,11.1]],-76.745);
  // Тонкие ледниковые полосы на затенённых склонах добавляют масштаб, не перегружая силуэт.
- const glacierMat=new THREE.MeshBasicMaterial({color:0xc8d4ca,transparent:true,opacity:.28,depthWrite:false,side:THREE.DoubleSide});
- for(const [x,y,z,sx,sy,rz] of [[-29,12.7,-76.75,2.8,.22,-.62],[25,13.8,-76.74,2.4,.18,.55],[57,8.5,-76.7,1.8,.14,-.48]]){
+ const glacierMat=new THREE.MeshBasicMaterial({color:0xd9e5e0,transparent:true,opacity:.24,depthWrite:false,side:THREE.DoubleSide});
+ for(const [x,y,z,sx,sy,rz] of [[-29,12.7,-76.69,2.8,.2,-.62],[25,13.8,-76.68,2.4,.17,.55],[57,8.5,-76.64,1.8,.13,-.48],[-54,6.5,-76.63,1.35,.11,.38]]){
   const streak=new THREE.Mesh(new THREE.PlaneGeometry(sx,sy),glacierMat);
   streak.position.set(x,y,z);streak.rotation.z=rz;mountainWorld.add(streak);
  }
