@@ -3217,6 +3217,23 @@ for(const material of [...copperMats,copperBright,copperDark]){
   const ridgeCap=cylinder(center,.073,.073,.35,0,manorRoofPeakY+.045,2.22-cap*.375,manorRoofTileA,16);
   ridgeCap.rotation.x=Math.PI/2;
  }
+ // Малые металлические крепления вдоль карнизов подчёркивают ручную сборку сланцевой кровли.
+ // InstancedMesh добавляет 26 деталей с минимальной нагрузкой и без изменения силуэта крыши.
+ const manorEaveStuds=new THREE.InstancedMesh(
+  new THREE.SphereGeometry(.026,8,6),
+  new THREE.MeshStandardMaterial({color:0xb88d48,metalness:.62,roughness:.4,envMapIntensity:.72}),
+  26
+ );
+ const manorEaveStudMatrix=new THREE.Matrix4();
+ let manorEaveStudIndex=0;
+ for(const side of [-1,1]){
+  for(let stud=0;stud<13;stud++){
+   const z=manorRoofFrontZ-(manorRoofFrontZ-manorRoofBackZ)*(stud+.5)/13;
+   manorEaveStudMatrix.makeTranslation(side*(manorRoofHalf-.018),manorRoofEaveY+.025,z);
+   manorEaveStuds.setMatrixAt(manorEaveStudIndex++,manorEaveStudMatrix);
+  }
+ }
+ manorEaveStuds.castShadow=false;manorEaveStuds.receiveShadow=false;center.add(manorEaveStuds);
  sphere(center,.085,0,manorRoofPeakY+.045,manorRoofFrontZ,manorRoofGold,.9);
  cone(center,.045,.16,0,manorRoofPeakY+.16,manorRoofFrontZ,manorRoofGold,12);
  // Две башни по утверждённому эталону: выразительное каменное основание,
