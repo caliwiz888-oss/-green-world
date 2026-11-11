@@ -1748,24 +1748,25 @@ function makeWorldLandscape(){
 
  // Единая каменная поверхность: тонкие слои породы, прожилки и минеральные включения.
  const mountainRockCanvas=document.createElement('canvas');
- mountainRockCanvas.width=mountainRockCanvas.height=512;
+ // 1024px rock atlas keeps the distant alpine faces crisp on high-density phone screens.
+ mountainRockCanvas.width=mountainRockCanvas.height=1024;
  const mountainRockCtx=mountainRockCanvas.getContext('2d');
  mountainRockCtx.fillStyle='#d4d5c9';
- mountainRockCtx.fillRect(0,0,512,512);
+ mountainRockCtx.fillRect(0,0,1024,1024);
  let mountainTextureSeed=472901;
  const mountainRandom=()=>{mountainTextureSeed=(mountainTextureSeed*1664525+1013904223)>>>0;return mountainTextureSeed/4294967296;};
- for(let i=0;i<12500;i++){
-  const x=mountainRandom()*512,y=mountainRandom()*512;
+ for(let i=0;i<30000;i++){
+  const x=mountainRandom()*1024,y=mountainRandom()*1024;
   const shade=105+Math.floor(mountainRandom()*125),alpha=.035+mountainRandom()*.12;
   mountainRockCtx.fillStyle='rgba('+shade+','+(shade+Math.floor(mountainRandom()*5))+','+(shade-5)+','+alpha+')';
-  mountainRockCtx.beginPath();mountainRockCtx.ellipse(x,y,.6+mountainRandom()*2.8,.7+mountainRandom()*2.2,mountainRandom()*Math.PI,0,Math.PI*2);mountainRockCtx.fill();
+  mountainRockCtx.beginPath();mountainRockCtx.ellipse(x,y,1.2+mountainRandom()*5.6,1.4+mountainRandom()*4.4,mountainRandom()*Math.PI,0,Math.PI*2);mountainRockCtx.fill();
  }
- for(let i=0;i<210;i++){
-  const x=mountainRandom()*512,y=mountainRandom()*512,len=12+mountainRandom()*95;
+ for(let i=0;i<420;i++){
+  const x=mountainRandom()*1024,y=mountainRandom()*1024,len=24+mountainRandom()*190;
   mountainRockCtx.strokeStyle=i%3===0?'rgba(67,76,67,.17)':'rgba(248,244,224,.22)';
-  mountainRockCtx.lineWidth=.45+mountainRandom()*1.1;
+  mountainRockCtx.lineWidth=.9+mountainRandom()*2.2;
   mountainRockCtx.beginPath();mountainRockCtx.moveTo(x,y);
-  mountainRockCtx.lineTo(x+len,y+(mountainRandom()-.5)*8);mountainRockCtx.stroke();
+  mountainRockCtx.lineTo(x+len,y+(mountainRandom()-.5)*16);mountainRockCtx.stroke();
  }
  const mountainRockMap=new THREE.CanvasTexture(mountainRockCanvas);
  mountainRockMap.colorSpace=THREE.SRGBColorSpace;
@@ -1775,10 +1776,10 @@ function makeWorldLandscape(){
  mountainRockMap.minFilter=THREE.LinearMipmapLinearFilter;
  mountainRockMap.magFilter=THREE.LinearFilter;
  const mountainBumpCanvas=document.createElement('canvas');
- mountainBumpCanvas.width=mountainBumpCanvas.height=512;
+ mountainBumpCanvas.width=mountainBumpCanvas.height=1024;
  const mountainBumpCtx=mountainBumpCanvas.getContext('2d',{willReadFrequently:true});
  mountainBumpCtx.drawImage(mountainRockCanvas,0,0);
- const mountainBumpPixels=mountainBumpCtx.getImageData(0,0,512,512),mountainBumpData=mountainBumpPixels.data;
+ const mountainBumpPixels=mountainBumpCtx.getImageData(0,0,1024,1024),mountainBumpData=mountainBumpPixels.data;
  for(let i=0;i<mountainBumpData.length;i+=4){
   const lum=(mountainBumpData[i]*.2126+mountainBumpData[i+1]*.7152+mountainBumpData[i+2]*.0722)/255;
   const value=Math.round(THREE.MathUtils.clamp(.5+(lum-.5)*1.42,0,1)*255);
