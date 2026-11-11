@@ -1281,6 +1281,15 @@ function makeWorldDecor(){
     const p2=new THREE.Vector3(r2*Math.cos(angle),.02+gateSpring+r2*Math.sin(angle),z);
     const seam=new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(p1,p2),1,.012,6,false),fenceStone);
     fenceNoShadow(seam);world.add(seam);
+    // Малые кованые медальоны на лицевой стороне каждого клиновидного блока.
+    // Они подчёркивают радиальную раскладку камней, не меняя контур и габариты портала.
+    const ornamentAngle=angle-Math.PI/24;
+    const ornament=new THREE.Mesh(new THREE.TorusGeometry(.047,.009,6,18),fenceGoldLight);
+    ornament.position.set(2.67*Math.cos(ornamentAngle),.02+gateSpring+2.67*Math.sin(ornamentAngle),gateFrontZ+.607);
+    fenceNoShadow(ornament);world.add(ornament);
+    const ornamentCore=new THREE.Mesh(new THREE.SphereGeometry(.018,8,6),fenceTeal);
+    ornamentCore.position.set(ornament.position.x,ornament.position.y,gateFrontZ+.613);
+    fenceNoShadow(ornamentCore);world.add(ornamentCore);
   }
   // Парные прямые устои с панелями, как на изображении: цоколь, ствол, капитель и широкая плита.
   for(const side of [-1,1]){
