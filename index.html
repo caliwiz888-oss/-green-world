@@ -2063,6 +2063,65 @@ function makeWorldLandscape(){
   streak.position.set(x,y,z);streak.rotation.z=rz;mountainWorld.add(streak);
  }
 
+ // Ледниковые языки спускаются по теневым кулуарам отдельными неровными лентами.
+ const glacierTongueMat=new THREE.MeshStandardMaterial({
+  color:0xc8e0e2,roughness:.42,metalness:.015,transparent:true,opacity:.62,
+  depthWrite:false,side:THREE.DoubleSide
+ });
+ const glacierShadowMat=new THREE.MeshBasicMaterial({
+  color:0x607e89,transparent:true,opacity:.24,depthWrite:false,side:THREE.DoubleSide
+ });
+ const addGlacierTongue=(contour,z)=>{
+  const shape=new THREE.Shape();shape.moveTo(contour[0][0],contour[0][1]);
+  for(let i=1;i<contour.length;i++)shape.lineTo(contour[i][0],contour[i][1]);
+  shape.closePath();
+  const shadow=new THREE.Mesh(new THREE.ShapeGeometry(shape),glacierShadowMat);
+  shadow.position.set(0,-.13,z-.035);shadow.renderOrder=2;mountainWorld.add(shadow);
+  const tongue=new THREE.Mesh(new THREE.ShapeGeometry(shape),glacierTongueMat);
+  tongue.position.z=z;tongue.renderOrder=3;tongue.name='GREEN_WORLD_Glacier_Tongue';
+  tongue.castShadow=false;tongue.receiveShadow=false;mountainWorld.add(tongue);
+ };
+ addGlacierTongue([[-33,12.8],[-31.5,11.5],[-30.8,9.8],[-29.2,8.7],[-29.8,7.1],[-28.4,5.8],[-29.1,4.5],[-30.8,5.3],[-31.6,6.9],[-33.1,8.1],[-34.2,10.2]],-75.22);
+ addGlacierTongue([[22,13.1],[23.5,11.7],[24.1,10.2],[25.7,8.8],[25.2,7.4],[26.8,6.1],[25.7,4.7],[24.4,5.8],[23.1,7.1],[22.6,8.7],[21.2,10.5]],-75.18);
+ addGlacierTongue([[58,8.2],[59.2,7.1],[60.3,5.7],[61.8,4.8],[61.1,3.6],[59.7,4.3],[58.6,5.4],[57.2,6.6]],-75.14);
+
+ // Каменные морены у подножия хребтов: небольшие сглаженные валуны,
+ // собранные в разорванные группы, вне двора и речного русла.
+ const moraineGeometry=new THREE.SphereGeometry(1,9,7);
+ const moraineMaterials=[
+  new THREE.MeshStandardMaterial({color:0x647a76,roughness:1,flatShading:true}),
+  new THREE.MeshStandardMaterial({color:0x82918a,roughness:1,flatShading:true}),
+  new THREE.MeshStandardMaterial({color:0x4e6665,roughness:1,flatShading:true})
+ ];
+ const moraineGroups=[
+  {x:-91,z:-68.38,count:8},{x:-69,z:-68.42,count:7},
+  {x:-43,z:-68.36,count:8},{x:-12,z:-68.40,count:7},
+  {x:19,z:-68.38,count:8},{x:48,z:-68.42,count:7},
+  {x:76,z:-68.36,count:8},{x:96,z:-68.40,count:7}
+ ];
+ let moraineSeed=918273;
+ const moraineRandom=()=>{moraineSeed=(moraineSeed*1664525+1013904223)>>>0;return moraineSeed/4294967296;};
+ for(let materialIndex=0;materialIndex<moraineMaterials.length;materialIndex++){
+  const count=moraineGroups.reduce((sum,g)=>sum+g.count,0);
+  const stones=new THREE.InstancedMesh(moraineGeometry,moraineMaterials[materialIndex],count);
+  const dummy=new THREE.Object3D();let index=0;
+  for(const group of moraineGroups){
+   for(let j=0;j<group.count;j++){
+    if((j+materialIndex)%3!==materialIndex)continue;
+    const x=group.x+(moraineRandom()-.5)*9;
+    const y=-5.35+moraineRandom()*.72;
+    const z=group.z+(moraineRandom()-.5)*.8;
+    const radius=.28+moraineRandom()*.48;
+    dummy.position.set(x,y,z);
+    dummy.rotation.set(moraineRandom()*.24,moraineRandom()*Math.PI,moraineRandom()*.18);
+    dummy.scale.set(radius*(1.15+moraineRandom()*.55),radius*(.48+moraineRandom()*.38),radius*(.72+moraineRandom()*.48));
+    dummy.updateMatrix();stones.setMatrixAt(index++,dummy.matrix);
+   }
+  }
+  stones.count=index;stones.instanceMatrix.needsUpdate=true;
+  stones.name='GREEN_WORLD_Foreland_Moraine_'+materialIndex;
+  stones.castShadow=false;stones.receiveShadow=false;mountainWorld.add(stones);
+ }
  // Fine high-altitude cirrus wisps add depth to the sky while staying translucent.
  const cirrusMat=new THREE.MeshBasicMaterial({color:0xf4f7f2,transparent:true,opacity:.085,depthWrite:false,fog:false});
  for(const [x,y,z,sx,sy,sz,rz] of [[-27,29,-53,8,.16,.62,-.08],[-8,31,-61,10,.13,.48,.035],[12,28,-57,7,.14,.55,-.045],[29,26,-49,6,.12,.42,.07]]){
