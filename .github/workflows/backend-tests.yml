@@ -29,9 +29,11 @@ jobs:
         working-directory: backend
         run: npm test
       - name: Check server syntax
+        if: always()
         working-directory: backend
         run: node --check server.js
       - name: Check frontend module syntax
+        if: always()
         run: |
           python3 - <<'PY'
           from pathlib import Path
