@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261111-slate-roof-metal-detail-56';
+const GREEN_WORLD_BUILD_ID = '20261111-slate-roof-fasteners-57';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3436,6 +3436,26 @@ for(const material of [...copperMats,copperBright,copperDark]){
     edge.castShadow=false;edge.receiveShadow=false;t.add(edge);
    }
   }
+  // Низкопрофильные заклёпки фиксируют сланцевые панели к каркасу купола.
+  // Инстансирование сохраняет плавный силуэт и добавляет мелкий архитектурный масштаб.
+  const roofFastenerGeometry=new THREE.SphereGeometry(.022,8,6);
+  const roofFastenerMaterial=new THREE.MeshStandardMaterial({
+   color:0x9aabb8,metalness:.58,roughness:.48,envMapIntensity:.62
+  });
+  const roofFasteners=new THREE.InstancedMesh(roofFastenerGeometry,roofFastenerMaterial,144);
+  const roofFastenerMatrix=new THREE.Matrix4();
+  let roofFastenerIndex=0;
+  for(let row=0;row<9;row++){
+   const y=towerRoofY+towerRoofH*(row+.52)/10;
+   for(let j=0;j<16;j++){
+    const angle=(j+.5)*Math.PI*2/16;
+    const point=towerRoofPoint(y,angle,.042);
+    roofFastenerMatrix.makeTranslation(point.x,point.y,point.z);
+    roofFasteners.setMatrixAt(roofFastenerIndex++,roofFastenerMatrix);
+   }
+  }
+  roofFasteners.instanceMatrix.needsUpdate=true;
+  roofFasteners.castShadow=false;roofFasteners.receiveShadow=false;t.add(roofFasteners);
   cylinder(t,.075,.075,.22,0,7.85,0,goldRoof,16);
   sphere(t,.11,0,8.01,0,goldRoof,.9);
   cone(t,.06,.22,0,8.18,0,goldRoof,16);
