@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261111-slate-roof-fasteners-57';
+const GREEN_WORLD_BUILD_ID = '20261111-bridge-keystone-relief-58';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -973,6 +973,15 @@ function makeWorldDecor(){
       const keystone=box(world,.48,.29,.34,side*1.91,.69,crownZ,
         voussoirMaterials[(span+1)%voussoirMaterials.length],false);
       keystone.rotation.x=-Math.atan(bridgeSlope((span+.5)/3));
+      // Резной ромб на лицевой стороне замкового камня подчёркивает центр каждого пролёта.
+      // Шесть накладок повторяют светлый известняк и не выступают за ширину арки.
+      const keystoneRelief=new THREE.Mesh(new THREE.OctahedronGeometry(.125,0),bridgeStoneLight);
+      keystoneRelief.scale.set(.78,1.18,.34);
+      keystoneRelief.position.set(side*2.145,.69,crownZ);
+      keystoneRelief.castShadow=false;keystoneRelief.receiveShadow=false;world.add(keystoneRelief);
+      const keystoneCore=new THREE.Mesh(new THREE.SphereGeometry(.036,10,8),bridgeStoneShade);
+      keystoneCore.position.set(side*2.19,.69,crownZ);
+      keystoneCore.castShadow=false;keystoneCore.receiveShadow=false;world.add(keystoneCore);
     }
     // Массивные простенки между пролётами формируют цельный каменный мост.
     for(let support=0;support<=3;support++){
