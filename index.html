@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#91c6df">
 <script>
 // Force Telegram WebView onto the current frontend build from either entry host.
-const GREEN_WORLD_BUILD_ID = '20261111-mountain-relief-pass-55';
+const GREEN_WORLD_BUILD_ID = '20261111-slate-roof-metal-detail-56';
 if (location.hostname === 'caliwiz888-oss.github.io') {
   const target = new URL('https://green-world-game.onrender.com/');
   const incoming = new URLSearchParams(location.search);
@@ -3234,6 +3234,25 @@ for(const material of [...copperMats,copperBright,copperDark]){
   }
  }
  manorEaveStuds.castShadow=false;manorEaveStuds.receiveShadow=false;center.add(manorEaveStuds);
+ // Небольшие бронзовые заклёпки на лицевых рядах сланца подчёркивают ручное крепление плиток.
+ // Детали лежат на существующей плоскости ската и не меняют силуэт или габариты крыши.
+ const slateFasteners=new THREE.InstancedMesh(
+  new THREE.SphereGeometry(.021,8,6),
+  new THREE.MeshStandardMaterial({color:0xb88d48,metalness:.68,roughness:.34,envMapIntensity:.82}),
+  24
+ );
+ const slateFastenerMatrix=new THREE.Matrix4();
+ let slateFastenerIndex=0;
+ for(const side of [-1,1]){
+  for(let row=1;row<=12;row++){
+   const t=row/13;
+   const x=side*manorRoofHalf*t;
+   const y=manorRoofPeakY+(manorRoofEaveY-manorRoofPeakY)*t+.024;
+   slateFastenerMatrix.makeTranslation(x,y,manorRoofFrontZ+.028);
+   slateFasteners.setMatrixAt(slateFastenerIndex++,slateFastenerMatrix);
+  }
+ }
+ slateFasteners.castShadow=false;slateFasteners.receiveShadow=false;center.add(slateFasteners);
  sphere(center,.085,0,manorRoofPeakY+.045,manorRoofFrontZ,manorRoofGold,.9);
  cone(center,.045,.16,0,manorRoofPeakY+.16,manorRoofFrontZ,manorRoofGold,12);
  // Две башни по утверждённому эталону: выразительное каменное основание,
