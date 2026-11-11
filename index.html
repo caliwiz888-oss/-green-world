@@ -1159,6 +1159,27 @@ function makeWorldDecor(){
       const upperCore=new THREE.Mesh(new THREE.SphereGeometry(.052,12,10),fenceTeal);
       upperCore.position.set(x,1.30,depth/2+.12);
       upperCore.scale.set(1,1,.38);fenceNoShadow(upperCore);panel.add(upperCore);
+      // Небольшие кованые манжеты и S-образные завитки на лицевой стороне каменных опор.
+      // Они лежат на поверхности кладки и не заходят в свободный проём арки.
+      for(const bandY of [.84,1.12]){
+        fenceNoShadow(box(panel,.29,.025,.022,x,bandY,depth/2+.105,fenceGold,false));
+        fenceNoShadow(box(panel,.25,.012,.012,x,bandY+.018,depth/2+.119,fenceGoldLight,false));
+      }
+      for(const flourishSide of [-1,1]){
+        const fx=x+flourishSide*.095,fz=depth/2+.132;
+        const flourishCurve=new THREE.CatmullRomCurve3([
+          new THREE.Vector3(fx-flourishSide*.035,.88,fz),
+          new THREE.Vector3(fx+flourishSide*.035,.93,fz),
+          new THREE.Vector3(fx+flourishSide*.035,1.00,fz),
+          new THREE.Vector3(fx-flourishSide*.035,1.055,fz),
+          new THREE.Vector3(fx-flourishSide*.025,1.105,fz)
+        ]);
+        const flourish=new THREE.Mesh(new THREE.TubeGeometry(flourishCurve,18,.012,6,false),fenceIronLight);
+        fenceNoShadow(flourish);panel.add(flourish);
+        const leaf=new THREE.Mesh(new THREE.ConeGeometry(.022,.075,6),fenceGoldLight);
+        leaf.position.set(fx-flourishSide*.025,1.125,fz);
+        leaf.rotation.z=-flourishSide*.48;fenceNoShadow(leaf);panel.add(leaf);
+      }
       // Тонкие светлые плечики капители подчёркивают переход от колонны к арке.
       fenceNoShadow(box(panel,.39,.045,depth+.13,x,1.405,0,fenceIvory,false));
       fenceNoShadow(box(panel,.45,.035,depth+.16,x,1.455,0,fenceGoldLight,false));
