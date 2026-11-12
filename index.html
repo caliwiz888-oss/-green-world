@@ -1764,11 +1764,21 @@ function makeWorldLandscape(){
   rockCtx.fillStyle='rgba('+shade+','+(shade+2)+','+(shade-2)+','+alpha+')';
   rockCtx.beginPath();rockCtx.ellipse(x,y,.45+rockRand()*1.7,1.1+rockRand()*5.8,(rockRand()-.5)*.16,0,Math.PI*2);rockCtx.fill();
  }
- for(let i=0;i<720;i++){
-  const x=rockRand()*512,y=rockRand()*512,len=5+rockRand()*42;
-  rockCtx.strokeStyle=i%2?'rgba(18,25,25,.18)':'rgba(155,164,157,.035)';
-  rockCtx.lineWidth=.5+rockRand()*1.35;
-  rockCtx.beginPath();rockCtx.moveTo(x,y);rockCtx.lineTo(x+(rockRand()-.5)*len*.35,y+len);rockCtx.stroke();
+ // Нерегулярные тёмные вертикальные прожилки внутри текстуры, без белых контуров и геометрических накладок.
+ for(let i=0;i<360;i++){
+  const x=rockRand()*512,y=rockRand()*512,len=12+rockRand()*76;
+  const drift=(rockRand()-.5)*len*.22;
+  rockCtx.strokeStyle='rgba(12,19,18,'+(.025+rockRand()*.055)+')';
+  rockCtx.lineWidth=.35+rockRand()*.8;
+  rockCtx.beginPath();rockCtx.moveTo(x,y);
+  rockCtx.bezierCurveTo(x+drift*.35,y+len*.28,x-drift*.2,y+len*.68,x+drift,y+len);
+  rockCtx.stroke();
+ }
+ // Мягкие пятна минеральной неоднородности: мелкие, размытые и малоконтрастные.
+ for(let i=0;i<2400;i++){
+  const x=rockRand()*512,y=rockRand()*512,r=.35+rockRand()*1.8;
+  rockCtx.fillStyle=rockRand()>.52?'rgba(9,15,14,.035)':'rgba(145,154,148,.025)';
+  rockCtx.beginPath();rockCtx.arc(x,y,r,0,Math.PI*2);rockCtx.fill();
  }
  const rockMap=new THREE.CanvasTexture(rockCanvas);
  rockMap.colorSpace=THREE.SRGBColorSpace;
@@ -1777,7 +1787,7 @@ function makeWorldLandscape(){
  rockMap.generateMipmaps=true;rockMap.minFilter=THREE.LinearMipmapLinearFilter;
  // Высокодетальная матовая поверхность: цветная карта одновременно задаёт микрорельеф.
  const rockMaterial=new THREE.MeshStandardMaterial({
-  color:0x59615e,map:rockMap,bumpMap:rockMap,bumpScale:.12,
+  color:0x59615e,map:rockMap,bumpMap:rockMap,bumpScale:.17,
   roughness:1,metalness:0,flatShading:false,side:THREE.DoubleSide
  });
  const makeRidge=(name,z,baseColor,peaks,depth,opacity=1)=>{
