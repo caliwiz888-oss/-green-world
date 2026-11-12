@@ -1806,9 +1806,22 @@ function makeWorldLandscape(){
    for(let j=1;j<facePoints.length;j++)faceShape.lineTo(facePoints[j][0],facePoints[j][1]);
    faceShape.closePath();
    const faceGeo=new THREE.ShapeGeometry(faceShape,1);
-   const shade=i%3===0?0x77817c:(i%3===1?0x414b49:0x5d6864);
+   // Более глубокая графитовая палитра: освещённые грани остаются каменно-серыми,
+   // но не выбеливаются; тёмные плоскости подчёркивают вертикальный рельеф.
+   const shade=i%3===0?0x626d68:(i%3===1?0x303a38:0x48534f);
    const face=new THREE.Mesh(faceGeo,new THREE.MeshStandardMaterial({color:shade,roughness:1,metalness:0,flatShading:true,side:THREE.DoubleSide}));
    face.position.z=z+depth+.012;face.castShadow=false;face.receiveShadow=false;mountainWorld.add(face);
+
+   // Узкая боковая грань формирует резкий переход от освещённой стены к глубокой тени.
+   const shadowShape=new THREE.Shape();
+   shadowShape.moveTo(p[0],p[1]-.08);
+   shadowShape.lineTo(p[0]+width*.58,p[1]-(p[1]-(-5))*.58);
+   shadowShape.lineTo(p[0]+width*.25,-5.6);
+   shadowShape.lineTo(p[0]+width*.04,-2.8);
+   shadowShape.closePath();
+   const shadowFace=new THREE.Mesh(new THREE.ShapeGeometry(shadowShape,1),
+    new THREE.MeshStandardMaterial({color:0x26312f,roughness:1,metalness:0,flatShading:true,side:THREE.DoubleSide}));
+   shadowFace.position.z=z+depth+.019;shadowFace.castShadow=false;shadowFace.receiveShadow=false;mountainWorld.add(shadowFace);
   }
   // Узкие тёмные вертикальные трещины, не пересекающие силуэт пиков.
   const cracks=[],highlightStrata=[];
