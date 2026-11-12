@@ -1893,9 +1893,10 @@ function makeWorldLandscape(){
    const w=.22+seamRand()*1.15,h=.35+seamRand()*1.9;
    const zf=z+depth+.064;
    const skew=(seamRand()-.5)*w*.8;
-   facetVertices.push(x-w,y,x+skew,y-h,x+w,y-.18,x+skew*.2,y+h*.45);
+   const v0=[x-w,y],v1=[x+skew,y-h],v2=[x+w,y-.18],v3=[x+skew*.2,y+h*.45];
+   facetVertices.push(...v0,zf,...v1,zf,...v2,zf,...v0,zf,...v2,zf,...v3,zf);
    const c=facetPalette[Math.floor(seamRand()*facetPalette.length)];
-   facetColors.push(...c,...c,...c,...c);
+   facetColors.push(...c,...c,...c,...c,...c,...c);
   }
   const facetGeo=new THREE.BufferGeometry();
   facetGeo.setAttribute('position',new THREE.Float32BufferAttribute(facetVertices,3));
