@@ -1882,6 +1882,29 @@ function makeWorldLandscape(){
   fractureGeo.computeVertexNormals();
   const fractureMesh=new THREE.Mesh(fractureGeo,new THREE.MeshBasicMaterial({color:0x303a37,transparent:true,opacity:.22,side:THREE.DoubleSide}));
   fractureMesh.name='GREEN_WORLD_Rock_MicroFracture_Planes_'+name;mountainWorld.add(fractureMesh);
+
+  // Тонкая мозаика естественных скальных плоскостей: небольшие вытянутые
+  // полигоны дают камню неоднородный рельеф, не превращая поверхность в шум.
+  const facetVertices=[],facetColors=[];
+  const facetPalette=[[.19,.23,.22],[.25,.29,.27],[.34,.38,.35],[.42,.46,.42],[.14,.18,.17]];
+  for(let n=0;n<280;n++){
+   const x=-108+seamRand()*216,top=surfaceY(x);
+   const y=-6.1+seamRand()*Math.max(.2,top+5.3);
+   const w=.22+seamRand()*1.15,h=.35+seamRand()*1.9;
+   const zf=z+depth+.064;
+   const skew=(seamRand()-.5)*w*.8;
+   facetVertices.push(x-w,y,x+skew,y-h,x+w,y-.18,x+skew*.2,y+h*.45);
+   const c=facetPalette[Math.floor(seamRand()*facetPalette.length)];
+   facetColors.push(...c,...c,...c,...c);
+  }
+  const facetGeo=new THREE.BufferGeometry();
+  facetGeo.setAttribute('position',new THREE.Float32BufferAttribute(facetVertices,3));
+  facetGeo.setAttribute('color',new THREE.Float32BufferAttribute(facetColors,3));
+  const facetMesh=new THREE.Mesh(facetGeo,new THREE.MeshBasicMaterial({
+   vertexColors:true,transparent:true,opacity:.22,side:THREE.DoubleSide,depthWrite:false
+  }));
+  facetMesh.name='GREEN_WORLD_Rock_Subtle_Faceted_Microgeometry_'+name;
+  facetMesh.position.z=0;mountainWorld.add(facetMesh);
  };
  const farPeaks=[
   [-108,2],[-101,7],[-96,1],[-89,5],[-82,2],[-75,10],[-69,3],[-62,7],[-56,1],[-49,9],[-43,3],[-36,12],[-30,4],[-23,10],[-17,2],[-10,13],[-4,4],[3,9],[10,3],[17,12],[23,4],[30,10],[37,2],[44,8],[51,3],[58,11],[64,4],[71,9],[78,2],[85,7],[92,1],[99,6],[106,2],[112,-7]
