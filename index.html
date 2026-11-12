@@ -1766,7 +1766,7 @@ function makeWorldLandscape(){
  }
  for(let i=0;i<720;i++){
   const x=rockRand()*512,y=rockRand()*512,len=5+rockRand()*42;
-  rockCtx.strokeStyle=i%2?'rgba(18,25,25,.23)':'rgba(190,198,190,.16)';
+  rockCtx.strokeStyle=i%2?'rgba(18,25,25,.18)':'rgba(155,164,157,.035)';
   rockCtx.lineWidth=.5+rockRand()*1.35;
   rockCtx.beginPath();rockCtx.moveTo(x,y);rockCtx.lineTo(x+(rockRand()-.5)*len*.35,y+len);rockCtx.stroke();
  }
@@ -1777,7 +1777,7 @@ function makeWorldLandscape(){
  rockMap.generateMipmaps=true;rockMap.minFilter=THREE.LinearMipmapLinearFilter;
  // Высокодетальная матовая поверхность: цветная карта одновременно задаёт микрорельеф.
  const rockMaterial=new THREE.MeshStandardMaterial({
-  color:0x59615e,map:rockMap,bumpMap:rockMap,bumpScale:.24,
+  color:0x59615e,map:rockMap,bumpMap:rockMap,bumpScale:.12,
   roughness:1,metalness:0,flatShading:true,side:THREE.DoubleSide
  });
  const makeRidge=(name,z,baseColor,peaks,depth,opacity=1)=>{
@@ -1824,22 +1824,17 @@ function makeWorldLandscape(){
    shadowFace.position.z=z+depth+.019;shadowFace.castShadow=false;shadowFace.receiveShadow=false;mountainWorld.add(shadowFace);
   }
   // Узкие тёмные вертикальные трещины, не пересекающие силуэт пиков.
-  const cracks=[],highlightStrata=[];
+  const cracks=[];
   // Частые вертикальные разломы и светлые минеральные жилы повторяют направление скальных стен.
   for(let i=0;i<peaks.length;i++){
    const p=peaks[i],h=Math.max(2.2,(p[1]+6)*(.34+(i%4)*.075)),lean=(i%4===0?-.62:(i%3===0?.38:-.24));
    const xOffset=((i*17)%9)*.16;
    cracks.push(p[0]+xOffset,p[1]-.2,z+depth+.045,p[0]+xOffset+lean,p[1]-h,z+depth+.045);
-   if(i%2===0)highlightStrata.push(p[0]-xOffset*.5,p[1]-.7,z+depth+.05,p[0]-xOffset*.5-lean*.48,p[1]-h*.72,z+depth+.05);
   }
   const crackGeo=new THREE.BufferGeometry();
   crackGeo.setAttribute('position',new THREE.Float32BufferAttribute(cracks,3));
   const crackLines=new THREE.LineSegments(crackGeo,new THREE.LineBasicMaterial({color:0x222c2b,transparent:true,opacity:.43}));
   crackLines.name='GREEN_WORLD_Rock_Vertical_Strata_'+name;mountainWorld.add(crackLines);
-  const strataGeo=new THREE.BufferGeometry();
-  strataGeo.setAttribute('position',new THREE.Float32BufferAttribute(highlightStrata,3));
-  const strata=new THREE.LineSegments(strataGeo,new THREE.LineBasicMaterial({color:0x9aa29b,transparent:true,opacity:.19}));
-  strata.name='GREEN_WORLD_Rock_Mineral_Veins_'+name;mountainWorld.add(strata);
 
   // Fine geological bedding: broken ledges and short fractured seams across the rock faces.
   const ledgePositions=[],ledgeColors=[];
@@ -1853,20 +1848,20 @@ function makeWorldLandscape(){
   };
   let seamSeed=name==='main'?44119:88103;
   const seamRand=()=>{seamSeed=(seamSeed*1103515245+12345)>>>0;return seamSeed/4294967296;};
-  for(let n=0;n<620;n++){
+  for(let n=0;n<190;n++){
    const x=-109+seamRand()*218,top=surfaceY(x);
    const y=-6.3+seamRand()*Math.max(.2,top+5.5);
-   const len=.35+seamRand()*2.8,slant=(seamRand()-.5)*.9;
+   const len=.25+seamRand()*1.65,slant=(seamRand()-.5)*.55;
    const zf=z+depth+.052;
    ledgePositions.push(x,y,zf,x+len,y+slant,zf);
-   const bright=seamRand()>.58;
-   const c=bright?[.54,.58,.55]:[.075,.095,.09];
+   const bright=seamRand()>.78;
+   const c=bright?[.22,.25,.23]:[.055,.07,.065];
    ledgeColors.push(...c,...c);
   }
   const ledgeGeo=new THREE.BufferGeometry();
   ledgeGeo.setAttribute('position',new THREE.Float32BufferAttribute(ledgePositions,3));
   ledgeGeo.setAttribute('color',new THREE.Float32BufferAttribute(ledgeColors,3));
-  const ledges=new THREE.LineSegments(ledgeGeo,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:.34}));
+  const ledges=new THREE.LineSegments(ledgeGeo,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:.17}));
   ledges.name='GREEN_WORLD_Rock_Broken_Geological_Bedding_'+name;mountainWorld.add(ledges);
 
   // Small angular fracture planes catch light without altering the mountain outline.
@@ -1880,7 +1875,7 @@ function makeWorldLandscape(){
   const fractureGeo=new THREE.BufferGeometry();
   fractureGeo.setAttribute('position',new THREE.Float32BufferAttribute(fractureVertices,3));
   fractureGeo.computeVertexNormals();
-  const fractureMesh=new THREE.Mesh(fractureGeo,new THREE.MeshBasicMaterial({color:0x303a37,transparent:true,opacity:.22,side:THREE.DoubleSide}));
+  const fractureMesh=new THREE.Mesh(fractureGeo,new THREE.MeshBasicMaterial({color:0x303a37,transparent:true,opacity:.13,side:THREE.DoubleSide}));
   fractureMesh.name='GREEN_WORLD_Rock_MicroFracture_Planes_'+name;mountainWorld.add(fractureMesh);
 
   // Тонкая мозаика естественных скальных плоскостей: небольшие вытянутые
