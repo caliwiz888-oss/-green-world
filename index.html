@@ -1827,6 +1827,48 @@ function makeWorldLandscape(){
   strataGeo.setAttribute('position',new THREE.Float32BufferAttribute(highlightStrata,3));
   const strata=new THREE.LineSegments(strataGeo,new THREE.LineBasicMaterial({color:0x9aa29b,transparent:true,opacity:.19}));
   strata.name='GREEN_WORLD_Rock_Mineral_Veins_'+name;mountainWorld.add(strata);
+
+  // Fine geological bedding: broken ledges and short fractured seams across the rock faces.
+  const ledgePositions=[],ledgeColors=[];
+  const ridgeProfile=[[-112,-7],...peaks.map(p=>[p[0],p[1]]),[112,-7]];
+  const surfaceY=(x)=>{
+   for(let k=0;k<ridgeProfile.length-1;k++){
+    const a=ridgeProfile[k],b=ridgeProfile[k+1];
+    if(x>=a[0]&&x<=b[0])return a[1]+(b[1]-a[1])*((x-a[0])/(b[0]-a[0]));
+   }
+   return -7;
+  };
+  let seamSeed=name==='main'?44119:88103;
+  const seamRand=()=>{seamSeed=(seamSeed*1103515245+12345)>>>0;return seamSeed/4294967296;};
+  for(let n=0;n<620;n++){
+   const x=-109+seamRand()*218,top=surfaceY(x);
+   const y=-6.3+seamRand()*Math.max(.2,top+5.5);
+   const len=.35+seamRand()*2.8,slant=(seamRand()-.5)*.9;
+   const zf=z+depth+.052;
+   ledgePositions.push(x,y,zf,x+len,y+slant,zf);
+   const bright=seamRand()>.58;
+   const c=bright?[.54,.58,.55]:[.075,.095,.09];
+   ledgeColors.push(...c,...c);
+  }
+  const ledgeGeo=new THREE.BufferGeometry();
+  ledgeGeo.setAttribute('position',new THREE.Float32BufferAttribute(ledgePositions,3));
+  ledgeGeo.setAttribute('color',new THREE.Float32BufferAttribute(ledgeColors,3));
+  const ledges=new THREE.LineSegments(ledgeGeo,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:.34}));
+  ledges.name='GREEN_WORLD_Rock_Broken_Geological_Bedding_'+name;mountainWorld.add(ledges);
+
+  // Small angular fracture planes catch light without altering the mountain outline.
+  const fractureVertices=[];
+  for(let n=0;n<110;n++){
+   const x=-106+seamRand()*212,top=surfaceY(x);
+   const y=-5.8+seamRand()*Math.max(.2,top+5);
+   const w=.18+seamRand()*.72,h=.16+seamRand()*.95,zf=z+depth+.058;
+   fractureVertices.push(x-w,y,zf,x+w*.7,y-h*.25,zf,x-w*.18,y-h,zf);
+  }
+  const fractureGeo=new THREE.BufferGeometry();
+  fractureGeo.setAttribute('position',new THREE.Float32BufferAttribute(fractureVertices,3));
+  fractureGeo.computeVertexNormals();
+  const fractureMesh=new THREE.Mesh(fractureGeo,new THREE.MeshBasicMaterial({color:0x303a37,transparent:true,opacity:.22,side:THREE.DoubleSide}));
+  fractureMesh.name='GREEN_WORLD_Rock_MicroFracture_Planes_'+name;mountainWorld.add(fractureMesh);
  };
  const farPeaks=[
   [-108,2],[-101,7],[-96,1],[-89,5],[-82,2],[-75,10],[-69,3],[-62,7],[-56,1],[-49,9],[-43,3],[-36,12],[-30,4],[-23,10],[-17,2],[-10,13],[-4,4],[3,9],[10,3],[17,12],[23,4],[30,10],[37,2],[44,8],[51,3],[58,11],[64,4],[71,9],[78,2],[85,7],[92,1],[99,6],[106,2],[112,-7]
