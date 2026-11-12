@@ -1747,8 +1747,9 @@ function makeWorldLandscape(){
  world.add(mountainWorld);
 
  const rockCanvas=document.createElement('canvas');
- rockCanvas.width=rockCanvas.height=512;
+ rockCanvas.width=rockCanvas.height=1024;
  const rockCtx=rockCanvas.getContext('2d');
+ rockCtx.scale(2,2);
  const rockGradient=rockCtx.createLinearGradient(0,0,512,512);
  rockGradient.addColorStop(0,'#737d79');
  rockGradient.addColorStop(.42,'#4e5957');
@@ -1757,13 +1758,13 @@ function makeWorldLandscape(){
  let rockSeed=731927;
  const rockRand=()=>{rockSeed=(rockSeed*1664525+1013904223)>>>0;return rockSeed/4294967296;};
  // Мелкая матовая зернистость и длинные вертикальные прожилки как на исходных скалах.
- for(let i=0;i<14500;i++){
+ for(let i=0;i<38000;i++){
   const x=rockRand()*512,y=rockRand()*512,v=rockRand();
   const shade=v>.5?225:18,alpha=.025+rockRand()*.105;
   rockCtx.fillStyle='rgba('+shade+','+(shade+2)+','+(shade-2)+','+alpha+')';
   rockCtx.beginPath();rockCtx.ellipse(x,y,.45+rockRand()*1.7,1.1+rockRand()*5.8,(rockRand()-.5)*.16,0,Math.PI*2);rockCtx.fill();
  }
- for(let i=0;i<260;i++){
+ for(let i=0;i<720;i++){
   const x=rockRand()*512,y=rockRand()*512,len=5+rockRand()*42;
   rockCtx.strokeStyle=i%2?'rgba(18,25,25,.23)':'rgba(190,198,190,.16)';
   rockCtx.lineWidth=.5+rockRand()*1.35;
@@ -1774,9 +1775,10 @@ function makeWorldLandscape(){
  rockMap.wrapS=rockMap.wrapT=THREE.RepeatWrapping;
  rockMap.anisotropy=Math.min(renderer.capabilities.getMaxAnisotropy(),12);
  rockMap.generateMipmaps=true;rockMap.minFilter=THREE.LinearMipmapLinearFilter;
+ // Высокодетальная матовая поверхность: цветная карта одновременно задаёт микрорельеф.
  const rockMaterial=new THREE.MeshStandardMaterial({
-  color:0x59615e,map:rockMap,roughness:.98,metalness:0,
-  flatShading:true,side:THREE.DoubleSide
+  color:0x59615e,map:rockMap,bumpMap:rockMap,bumpScale:.24,
+  roughness:1,metalness:0,flatShading:true,side:THREE.DoubleSide
  });
  const makeRidge=(name,z,baseColor,peaks,depth,opacity=1)=>{
   const outline=[[-112,-7],...peaks.map(p=>[p[0],p[1]]),[112,-7]];
@@ -1809,15 +1811,22 @@ function makeWorldLandscape(){
    face.position.z=z+depth+.012;face.castShadow=false;face.receiveShadow=false;mountainWorld.add(face);
   }
   // Узкие тёмные вертикальные трещины, не пересекающие силуэт пиков.
-  const cracks=[];
-  for(let i=0;i<peaks.length;i+=2){
-   const p=peaks[i],h=Math.max(2.2,(p[1]+6)*.55),lean=(i%4===0?-.55:.48);
-   cracks.push(p[0],p[1]-.25,z+depth+.035,p[0]+lean,p[1]-h,z+depth+.035);
+  const cracks=[],highlightStrata=[];
+  // Частые вертикальные разломы и светлые минеральные жилы повторяют направление скальных стен.
+  for(let i=0;i<peaks.length;i++){
+   const p=peaks[i],h=Math.max(2.2,(p[1]+6)*(.34+(i%4)*.075)),lean=(i%4===0?-.62:(i%3===0?.38:-.24));
+   const xOffset=((i*17)%9)*.16;
+   cracks.push(p[0]+xOffset,p[1]-.2,z+depth+.045,p[0]+xOffset+lean,p[1]-h,z+depth+.045);
+   if(i%2===0)highlightStrata.push(p[0]-xOffset*.5,p[1]-.7,z+depth+.05,p[0]-xOffset*.5-lean*.48,p[1]-h*.72,z+depth+.05);
   }
   const crackGeo=new THREE.BufferGeometry();
   crackGeo.setAttribute('position',new THREE.Float32BufferAttribute(cracks,3));
-  const crackLines=new THREE.LineSegments(crackGeo,new THREE.LineBasicMaterial({color:0x222c2b,transparent:true,opacity:.32}));
+  const crackLines=new THREE.LineSegments(crackGeo,new THREE.LineBasicMaterial({color:0x222c2b,transparent:true,opacity:.43}));
   crackLines.name='GREEN_WORLD_Rock_Vertical_Strata_'+name;mountainWorld.add(crackLines);
+  const strataGeo=new THREE.BufferGeometry();
+  strataGeo.setAttribute('position',new THREE.Float32BufferAttribute(highlightStrata,3));
+  const strata=new THREE.LineSegments(strataGeo,new THREE.LineBasicMaterial({color:0x9aa29b,transparent:true,opacity:.19}));
+  strata.name='GREEN_WORLD_Rock_Mineral_Veins_'+name;mountainWorld.add(strata);
  };
  const farPeaks=[
   [-108,2],[-101,7],[-96,1],[-89,5],[-82,2],[-75,10],[-69,3],[-62,7],[-56,1],[-49,9],[-43,3],[-36,12],[-30,4],[-23,10],[-17,2],[-10,13],[-4,4],[3,9],[10,3],[17,12],[23,4],[30,10],[37,2],[44,8],[51,3],[58,11],[64,4],[71,9],[78,2],[85,7],[92,1],[99,6],[106,2],[112,-7]
